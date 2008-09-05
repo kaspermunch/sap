@@ -1,0 +1,179 @@
+body {  
+    font-family: verdana, geneva, arial, helvetica, sans-serif;
+    font-size: 12px; 
+    font-style: normal; 
+    text-decoration: none; 
+    font-weight: lighter; 
+}
+
+a {
+    font-style: normal; 
+    font-weight: lighter; 
+}
+
+/* Put a <div class="alignment"> around the alignment table and remove the pre tags. The - signs needs to be replaced for .  Create colors using <font color="red">C</font> Use regexps to catch strethes of the same letter to avoid excess font tags*/
+
+.alignment {
+    font-size:10px;
+}
+
+.alignmentseq {
+    padding:0px; 
+    margin:0px;
+    font-size: 12px;
+    font-family: "Courier New" Courier monospace;
+}
+
+.green {
+    color:#009900;
+}
+
+.center {
+    text-align: center;   
+}
+
+.key {
+    font-size:10px;
+}
+
+.key table {
+    border-style: none;
+    padding: 0px;
+    border-collapse: collapse;
+    margin: 10px;
+}
+
+.key td {
+    padding: 2px 10px 2px 2px;
+}
+
+table {
+    border-style: none;
+    margin: 0px;
+    padding: 0px;
+    border-collapse: collapse;
+}
+
+td {
+    vertical-align: top;
+    padding: 3px;
+}
+
+.ranktable {
+    padding: 0px;   
+}
+
+.quicknavigation {
+    /* background-color: #dddddd; */
+}
+
+.summary {
+    background-color: #ffffff;
+}
+
+.taxonomysummary {
+    background-color: #ffffff;
+    padding-left: 40px;
+    padding-top: 15px;
+}
+
+.clonelist td {
+    padding: 5px;
+}
+
+.header {
+    background-color: #999999;
+}
+
+.dark {
+    background-color: #dddddd;
+}
+
+.light {
+    background-color: #eeeeee;
+}
+
+p { 
+    font-size: 12px;
+    margin-top: 2px;
+    margin-left: 5px;
+}
+
+h1 {
+    font-size: 13pt;
+    line-height: 19pt;
+    background-color: #eeeeee;
+    padding-bottom: 0pt;
+    margin-bottom: 0pt;
+/*     margin-left: 3pt; */
+    padding: 5pt;
+}
+
+h2 {
+    font-size: 11pt;
+    margin-bottom: 0pt;
+    margin-left: 3pt;
+    font-weight: bold
+}
+
+h3 {
+    font-size: 11pt;
+    margin-bottom: 0pt;
+    margin-top: 2pt;
+    margin-left: 3pt;
+    font-weight: bold;
+}
+
+a:active {
+    color: #666666;
+}
+
+a:link {
+    color: #000000;
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #000000;
+    text-decoration: underline;
+}
+
+a:hover {
+    color: #000000;
+    text-decoration: underline;
+}
+
+/*Tooltip*/
+
+span.info{
+	position:relative; /*this is the key*/
+	/*color: silver;
+	font: bold 11px "Trebuchet MS", Verdana, Arial, sans-serif;*/
+	cursor:crosshair;
+	text-decoration: none;
+}
+
+span.info:hover {
+	/* background-color:white; */
+	color: black;
+}
+
+span.info span.tooltip {
+	display:none;
+}
+
+span.info:hover span.tooltip { /*the span will display just on :hover state*/
+    display:block;
+    position:absolute;
+    padding: 3px 3px 3px 6px;
+    top:1ex;
+    left:0;
+    width:1000%;
+/*     border:1px solid black;
+    background-color: #eeeeee; */
+    color:#000;
+    font-size:100%;
+    text-align:left;
+    z-index: 20;
+/* 	opacity: .70; */
+}

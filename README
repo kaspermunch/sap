@@ -1,0 +1,103 @@
+
+DESCRIPTION:
+===================================================================
+
+TaxonoPhy is used to make a statistical assingment of an unknown DNA
+sequence to taxa represented by sequences in GenBank. Each assignment
+is associated with a posterior probility that serve as a confidence in
+the assignment.
+
+
+REQUIREMENTS:
+===================================================================
+
+TaxoniPhy needs the Python interpreter to run: If you are running on
+OSX you have it installed. Otherwise it is easlily downloaded and
+installed from: http://www.activestate.com/products/activepython.
+
+Clustalw2 is used to make alignments of homologues. This is easily
+downloaded and installed from
+ftp://ftp.ebi.ac.uk/pub/software/clustalw2/
+
+The first time you run TaxoniPhy it will check if you have Netblast on
+your system. If not it will download and install it for you.
+
+
+INSTALATION:
+===================================================================
+
+If you have administrator privileges on your machine you type:
+
+python setup.py install
+
+If you do not have administrator privileges or just want to install in
+some non-default directory you make or have a directory
+/lib/python2.4/site-packages (if you use python 2.4) that is in your
+python path. Then you just type:
+
+python setup.py install --prefix=<some_dir>
+
+
+FIREWALL SETTINGS:
+===================================================================
+
+TaxonoPhy relies on netblast to access genbank. If you are behind a
+firewall you may need to configure your firewass settings. The
+following is copied from the netblast documentation.
+
+The setup for NCBI network clients has been greatly simplified. Users,
+not behind a firewall, can use the program after the extraction
+above. For those users behind a firewall, and already use Sequin or
+Entrez, or if your system administrator has already performed the
+setup, they should also be able to start performing searches after
+installation.
+
+If the above are not the case, users will need to make sure that the
+following IP address/port combinations are open in the firewall
+configuration.
+
+IP Address	Port Number
+130.14.29.112	5861
+130.14.29.112	5862
+130.14.29.112	5863
+
+Note: Please refer to 'firewall.html' included in the netblast package
+for details.
+
+In addition to this, users will need to create an .ncbirc file to
+instruct blastcl3 how to make the connection to NCBI. This file should
+contain the information listed below and be placed in the home
+directory. For PC running Windows, the file is named ncbi.ini which
+should be placed under the windows directory.
+
+[NCBI]
+DATA=/home/johndoe/netblast-#.#.#/data
+[CONN]
+FIREWALL=TRUE
+[NET_SERV]
+SRV_CONN_MODE=SERVICE
+
+Note: Replace the path to data directory with the path specific to
+your installation.
+
+We may encounter problems while using blastcl3. The most common cause
+for this problem is firewall configuration related. A representative
+error message generally would contain "[CONN_Open] Cannot open
+connection", "<<< Re-establishing NETBLAST Service >>>", or something
+in that order.
+
+Adding the following two lines in the .ncbirc (or ncbi.ini) file will
+increase the timeout setting and generate more informative messages
+that are useful in debugging the problem:
+
+TIMEOUT=300
+DEBUG_PRINTOUT=DATA
+
+Search related errors from NCBI BLAST server typically are accompanied
+by RID for the relevant searches. Those RIDs should be saved and sent
+to NCBI blast-help@ncbi.nlm.nih.gov for trouble shooting purposes.
+
+
+
+
+
