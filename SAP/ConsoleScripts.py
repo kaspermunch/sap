@@ -6,7 +6,7 @@ from math import floor
 from types import ListType
 
 # BioPython modules:
-from Bio.Nexus import Nexus, Trees, Nodes
+from SAP.Bio.Nexus import Nexus, Trees, Nodes
 
 import Fasta
 
@@ -36,7 +36,7 @@ def sap():
 
     if options.onlinehelp:
         import webbrowser
-        webbrowser.open('http://people.binf.ku.dk/kasper/wiki/SAP.html', new=2, autoraise=1)
+        webbrowser.open('http://ib.berkeley.edu/labs/slatkin/munch/StatisticalAssignmentPackage.html', new=2, autoraise=1)
         sys.exit()
 
     # Make a string of all options except of the ones with a '_'
@@ -78,7 +78,7 @@ def sap():
         # Check that netblast and clustalw2 are installed:
         print "Locating dependencies"
         assertNetblastInstalled()
-        if not findInSystemPath('clustalw2'):
+        if not findOnSystem('clustalw2'):
             print 'clustalw2 is not installed'
             sys.exit()
 

@@ -6,10 +6,9 @@ try:
 except:
    import pickle
 import copy, re, os, sys, warnings, time, warnings, glob
-from Bio.Nexus import Nexus
-#from Bio import Clustalw
-from Bio.EUtils.Datatypes import DBIds
-from Bio.EUtils.ThinClient import ThinClient
+from SAP.Bio.Nexus import Nexus
+from SAP.Bio.EUtils.Datatypes import DBIds
+from SAP.Bio.EUtils.ThinClient import ThinClient
 
 import Fasta
 

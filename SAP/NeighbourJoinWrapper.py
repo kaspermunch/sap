@@ -1,7 +1,7 @@
 
 import sys, os
-from Bio.Nexus import Nexus
-from Bio.Nexus import Trees as NexusTrees
+from SAP.Bio.Nexus import Nexus
+from SAP.Bio.Nexus import Trees as NexusTrees
 
 from UtilityFunctions import *
 import NeighbourJoin

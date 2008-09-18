@@ -4,7 +4,7 @@ try:
 except:
    import pickle
 import sys, os, re, string, copy, random
-from Bio.Nexus import Nexus, Trees, Nodes
+from SAP.Bio.Nexus import Nexus, Trees, Nodes
 
 import Fasta
 

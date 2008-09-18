@@ -39,7 +39,7 @@ class Aligner:
             # Get the best maching homologue fasta record:
             bestMatchFasta = fastaIterator.next()
 
-            if findInSystemPath('clustalw2'):
+            if findOnSystem('clustalw2'):
                 alignment = pairwiseClustalw2(queryFasta.title, queryFasta.sequence, \
                                               bestMatchFasta.title, bestMatchFasta.sequence)
             else:

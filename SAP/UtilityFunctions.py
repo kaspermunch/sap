@@ -1,7 +1,7 @@
 
 import re, random, string, time, sys, os, glob
 from pkg_resources import load_entry_point, get_entry_info, get_entry_map, iter_entry_points, EntryPoint
-from Bio.Nexus import Nexus
+from SAP.Bio.Nexus import Nexus
 
 class Error(Exception):
     """
@@ -40,7 +40,7 @@ def pairwiseClustalw2(id1, sequence1, id2, sequence2):
             os.remove(f)
     return alignment
 
-def findInSystemPath(filename):
+def findOnSystem(filename):
     """
     Finds specified filename in system path.
     """
@@ -54,16 +54,29 @@ def findInSystemPath(filename):
             fileFound = 1
             break
 
+    # Look in sensible places:
     if not fileFound:
-        # Look in sensible places:
+
         if os.name == 'posix' and os.environ.has_key('EXECUTABLEPATH'):
+            # In OSX applications the PATH set by user shell is not available:
             for path in [os.path.join(os.environ['HOME'], 'bin'),'/usr/local/bin/']:
                 if os.path.exists(os.path.join(path, filename)):                    
                     paths.append(path)
-                    os.putenv('PATH', os.pathsep.join(paths))
+                    ## os.putenv('PATH', os.pathsep.join(paths))
+                    os.environ['PATH'] = os.pathsep.join(paths)
                     fileFound = 1
                     break
-        
+
+        if os.name == 'nt':
+            # On windows look in directories under "Program Files":
+            for path in glob.glob(r'C:\Program Files\*'):
+                if os.path.exists(os.path.join(path, filename)):                    
+                    paths.append(path)
+                    ## os.putenv('PATH', os.pathsep.join(paths))
+                    os.environ['PATH'] = os.pathsep.join(paths)
+                    fileFound = 1
+                    break
+                
     if fileFound:
         return os.path.abspath(path)
     else:
@@ -324,7 +337,7 @@ if __name__ == "__main__":
 
 
     import Fasta
-    from Bio import Seq
+    from SAP.Bio import Seq
     fastaFileName = sys.argv[1]
     if not os.path.exists(fastaFileName):
         raise Exception

@@ -44,7 +44,7 @@ class DB:
         # File name used for blast cache
         blastFileName = os.path.join(self.options.blastcache, "%s.%d_%s%s.xml" % (fastaRecord.title,
                                                self.options.maxblasthits, self.options.evaluecutoff, fileSuffix))
-
+        
         if usecache and os.path.exists(blastFileName) and os.path.getsize(blastFileName)>0:
             # Use cached blast result
             if excludelist:

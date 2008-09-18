@@ -4,7 +4,6 @@ except:
    import pickle
 import os, copy
 from math import floor
-# from Bio import Clustalw
 
 import Fasta
 from UtilityFunctions import *

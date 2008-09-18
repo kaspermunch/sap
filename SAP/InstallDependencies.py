@@ -1,6 +1,6 @@
 import zipfile, tempfile, sys, ftplib, urllib, re, os, getpass, tarfile, glob
 
-from UtilityFunctions import findInSystemPath
+from UtilityFunctions import findOnSystem
 
 
 class Download:
@@ -116,7 +116,7 @@ def assertClustalw2Installed(guiParent=None):
         name = 'clustalw2'
 
     msg = "This program depends on %s for aligning homologues.\nIf you have an internet connection SAP can download and install it for you.\nDo you  want to do this now?" % name
-    if findInSystemPath(name):
+    if findOnSystem(name):
         return True
     else:
         if guiParent is None:
@@ -152,7 +152,7 @@ def assertNetblastInstalled(guiParent=None):
         name = 'blastcl3'
 
     msg = "This program depends on %s for searching the GenBank database.\nIf you have an internet connection SAP can download and install it for you.\nDo you  want to do this now?" % name
-    if findInSystemPath(name):
+    if findOnSystem(name):
         return True
     else:
         if guiParent is None:
@@ -294,7 +294,7 @@ def getPackageDict(name, packageRE, ftpURL, ftpDir):
     return packages
 
 def install(name, tmpDirName, tmpFileName, guiParent=None):
-
+    
     # Call the approapriate install function
     success = False
     if os.name in ('posix', 'darwin'):
@@ -324,7 +324,7 @@ def installNetblastOnWindows(tmpDirName, tmpFileName, guiParent=None):
         if fileName == 'blastcl3.exe':
             excecutable = z.read(fileName)
             
-    scriptInstallDir = findInSystemPath('sap')
+    scriptInstallDir = findOnSystem('sap')
     fh = open(os.path.join(scriptInstallDir, 'blastcl3.exe'), 'wb')
     fh.write(excecutable)
     fh.close()

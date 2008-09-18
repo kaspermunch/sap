@@ -7,7 +7,8 @@ except:
 import sys, os, re, string, glob
 from optparse import OptionParser
 
-from Bio.Alphabet import IUPAC
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Nexus import Nexus
 from UtilityFunctions import *
 
 import Fasta
@@ -59,7 +60,6 @@ class Initialize:
                 sys.exit(1)
 
             if self.options.inputformat == 'nexus':
-               from Bio.Nexus import Nexus
                nex = Nexus.Nexus(inputFileName)
                fileContent = ''
                for name, seq in nex.matrix.items():

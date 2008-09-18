@@ -2,7 +2,7 @@
 # Neighbour or trees, built by the neighbour joining algorithm
 
 import os
-from Bio.Nexus import Nexus
+from SAP.Bio.Nexus import Nexus
 import random, copy, sys, re, math
 
 class Error(Exception):
@@ -624,7 +624,7 @@ if __name__ == "__main__":
 #     nj.dumpBootstrapTrees(10, '~/Deskopt/tmp.nex')
 
 
-    ## from Bio.Nexus import Trees as NexusTrees
+    ## from SAP.Bio.Nexus import Trees as NexusTrees
     ## nex = Nexus.Nexus('tmp.nex')
     ## cons = NexusTrees.consensus(nex.trees)
     ## print cons.to_string()

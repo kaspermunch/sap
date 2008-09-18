@@ -6,7 +6,7 @@ except:
 import os, shutil
 from math import floor
 from UtilityFunctions import *
-from Bio.Nexus import Nexus
+from SAP.Bio.Nexus import Nexus
 import NeighbourJoin
 
 class ResultHTML:

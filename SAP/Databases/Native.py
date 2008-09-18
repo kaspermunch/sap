@@ -16,10 +16,10 @@ class DB:
         """
         Opens a premade local data base and builds an index of taxon names.
         """
-        if not findInSystemPath('blastn'):
+        if not findOnSystem('blastn'):
             print 'blastn is not available'
             sys.exit()
-        if not findInSystemPath('xdformat'):
+        if not findOnSystem('xdformat'):
             print 'xdformat is not available'
             sys.exit()
 

@@ -15,12 +15,12 @@ try:
    import cPickle as pickle
 except:
    import pickle
-import sys, re, os, copy, time, glob
+import sys, re, os, copy, time, glob, traceback
 from optparse import OptionParser
 from math import floor
 
 # BioPython modules:
-from Bio.Nexus import Nexus, Trees, Nodes
+from SAP.Bio.Nexus import Nexus, Trees, Nodes
 
 import Fasta
 
@@ -486,7 +486,7 @@ class MyFrame(wx.Frame):
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
 
-        self.webSite = "http://people.binf.ku.dk/kasper/wiki/SAP.html"
+        self.webSite = "http://ib.berkeley.edu/labs/slatkin/munch/StatisticalAssignmentPackage.html"
         # Frame title
         self.SetTitle("Statistical Assignment Package")
 
@@ -739,6 +739,9 @@ class MyFrame(wx.Frame):
            from SAP.Sampling import Barcoder as plugin
         sampler = plugin.Sampler(optionParser.options)
 
+        uniqueDict = {}
+        copyLaterDict = {}
+
         # For each fasta file execute pipeline
         for fastaFileName in inputFiles:
 
@@ -752,13 +755,22 @@ class MyFrame(wx.Frame):
             
             for fastaRecord in fastaIterator:
 
+                homolcompiler = HomolCompiler(optionParser.options)
+                
                 # Discard the header except for the first id word:
                 fastaRecord.title = re.search(r'^(\S+)', fastaRecord.title).group(1)
 
                 print "%s -> %s: " % (fastaFileBaseName, fastaRecord.title)
 
+                # See if the sequence is been encountered before and if so skip it for now:
+                if uniqueDict.has_key(fastaRecord.sequence):
+                    copyLaterDict.setdefault(uniqueDict[fastaRecord.sequence], []).append('%s_%s' % (fastaFileBaseName, fastaRecord.title))
+                    print '\tsequence double - skipping...\n'
+                    continue
+                else:
+                    uniqueDict[fastaRecord.sequence] = '%s_%s' % (fastaFileBaseName, fastaRecord.title)
+
                 # Find homologues: Fasta files and pickled homologyResult objects are written to homologcache
-                homolcompiler = HomolCompiler(optionParser.options)
                 homologyResult = homolcompiler.compileHomologueSet(fastaRecord, fastaFileBaseName)
 
                 if abortEvent():
@@ -767,18 +779,18 @@ class MyFrame(wx.Frame):
                 if homologyResult != None:
                     # The homologyResult object serves as a job carrying the relevant information.
 
-                    aligner.align(os.path.join(self.options.homologcache, homologyResult.homologuesFileName))
+                    aligner.align(os.path.join(optionParser.options.homologcache, homologyResult.homologuesFileName))
 
                     if abortEvent():
                         return jobID
 
-                    sampler.run(os.path.join(self.options.alignmentcache, homologyResult.alignmentFileName))
+                    sampler.run(os.path.join(optionParser.options.alignmentcache, homologyResult.alignmentFileName))
 
                     if abortEvent():
                         return jobID
 
                     treeStatistics = TreeStatistics(optionParser.options)
-                    treeStatistics.runTreeStatistics([os.path.join(self.options.homologcache, homologyResult.homologuesPickleFileName)], generateSummary=False)
+                    treeStatistics.runTreeStatistics([os.path.join(optionParser.options.homologcache, homologyResult.homologuesPickleFileName)], generateSummary=False)
 
         if abortEvent():
             return jobID
@@ -792,10 +804,27 @@ class MyFrame(wx.Frame):
         if abortEvent():
             return jobID
 
+
+        # Make dictionary to map doubles the ones analyzed:
+        doubleToAnalyzedDict = {}
+        for k, l in copyLaterDict.items():
+            doubleToAnalyzedDict.update(dict([[v,k] for v in l]))
+
+        if not options.nocopycache and len(doubleToAnalyzedDict):
+            # Copy cache files for sequences that occoured more than once:
+            print "Copying cached results for %d doubles" % len(doubleToAnalyzedDict)
+            copyCacheForSequenceDoubles(copyLaterDict, options)
+            
+        # Calculate the pairwise differences between sequences in each file:
+        if options.diffs:
+            pairwisediffs = PairWiseDiffs(options)
+            pairwisediffs.runPairWiseDiffs(args)
+            #runPairWiseDiffs(args)
+
         # Summary tree stats:
         print 'Computing tree statistics summary...'
-        treeStatistics = TreeStatistics(optionParser.options)
-        treeStatistics.runTreeStatistics(inputFiles, generateSummary=True)
+        treeStatistics = TreeStatistics(options)
+        treeStatistics.runTreeStatistics(args, generateSummary=True, doubleToAnalyzedDict=doubleToAnalyzedDict)
         print "done"
 
         if abortEvent():
@@ -803,15 +832,34 @@ class MyFrame(wx.Frame):
 
         # Make HTML output:
         print '\tGenerating HTML output...'
-        resultHTML = ResultHTML(optionParser.options)
-        resultHTML.webify([optionParser.options.treestatscache + '/summary.pickle'], fastaFileBaseNames)
+
+        resultHTML = ResultHTML(options)
+        resultHTML.webify([options.treestatscache + '/summary.pickle'], fastaFileBaseNames, doubleToAnalyzedDict, sequenceNameMap)
         print 'done'
 
         return jobID
 
+# 
+#         # Summary tree stats:
+#         print 'Computing tree statistics summary...'
+#         treeStatistics = TreeStatistics(optionParser.options)
+#         treeStatistics.runTreeStatistics(inputFiles, generateSummary=True)
+#         print "done"
+# 
+#         if abortEvent():
+#             return jobID
+# 
+#         # Make HTML output:
+#         print '\tGenerating HTML output...'
+#         resultHTML = ResultHTML(optionParser.options)
+#         resultHTML.webify([optionParser.options.treestatscache + '/summary.pickle'], fastaFileBaseNames)
+#         print 'done'
+# 
+#         return jobID
+
     def onAbortButton(self, event): 
         """Abort the result computation."""
-        print "\n[Aborting: finishing subtask first...]\n"
+        print "\n[Aborting cleanly: the analysis is aborted after completion of current subtask...]\n"
         self.abortB.Enable(False)
         self.abortEvent.set()
         dlg = wx.MessageDialog(self, 'Analysis is aborting after completion of next sub-task. This is ensures that all retrievals and computations are cached. If you want to discard the analysis altogether quit SAP.\n\nIf you want to force abortion you have to quit SAP.', 'Aborting.', wx.OK | wx.ICON_INFORMATION)
@@ -824,6 +872,7 @@ class MyFrame(wx.Frame):
         try:
             result = delayedResult.get()
         except Exception, exc:
+            traceback.print_tb(sys.exc_info()[2])
             print "Result for job %s raised exception: %s" % (jobID, exc)
             return
                 
@@ -1054,7 +1103,29 @@ class MyApp(wx.App):
 
         assertNetblastInstalled(guiParent=frame_1)
 
-        if not findInSystemPath('clustalw2'):
+
+#         dlg = wx.MessageDialog(frame_1, str(os.environ['PATH']), 'ClustalW2 was not found on this computer', wx.OK | wx.ICON_INFORMATION)
+#         dlg.ShowModal()
+#         dlg.Destroy()
+# 
+#         p = findOnSystem('clustalw2')
+# 
+# #         #addToSystemPath(p)
+# # 
+# #         paths = os.environ['PATH'].split(os.pathsep)
+# #         paths.append(p)
+# #         #os.putenv('PATH', os.pathsep.join(paths))
+# #         os.environ['PATH'] = os.pathsep.join(paths)
+# 
+#         dlg = wx.MessageDialog(frame_1, str(os.environ['PATH']), 'ClustalW2 was not found on this computer', wx.OK | wx.ICON_INFORMATION)
+#         dlg.ShowModal()
+#         dlg.Destroy()
+#         sys.exit()
+
+
+
+        
+        if not findOnSystem('clustalw2'):
            dlg = wx.MessageDialog(frame_1, 'SAP uses the sequence alignmnet program ClustalW2 to align homologues so you need to install this before you can run SAP. It if very easlily downloaded and installed from:\n\nftp://ftp.ebi.ac.uk/pub/software/clustalw2', 'ClustalW2 was not found on this computer', wx.OK | wx.ICON_INFORMATION)
            dlg.ShowModal()
            dlg.Destroy()
