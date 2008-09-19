@@ -7,7 +7,8 @@ import os, shutil
 from math import floor
 from UtilityFunctions import *
 from SAP.Bio.Nexus import Nexus
-import NeighbourJoin
+from Sampling.ConstrainedNJ import ConstrainedNJ
+#import NeighbourJoin
 
 class ResultHTML:
 
@@ -273,12 +274,6 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
         writeFile(self.options.resultdir + '/tooltip.css', tooltipCSS)
         writeFile(self.options.resultdir + '/tooltip.js', tooltipJS)
         
-#         shutil.copy('tooltip.css', self.options.resultdir)
-#         shutil.copy('tooltip.js', self.options.resultdir) 
-#         shutil.copy('style.css', self.options.resultdir)
-#         shutil.copy('style.css', self.options.resultdir + '/clones')
-
-
         text = "<h1>Assignment Summary</h1>"
 
         # Explanatory text:
@@ -351,9 +346,6 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                               'Input sequences assigned to taxonomic levels: %s <br>' % len(summary['taxonomyDict'])])
             text += '</div>\n'
 
-#             if len(summary['treeStatFiles']) == 0:
-#                continue
-
             # Make a table for each significance cut-off:
             for significanceLevel in summary['significantRanks']:
                 text += '<br>\n<a name="%s"></a><h3>Assignments at %s level:</h3>\n' % (experiment+significanceLevel[0], significanceLevel[0])
@@ -405,14 +397,6 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                             nClones += 1
                             cloneName = clone["name"]
 
-#                             # Make link red if the MCMCMC did not converge:
-#                             if not self.options.cleanlook and not self.options.fast and summary['avgStdevSplitFreq'][cloneName] > 0.01:
-#                                 cloneNameHtml = '<font color="red">%s</font>&nbsp;&nbsp;%.0f%%' % (cloneName, clone["probability"] * 100)
-# 
-#                                 # Write the query to a list of not converged ones:
-#                                 notConvergedListFile.write(cloneName + "\n")                            
-#                             else:
-#                                 cloneNameHtml = '%s&nbsp;&nbsp;%.0f%%' % (cloneName, clone["probability"] * 100)
                             cloneNameHtml = '%s:&nbsp;&nbsp;%.0f%%' % (self.mapBackQueryName(cloneName, sequenceNameMap).replace(' ', '_'), clone["probability"] * 100)
 
                             # Add a number in square brackets for number of significant homologues if this number is below 5:
@@ -421,13 +405,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
 
 
                             # Add percentages of min taxon prob and min homologue prob if database is not reported exhausted:
-                            #if not summary['dbExhausted'][cloneName] or Taxonomy.levelRanks[summary['exhaustionLevel'][cloneName]] < Taxonomy.levelRanks[rank]:
                             if not self.options.cleanlook and not summary['dbExhausted'][cloneName]:
-                                #cloneNameHtml += '&nbsp;&nbsp;' + '<span class="info"><font color="red">NE</font><span class="tooltip">Database not exhausted</span></span>'
-#                                 if self.options.sampler == 'CNJ':
-#                                    minFraction = 1.0 / self.options.bootstraps
-#                                 else:
-#                                    minFraction = 1.0 / (self.options.mcmcgenerations * (1-self.options.mcmcrelburnin))
                                 minFraction = 0.001
                                 if summary['lowestHomolProb'][cloneName] > 0.0001:
                                     cloneNameHtml += '&nbsp;&nbsp;<span class="info"><font color="red">LF:%.1f%%</font><span class="tooltip">Min. homol. prob.: %.5f%%</span></span>' % (summary['lowestHomolProb'][cloneName] * 100, summary['lowestHomolProb'][cloneName] * 100)
@@ -468,7 +446,6 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                     # End table for this rank:
                     text += "</table></td>\n"
 
-
                 # End of container table:
                 text += "</td></tr></table>\n"
 
@@ -484,7 +461,6 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 
         htmlContents = self.createHtml("Summary page", text, header=True)
         writeFile(self.options.resultdir + '/index.html', htmlContents)
-
 
 
     def createStatPage(self, mainSummary):
@@ -586,29 +562,6 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
     def createClonePages(self, mainSummary, fastaFileBaseNames, doubleToAnalyzedDict, sequenceNameMap):
         """Create pages on all individual query sequences"""
 
-#         def similarityScore(seq1, seq2):
-#             assert (len(seq1) == len(seq2))
-#             length = len(seq1)
-#             extraGaps = 0
-#             score = 0
-#             for i in range(0, length):
-#                 if seq1[i] == "-" and seq2[i] == "-":
-#                     extraGaps += 1
-#                     continue
-#                 if seq1[i] == seq2[i]:
-#                     score += 1
-#             ident = float(score)/float(length - extraGaps)
-#             return ident
-
-    #     for geneName in fastaFileBaseNames:
-    #         alignmentMatrices = {}
-    #         alignmentMatrices[geneName] = {}
-    #         alignmentMatrixFileName = "%s/%s" % (self.options.statsdir, "%s_matrix.pickle" % geneName)
-    #         if os.path.exists(alignmentMatrixFileName) and os.path.getsize(alignmentMatrixFileName)>0:
-    #             alignmentMatrixFile = open(alignmentMatrixFileName, 'r')
-    #             alignmentMatrices[geneName] = pickle.load(alignmentMatrixFile)
-    #             alignmentMatrixFile.close()
-
         text = ""
 
         listText = '<div class="clonelist">\n'
@@ -622,49 +575,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
             summary = mainSummary[experiment]
             summary['sequences'].sort()
 
-    #         listText += '<h1>%s: Sequence List</h1>\n<br>\n' % (experiment)
-    #         for name in summary['sequences']:
-    #             listText += '<a href="clones/%s">%s</a><br>\n' % (name + ".html", name)
-
             listText += '<h2>%s:</h2>' % experiment
-
-            ## listText += '<table><tr>'        
-
-            ## cellCount = 2
-            ## nameCount = 0
-
-            ## if len(summary['sequences']) <= 4:
-            ##     nrNamesInOneCell = len(summary['sequences'])
-            ## else:
-            ##     nrNamesInOneCell = int(len(summary['sequences'])/3) + 1
-
-            ## listText += '<td class="dark">'
-
-            ## for name in summary['sequences']:
-
-            ##     if self.options.cleanlook:
-            ##         listText += '<a href="clones/%s">%s</a><br>' % (name + ".html", name)
-            ##     elif not summary['gapsInQuery'].has_key(name):
-            ##         # If the key is not in this dict for with info
-            ##         # about gaps in query the sequence it is because
-            ##         # the treestatistics could not be calculated,
-            ##         #  - probably because the tree sampling failed.
-            ##         listText += '<a href="clones/%s"><del>%s</del></a><br>' % (name + ".html", name)
-            ##     elif summary['gapsInQuery'][name]:
-            ##         listText += '<a href="clones/%s"><font color="red">%s</font></a><br>' % (name + ".html", name)
-            ##     else:
-            ##         listText += '<a href="clones/%s">%s</a><br>' % (name + ".html", name)
-            ##     nameCount += 1
-            ##     if not nameCount % nrNamesInOneCell:
-            ##         if cellCount % 2:
-            ##             listText += '</td><td class="dark">'
-            ##         else:
-            ##             listText += '</td><td class="light">'
-
-            ##         cellCount += 1
-
-            ## listText += '</td></tr></table>\n'
-            ## listText += '</div>\n'
 
             listText += "<p>\n"
             for name in summary['sequences']:
@@ -798,27 +709,17 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 text += "<table style=\"font-size:10px;\">"
 
                 querySeq = alignment.matrix[name].tostring()
-#                 queryLeftBoundary = len(re.search("^(-*)", querySeq).groups()[0])
-#                 queryRightBoundary = len(querySeq) - len(re.search("(-*)$", querySeq).groups()[0])
-#                 score = similarityScore(querySeq[queryLeftBoundary:queryRightBoundary], querySeq[queryLeftBoundary:queryRightBoundary])
                 score = 1.0
 
                 nameForAlignment = self.mapBackQueryName(name, sequenceNameMap)
                 if len(nameForAlignment) > 27:
                    nameForAlignment = nameForAlignment[:27] + '...'
                 text += '<tr><td>%s:</td><td>%.2f</td><td class="alignmentseq">%s</td></tr>\n' % (nameForAlignment, score, markupSequence(querySeq, name))
-                #text += '<tr><td>%s:</td><td>%.2f</td><td class="alignmentseq">%s</td></tr>\n' % (name.strip(), score, markupSequence(querySeq, name))
                 
                 del alignment.matrix[name]
                 scoreKeyAndSeqList = []
                 for key in alignment.matrix.keys():
                     sequence = alignment.matrix[key].tostring()
-#                     # Find similarity in overlapping region:
-#                     homolLeftBoundary = len(re.search("^(-*)", querySeq).groups()[0])
-#                     homolRightBoundary = len(querySeq) - len(re.search("(-*)$", querySeq).groups()[0])
-#                     leftBoundary = max(queryLeftBoundary, homolLeftBoundary)
-#                     rightBoundary = min(queryRightBoundary, homolRightBoundary)
-#                     score = similarityScore(querySeq[leftBoundary:rightBoundary], sequence[leftBoundary:rightBoundary])
                     score = similarityScore(querySeq, sequence)
                     scoreKeyAndSeqList.append([score, sequence, key])
                 scoreKeyAndSeqList.sort(lambda x, y: cmp(y[0], x[0]) or cmp(y[1], x[1]))
@@ -830,45 +731,10 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                             sequence[i] = sequence[i].lower()
                     sequence = ''.join(sequence)    
 
-                    ##<td><span class="info">text<span class="tooltip">tooltiptext.</span></span></td>
                     text += '<tr><td><a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=retrieve&db=Nucleotide&list_uids=%s&dopt=genbank">%s</a>:</td><td>%.2f</td><td class="alignmentseq">%s</td></tr>\n' % (key.split("_")[0], key, score, markupSequence(sequence, key))
 
                 text += "</table>\n"
                 text += "</div>\n"
-
-#                 if not self.options.fast:
-#                     text += '<h2>MrBayes:</h2>\n'
-#                     if summary['avgStdevSplitFreq'][name] < 0.1:
-#                         text += "Average standard deviation of split frequencies: %.6f<br>\n" % summary['avgStdevSplitFreq'][name]
-#                     else:
-#                         text += "Average standard deviation of split frequencies: %.6f<br><font color=\"red\">NB: The MCMCMC did not converge. Consider the --mcmcgenerations option</font> <br>\n" % summary['avgStdevSplitFreq'][name]
-
-
-
-    #             text += '<h2>Identity to other sequences: Full identity</h2>\n'
-    #             if summary['matchingSeqs']["exact"].has_key(name):
-    #                 for name2 in summary['matchingSeqs']["exact"][name]:
-    #                     text += "<a href=%s>%s</a><br>\n" % (name2 + ".html", name2)
-    # 
-    #             text += '<h2>Identity to other sequences: non-exact match (one sequence subsequence of the other)</h2>\n'
-    #             if summary['matchingSeqs']["unequalLengths"].has_key(name):
-    #                 text += 'table>'
-    #                 for name2 in summary['matchingSeqs']["unequalLengths"][name]:
-    #                     if summary['matchingSeqs']["exact"].has_key(name) and summary['matchingSeqs']["exact"][name].has_key(name2):
-    #                         continue
-    #                     text += '<tr><td valign="top"><a href=%s>%s</a></td><br>\n' % (name2 + ".html", name2)
-    #                     geneName= name1.split("_")[0]
-    #                     query1 = name1.split("_")[1]
-    #                     query2 = name2.split("_")[1]
-    #                     if (alignmentMatrices[geneName].has_key(query1) and
-    #                         alignmentMatrices[geneName][query1].has_key(query2) and
-    #                         alignmentMatrices[geneName][query1][query2].has_key('alignedSequences')):
-    #                         text += '<td>'
-    #                         text += '<pre>'+alignmentMatrices[geneName][query1][query2]['alignedSequences'][0] + "</pre><br>\n"
-    #                         text += '<pre>'+alignmentMatrices[geneName][query1][query2]['alignedSequences'][1] + "</pre><br>"
-    #                         text += '</td>'
-    #                     text += '</tr>'
-    #                 text += '</table>'
 
                 htmlContents = self.createHtml("Sequence: %s" % name, text)
 
@@ -894,7 +760,6 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
 
         text = '<h1>Pairwise distance between sequences</h1>\n<br>\n'
 
-        #text += '<div id="t1" class="tip">This is a Javascript Tooltip</div>'
         text += '<p>Similarities are calculated as munber of identical bases divided by the length of the shortest sequence. The sequences are ordered using neighbour joining to help spot clusters. Hover over a cell to see names of sequence pairs.</p>'
 
         for fastaFileBaseName in fastaFileBaseNameList:
@@ -921,24 +786,23 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                     for i in node.succ:
                         consensusTaxonomy = combifyTree(tree, i)
 
-            # run alignment and neighbour joining on each inputfile:
+
             alignmentFileName = os.path.join(self.options.alignmentcache, fastaFileBaseName + ".nex")
             fastaFileName = os.path.join(self.options.datadir, fastaFileBaseName + ".fasta")
             njTreeFileName = os.path.join(self.options.treestatscache, fastaFileBaseName + ".nex")
-            commandLine = "clustalw2 -infile=%s -output=NEXUS -gapopen=50 -outfile=%s &> %s.log" % (fastaFileName, alignmentFileName, alignmentFileName)
-            print 'Aligning and neighbour joiningg to order input sequences in ', fastaFileName
-            os.system(commandLine)
-            if not os.path.exists(alignmentFileName):
-                raise Exception
+
+            from Alignment.Clustalw2 import Aligner
+            aligner = Aligner(self.options)
+            aligner.align(fastaFileName, truncate=False)
+            
             alignment = Nexus.Nexus(alignmentFileName)
             try:
-                nj = NeighbourJoin.NeighbourJoin(alignment)
-                nj.makeTree()
+                nj = ConstrainedNJ(alignment)
                 nj.dumpNexus(njTreeFileName)
                 nexusTree = Nexus.Nexus(njTreeFileName).trees[0]
                 combifyTree(nexusTree, nexusTree.root)
                 nameList = nexusTree.get_taxa()
-            except NeighbourJoin.TooFewAlnBasesError:
+            except:
                 nameList = alignmentMatrix.keys()
                 nameList.sort()
 
@@ -950,7 +814,6 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
             text += '</tr>\n'
 
             for name1 in nameList:
-                #text += '<tr><td>%s</td>' % name1
                 text += '<tr><td><a href="clones/%s_%s">%s</a></td>' % (fastaFileBaseName, name1 + ".html", name1)
                 for name2 in nameList:
                     score = alignmentMatrix[name1][name2]["score"]
@@ -961,9 +824,6 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                     else:
                         scaledScore = 0.0
 
-#                     text += '<div id="%s" class="tip">%s<br><samp>%s</samp><br><samp>%s</samp><br>%s</div>' \
-#                             % (name1+name2, name1, alignmentMatrix[name1][name2]["alignedSequences"][0],
-#                                alignmentMatrix[name1][name2]["alignedSequences"][1], name2)
                     labelText = "&nbsp;&nbsp;" * (len(name1)+1) + name2 + "<br>" + "&nbsp;&nbsp;" * len(name1) + "\<br>" + name1
                     text += '<div id="%s" class="tip"><span>%s</span></div>' % (name1+name2, labelText)
 
@@ -972,12 +832,6 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                                 % (score2Color(scaledScore), name1+name2, name1+name2, score)
                     else:
                         text += '<td></td>'
-
-    #                 # New:
-    #                 if name1 != name2:
-    #                     text += '<td bgcolor="%s" width="3em"><span class="info">%.2f <span class="tooltip">%s<br>%s</span></span></td>' % (score2Color(scaledScore), score, name1, name2)
-    #                 else:
-    #                     text += '<td></td>'
 
                 text += '</tr>\n'            
             text += '</table>\n'

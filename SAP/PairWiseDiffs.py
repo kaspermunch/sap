@@ -81,52 +81,21 @@ class PairWiseDiffs:
                             maximumLength = len(seq2)
                             minimumLength = len(seq1)
 
-                        #mem0 = MemoryUsage.memory()
+                        if key1 == key2:
+                           simScore = 1
+                           matrices[fastaFileBaseName][key1][key2]['alignedSequences'] = (seq1, seq2)
+                           matrices[fastaFileBaseName][key2][key1]['alignedSequences'] = (seq2, seq1)
+                        else:
+                           alignment = pairwiseClustalw2(key1, seq1, key2, seq2)
+                           aligned1 = alignment.matrix[key2].tostring()
+                           aligned2 = alignment.matrix[key2].tostring()
+                           simScore = similarityScore(aligned1, aligned2)
+                           matrices[fastaFileBaseName][key1][key2]['alignedSequences'] = (aligned1, aligned2)
+                           matrices[fastaFileBaseName][key2][key1]['alignedSequences'] = (aligned2, aligned1)
 
-                        tmpBaseName = randomString(8) + '.tmp'
-                        fastaTmpFileName = tmpBaseName + '.fasta'
-                        alignmentTmpFileName = tmpBaseName + '.nex'
-                        dndTmpFileName = tmpBaseName + '.dnd'
-
-                        writeFile(fastaTmpFileName, ">%s\n%s\n>%s\n%s\n" % ('tmp1', seq1, 'tmp2', seq2))
-
-                        cline = Clustalw.MultipleAlignCL(fastaTmpFileName)
-                        cline.set_output(alignmentTmpFileName)
-                        align = Clustalw.do_alignment(cline)
-
-                        os.remove(fastaTmpFileName)
-                        os.remove(alignmentTmpFileName)
-                        os.remove(dndTmpFileName)
-
-                        aligned1 = align.get_seq_by_num(0)
-                        aligned2 = align.get_seq_by_num(1)
-                        assert len(aligned1) == len(aligned2)
-
-#                         alignmentMatches = 0
-#                         for i in range(len(aligned1)):
-#                             if aligned1.data[i] == aligned2.data[i]:
-#                                 alignmentMatches += 1 
-# 
-#                         normalizedScore = float(alignmentMatches)/float(maximumLength)
-#                         normalizedScore_norm_shortest = float(alignmentMatches)/float(minimumLength)
-# 
-#                         matrices[fastaFileBaseName][key1][key2]['alignment'] = normalizedScore
-#                         matrices[fastaFileBaseName][key2][key1]['alignment'] = normalizedScore
-# 
-#                         # alignment_norm_shortest score is normalized based on shortest sequence.
-#                         # This means it gives 100% if sequences are not of the same length but one is contained in the other
-#                         matrices[fastaFileBaseName][key1][key2]['alignment_norm_shortest'] = normalizedScore_norm_shortest
-#                         matrices[fastaFileBaseName][key2][key1]['alignment_norm_shortest'] = normalizedScore_norm_shortest
-
-                        simScore = similarityScore(aligned1.data, aligned2.data)
                         matrices[fastaFileBaseName][key1][key2]['score'] = simScore
                         matrices[fastaFileBaseName][key2][key1]['score'] = simScore
 
-
-                        matrices[fastaFileBaseName][key1][key2]['alignedSequences'] = (aligned1.data, aligned2.data)
-                        matrices[fastaFileBaseName][key2][key1]['alignedSequences'] = (aligned2.data, aligned1.data)
-
-                        #mem1 = MemoryUsage.memory(mem0)
 
                     # Add taxonomy info to the entry if this does not exist:
                     if (not matrices[fastaFileBaseName][key1][key2].has_key('class') or
@@ -235,57 +204,22 @@ class PairWiseDiffs:
                         else:
                             genusScore = None
 
-                    if pairs:
-                        percentage = floor(counter/float(pairs) * 100)
-                        if percentage and not percentage % 10 and percentage != oldPercentage:
-                            print "\t%s: %.0f%%" % (fastaFileBaseName, percentage)
-                            oldPercentage = percentage
+#                     if pairs:
+#                         percentage = floor(counter/float(pairs) * 100)
+#                         if percentage and not percentage % 10 and percentage != oldPercentage:
+#                             print "\t%s: %.0f%%" % (fastaFileBaseName, percentage)
+#                             oldPercentage = percentage
 
                 # Dump the updated version of the matrix:
                 alignmentMatrixFileName = os.path.join(self.options.statsdir, fastaFileBaseName + "_matrix.pickle")
                 alignmentMatrixFile = open(alignmentMatrixFileName, 'w')
                 pickle.dump(matrices[fastaFileBaseName], alignmentMatrixFile)
                 alignmentMatrixFile.close()
-
-    #         # Dump the updated version of the matrix:
-    #         alignmentMatrixFile = open(alignmentMatrixFileName, 'w')
-    #         pickle.dump(matrices[fastaFileBaseName], alignmentMatrixFile)
-    #         alignmentMatrixFile.close()
-
+                
 
     def runPairWiseDiffs(self, fastaFileNames):
 
-        print 'Calculating pairwise diffenrences:'
-
-    #     # Read in fasta sequences into a dictionary:
-    #     completeSets = {}
-    #     for fastaFileName in fastaFileNames:
-    #         baseName = os.path.splitext(os.path.basename(fastaFileName))[0]
-    #         #baseName = os.path.basename(fastaFileName).split(".")[0]
-    #         completeSets[baseName] = {}
-    # 
-    #         fastaFile = open(fastaFileName, 'r')
-    #         fastaIterator = Fasta.Iterator(fastaFile, parser=Fasta.RecordParser())        
-    #         for fastaRecord in fastaIterator:
-    #             newName = safeName(copy.copy(fastaRecord.title))
-    #             #completeSets[baseName][fastaRecord.title.strip()] = fastaRecord.sequence
-    #             completeSets[baseName][newName] = fastaRecord.sequence
-    #         fastaFile.close()
-    # 
-    #     # Load existing alignment matrix
-    #     alignmentMatrices = {}
-    #     for fastaFileBaseName in completeSets.keys():
-    #         if not alignmentMatrices.has_key(fastaFileBaseName):
-    #             alignmentMatrices[fastaFileBaseName] = {}
-    #         
-    #         alignmentMatrixFileName = os.path.join(options.statsdir, fastaFileBaseName + "_matrix.pickle")
-    #         if os.path.exists(alignmentMatrixFileName) and os.path.getsize(alignmentMatrixFileName)>0:
-    #             alignmentMatrixFile = open(alignmentMatrixFileName, 'r')
-    #             alignmentMatrices[fastaFileBaseName] = pickle.load(alignmentMatrixFile)
-    #             alignmentMatrixFile.close()
-    # 
-    #     # Add any new alignments to alignment matrix (and save to them to file)
-    #     self.updateAlignmentMatrix(alignmentMatrices, completeSets, alignmentMatrixFileName)
+        print 'Calculating pairwise diffenrences...',
 
         # Read in fasta sequences into a dictionary:
         completeSets = {}
@@ -316,3 +250,5 @@ class PairWiseDiffs:
 
         # Add any new alignments to alignment matrix (and save to them to file)
         self.updateAlignmentMatrix(alignmentMatrices, completeSets)
+
+        print 'done'

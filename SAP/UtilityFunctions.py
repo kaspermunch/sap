@@ -23,13 +23,16 @@ def pairwiseClustalw2(id1, sequence1, id2, sequence2):
     """
     tmpAlnFileName = os.path.abspath(randomString(6) + ".tmp")
     tmpFastaFileName = tmpAlnFileName + '.fasta'
-#     tmpAlnFileName = randomString(6) + ".tmp"
-#     tmpFastaFileName = tmpAlnFileName + '.fasta'
     tmpFastaFileContents = ">%s\n%s\n>%s\n%s\n" % (id1, sequence1, id2, sequence2)
     writeFile(tmpFastaFileName, tmpFastaFileContents)
-    commandLine = "clustalw2 -infile=%s -output=NEXUS -gapopen=50 -outfile=%s &> %s.log" % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName), os.path.basename(tmpAlnFileName))
-#     commandLine = "clustalw2 -infile=%s -output=NEXUS -gapopen=50 -outfile=%s &> %s.log" % (tmpFastaFileName, tmpAlnFileName, tmpAlnFileName)
+    if os.name == 'nt':
+        commandLine = "clustalw2 %s -output=NEXUS -gapopen=50 -outfile=%s > %s.log" \
+                      % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName), os.path.basename(tmpAlnFileName))
+    else:
+        commandLine = "clustalw2 -infile=%s -output=NEXUS -gapopen=50 -outfile=%s &> %s.log" \
+                      % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName), os.path.basename(tmpAlnFileName))
     os.system(commandLine)
+
     # small bug fix:
     nexusContents = readFile(tmpAlnFileName)
     nexusContents = re.sub("(symbols=\"[^\"]*\")", r"[\1]", nexusContents)

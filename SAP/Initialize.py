@@ -130,7 +130,6 @@ class Initialize:
             for fastaRecord in fastaIterator:            
                 idList.append("%s_%s" %  (baseName, fastaRecord.title))
 
-
         pickleFileName = os.path.join(self.options.project, os.path.split(self.options.project)[1] + '.sap')
 
         if os.path.exists(pickleFileName):
@@ -160,7 +159,7 @@ class Initialize:
                 if option in deleteBlastCacheList and self.options.__dict__[option] != prevOptions.__dict__[option]:
                     print '\tBlast cache'
                     for queryID in idList:
-                        for entry in glob.glob(os.path.join(self.options.blastcache, queryID)):
+                        for entry in glob.glob(os.path.join(self.options.blastcache, queryID) + '*'):
                             print "\t\t" + os.path.split(entry)[-1]
                             os.remove(entry)
                     deleteBlastCacheList = []
@@ -169,10 +168,10 @@ class Initialize:
                     # Delete the homologcache for the entries in the input files:
                     print '\tHomologue and alignment cache'
                     for queryID in idList:
-                        for entry in glob.glob(os.path.join(self.options.homologcache, queryID)):
+                        for entry in glob.glob(os.path.join(self.options.homologcache, queryID) + '*'):
                             print "\t\t" + os.path.split(entry)[-1]
                             os.remove(entry)
-                        for entry in glob.glob(os.path.join(self.options.alignmentcache, queryID)):
+                        for entry in glob.glob(os.path.join(self.options.alignmentcache, queryID) + '*'):
                             print "\t\t" + os.path.split(entry)[-1]
                             os.remove(entry)
                     deleteHomologueCacheList = []
@@ -206,7 +205,7 @@ class Initialize:
                     # Delete the tree statistics cache for the entries in the input files:
                     print '\tTree statistics cache'
                     for queryID in idList:
-                        for entry in glob.glob(os.path.join(self.options.treestatscache, queryID)):
+                        for entry in glob.glob(os.path.join(self.options.treestatscache, queryID) + '*'):
                             print "\t\t" + os.path.split(entry)[-1]
                             os.remove(entry)
                     deleteTreeStatsCacheList = []

@@ -58,11 +58,6 @@ class Align:
                     if i not in deleteList:
                         prunedHomologueAlnString += char
                 homologueAlnString = prunedHomologueAlnString
-                ## print alignmentList[0][0]
-                ## print alignmentList[0][1]
-                ## print querySeq
-                ## print homologueAlnString
-                ## print
 
                 # Make a list of tuple with truncated title and Seq object and add it the list:
                 tup = (title, Seq.Seq(homologueAlnString))
