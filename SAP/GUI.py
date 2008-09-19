@@ -345,12 +345,21 @@ class OptionsDialog(wx.Dialog):
 
         objList = []
 
-        usedList = ['--alignmentlimit', '--besthits', '--evaluesignificance', '--harddiversity',
-                    '--individuals', '--limitquery', '--maxblasthits',
-                    '--minidentity', '--minimaltaxonomy', '--minsignificant',
-                    '--phyla', '--orders', '--classes', '--families', '--genera',
-                    '--nofillin', '--nolowcomplexfilter', '--fillinall', '--fillintomatch',
-                    '--flanks', '--relbitscore', '--softalignmentlimit', '--subspecieslevel', '--evaluecutoff']
+        usedList = ['--database',             '--harddiversity',
+                    '--inputformat',          '--phyla',             
+                    '--quickcompile',         '--classes',           
+                    '--limitquery',           '--orders',            
+                    '--nolowcomplexfilter',   '--families',          
+                    '--maxblasthits',         '--genera',            
+                    '--besthits',             '--individuals',       
+                    '--alignmentlimit',       '--nofillin',           
+                    '--relbitscore',          '--fillinall',         
+                    '--evaluesignificance',   '--fillintomatch',     
+                    '--minsignificant',       '--forceexcludegilist',
+                    '--evaluecutoff',         '--forceincludegilist',  
+                    '--minidentity',          '--forceidentity',                                             
+                    '--subspecieslevel',      '--forceincludefile'                                               
+                    ]
 
         for optionName in usedList:
             option = optionParser.parser.get_option(optionName)
@@ -378,7 +387,7 @@ class OptionsDialog(wx.Dialog):
 
         objList = []
 
-        usedList = ['--warnongaps', '--alignmentoption']
+        usedList = ['--alignment', '--warnongaps', '--alignmentoption']
 
         for optionName in usedList:
             option = optionParser.parser.get_option(optionName)
@@ -406,7 +415,7 @@ class OptionsDialog(wx.Dialog):
 
         objList = []
 
-        usedList = ['--prunelevel']
+        usedList = ['--prunelevel', '--sampler']
 
         for optionName in usedList:
             option = optionParser.parser.get_option(optionName)

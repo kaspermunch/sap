@@ -139,11 +139,11 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           help="Discard homologue set if diversity specifications are not met.")    
         self.parser.add_option("--forceexcludegilist",
                           type="string",
-                          default=False,
+                          default=None,
                           help="Space seperated list of gi numbers to force exclude in each homology set. Takes priority over forceincludegilist")
         self.parser.add_option("--forceincludegilist",
                           type="string",
-                          default=False,
+                          default=None,
                           help="Space seperated list of gi numbers to force include in each homology set.")
         self.parser.add_option("--forceidentity",
                           type="float",
@@ -151,7 +151,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           help="Minimal accepted match identity of forced included GIs to query sequence.")
         self.parser.add_option("--forceincludefile",
                           type="string",
-                          default=False,
+                          default=None,
                           help="File name of entries to force include in each homology set.")
         self.parser.add_option("--nofillin",
                           action="store_true",
