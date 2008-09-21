@@ -60,7 +60,7 @@ def findOnSystem(filename):
     # Look in sensible places:
     if not fileFound:
 
-        if os.name == 'posix' and os.environ.has_key('EXECUTABLEPATH'):
+        if os.name == 'posix':
             # In OSX applications the PATH set by user shell is not available:
             for path in [os.path.join(os.environ['HOME'], 'bin'),'/usr/local/bin/']:
                 if os.path.exists(os.path.join(path, filename)):                    

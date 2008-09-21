@@ -324,8 +324,10 @@ def installNetblastOnWindows(tmpDirName, tmpFileName, guiParent=None):
         if fileName == 'blastcl3.exe':
             excecutable = z.read(fileName)
             
-    scriptInstallDir = findOnSystem('sap')
-    fh = open(os.path.join(scriptInstallDir, 'blastcl3.exe'), 'wb')
+    installDir = 'C:\Program Files\Netblast'
+    os.makedirs(installDir)
+
+    fh = open(os.path.join(installDir, 'blastcl3.exe'), 'wb')
     fh.write(excecutable)
     fh.close()
 
@@ -354,15 +356,23 @@ def installNetblastOnPosix(tmpDirName, tmpFileName, guiParent=None):
     # Dir to install netblast in:
     installDir = None
 
-    # Find a sensible place to install:
+    # See if we can find a sensible place to install:
     for path in ('/usr/local/bin', os.environ['HOME']+'/usr/local/bin', os.environ['HOME']+'/bin'):
         if os.path.exists(path):
             if os.access(path, os.W_OK) or rootAccess(guiParent=guiParent):
                 installDir = path
                 break
 
+    # If not, create a directory for installation:
     if not installDir:
-        return None
+        if rootAccess(guiParent=guiParent):
+            path = '/usr/local/bin'
+            os.system('sudo mkdir %s' % path)
+            installDir = path
+        else:
+            path = os.environ['HOME']+'/bin'
+            os.system('mkdir %s' % path)
+            installDir = path
 
     # Chop off the bin dir from the install path becauce we copy the
     # bin dir and the data dir over when installing:
