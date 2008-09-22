@@ -547,7 +547,7 @@ class MyFrame(wx.Frame):
         # Shortcuts
         menu2 = wx.Menu()
         menu2.Append(201, "Results\tCtrl+R", "Open results in browser window")
-        menu2.Append(202, "Options\tShift+O")
+        ## menu2.Append(202, "Options\tShift+O")
         menu2.Append(203, "Log\tShift+L")
         menuBar.Append(menu2, "&View")
         # Help
@@ -561,7 +561,7 @@ class MyFrame(wx.Frame):
 
         self.Bind(wx.EVT_MENU, self.openProject, id=102)        
         self.Bind(wx.EVT_MENU, self.showResults, id=201)
-        self.Bind(wx.EVT_MENU, self.onOptionsButton, id=202)
+        ## self.Bind(wx.EVT_MENU, self.onOptionsButton, id=202)
         self.Bind(wx.EVT_MENU, self.menu203, id=203)
         self.Bind(wx.EVT_MENU, self.menu301, id=301)
         self.Bind(wx.EVT_MENU, self.menu302, id=302)
@@ -681,11 +681,11 @@ class MyFrame(wx.Frame):
     
     def openProject(self, evt):
 
-        projectWildcard = "SAP projects (*.tphy)|*.tphy|"     \
+        projectWildcard = "SAP projects (*.sap)|*.sap|"     \
                    "All files (*.*)|*.*"
 
         dlg = wx.FileDialog(
-            self, message="Choose a project file",
+            self, message="Choose *.sap file in the directory of the project you want to open.",
             defaultDir=os.getcwd(), 
             defaultFile="",
             wildcard=projectWildcard,
@@ -917,7 +917,7 @@ class MyFrame(wx.Frame):
             dlg.Destroy()
             return
 
-        optionParser.postProcess()
+        optionParser.postProcess(guiParent=self)
 
         self.logframe.Show(True)
 
@@ -1111,34 +1111,19 @@ class MyApp(wx.App):
         self.SetTopWindow(frame_1)
 
         assertNetblastInstalled(guiParent=frame_1)
+        assertClustalw2Installed(guiParent=frame_1)
+
+        dlg = wx.MessageDialog(frame_1, str(os.environ['PATH']), 'TESTING', wx.OK | wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
 
 
-#         dlg = wx.MessageDialog(frame_1, str(os.environ['PATH']), 'ClustalW2 was not found on this computer', wx.OK | wx.ICON_INFORMATION)
-#         dlg.ShowModal()
-#         dlg.Destroy()
-# 
-#         p = findOnSystem('clustalw2')
-# 
-# #         #addToSystemPath(p)
-# # 
-# #         paths = os.environ['PATH'].split(os.pathsep)
-# #         paths.append(p)
-# #         #os.putenv('PATH', os.pathsep.join(paths))
-# #         os.environ['PATH'] = os.pathsep.join(paths)
-# 
-#         dlg = wx.MessageDialog(frame_1, str(os.environ['PATH']), 'ClustalW2 was not found on this computer', wx.OK | wx.ICON_INFORMATION)
-#         dlg.ShowModal()
-#         dlg.Destroy()
-#         sys.exit()
-
-
-
-        
-        if not findOnSystem('clustalw2'):
-           dlg = wx.MessageDialog(frame_1, 'SAP uses the sequence alignmnet program ClustalW2 to align homologues so you need to install this before you can run SAP. It if very easlily downloaded and installed from:\n\nftp://ftp.ebi.ac.uk/pub/software/clustalw2', 'ClustalW2 was not found on this computer', wx.OK | wx.ICON_INFORMATION)
-           dlg.ShowModal()
-           dlg.Destroy()
-           sys.exit()
+#         
+#         if not findOnSystem('clustalw2'):
+#            dlg = wx.MessageDialog(frame_1, 'SAP uses the sequence alignmnet program ClustalW2 to align homologues so you need to install this before you can run SAP. It if very easlily downloaded and installed from:\n\nftp://ftp.ebi.ac.uk/pub/software/clustalw2', 'ClustalW2 was not found on this computer', wx.OK | wx.ICON_INFORMATION)
+#            dlg.ShowModal()
+#            dlg.Destroy()
+#            sys.exit()
 
         frame_1.Show()
         return 1

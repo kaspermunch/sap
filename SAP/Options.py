@@ -1,5 +1,4 @@
 
-
 import re, time, os, sys
 from optparse import OptionParser
 
@@ -170,14 +169,12 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           default=0,
                           help="Extra flanks to add to the homologue before aligning the set.")
 
-
         # Alignment options:
         self.parser.add_option("--alignmentoption",
                           type="string",
                           action="append",
                           default=['-gapopen=50'],
                           help="Options passed to ClustalW2. Secify once for every option. Defaults to '-gapopen=50'")
-
 
         # Tree statistics options:
         self.parser.add_option("--prunelevel",
@@ -264,7 +261,6 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           default='data',
                           help="Where to put the fixed input files.")
 
-
         self.parser.add_option("--_align",
                           action="store_true",
                           default=False,
@@ -286,22 +282,6 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           action="store_true",
                           default=False,
                           help="Runs mrbayes.")
-#         self.parser.add_option("--_mrbayes",
-#                           action="store_true",
-#                           default=False,
-#                           help="Runs mrbayes. For internal use only.")
-#         self.parser.add_option("--_neighbourjoin",
-#                           action="store_true",
-#                           default=False,
-#                           help="Runs neighbour joining. For internal use ony.")
-#         self.parser.add_option("--_treestats",
-#                           action="store_true",
-#                           default=False,
-#                           help="Calculates tree statistics. For internal use ony.")
-#         self.parser.add_option("--_mcmc",
-#                           action="store_true",
-#                           default=False,
-#                           help="Runs constrained mcmc tree sampling. For internal use ony.")
 
 
         self.parser.add_option("--TESTING",
@@ -310,34 +290,25 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
 
         self.options, self.args = self.parser.parse_args()
 
-    def postProcess(self):
+    def showMessageAndExit(self, msg, guiParent=None):
 
-        # Process options:
+        if guiParent is None:
+            print msg
+            sys.exit()            
+        else:
+            import wx
+            dlg = wx.MessageDialog(guiParent, msg, 'Invalid option specification', wx.OK | wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+            sys.exit()
 
-#         if not self.options.project:
-#             self.options.project = time.strftime('./project-%H.%M-%m.%d.%y')
-# 
-#         self.options.project = re.sub(r'/$', '', self.options.project)
-# 
-#         if not self.options.blastcache:
-#             self.options.blastcache = self.options.project + '/blastCache'
-#         if not self.options.genbankcache:
-#             self.options.genbankcache = self.options.project + '/genBankCache'
-#         if not self.options.homologcache:
-#             self.options.homologcache = self.options.project + '/homologues'
-#         if not self.options.alignmentcache:
-#             self.options.alignmentcache = self.options.project + '/alignments'
-#         if not self.options.treestatscache:
-#             self.options.treestatscache = self.options.project + '/treeStatistics'
-#         if not self.options.treescache:
-#             self.options.treescache = self.options.project + '/trees'
-#         if not self.options.statsdir:
-#             self.options.statsdir = self.options.project + '/stats'
-#         if not self.options.resultdir:
-#             self.options.resultdir = self.options.project + '/html'
-#         if not self.options.datadir:
-#             self.options.datadir = self.options.project + '/data'
+    def postProcess(self, guiParent=None):
+        """
+        Post process options
+        """
 
+        if re.search(r' ', self.options.project):
+            self.showMessageAndExit("Name of project directory can not contain space characters.", guiParent=guiParent)
         self.options.project = os.path.abspath(self.options.project)
 
         self.options.blastcache = os.path.join(self.options.project, self.options.blastcache)
@@ -364,9 +335,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
             self.options.forceincludegilist = [x for x in self.options.forceincludegilist if x not in self.options.forceexcludegilist]
 
         if self.options.nofillin and self.options.fillinall:
-            print "Don't use both --fillinall and --nofillin"
-            sys.exit()
-
+            self.showMessageAndExit("Don't use the options fillinall and nofillin at the same time.", guiParent=guiParent)
 
         # Make sure alignment options are unique and nonoverlapping:
         alignmentoption = []

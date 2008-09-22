@@ -62,8 +62,8 @@ def findOnSystem(filename):
 
         if os.name == 'posix':
             # In OSX applications the PATH set by user shell is not available:
-            for path in [os.path.join(os.environ['HOME'], 'bin'),'/usr/local/bin/']:
-                if os.path.exists(os.path.join(path, filename)):                    
+            for path in [os.path.join(os.environ['HOME'], 'bin'), os.path.join(os.environ['HOME'], 'usr/local/bin'),'/usr/local/bin/']:
+                if os.path.exists(os.path.join(path, filename)):
                     paths.append(path)
                     ## os.putenv('PATH', os.pathsep.join(paths))
                     os.environ['PATH'] = os.pathsep.join(paths)
