@@ -264,6 +264,11 @@ def pickPlatform(platformList, guiParent=None):
 
         msg = "Pick the version that correponds to the platform\nof your computer."
 
+        if 'ia32-win32' in platformList:
+            msg += '\nChoose ia32-win32 for standard Windows PC'
+        if 'src' in platformList:
+            msg += '\nChoose src for Linux/Unix'
+
         dlg = wx.SingleChoiceDialog(
                 guiParent, msg, 'download',
                 platformList, 
@@ -451,9 +456,9 @@ def installClustalw2OnPosix(tmpDirName, tmpFileName, guiParent=None):
                     fail = os.system("sudo cp %s %s" % (executable, installDir))
                 else:
                     passwd = passwDialog(guiParent)
-                    os.system("echo '%s' | sudo -S cp %s %s" % (passwDialog, executable, installDir))
+                    os.system("echo '%s' | sudo -S cp %s %s" % (passwd, executable, installDir))
             else:
-                fail = os.system("cp -r %s %s" % (executable, installDir))
+                fail = os.system("cp %s %s" % (executable, installDir))
         except:
             fail = True
 

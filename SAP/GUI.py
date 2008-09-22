@@ -1113,17 +1113,9 @@ class MyApp(wx.App):
         assertNetblastInstalled(guiParent=frame_1)
         assertClustalw2Installed(guiParent=frame_1)
 
-        dlg = wx.MessageDialog(frame_1, str(os.environ['PATH']), 'TESTING', wx.OK | wx.ICON_INFORMATION)
-        dlg.ShowModal()
-        dlg.Destroy()
-
-
-#         
-#         if not findOnSystem('clustalw2'):
-#            dlg = wx.MessageDialog(frame_1, 'SAP uses the sequence alignmnet program ClustalW2 to align homologues so you need to install this before you can run SAP. It if very easlily downloaded and installed from:\n\nftp://ftp.ebi.ac.uk/pub/software/clustalw2', 'ClustalW2 was not found on this computer', wx.OK | wx.ICON_INFORMATION)
-#            dlg.ShowModal()
-#            dlg.Destroy()
-#            sys.exit()
+#         dlg = wx.MessageDialog(frame_1, str(os.environ['PATH']), 'TESTING', wx.OK | wx.ICON_INFORMATION)
+#         dlg.ShowModal()
+#         dlg.Destroy()
 
         frame_1.Show()
         return 1

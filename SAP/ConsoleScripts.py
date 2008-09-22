@@ -27,7 +27,7 @@ from PairWiseDiffs import PairWiseDiffs
 from ResultHTML import ResultHTML
 from Initialize import Initialize        
 from UtilityFunctions import *
-from InstallDependencies import assertNetblastInstalled
+from InstallDependencies import assertNetblastInstalled, assertClustalw2Installed
 
 def sap():
 
@@ -78,9 +78,7 @@ def sap():
         # Check that netblast and clustalw2 are installed:
         print "Locating dependencies"
         assertNetblastInstalled()
-        if not findOnSystem('clustalw2'):
-            print 'clustalw2 is not installed'
-            sys.exit()
+        assertClustalw2Installed()
 
         # Make directories and write fixed inputfiles:
         init = Initialize(options)
