@@ -221,6 +221,7 @@ def rootAccess(guiParent=None):
     Asks the user if he/she has root access.
     """
     if guiParent is not None:
+        import wx
         nResult = wx.MessageBox("Do you have root access on this computer?", "Root access?", wx.YES_NO | wx.ICON_QUESTION, guiParent)
         if nResult == wx.YES:
             return True
@@ -242,10 +243,10 @@ def pickPlatform(platformList, guiParent=None):
 
         msg = '''Pick the version that correponds to the platform
 of your computer (ia32-win32 for a standard windows PC).
-Download may take some time...', 'Netblast download'''
+Download may take some time...'''
 
         dlg = wx.SingleChoiceDialog(
-                guiParent, msg,
+                guiParent, msg, 'Netblast download',
                 platformList, 
                 wx.CHOICEDLG_STYLE
                 )
