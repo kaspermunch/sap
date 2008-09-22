@@ -73,6 +73,7 @@ class Download:
         else:
             self.progressDialog.Update(value)
 
+
     def downloadURL(self, url):
         """
         Downloads package specified by URL to temporary file.
@@ -191,9 +192,9 @@ def assertNetblastInstalled(guiParent=None):
                 sys.exit()
 
         packageRE = re.compile(r'netblast-[\d.]+-([^.]+)')
-        success = getPackage('netblast', packageRE, ftpURL, ftpDir, guiParent=guiParent)
-        return success
+        getPackage('netblast', packageRE, ftpURL, ftpDir, guiParent=guiParent)
 
+        return True
     
 def getPackage(name, packageRE, ftpURL=None, ftpDir=None, guiParent=None):
     """
@@ -234,8 +235,6 @@ def getPackage(name, packageRE, ftpURL=None, ftpDir=None, guiParent=None):
         dlg = wx.MessageDialog(guiParent, msg, 'Installation complete.', wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
-
-    return True
 
 def rootAccess(guiParent=None):
     """
@@ -379,14 +378,18 @@ def getPossixInstallDir(guiParent=None):
                 break
 
     # If not, create a directory for installation:
+    fail = False
     if not installDir:
         if rootAccess(guiParent=guiParent):
             path = '/usr/local/bin'
-            os.system('sudo mkdir -p %s' % path)
+            fail = os.system('sudo mkdir -p %s' % path)
         else:
             path = os.environ['HOME']+'/usr/local/bin'
-            os.system('mkdir -p %s' % path)
+            fail = os.system('mkdir -p %s' % path)
         installDir = path
+
+    if fail:
+        failiure(guiParent=guiParent)
 
     return installDir
 
@@ -426,7 +429,7 @@ def installNetblastOnPosix(tmpDirName, tmpFileName, guiParent=None):
                 fail = os.system("sudo cp -r %s %s" % (" ".join(packageContent), installDir))
             else:
                 passwd = passwDialog(guiParent)
-                os.system("echo '%s' | sudo -S cp -r %s %s" % (passwDialog, " ".join(packageContent), installDir))
+                fail = os.system("echo '%s' | sudo -S cp -r %s %s" % (passwDialog, " ".join(packageContent), installDir))
         else:
             fail = os.system("cp -r %s %s" % (" ".join(packageContent), installDir))
     except:
@@ -443,7 +446,7 @@ def installClustalw2OnPosix(tmpDirName, tmpFileName, guiParent=None):
         
     if sys.platform == 'darwin':
         # Unpack the disk image and move the executable to the install dir:
-        os.system('open -g -a DiskImageMounter %s' % tmpFileName)
+        fail = os.system('open -g -a DiskImageMounter %s' % tmpFileName)
         while not glob.glob('/Volumes/clustalw-*/clustalw-*/clustalw2'):
             time.sleep(1)            
         time.sleep(2)
@@ -456,7 +459,7 @@ def installClustalw2OnPosix(tmpDirName, tmpFileName, guiParent=None):
                     fail = os.system("sudo cp %s %s" % (executable, installDir))
                 else:
                     passwd = passwDialog(guiParent)
-                    os.system("echo '%s' | sudo -S cp %s %s" % (passwd, executable, installDir))
+                    fail = os.system("echo '%s' | sudo -S cp %s %s" % (passwd, executable, installDir))
             else:
                 fail = os.system("cp %s %s" % (executable, installDir))
         except:
@@ -480,14 +483,17 @@ def installClustalw2OnPosix(tmpDirName, tmpFileName, guiParent=None):
         # bin dir and the data dir over when installing:
         installDir = os.path.split(installDir)[0]
 
+        oldCWD = getcwd()
+        chdir(tmpDirName)
+
         if installDir == '/usr/local':
-            os.system("%s/configure", tmpDirName)
+            os.system("./configure")
         else:
-            os.system("%s/configure --prefix %s", tmpDirName, installDir)
-        os.system("%s/make", tmpDirName)
+            os.system("./configure --prefix %s", installDir)
+        os.system("make")
+        os.system("make install")
 
-        os.system("%s/install", tmpDirName)
-
+        chdir(oldCWD)
 
 
 if __name__ == '__main__':
