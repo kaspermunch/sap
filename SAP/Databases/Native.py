@@ -28,7 +28,8 @@ class DB:
 
         baseName, ext = os.path.splitext(os.path.basename(self.fastaFileName))
         self.baseName = baseName
-        self.dbDirName = baseName + '.sapdb'
+        #self.dbDirName = baseName + '.sapdb'
+        self.dbDirName = os.path.splitext(self.fastaFileName)[0] + '.sapdb'
         self.blastSequenceFileName = os.path.join(self.dbDirName, baseName + '.fasta')
         self.blastDB = os.path.join(self.dbDirName, baseName)
         self.dbFileName = os.path.join(self.dbDirName, baseName + '.db')
@@ -97,7 +98,7 @@ class DB:
                 if not re.match(r'\d+', identifier):
                     raise Exception
                 if firstMissedTaxonomy:
-                    print "Retrieving taxonomy from NCBI's Taxonomy Browser:\n\t%s" % identifier
+                    print "Retrieving missing taxonomic annotation from NCBI's Taxonomy Browser:\n\t%s" % identifier
                     firstMissedTaxonomy = False
                 else:
                     print "\t%s" % identifier

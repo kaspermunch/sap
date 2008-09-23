@@ -52,8 +52,6 @@ from wx.lib.mixins.listctrl import CheckListCtrlMixin
 from wx.lib.wordwrap import wordwrap
 import wx.lib.delayedresult as delayedresult
 import wx.lib.hyperlink as hyperlink
-
-
 #----------------------------------------------------------------------
 # We first have to set an application-wide help provider.  Normally you
 # would do this in your app's OnInit or in other startup code...
@@ -723,131 +721,142 @@ class MyFrame(wx.Frame):
 
     def _resultProducer(self, jobID, abortEvent, inputFiles):
 
-        sys.stdout = OutputEnqueue()
-
-        global optionParser
-
-        # Make directories and write fixed inputfiles:
-        init = Initialize(optionParser.options)
-        init.createDirs()
-
-        inputFiles, seqCount, sequenceNameMap = init.fixAndMoveInput(inputFiles)
-        init.checkCacheConsistency(inputFiles)
+        try:
+            sys.stdout = OutputEnqueue()
     
-        fastaFileBaseNames = []
-
-        try:
-           plugin = findPlugin('Clustalw2', 'SAP.alignment')
-        except PluginNotFoundError:
-           from SAP.Alignment import Clustalw2 as plugin
-        aligner = plugin.Aligner(optionParser.options)
-
-        try:
-           plugin = findPlugin('Barcoder', 'SAP.sampler')
-        except PluginNotFoundError:
-           from SAP.Sampling import Barcoder as plugin
-        sampler = plugin.Sampler(optionParser.options)
-
-        uniqueDict = {}
-        copyLaterDict = {}
-
-        # For each fasta file execute pipeline
-        for fastaFileName in inputFiles:
-
-            fastaFile = open(fastaFileName, 'r')
-            fastaIterator = Fasta.Iterator(fastaFile, parser=Fasta.RecordParser())
-            fastaFileBaseName = os.path.splitext(os.path.basename(fastaFileName))[0]
-            fastaFileBaseNames.append(fastaFileBaseName)
-
-            if abortEvent():
-                return jobID
-            
-            for fastaRecord in fastaIterator:
-
-                homolcompiler = HomolCompiler(optionParser.options)
-                
-                # Discard the header except for the first id word:
-                fastaRecord.title = re.search(r'^(\S+)', fastaRecord.title).group(1)
-
-                print "%s -> %s: " % (fastaFileBaseName, fastaRecord.title)
-
-                # See if the sequence is been encountered before and if so skip it for now:
-                if uniqueDict.has_key(fastaRecord.sequence):
-                    copyLaterDict.setdefault(uniqueDict[fastaRecord.sequence], []).append('%s_%s' % (fastaFileBaseName, fastaRecord.title))
-                    print '\tsequence double - skipping...\n'
-                    continue
-                else:
-                    uniqueDict[fastaRecord.sequence] = '%s_%s' % (fastaFileBaseName, fastaRecord.title)
-
-                # Find homologues: Fasta files and pickled homologyResult objects are written to homologcache
-                homologyResult = homolcompiler.compileHomologueSet(fastaRecord, fastaFileBaseName)
-
+            global optionParser
+    
+            # Make directories and write fixed inputfiles:
+            init = Initialize(optionParser.options)
+            init.createDirs()
+    
+            inputFiles, seqCount, sequenceNameMap = init.fixAndMoveInput(inputFiles)
+            init.checkCacheConsistency(inputFiles)
+        
+            fastaFileBaseNames = []
+    
+            try:
+               plugin = findPlugin('Clustalw2', 'SAP.alignment')
+            except PluginNotFoundError:
+               from SAP.Alignment import Clustalw2 as plugin
+            aligner = plugin.Aligner(optionParser.options)
+    
+            try:
+               plugin = findPlugin('Barcoder', 'SAP.sampler')
+            except PluginNotFoundError:
+               from SAP.Sampling import Barcoder as plugin
+            sampler = plugin.Sampler(optionParser.options)
+    
+            uniqueDict = {}
+            copyLaterDict = {}
+    
+            # For each fasta file execute pipeline
+            for fastaFileName in inputFiles:
+    
+                fastaFile = open(fastaFileName, 'r')
+                fastaIterator = Fasta.Iterator(fastaFile, parser=Fasta.RecordParser())
+                fastaFileBaseName = os.path.splitext(os.path.basename(fastaFileName))[0]
+                fastaFileBaseNames.append(fastaFileBaseName)
+    
                 if abortEvent():
                     return jobID
-
-                if homologyResult != None:
-                    # The homologyResult object serves as a job carrying the relevant information.
-
-                    aligner.align(os.path.join(optionParser.options.homologcache, homologyResult.homologuesFileName))
+                
+                for fastaRecord in fastaIterator:
+    
+                    homolcompiler = HomolCompiler(optionParser.options)
+                    
+                    # Discard the header except for the first id word:
+                    fastaRecord.title = re.search(r'^(\S+)', fastaRecord.title).group(1)
+    
+                    print "%s -> %s: " % (fastaFileBaseName, fastaRecord.title)
+    
+                    # See if the sequence is been encountered before and if so skip it for now:
+                    if uniqueDict.has_key(fastaRecord.sequence):
+                        copyLaterDict.setdefault(uniqueDict[fastaRecord.sequence], []).append('%s_%s' % (fastaFileBaseName, fastaRecord.title))
+                        print '\tsequence double - skipping...\n'
+                        continue
+                    else:
+                        uniqueDict[fastaRecord.sequence] = '%s_%s' % (fastaFileBaseName, fastaRecord.title)
+    
+                    # Find homologues: Fasta files and pickled homologyResult objects are written to homologcache
+                    homologyResult = homolcompiler.compileHomologueSet(fastaRecord, fastaFileBaseName)
 
                     if abortEvent():
                         return jobID
+    
+                    if homologyResult != None:
+                        # The homologyResult object serves as a job carrying the relevant information.
 
-                    sampler.run(os.path.join(optionParser.options.alignmentcache, homologyResult.alignmentFileName))
+                        aligner.align(os.path.join(optionParser.options.homologcache, homologyResult.homologuesFileName))
+    
+                        if abortEvent():
+                            return jobID
 
-                    if abortEvent():
-                        return jobID
-
-                    treeStatistics = TreeStatistics(optionParser.options)
-                    treeStatistics.runTreeStatistics([os.path.join(optionParser.options.homologcache, homologyResult.homologuesPickleFileName)], generateSummary=False)
-
-        if abortEvent():
+                        sampler.run(os.path.join(optionParser.options.alignmentcache, homologyResult.alignmentFileName))
+    
+                        if abortEvent():
+                            return jobID
+    
+                        treeStatistics = TreeStatistics(optionParser.options)
+                        treeStatistics.runTreeStatistics([os.path.join(optionParser.options.homologcache, homologyResult.homologuesPickleFileName)], generateSummary=False)
+    
+            if abortEvent():
+                return jobID
+    
+            # Calculate the pairwise differences between sequences in each file:
+            if optionParser.options.diffs:
+                pairwisediffs = PairWiseDiffs(optionParser.options)
+                pairwisediffs.runPairWiseDiffs(inputFiles)
+                #runPairWiseDiffs(inputFiles)
+    
+            if abortEvent():
+                return jobID
+    
+    
+            # Make dictionary to map doubles the ones analyzed:
+            doubleToAnalyzedDict = {}
+            for k, l in copyLaterDict.items():
+                doubleToAnalyzedDict.update(dict([[v,k] for v in l]))
+    
+            if not optionParser.options.nocopycache and len(doubleToAnalyzedDict):
+                # Copy cache files for sequences that occoured more than once:
+                print "Copying cached results for %d doubles" % len(doubleToAnalyzedDict)
+                copyCacheForSequenceDoubles(copyLaterDict, optionParser.options)
+                
+            # Calculate the pairwise differences between sequences in each file:
+            if optionParser.options.diffs:
+                pairwisediffs = PairWiseDiffs(optionParser.options)
+                pairwisediffs.runPairWiseDiffs(args)
+                #runPairWiseDiffs(args)
+    
+            # Summary tree stats:
+            print 'Computing tree statistics summary...'
+            treeStatistics = TreeStatistics(optionParser.options)
+            treeStatistics.runTreeStatistics(inputFiles, generateSummary=True, doubleToAnalyzedDict=doubleToAnalyzedDict)
+            print "done"
+    
+            if abortEvent():
+                return jobID
+    
+            # Make HTML output:
+            print '\tGenerating HTML output...'
+    
+            resultHTML = ResultHTML(optionParser.options)
+            resultHTML.webify([optionParser.options.treestatscache + '/summary.pickle'], fastaFileBaseNames, doubleToAnalyzedDict, sequenceNameMap)
+            print 'done'
+    
             return jobID
-
-        # Calculate the pairwise differences between sequences in each file:
-        if optionParser.options.diffs:
-            pairwisediffs = PairWiseDiffs(optionParser.options)
-            pairwisediffs.runPairWiseDiffs(inputFiles)
-            #runPairWiseDiffs(inputFiles)
-
-        if abortEvent():
-            return jobID
-
-
-        # Make dictionary to map doubles the ones analyzed:
-        doubleToAnalyzedDict = {}
-        for k, l in copyLaterDict.items():
-            doubleToAnalyzedDict.update(dict([[v,k] for v in l]))
-
-        if not options.nocopycache and len(doubleToAnalyzedDict):
-            # Copy cache files for sequences that occoured more than once:
-            print "Copying cached results for %d doubles" % len(doubleToAnalyzedDict)
-            copyCacheForSequenceDoubles(copyLaterDict, options)
-            
-        # Calculate the pairwise differences between sequences in each file:
-        if options.diffs:
-            pairwisediffs = PairWiseDiffs(options)
-            pairwisediffs.runPairWiseDiffs(args)
-            #runPairWiseDiffs(args)
-
-        # Summary tree stats:
-        print 'Computing tree statistics summary...'
-        treeStatistics = TreeStatistics(options)
-        treeStatistics.runTreeStatistics(args, generateSummary=True, doubleToAnalyzedDict=doubleToAnalyzedDict)
-        print "done"
-
-        if abortEvent():
-            return jobID
-
-        # Make HTML output:
-        print '\tGenerating HTML output...'
-
-        resultHTML = ResultHTML(options)
-        resultHTML.webify([options.treestatscache + '/summary.pickle'], fastaFileBaseNames, doubleToAnalyzedDict, sequenceNameMap)
-        print 'done'
-
-        return jobID
-
+        except Exception, exe: 
+            print """
+## SAP crached, sorry ###############################################
+Help creating a more stable program by sending the debugging informaion
+listed below to kaspermunch@gmail.com along with *.sap file in the project
+folder and the sequence input file used.
+"""
+            print "".join(traceback.format_tb(sys.exc_info()[2]))
+            print exe
+            raise Exception
+    
 # 
 #         # Summary tree stats:
 #         print 'Computing tree statistics summary...'

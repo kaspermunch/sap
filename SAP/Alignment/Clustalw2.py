@@ -39,7 +39,7 @@ class Aligner:
 
             writeFile(tmpAlignmentFileName, readFile(outputTmpFileName))
             os.unlink(outputTmpFileName)
-    
+
             # Move dnd file to alignment directory
             if os.path.exists(os.path.splitext(fastaFileName)[0] + ".dnd"):
                 os.system("mv %s %s" % (os.path.splitext(fastaFileName)[0] + ".dnd", self.options.alignmentcache))
@@ -49,9 +49,6 @@ class Aligner:
 
             # Comment out symbols header information in nexus file
             nexusContents = re.sub("(symbols=\"[^\"]*\")", r"[\1]", nexusContents)
-
-            # The following works around a bug in clustalw for Mac:
-            nexusContents = re.search(r'.*end;\n', nexusContents, re.S).group(0)
 
             # Write the alignment:
             writeFile(tmpAlignmentFileName, nexusContents)
@@ -72,7 +69,7 @@ class Aligner:
                     alignment.matrix[key].data = seq[leftBound:rightBound]
 
             alignment.write_nexus_data(filename=alignmentFileName)
-
+            
             print "done", 
             sys.stdout.flush()
 
