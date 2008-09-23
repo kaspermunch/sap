@@ -443,16 +443,19 @@ def installNetblastOnPosix(tmpDirName, tmpFileName, guiParent=None):
 def installClustalw2OnPosix(tmpDirName, tmpFileName, guiParent=None):
 
     installDir = getPossixInstallDir(guiParent=guiParent)
+
+    fail = False
         
     if sys.platform == 'darwin':
         # Unpack the disk image and move the executable to the install dir:
         fail = os.system('open -g -a DiskImageMounter %s' % tmpFileName)
+        if fail:
+            return False
         while not glob.glob('/Volumes/clustalw-*/clustalw-*/clustalw2'):
             time.sleep(1)            
         time.sleep(2)
         executable = glob.glob('/Volumes/clustalw-*/clustalw-*/clustalw2')[0]
 
-        fail = False
         try:
             if not os.access(installDir, os.W_OK):
                 if guiParent is None:                
@@ -478,7 +481,7 @@ def installClustalw2OnPosix(tmpDirName, tmpFileName, guiParent=None):
             tar.extract(item, tmpDirName)
         tar.close()    
         os.unlink(tmpFileName)
-
+            
         # Chop off the bin dir from the install path becauce we copy the
         # bin dir and the data dir over when installing:
         installDir = os.path.split(installDir)[0]
@@ -487,11 +490,15 @@ def installClustalw2OnPosix(tmpDirName, tmpFileName, guiParent=None):
         chdir(tmpDirName)
 
         if installDir == '/usr/local':
-            os.system("./configure")
+            if os.system("./configure"):
+                return False
         else:
-            os.system("./configure --prefix %s", installDir)
-        os.system("make")
-        os.system("make install")
+            if os.system("./configure --prefix %s", installDir):
+                return False
+        if os.system("make"):
+            return False            
+        if os.system("make install"):
+            return False
 
         chdir(oldCWD)
 
