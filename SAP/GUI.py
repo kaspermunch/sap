@@ -5,7 +5,6 @@
 # Wizard for downloading and installing missing dependencies
 # MVCTreeOverView for illustrating taxonomy summaries
 
-
 # py2applet --make-setup gui.py
 # python setup.py py2app -A --use-pythonpath
 # python setup.py py2app --use-pythonpath
@@ -1113,7 +1112,20 @@ folder and the sequence input file used.
         dlg.Destroy()
 
 class MyApp(wx.App):
+
+#     def OnPreInit(self):
+# 
+#         ###########################
+#         optionParser.options.project = '/Users/kasper/Desktop/guitest'
+#         optionParser.postProcess()
+#         from SAP.Sampling import Barcoder as plugin
+#         sampler = plugin.Sampler(optionParser.options)
+#         sampler.run('/Users/kasper/Desktop/guitest/alignmentcache/test_50262771_sediment_one.nex')
+#         sys.exit()
+#         ###########################
+
     def OnInit(self):
+
         wx.InitAllImageHandlers()
         frame_1 = MyFrame(None, -1, "")
         frame_1.CenterOnScreen()
@@ -1147,4 +1159,5 @@ def start_gui():
     app.MainLoop()
 
 if __name__ == "__main__":
+
    start_gui()
