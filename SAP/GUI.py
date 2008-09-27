@@ -38,6 +38,10 @@ from TreeStatistics import TreeStatistics
 from PairWiseDiffs import PairWiseDiffs
 from ResultHTML import ResultHTML
 from Initialize import Initialize
+
+# We need to import these here so py2app can map them as dependencies:
+from SAP.Sampling import Barcoder, ConstrainedNJ
+from SAP.Alignment import Clustalw2
         
 from UtilityFunctions import *
 from InstallDependencies import *
