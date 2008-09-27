@@ -1,6 +1,6 @@
 
 # Standard libs:
-import sys, re, os, pickle, copy, time, traceback
+import sys, re, os, pickle, copy, time, traceback, webbrowser
 from optparse import OptionParser
 from math import floor
 from types import ListType
@@ -19,10 +19,6 @@ import Options
 from XML2Obj import XML2Obj
 from Homology import HomolCompiler, HomologySet, Homologue
 from TreeStatistics import TreeStatistics
-# from ClustalWrapper import ClustalWrapper
-# from MrBayesWrapper import MrBayesWrapper
-# from BarcoderWrapper import BarcoderWrapper
-# from NeighbourJoinWrapper import NeighbourJoinWrapper
 from PairWiseDiffs import PairWiseDiffs
 from ResultHTML import ResultHTML
 from Initialize import Initialize        
@@ -32,14 +28,24 @@ from InstallDependencies import assertNetblastInstalled, assertClustalw2Installe
 def sap():
 
     try:
+
         optionsParser = Options.Options()
         options, args = optionsParser.postProcess()
-    
+
         if options.onlinehelp:
-            import webbrowser
             webbrowser.open('http://ib.berkeley.edu/labs/slatkin/munch/StatisticalAssignmentPackage.html', new=2, autoraise=1)
             sys.exit()
-    
+
+        if options.viewresults:
+            try:
+                webbrowser.open('file://' + os.path.abspath(os.path.join(options.viewresults, 'html', 'index.html')), new=2, autoraise=1)
+            except:
+                if os.path.exists(options.viewresults):
+                    print "The anlysis has not completed and no results are available."
+                else:
+                    print "The spcified project folder does not exist."
+                sys.exit()
+
         # Make a string of all options except of the ones with a '_'
         # prefix which are for internal use only:
         optionStr = ''
@@ -245,7 +251,9 @@ def sap():
             resultHTML = ResultHTML(options)
             resultHTML.webify([options.treestatscache + '/summary.pickle'], fastaFileBaseNames, doubleToAnalyzedDict, sequenceNameMap)
             print 'done'
-    
+
+    except SystemExit, exitVal:
+        sys.exit(exitVal)
     except Exception, exe: 
         print """
 ## SAP crached, sorry ###############################################
