@@ -734,16 +734,28 @@ class MyFrame(wx.Frame):
         
             fastaFileBaseNames = []
     
+#             try:
+#                plugin = findPlugin('Clustalw2', 'SAP.alignment')
+#             except PluginNotFoundError:
+#                from SAP.Alignment import Clustalw2 as plugin
+#             aligner = plugin.Aligner(optionParser.options)
+# 
+#             try:
+#                plugin = findPlugin('Barcoder', 'SAP.sampler')
+#             except PluginNotFoundError:
+#                from SAP.Sampling import Barcoder as plugin
+#             sampler = plugin.Sampler(optionParser.options)
+
             try:
-               plugin = findPlugin('Clustalw2', 'SAP.alignment')
+               plugin = findPlugin(optionParser.options.alignment, 'SAP.alignment')
             except PluginNotFoundError:
-               from SAP.Alignment import Clustalw2 as plugin
+               exec("from SAP.Alignment import %s as plugin" % optionParser.options.alignment)
             aligner = plugin.Aligner(optionParser.options)
-    
+
             try:
-               plugin = findPlugin('Barcoder', 'SAP.sampler')
+               plugin = findPlugin(optionParser.options.sampler, 'SAP.sampler')
             except PluginNotFoundError:
-               from SAP.Sampling import Barcoder as plugin
+               exec("from SAP.Sampling import %s as plugin" % optionParser.options.sampler)
             sampler = plugin.Sampler(optionParser.options)
     
             uniqueDict = {}
@@ -845,6 +857,9 @@ class MyFrame(wx.Frame):
             print 'done'
     
             return jobID
+
+        except SystemExit, exitVal:
+            sys.exit(exitVal)
         except Exception, exe: 
             print """
 ## SAP crached, sorry ###############################################
@@ -958,23 +973,26 @@ folder and the sequence input file used.
         dlg.Destroy()
 
     def showResults(self, evt):
+        global optionParser
 
+        if not self.resultPath:
+            projectDir = optionParser.options.project = self.t2.GetValue()
+            self.resultPath =  os.path.join(projectDir, optionParser.options.resultdir, 'index.html')
+            
         if self.resultPath and os.path.exists(self.resultPath):
 
             resultLink = hyperlink.HyperLinkCtrl(self, wx.ID_ANY, "", URL="")
         
-            strs = "Open results in current browser window "
-            strs = strs + "(NO opens results in another browser window)?"
-            nResult = wx.MessageBox(strs, "View results", wx.YES_NO |
+            strs = "Open results in current default browser? "
+            strs = strs + "(Looks best in Firefox or Safari)"
+            nResult = wx.MessageBox(strs, "View results", wx.OK |
                                     wx.CANCEL | wx.ICON_QUESTION, self)
 
             resultURL = 'file://' + self.resultPath
-            if nResult == wx.YES:
+            if nResult == wx.OK:
                 resultLink.GotoURL(resultURL, True, True)
-            elif nResult == wx.NO:
-                resultLink.GotoURL(resultURL, True, False)
         else:
-            wx.MessageBox("No results genrated yet. You will be notivied when the analysis completes.", "Mesasge")
+            wx.MessageBox("No results generated yet. You will be notivied when the analysis completes.", "Mesasge")
                         
     def menu203(self, evt):
         self.logframe.Show(True)
