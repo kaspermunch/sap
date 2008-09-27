@@ -912,6 +912,9 @@ class TaxonomySummary:
                              ((i+0.6)*charWidth, y)
                 search = probRE.search(text)
                 probText = search.group(1)
+
+                text = re.sub(r'^(\S+)', r'<tspan font-style="italic">\1</tspan>', text)
+
                 if float(probText) > 50:
                     s += '<text class="fnt2" x="%d" y="%d">%s</text>\n' % (len(leader)*charWidth, y, text)
                 else:
