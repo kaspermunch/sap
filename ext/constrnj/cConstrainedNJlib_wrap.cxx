@@ -2793,7 +2793,9 @@ SWIGINTERN PyObject *_wrap_initialize(PyObject *SWIGUNUSEDPARM(self), PyObject *
   arg1 = static_cast< int >(val1);
   {
     try {
+      Py_BEGIN_ALLOW_THREADS
       initialize(arg1);
+      Py_END_ALLOW_THREADS
     } catch (std::exception &e) {
       PyErr_SetString(PyExc_RuntimeError, const_cast<char*>(e.what()));
       return NULL;
@@ -2872,7 +2874,9 @@ SWIGINTERN PyObject *_wrap_computeTree(PyObject *SWIGUNUSEDPARM(self), PyObject 
   arg5 = static_cast< int >(val5);
   {
     try {
+      Py_BEGIN_ALLOW_THREADS
       result = (char *)computeTree(arg1,arg2,arg3,arg4,arg5);
+      Py_END_ALLOW_THREADS
     } catch (std::exception &e) {
       PyErr_SetString(PyExc_RuntimeError, const_cast<char*>(e.what()));
       return NULL;

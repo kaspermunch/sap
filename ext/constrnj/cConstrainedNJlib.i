@@ -55,7 +55,9 @@
 
 %exception {
    try {
+      Py_BEGIN_ALLOW_THREADS
       $action
+      Py_END_ALLOW_THREADS
    } catch (std::exception &e) {
       PyErr_SetString(PyExc_RuntimeError, const_cast<char*>(e.what()));
       return NULL;

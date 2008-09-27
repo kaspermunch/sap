@@ -16,7 +16,7 @@ class Sampler:
     def __init__(self, options):
         self.options = options
 
-        self.name = 'CNJB'
+        self.name = 'ConstrainedNJ'
 
     def run(self, alignmentFileName):
         """
@@ -47,6 +47,7 @@ class Sampler:
             queryName = baseName
             alignment = Nexus.Nexus(alignmentFileName)
             cnj = ConstrainedNJ(alignment, constraintTree=constraintTree)
+
             cnj.dumpBootstrapTreesNexus(bootstraps, treeFileName)
 
             # Make a consensus tree and write it to a seperate file:

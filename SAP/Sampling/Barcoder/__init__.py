@@ -104,6 +104,7 @@ class Sampler:
             cmd = "bc1 -i %s -c %s -o %s -l %d -p %d -s %d" % (phylipFileName, constraintsFileName, outputPrefix,
                                                                chainLength, printFreq, sampleFreq)
             arguments = cmd.split(' ')
+            
             retval = Barcoder.run(arguments, outputPrefix)
 
             ## outFile = os.path.join(tmpDirName, baseName + ".out")
