@@ -41,6 +41,10 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           type="string",
                           default="fasta",
                           help="Use this option if input file are in Nexus format. Sequences will be read from the Nexus alignment.")
+        self.parser.add_option("-v", "--viewresults",
+                          type="string",
+                          default=False,
+                          help="View results of in specified project folder in default browser.")
 
         # Parallel options:
         self.parser.add_option("--hostfile",
