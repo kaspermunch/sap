@@ -20,8 +20,8 @@ guiscript = 'SAP/GUI.py'
 
 if sys.platform == 'darwin':
     # Cross-platform applications generally expect sys.argv to be used for opening files:
-    extra_options = dict(setup_requires=['py2app'],
-                         app=[guiscript],
+    extra_options = dict(app=[guiscript],
+                         # setup_requires=['py2app'],
                          options = dict(py2app = dict( argv_emulation=True,
                                                        iconfile='icons/app.icns'),                                       
                                         plist = dict( CFBundleName               = "SAP",
@@ -40,12 +40,15 @@ if sys.platform == 'darwin':
 
     
 elif sys.platform == 'win32':
+    # python setup.py bdist_wininst --install-script winpostinstall.py 
     extra_options = dict(app=[guiscript],
+                         scripts=['winpostinstall.py'],
                          #setup_requires=['py2exe'],
                          )
 else:
     extra_options = {}
-
+    
+scripts=['scripts/taxoniphy'],
 setup(name='SAP',
       version='1.0',
       description='Statistical assignment of DNA (max 200 chars)',
