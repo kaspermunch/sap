@@ -208,7 +208,13 @@ def sap():
                                 print "Error in submission of %s" % cmd
                                 pass
                         else:
-                            os.system(cmd)
+                            if sys.platform == 'win32':
+                                # Windows CMD won't take long command lines:
+                                cmds = cmd.split(';')
+                                for cmd in cmds:
+                                    os.system(cmd)
+                            else:
+                                os.system(cmd)
     
                     # Output current status of parallel jobs
                     if options.hostfile or options.sge:

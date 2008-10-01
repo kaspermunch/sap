@@ -224,11 +224,12 @@ def getPackage(name, packageRE, ftpURL=None, ftpDir=None, guiParent=None):
     if not success:
         failiure(guiParent=guiParent)
     
-    # Remove tmp files:
-    for d in os.walk(tmpDirName, topdown=False):
-        for f in d[2]:
-            os.unlink(os.path.join(d[0], f))
-        os.rmdir(d[0])
+# Removal of tmp files fails: The process cannot access the file because it is being used by andother process
+#     # Remove tmp files:
+#     for d in os.walk(tmpDirName, topdown=False):
+#         for f in d[2]:
+#             os.unlink(os.path.join(d[0], f))
+#         os.rmdir(d[0])
 
     if guiParent is not None:
         import wx

@@ -42,7 +42,10 @@ class Aligner:
 
             # Move dnd file to alignment directory
             if os.path.exists(os.path.splitext(fastaFileName)[0] + ".dnd"):
-                os.system("mv %s %s" % (os.path.splitext(fastaFileName)[0] + ".dnd", self.options.alignmentcache))
+                dndFile = os.path.splitext(fastaFileName)[0] + ".dnd"
+                writeFile(os.path.join(self.options.alignmentcache, os.path.basename(dndFile)), readFile(dndFile))
+                os.unlink(dndFile)
+                #os.system("mv %s %s" % (os.path.splitext(fastaFileName)[0] + ".dnd", self.options.alignmentcache))
 
             # Read alignment back in as string:
             nexusContents = readFile(tmpAlignmentFileName)
