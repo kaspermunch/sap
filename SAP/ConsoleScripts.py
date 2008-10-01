@@ -11,19 +11,15 @@ from SAP.Bio.Nexus import Nexus, Trees, Nodes
 import Fasta
 
 # Custom modules:
-import SAP
-# import NeighbourJoin
-import MachinePool
-import SGE
-import Options
-from XML2Obj import XML2Obj
-from Homology import HomolCompiler, HomologySet, Homologue
-from TreeStatistics import TreeStatistics
-from PairWiseDiffs import PairWiseDiffs
-from ResultHTML import ResultHTML
-from Initialize import Initialize        
-from UtilityFunctions import *
-from InstallDependencies import assertNetblastInstalled, assertClustalw2Installed
+from SAP import MachinePool, SGE, Options
+from SAP.XML2Obj import XML2Obj
+from SAP.Homology import HomolCompiler, HomologySet, Homologue
+from SAP.TreeStatistics import TreeStatistics
+from SAP.PairWiseDiffs import PairWiseDiffs
+from SAP.ResultHTML import ResultHTML
+from SAP.Initialize import Initialize        
+from SAP.UtilityFunctions import *
+from SAP.InstallDependencies import assertNetblastInstalled, assertClustalw2Installed
 
 def sap():
 

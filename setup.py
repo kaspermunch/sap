@@ -41,14 +41,16 @@ if sys.platform == 'darwin':
     
 elif sys.platform == 'win32':
     # python setup.py bdist_wininst --install-script winpostinstall.py 
-    extra_options = dict(app=[guiscript],
+    extra_options = dict(windows=[{"script": guiscript
+                                   # Look here: http://wiki.wxpython.org/index.cgi/DistributingYourApplication
+                                   }],
+                         #app=[guiscript],
                          scripts=['winpostinstall.py'],
                          #setup_requires=['py2exe'],
                          )
 else:
     extra_options = {}
     
-scripts=['scripts/taxoniphy'],
 setup(name='SAP',
       version='1.0',
       description='Statistical assignment of DNA (max 200 chars)',

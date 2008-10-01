@@ -21,30 +21,27 @@ from math import floor
 # BioPython modules:
 from SAP.Bio.Nexus import Nexus, Trees, Nodes
 
-import Fasta
+from SAP import Fasta, NeighbourJoin, MachinePool, Options
 
 # Custom modules:
 #import SAP
-import NeighbourJoin
-import MachinePool
-import Options
-from XML2Obj import XML2Obj
-from Homology import HomolCompiler, HomologySet, Homologue
-from TreeStatistics import TreeStatistics
+from SAP.XML2Obj import XML2Obj
+from SAP.Homology import HomolCompiler, HomologySet, Homologue
+from SAP.TreeStatistics import TreeStatistics
 # from ClustalWrapper import ClustalWrapper
 # from MrBayesWrapper import MrBayesWrapper
 # from BarcoderWrapper import BarcoderWrapper
 # from NeighbourJoinWrapper import NeighbourJoinWrapper
-from PairWiseDiffs import PairWiseDiffs
-from ResultHTML import ResultHTML
-from Initialize import Initialize
+from SAP.PairWiseDiffs import PairWiseDiffs
+from SAP.ResultHTML import ResultHTML
+from SAP.Initialize import Initialize
 
 # We need to import these here so py2app can map them as dependencies:
 from SAP.Sampling import Barcoder, ConstrainedNJ
 from SAP.Alignment import Clustalw2
         
-from UtilityFunctions import *
-from InstallDependencies import *
+from SAP.UtilityFunctions import *
+from SAP.InstallDependencies import *
 
 import sys, os, time
 import wx
