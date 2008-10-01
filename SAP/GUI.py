@@ -1023,7 +1023,7 @@ folder and the sequence input file used.
         info.Developers = [ "Kasper Munch",
                             "Wouter Boomsma",
                             "John Huelsenbeck"]
-        licenseText = "blah " * 250
+        licenseText = "SAP is distributed under the Gnu Public License"
         info.License = wordwrap(licenseText, 500, wx.ClientDC(self))
         # Then we call wx.AboutBox giving it that info object
         wx.AboutBox(info)

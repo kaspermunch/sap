@@ -188,18 +188,18 @@ def sap():
                         # in homologcache and puts alignments in
                         # options.alignmentcache)
                         print "\t\tClustalW2 alignment"
-                        cmd += "sap %s --_align %s ; " \
-                              % (optionStr, os.path.join(options.homologcache, homologyResult.homologuesFileName))
+                        cmd += "%s %s --_align %s ; " \
+                              % (sys.argv[0], optionStr, os.path.join(options.homologcache, homologyResult.homologuesFileName))
     
     
                         print "\t\tTree sampling using", options.sampler
-                        cmd += "sap %s --_sample %s ; " % (optionStr, os.path.join(options.alignmentcache, homologyResult.alignmentFileName))
+                        cmd += "%s %s --_sample %s ; " % (sys.argv[0], optionStr, os.path.join(options.alignmentcache, homologyResult.alignmentFileName))
             
                         # Calculation of tree statistics. (Reads pickled
                         # blastresult objects from homologcache and writes
                         # to options.treestatscache)
                         print "\t\tTree statstics computation"
-                        cmd += "sap %s --_stats %s" % (optionStr, os.path.join(options.homologcache, homologyResult.homologuesPickleFileName))
+                        cmd += "%s %s --_stats %s" % (sys.argv[0], optionStr, os.path.join(options.homologcache, homologyResult.homologuesPickleFileName))
     
                         if options.hostfile or options.sge:
                             try:

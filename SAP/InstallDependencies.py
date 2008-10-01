@@ -80,6 +80,7 @@ class Download:
         """
         tmpDirName = tempfile.mkdtemp()
         tmpFile, tmpFileName = tempfile.mkstemp(dir=tmpDirName)
+        tmpFileName += os.path.splitext(url)[1]
         success = True
         try:
             if self.guiParent is None:
@@ -312,7 +313,7 @@ def getPackageDict(name, packageRE, ftpURL, ftpDir):
         search = packageRE.search(packagePath)
         if search:
             platform = search.group(1)
-            packages[platform] = os.path.join(ftpURL, packagePath)
+            packages[platform] = "%s/%s" % (ftpURL, packagePath)
     sys.stderr.write("done\n")
     sys.stderr.flush()
     return packages
@@ -355,7 +356,7 @@ def installNetblastOnWindows(tmpDirName, tmpFileName, guiParent=None):
     for fileName in z.namelist():
         if fileName == 'blastcl3.exe':
             excecutable = z.read(fileName)
-            
+    z.close()
     installDir = 'C:\Program Files\Netblast'
     os.makedirs(installDir)
 
@@ -394,7 +395,14 @@ def getPossixInstallDir(guiParent=None):
     return installDir
 
 def installClustalw2OnWindows(tmpDirName, tmpFileName, guiParent=None):
-    return False
+    """
+    Run the msi installer.
+    """
+    ret = os.system(tmpFileName)
+    if ret:
+        return False
+    else:
+        return True
 
 def installNetblastOnPosix(tmpDirName, tmpFileName, guiParent=None):
     """

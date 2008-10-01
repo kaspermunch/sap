@@ -50,7 +50,7 @@ class DB:
             if excludelist:
                print "\n\t\tUsing cached Blast results (excluding %s)..." % ', '.join(excludelist),
             else:
-                print "\n\t\tSearching database...", 
+                print "\n\t\tUsing cached Blast results...", 
             sys.stdout.flush()
         else:
             # Make a query to filter the returned results:
@@ -69,7 +69,7 @@ class DB:
                 filterOption = '-F F'
             else:
                 filterOption = '-F T'
-            blastCmd = "blastcl3 -p blastn -m 7 -d nr %s -e %s -v %d -b %d -u '%s' -i %s -o %s" \
+            blastCmd = 'blastcl3 -p blastn -m 7 -d nr %s -e %s -v %d -b %d -u "%s" -i %s -o %s' \
                        % (filterOption, self.options.evaluecutoff, self.options.maxblasthits, self.options.maxblasthits, \
                           entrezQuery, fastaRecordFileName, blastFileName)
 
