@@ -48,6 +48,6 @@ except AttributeError:
 del types
 
 
-run = _Barcoder.run
+runprogram = _Barcoder.runprogram
 
 

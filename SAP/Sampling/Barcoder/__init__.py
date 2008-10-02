@@ -105,7 +105,7 @@ class Sampler:
                                                                chainLength, printFreq, sampleFreq)
             arguments = cmd.split(' ')
             
-            retval = Barcoder.run(arguments, outputPrefix)
+            retval = Barcoder.runprogram(arguments, outputPrefix)
 
             ## outFile = os.path.join(tmpDirName, baseName + ".out")
             ## retval = os.system("bc1 -i %s -c %s -o %s -l %d -p %d -s %d &> %s" % (phylipFileName, constraintsFileName, outputPrefix,

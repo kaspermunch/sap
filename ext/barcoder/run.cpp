@@ -14,7 +14,7 @@ using namespace std;
 
 
 
-int run (int argc, char **argv, char *outputBaseName) {
+int runprogram (int argc, char **argv, char *outputBaseName) {
 
 
         /* Redirect cout and cerr to files: ************/

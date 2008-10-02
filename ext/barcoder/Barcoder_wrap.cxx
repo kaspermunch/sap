@@ -2590,7 +2590,7 @@ namespace swig {
 }
 
 
-extern int run (int argc, char **argv, char *outputFileName);
+extern int runprogram (int argc, char **argv, char *outputFileName);
 
 
 SWIGINTERN swig_type_info*
@@ -2818,7 +2818,7 @@ SWIG_From_int  (int value)
 #ifdef __cplusplus
 extern "C" {
 #endif
-SWIGINTERN PyObject *_wrap_run(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_runprogram(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
   char **arg2 = (char **) 0 ;
@@ -2830,7 +2830,7 @@ SWIGINTERN PyObject *_wrap_run(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:run",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:runprogram",&obj0,&obj1)) SWIG_fail;
   {
     /* Check if is a list */
     if (PyList_Check(obj0)) {
@@ -2855,12 +2855,12 @@ SWIGINTERN PyObject *_wrap_run(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   }
   res3 = SWIG_AsCharPtrAndSize(obj1, &buf3, NULL, &alloc3);
   if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "run" "', argument " "3"" of type '" "char *""'");
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "runprogram" "', argument " "3"" of type '" "char *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
   {
     Py_BEGIN_ALLOW_THREADS
-    result = (int)run(arg1,arg2,arg3);
+    result = (int)runprogram(arg1,arg2,arg3);
     Py_END_ALLOW_THREADS
   }
   resultobj = SWIG_From_int(static_cast< int >(result));
@@ -2879,7 +2879,7 @@ fail:
 
 
 static PyMethodDef SwigMethods[] = {
-	 { (char *)"run", _wrap_run, METH_VARARGS, NULL},
+	 { (char *)"runprogram", _wrap_runprogram, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

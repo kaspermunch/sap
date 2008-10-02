@@ -26,7 +26,7 @@
   free((char *) $2);
 }
 
-%exception run {
+%exception {
   Py_BEGIN_ALLOW_THREADS
   $action
   Py_END_ALLOW_THREADS
@@ -34,6 +34,6 @@
 
 %module Barcoder
 %{
-extern int run (int argc, char **argv, char *outputFileName);
+extern int runprogram (int argc, char **argv, char *outputFileName);
 %}
 %include run.cpp
