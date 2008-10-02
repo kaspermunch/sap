@@ -29,7 +29,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           type="string",
                           default = "GenBank",
                           help="Name of database plugin to use. Default is online GenBank.")
-        self.parser.add_option("-S", "--sampler",
+        self.parser.add_option("-S", "--sampler", "--sampling",
                           type="string",
                           default = "Barcoder",
                           help="Name of sampling plugin to use. Default is Barcoder.")
@@ -310,6 +310,9 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         """
         Post process options
         """
+        
+        if os.name == 'nt' and (self.options.sge or self.options.hostfile):
+            self.showMessageAndExit("Parallel computing is not available on Windows.", guiParent=guiParent)
 
         if re.search(r' ', self.options.project):
             self.showMessageAndExit("Name of project directory can not contain space characters.", guiParent=guiParent)
