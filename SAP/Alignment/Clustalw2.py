@@ -30,12 +30,18 @@ class Aligner:
             sys.stdout.flush()
 
             alignmentoptions = " ".join(self.options.alignmentoption)
+#             if os.name == 'nt':
+#                 commandLine = 'clustalw2 "%s" -output=NEXUS -outfile="%s" %s > nul' % (fastaFileName, outputTmpFileName, alignmentoptions)
+#             else:
+#                 commandLine = "clustalw2 -infile=%s -output=NEXUS -outfile=%s %s &> /dev/null" % (fastaFileName, outputTmpFileName, alignmentoptions)
+#             os.system(commandLine)
             if os.name == 'nt':
-                commandLine = 'clustalw2 "%s" -output=NEXUS -outfile="%s" %s > nul' % (fastaFileName, outputTmpFileName, alignmentoptions)
+                commandLine = 'clustalw2 "%s" -output=NEXUS -outfile="%s" %s' \
+                              % (fastaFileName, outputTmpFileName, alignmentoptions)
             else:
-                commandLine = "clustalw2 -infile=%s -output=NEXUS -outfile=%s %s &> /dev/null" % (fastaFileName, outputTmpFileName, alignmentoptions)
-
-            os.system(commandLine)
+                commandLine = "clustalw2 -infile=%s -output=NEXUS -outfile=%s %s" \
+                              % (fastaFileName, outputTmpFileName, alignmentoptions)
+            systemCall(commandLine, stdout='IGNORE', stderr='IGNORE')
 
             writeFile(tmpAlignmentFileName, readFile(outputTmpFileName))
             os.unlink(outputTmpFileName)

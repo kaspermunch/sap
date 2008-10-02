@@ -1,5 +1,5 @@
 
-import re, random, string, time, sys, os, glob
+import re, random, string, time, sys, os, glob, subprocess
 from pkg_resources import load_entry_point, get_entry_info, get_entry_map, iter_entry_points, EntryPoint
 from SAP.Bio.Nexus import Nexus
 
@@ -15,7 +15,38 @@ class PluginNotFoundError(Error):
     """
     def __init__(self, plugin):
         self.plugin = plugin
-        
+
+def systemCall(cmd, stdout=None, stderr=None):
+    """
+    Executes a system call without a shell/CMD. Takes only single comands with no
+    redirection or ';' chars. Used where we don't want CMD to pop up on windows.
+    """
+    if os.name == 'nt':
+        null = 'nul'
+    else:
+        null = '/dev/null'
+
+    if stdout == 'IGNORE':
+        stdout = open(null, 'w')
+
+    if stderr == 'IGNORE':
+        stderr = open(null, 'w')
+
+#     STARTUPINFO = subprocess.STARTUPINFO()
+#     STARTUPINFO.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+    cmdlist = re.split(r'\s+', cmd)
+    try:
+        retcode = subprocess.call(cmdlist, shell=False, env=os.environ, stdout=stdout, stderr=stderr)
+        #retcode = subprocess.call(cmdlist, shell=False, env=os.environ, stdout=stdout, stderr=stderr, startupinfo=STARTUPINFO)
+        if retcode < 0:
+            print >>sys.stderr, 'System call "%s" was terminated by signal' % cmd, -retcode
+            return False
+        else:
+            return retcode
+    except OSError, e:
+        print >>sys.stderr, 'System call "%s" failed:' % cmd, e
+
 def pairwiseClustalw2(id1, sequence1, id2, sequence2):
     """
     Make a pairwise alignment using a system call to clustalw2 and
@@ -25,13 +56,20 @@ def pairwiseClustalw2(id1, sequence1, id2, sequence2):
     tmpFastaFileName = tmpAlnFileName + '.fasta'
     tmpFastaFileContents = ">%s\n%s\n>%s\n%s\n" % (id1, sequence1, id2, sequence2)
     writeFile(tmpFastaFileName, tmpFastaFileContents)
+#     if os.name == 'nt':
+#         commandLine = "clustalw2 %s -output=NEXUS -gapopen=50 -outfile=%s > %s.log" \
+#                       % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName), os.path.basename(tmpAlnFileName))
+#     else:
+#         commandLine = "clustalw2 -infile=%s -output=NEXUS -gapopen=50 -outfile=%s &> %s.log" \
+#                       % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName), os.path.basename(tmpAlnFileName))
+#     os.system(commandLine)
     if os.name == 'nt':
-        commandLine = "clustalw2 %s -output=NEXUS -gapopen=50 -outfile=%s > %s.log" \
-                      % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName), os.path.basename(tmpAlnFileName))
+        commandLine = "clustalw2 %s -output=NEXUS -gapopen=50 -outfile=%s" \
+                      % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName))
     else:
-        commandLine = "clustalw2 -infile=%s -output=NEXUS -gapopen=50 -outfile=%s &> %s.log" \
-                      % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName), os.path.basename(tmpAlnFileName))
-    os.system(commandLine)
+        commandLine = "clustalw2 -infile=%s -output=NEXUS -gapopen=50 -outfile=%s" \
+                      % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName))
+    systemCall(commandLine, stdout='IGNORE', stderr='IGNORE')
 
     # small bug fix:
     nexusContents = readFile(tmpAlnFileName)
