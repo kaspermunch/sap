@@ -40,14 +40,17 @@ if sys.platform == 'darwin':
 
     
 elif sys.platform == 'win32':
-    # python setup.py bdist_wininst --install-script winpostinstall.py 
-    extra_options = dict(windows=[{"script": guiscript
-                                   # Look here: http://wiki.wxpython.org/index.cgi/DistributingYourApplication
-                                   }],
-                         #app=[guiscript],
-                         scripts=['winpostinstall.py'],
-                         #setup_requires=['py2exe'],
-                         )
+    try:
+        import py2exe
+        # NB: Only do"python setup.py bdist_wininst --install-script winpostinstall.py" when using py2exe on gui
+        extra_options = dict(windows=[{"script": guiscript }],
+                             # Look here: http://wiki.wxpython.org/index.cgi/DistributingYourApplication
+                             #app=[guiscript],
+                             scripts=['winpostinstall.py'],
+                             #setup_requires=['py2exe'],
+                             )
+    except ImportError:
+        extra_options = {}
 else:
     extra_options = {}
     
