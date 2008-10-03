@@ -69,7 +69,8 @@ def pairwiseClustalw2(id1, sequence1, id2, sequence2):
     else:
         commandLine = "clustalw2 -infile=%s -output=NEXUS -gapopen=50 -outfile=%s" \
                       % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName))
-    systemCall(commandLine, stdout='IGNORE', stderr='IGNORE')
+    #systemCall(commandLine, stdout='IGNORE', stderr='IGNORE')
+    os.system(commandLine)
 
     # small bug fix:
     nexusContents = readFile(tmpAlnFileName)
