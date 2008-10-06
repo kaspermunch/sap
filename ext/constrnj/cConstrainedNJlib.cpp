@@ -166,16 +166,17 @@ K2Pstats k2pStats(int i, int j) {
 //     B = G T C (all but A), D = G A T (all but C), H = A C T (all but G), V = G C A (all but T),
 //     N = A G C T (any)
 
-  for (int idx=0; idx < alignmentLength; idx++) {
+  int idx;
+  for (idx=0; idx < alignmentLength; idx++) {
 
     x = alignment[i][alignmentIndexList[idx]];
     y = alignment[j][alignmentIndexList[idx]];
 
     // Skip if a char is a gap:
-    if (x == '-' and y == '-') {
+    if (x == '-' && y == '-') {
   	 extraGaps += 1;
   	 continue;
-    } else if (x == '-' or y == '-') {
+    } else if (x == '-' || y == '-') {
   	 indels += 1;
   	 continue;
     } else if (x == y) {
@@ -183,7 +184,8 @@ K2Pstats k2pStats(int i, int j) {
     }
   
     // Skip if a char is an ambigous wild card:
-    for (int i=0; i<nrAmbigousWildCards; i++) {
+    int i;
+    for (i=0; i<nrAmbigousWildCards; i++) {
   	 if (x == ambigousWildCards[i]) {
   	   uninformative += 1;
   	   continue;
@@ -837,7 +839,7 @@ char *compute(int a_nrOTUs, char **a_alignment, int a_nrBackboneSets, char **a_b
     exit(1);
   }
   int *p = allowedPairsList.front();
-  double dij = distMatrix[p[0]][p[1]] / 2;  
+  double dij = distMatrix[p[0]][p[1]] / 2;
   // (We devide by two not to count this distance twice because we arbitrarily insert a root node.)
 
   Node node;  
