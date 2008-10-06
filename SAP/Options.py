@@ -32,7 +32,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         self.parser.add_option("-S", "--sampler", "--sampling",
                           type="string",
                           default = "Barcoder",
-                          help="Name of sampling plugin to use. Default is Barcoder.")
+                          help="Name of sampling plugin to use. Default is Barcoder. The alternative is ConstrainedNJ")
         self.parser.add_option("-A", "--alignment",
                           type="string",
                           default = "Clustalw2",
