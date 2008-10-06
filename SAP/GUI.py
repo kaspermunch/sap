@@ -44,19 +44,23 @@ from SAP.UtilityFunctions import *
 from SAP.InstallDependencies import *
 
 import sys, os, time
-import wx
-import wx.lib.rcsizer  as rcs
-import wx.lib.scrolledpanel as scrolled
-import wx.lib.filebrowsebutton as filebrowse
-from wx.lib.mixins.listctrl import CheckListCtrlMixin
-from wx.lib.wordwrap import wordwrap
-import wx.lib.delayedresult as delayedresult
-import wx.lib.hyperlink as hyperlink
-#----------------------------------------------------------------------
-# We first have to set an application-wide help provider.  Normally you
-# would do this in your app's OnInit or in other startup code...
-provider = wx.SimpleHelpProvider()
-wx.HelpProvider_Set(provider)
+try:
+   import wx
+   import wx.lib.rcsizer  as rcs
+   import wx.lib.scrolledpanel as scrolled
+   import wx.lib.filebrowsebutton as filebrowse
+   from wx.lib.mixins.listctrl import CheckListCtrlMixin
+   from wx.lib.wordwrap import wordwrap
+   import wx.lib.delayedresult as delayedresult
+   import wx.lib.hyperlink as hyperlink
+   #----------------------------------------------------------------------
+   # We first have to set an application-wide help provider.  Normally you
+   # would do this in your app's OnInit or in other startup code...
+   provider = wx.SimpleHelpProvider()
+   wx.HelpProvider_Set(provider)
+except ImportError:
+   print "You need to install wxPython to be able to run sap_gui from the command line"
+   sys.exit()
 
 wildcard = "Fasta files (*.fasta)|*.fasta|"     \
            "All files (*.*)|*.*"
