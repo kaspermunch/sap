@@ -86,7 +86,8 @@ string IoManager::findCurrentDirectory(void) {
 	string delimiter = "/";
 
 	char cwd[MAX_DIR_PATH+1];
-	if ( !getcwd(cwd, MAX_DIR_PATH+1) )
+	//if ( !getcwd(cwd, MAX_DIR_PATH+1) )
+	if ( !GETCWD(cwd, MAX_DIR_PATH+1) )
 		{
 		cerr << "Problem finding the current director" << endl;
 		return "";
