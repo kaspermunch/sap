@@ -41,8 +41,8 @@ class Aligner:
             else:
                 commandLine = "clustalw2 -infile=%s -output=NEXUS -outfile=%s %s" \
                               % (fastaFileName, outputTmpFileName, alignmentoptions)
-            #systemCall(commandLine, stdout='IGNORE', stderr='IGNORE')
-            os.system(commandLine)
+            systemCall(commandLine, stdout='IGNORE', stderr='IGNORE')
+            #os.system(commandLine)
 
             writeFile(tmpAlignmentFileName, readFile(outputTmpFileName))
             os.unlink(outputTmpFileName)
