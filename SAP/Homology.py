@@ -283,7 +283,7 @@ class HomolCompiler:
                         break
 
                     # Print gi:
-                    seqLen = self.printWithinBounds(gi, seqLen, 80, "\t\t\t")
+                    seqLen = self.printWithinBounds(gi, seqLen, 70, "\t\t\t")
 
                     # Retrieve genbank record:
                     #(homologue, retrievalStatus) = self.getGenBankRecord(gi, description.e)
@@ -759,7 +759,7 @@ class HomolCompiler:
                           if homologue.evalue <= self.options.evaluesignificance:
                              # Count number of significant hits
                              significantHomologuesCount += 1
-                          seqLen = self.printWithinBounds(homologue.gi+' ', seqLen, 80, "\t\t\t")
+                          seqLen = self.printWithinBounds(homologue.gi+' ', seqLen, 70, "\t\t\t")
                     else:
                        # Break out of the filling in loop:
                        break
@@ -776,27 +776,27 @@ class HomolCompiler:
                print "\t\t%s phyla: " % len(phyla),
                seqLen = 0
                for phylum in phyla.keys():
-                   seqLen = self.printWithinBounds(phylum+' ', seqLen, 80, "\t\t\t")
+                   seqLen = self.printWithinBounds(phylum+' ', seqLen, 70, "\t\t\t")
                print ""
                print "\t\t%s classes: " % len(classes),
                seqLen = 0
                for clas in classes.keys():
-                   seqLen = self.printWithinBounds(clas+' ', seqLen, 80, "\t\t\t")
+                   seqLen = self.printWithinBounds(clas+' ', seqLen, 70, "\t\t\t")
                print ""
                print "\t\t%s orders: " % len(orders),
                seqLen = 0
                for order in orders.keys():
-                   seqLen = self.printWithinBounds(order+' ', seqLen, 80, "\t\t\t")
+                   seqLen = self.printWithinBounds(order+' ', seqLen, 70, "\t\t\t")
                print ""
                print "\t\t%s families: " % len(families),
                seqLen = 0
                for family in families.keys():
-                   seqLen = self.printWithinBounds(family+' ', seqLen, 80, "\t\t\t")
+                   seqLen = self.printWithinBounds(family+' ', seqLen, 70, "\t\t\t")
                print ""
                print "\t\t%s genera: " % len(genera),
                seqLen = 0
                for genus in genera.keys():
-                   seqLen = self.printWithinBounds(genus+' ', seqLen, 80, "\t\t\t")
+                   seqLen = self.printWithinBounds(genus+' ', seqLen, 70, "\t\t\t")
                print ""
 
             if noHitsAtAll:
@@ -1060,7 +1060,7 @@ class HomolCompiler:
         print "done."
         sys.stdout.flush()
 
-    def printWithinBounds(self, item, currentLength, maxLength=80, prefix=""):
+    def printWithinBounds(self, item, currentLength, maxLength=70, prefix=""):
         """print but try stay within a maximum length"""
         newCurrentLength = currentLength + len(item)
         if newCurrentLength + len(item) + 1 > maxLength:
