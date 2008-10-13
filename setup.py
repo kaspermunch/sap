@@ -3,7 +3,6 @@
 
 # bdist_mpkg (to create a osx gui installer) does not currently work on Leopard - but may at some point.
 
-
 import ez_setup
 ez_setup.use_setuptools()
 
@@ -40,6 +39,15 @@ if sys.platform == 'darwin':
 
     
 elif sys.platform == 'win32':
+
+    # This is a hack that is supposed to help py2exe find modules in eggs by declaring
+    # the namespace and adding paths to the eggs to modulefinder which is what py2exe uses
+    # to find dependencies:
+    __import__('pkg_resources').declare_namespace(__name__)
+    import modulefinder
+    for p in __path__:
+        modulefinder.AddPackagePath(__name__, p)
+
     try:
         import py2exe
         # NB: Only do"python setup.py bdist_wininst --install-script winpostinstall.py" when using py2exe on gui
