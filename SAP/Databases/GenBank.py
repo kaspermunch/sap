@@ -10,7 +10,7 @@ from SAP.Bio.EUtils.ThinClient import ThinClient
 
 from SAP import Fasta
 from SAP import UtilityFunctions as util
-from SAP import NCBIWWW # locally hacked to allow retrieval or more hits
+# from SAP import NCBIWWW # locally hacked to allow retrieval or more hits
 from SAP import NCBIXML # locally hacked to better parse string info
 from SAP import Taxonomy
 from SAP import XML2Obj
