@@ -77,24 +77,24 @@ class SeqRecord:
          % tuple(map(repr, (self.seq, self.id, self.name,
                             self.description, self.dbxrefs)))
         
-if __name__ == "__main__" :
-    #The following is a very quick example of how to create a SeqRecord object
-    from Bio.Seq import Seq
-    from Bio.Alphabet import generic_protein
-    record = SeqRecord(Seq("MASRGVNKVILVGNLGQDPEVRYMPNGGAVANITLATSESWRDKAT" \
-                          +"GEMKEQTEWHRVVLFGKLAEVASEYLRKGSQVYIEGQLRTRKWTDQ" \
-                          +"SGQDRYTTEVVVNVGGTMQMLGGRQGGGAPAGGNIGGGQPQGGWGQ" \
-                          +"PQQPQGGNQFSGGAQSRPQQSAPAAPSNEPPMDFDDDIPF",
-                           generic_protein),
-                       id="NP_418483.1", name="b4059",
-                       description="ssDNA-binding protein",
-                       dbxrefs=["ASAP:13298", "GI:16131885", "GeneID:948570"])
-
-    #Note that annotations must be added AFTER creating the record
-    record.annotations["note"] = "This annotation was added later"
-
-    print str(record)
-    print repr(record)
-
-    #One way to create a minimal record.
-    record2 = SeqRecord(Seq(""))
+# if __name__ == "__main__" :
+#     #The following is a very quick example of how to create a SeqRecord object
+#     from Bio.Seq import Seq
+#     from Bio.Alphabet import generic_protein
+#     record = SeqRecord(Seq("MASRGVNKVILVGNLGQDPEVRYMPNGGAVANITLATSESWRDKAT" \
+#                           +"GEMKEQTEWHRVVLFGKLAEVASEYLRKGSQVYIEGQLRTRKWTDQ" \
+#                           +"SGQDRYTTEVVVNVGGTMQMLGGRQGGGAPAGGNIGGGQPQGGWGQ" \
+#                           +"PQQPQGGNQFSGGAQSRPQQSAPAAPSNEPPMDFDDDIPF",
+#                            generic_protein),
+#                        id="NP_418483.1", name="b4059",
+#                        description="ssDNA-binding protein",
+#                        dbxrefs=["ASAP:13298", "GI:16131885", "GeneID:948570"])
+# 
+#     #Note that annotations must be added AFTER creating the record
+#     record.annotations["note"] = "This annotation was added later"
+# 
+#     print str(record)
+#     print repr(record)
+# 
+#     #One way to create a minimal record.
+#     record2 = SeqRecord(Seq(""))

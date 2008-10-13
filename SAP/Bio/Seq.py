@@ -7,9 +7,9 @@
 # as part of this package.
 import string, array
 
-import Alphabet
-from Alphabet import IUPAC
-from Data.IUPACData import ambiguous_dna_complement, ambiguous_rna_complement
+import SAP.Bio.Alphabet as Alphabet
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Data.IUPACData import ambiguous_dna_complement, ambiguous_rna_complement
 from SAP.Bio.Data import CodonTable
 
 class Seq:
