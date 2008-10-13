@@ -10,14 +10,13 @@ from SAP.Bio.Nexus import Nexus
 from SAP.Bio.EUtils.Datatypes import DBIds
 from SAP.Bio.EUtils.ThinClient import ThinClient
 
-import Fasta
+from SAP import Fasta
 
-from UtilityFunctions import *
-import NCBIWWW # locally hacked to allow retrieval or more hits
-import NCBIXML # locally hacked to better parse string info
-import Taxonomy
-from XML2Obj import XML2Obj
-
+from SAP.UtilityFunctions import *
+from SAP import NCBIWWW # locally hacked to allow retrieval or more hits
+from SAP import NCBIXML # locally hacked to better parse string info
+from SAP import Taxonomy
+from SAP.XML2Obj import XML2Obj
 
 class HomologySet:
     """
