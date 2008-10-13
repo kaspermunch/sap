@@ -8,7 +8,7 @@ from types import ListType
 # BioPython modules:
 from SAP.Bio.Nexus import Nexus, Trees, Nodes
 
-import Fasta
+from SAP import Fasta
 
 # Custom modules:
 from SAP import MachinePool, SGE, Options
@@ -194,7 +194,7 @@ def sap():
                         # Calculation of tree statistics. (Reads pickled
                         # blastresult objects from homologcache and writes
                         # to options.treestatscache)
-                        print "\t\tTree statstics computation"
+                        print "\t\tTree statistics computation"
                         cmd += "%s %s --_stats %s" % (sys.argv[0], optionStr, os.path.join(options.homologcache, homologyResult.homologuesPickleFileName))
     
                         if options.hostfile or options.sge:
