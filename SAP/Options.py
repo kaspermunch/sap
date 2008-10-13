@@ -94,7 +94,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         self.parser.add_option("-q", "--quickcompile",
                           action="store_true",
                           default=False,
-                          help="Do not make pairwise alignments to sample-sequence to furher ensure that the homolgue maches up.")
+                          help="Do not make pairwise alignments to sample-sequence to further ensure that the homologue maches up.")
         self.parser.add_option("-b", "--besthits", "--softalignmentlimit",
                           type="int",
                           default=30,
