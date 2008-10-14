@@ -14,6 +14,7 @@
 #include "parm_subrates.h"
 #include "parm_tree.h"
 #include "settings.h"
+#include "crossplatform.h"
 
 using namespace std;
 
@@ -34,7 +35,7 @@ Mcmc::Mcmc(Model *m, MbRandom *r, Settings *s, IoManager *outputPtr) {
 		fileName = "mcmc_out";
 	else
 		fileName = outputPtr->getFileName();
-	string filePathAndName = outputPtr->getFilePath() + "/" + fileName;
+	string filePathAndName = outputPtr->getFilePath() + PATH_SEPERATOR + fileName;
 	string parmFile = filePathAndName + ".parm";
 	string treeFile = filePathAndName + ".tree";
 	ofstream parmOut( parmFile.c_str(), ios::out );

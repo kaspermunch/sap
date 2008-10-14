@@ -1,7 +1,7 @@
 #include "iomanager.h"
 #include <iostream>
 #include <dirent.h>
-
+#include "crossplatform.h"
 
 
 IoManager::IoManager(void) {
@@ -30,7 +30,7 @@ IoManager::IoManager(string s) {
 
 bool IoManager::parsePathFileNames(string s) {
 
-	string delimiter = "/";
+	string delimiter = PATH_SEPERATOR;
 
 	if ( s.length() == 0)
 		{
@@ -83,7 +83,7 @@ bool IoManager::parsePathFileNames(string s) {
 #define	MAX_DIR_PATH	2048
 string IoManager::findCurrentDirectory(void) {
 
-	string delimiter = "/";
+	string delimiter = PATH_SEPERATOR;
 
 	char cwd[MAX_DIR_PATH+1];
 	//if ( !getcwd(cwd, MAX_DIR_PATH+1) )
@@ -105,7 +105,7 @@ string IoManager::findCurrentDirectory(void) {
 
 string IoManager::getFilePathName(void) {
 
-	string delimiter = "/";
+	string delimiter = PATH_SEPERATOR;
 
 	return filePath + delimiter + fileName;
 
@@ -195,7 +195,7 @@ bool IoManager::listDirectoryContents(void) {
 
 bool IoManager::openFile(ifstream &strm) {
 	
-	string delimiter = "/";
+	string delimiter = PATH_SEPERATOR;
 
 	/* concactenate path and file name */
 	string filePathName = filePath + delimiter + fileName;
@@ -213,7 +213,7 @@ bool IoManager::openFile(ifstream &strm) {
 
 bool IoManager::openFile(ofstream &strm) {
 	
-	string delimiter = "/";
+	string delimiter = PATH_SEPERATOR;
 
 	/* concactenate path and file name */
 	string filePathName = filePath + delimiter + fileName;

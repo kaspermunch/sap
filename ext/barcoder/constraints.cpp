@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include "MbBitfield.h"
+#include "crossplatform.h"
 
 using namespace std;
 
@@ -95,7 +96,7 @@ Constraints::Constraints(string filePath, string fileName, Alignment *al) {
 	alignmentPtr = al;
 	numTaxa      = alignmentPtr->getNumTaxa();
 	
-	string filePathAndName = filePath + "/" + fileName;
+	string filePathAndName = filePath + PATH_SEPERATOR + fileName;
 	
 	cout << "   Reading constraints" << endl;
 	if (fileName == "")
@@ -114,7 +115,7 @@ Constraints::Constraints(string filePath, string fileName, Alignment *al) {
 		cerr << "      ERROR: Cannot open file \"" + fileName + "\"" << endl;
 		exit(1);
 		}
-
+	cout << "### starting" << endl;
 	string word = "";
 	char ch;
 	int line = 0;
@@ -124,6 +125,7 @@ Constraints::Constraints(string filePath, string fileName, Alignment *al) {
 	int numConstraints = 0;
 	while ( (ch = myFileStream.get()) != EOF)
 		{
+		  cout << ch;
 		//cout << ch;
 		if ( ch == ' ' || ch == '\t' || ch == '\n' )
 			{
@@ -138,7 +140,7 @@ Constraints::Constraints(string filePath, string fileName, Alignment *al) {
 				whichSide++;
 				if (whichSide > 1)
 					{
-					cerr << "Problem reading constaint" << endl;
+					cerr << "Problem reading constraint" << endl;
 					exit (1);
 					}
 				}
@@ -175,7 +177,7 @@ Constraints::Constraints(string filePath, string fileName, Alignment *al) {
 			}
 		}
 	myFileStream.close();
-
+	cout << "### Ended" << endl;
 	for (vector<Bipartition *>::iterator p=biparts.begin(); p != biparts.end(); p++)
 		(*p)->normalizeBipartition();
 		

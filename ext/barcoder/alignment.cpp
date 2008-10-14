@@ -4,13 +4,13 @@
 #include <istream>
 #include <sstream>
 #include <fstream>
-
+#include "crossplatform.h"
 
 
 
 Alignment::Alignment(string filePath, string fileName) {
 
-	string filePathAndName = filePath + "/" + fileName;
+	string filePathAndName = filePath + PATH_SEPERATOR + fileName;
 
 	/* open the file */
 	ifstream seqStream(filePathAndName.c_str());
