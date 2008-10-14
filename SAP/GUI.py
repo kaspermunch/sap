@@ -41,6 +41,7 @@ from SAP.Sampling import Barcoder, ConstrainedNJ
 from SAP.Alignment import Clustalw2
         
 from SAP.UtilityFunctions import *
+from SAP.FindPlugins import *
 from SAP.InstallDependencies import *
 
 import sys, os, time

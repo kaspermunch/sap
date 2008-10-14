@@ -4,6 +4,7 @@ import sys, os, re, shelve, tempfile, StringIO
 from sets import Set
 from SAP import Fasta, Taxonomy, Homology
 from SAP.UtilityFunctions import *
+from SAP.FindPlugins import *
 from SAP import NCBIXML # locally hacked to better parse string info
 try:
     import cPickle as pickle
@@ -16,11 +17,12 @@ class DB:
         """
         Opens a premade local data base and builds an index of taxon names.
         """
+        msg = 'You need to install wu-blast on your system to use the Native database functionality'
         if not findOnSystem('blastn'):
-            print 'blastn is not available'
+            print 'blastn is not available', msg
             sys.exit()
         if not findOnSystem('xdformat'):
-            print 'xdformat is not available'
+            print 'xdformat is not available', msg
             sys.exit()
 
         self.options = options
@@ -92,8 +94,16 @@ class DB:
             except ValueError:                
                 # if not - load the genbank plugin and retrieve from genbank
                 if self.genbank is None:
-                    plugin = findPlugin('GenBank', 'sap.database')
-                    genbank = plugin.DB(self.options)
+                    try:
+                        plugin = findPlugin('GenBank', 'sap.database')
+                        self.genbank = plugin.DB(self.options)
+                    except PluginNotFoundError, X:
+                        # If that fails it is either because we are running an osx application in which
+                        # case we can not load dynamically. So we try to see if the plugin should be
+                        # one of the ones that come with the distribution in which case we can just
+                        # import it:
+                        from SAP.Databases import GenBank as plugin
+                        self.db = plugin.DB(self.options)
                 identifier = fastaRecord.title
                 if not re.match(r'\d+', identifier):
                     raise Exception
@@ -103,7 +113,7 @@ class DB:
                 else:
                     print "\t%s" % identifier
 
-                homologue, ret = genbank.get(identifier, None)
+                homologue, ret = self.genbank.get(identifier, None)
                 taxonomy = homologue.taxonomy
                 organismName = taxonomy.organism
 

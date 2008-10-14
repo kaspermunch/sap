@@ -1,20 +1,21 @@
 
 import re, random, string, time, sys, os, glob, subprocess
-from pkg_resources import load_entry_point, get_entry_info, get_entry_map, iter_entry_points, EntryPoint
+# from pkg_resources import load_entry_point, get_entry_info, get_entry_map, iter_entry_points, EntryPoint
 from SAP.Bio.Nexus import Nexus
 
-class Error(Exception):
-    """
-    Base class for exceptions in this module.
-    """
-    pass
-    
-class PluginNotFoundError(Error):
-    """
-    Raised when a plugin is not found.
-    """
-    def __init__(self, plugin):
-        self.plugin = plugin
+
+# class Error(Exception):
+#     """
+#     Base class for exceptions in this module.
+#     """
+#     pass
+#     
+# class PluginNotFoundError(Error):
+#     """
+#     Raised when a plugin is not found.
+#     """
+#     def __init__(self, plugin):
+#         self.plugin = plugin
 
 def systemCall(cmd, stdout=None, stderr=None):
     """
@@ -124,15 +125,15 @@ def findOnSystem(filename):
     else:
         return None
 
-def findPlugin(name, entry_point_name):
-    plugin = None
-    for entryp in iter_entry_points(entry_point_name):
-       if entryp.name == name:
-          plugin = entryp.load()
-          break
-    if not plugin:
-       raise PluginNotFoundError, name
-    return plugin
+# def findPlugin(name, entry_point_name):
+#     plugin = None
+#     for entryp in iter_entry_points(entry_point_name):
+#        if entryp.name == name:
+#           plugin = entryp.load()
+#           break
+#     if not plugin:
+#        raise PluginNotFoundError, name
+#     return plugin
 
 def similarityScore(seq1, seq2):
     assert (len(seq1) == len(seq2))

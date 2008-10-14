@@ -19,6 +19,7 @@ from SAP.PairWiseDiffs import PairWiseDiffs
 from SAP.ResultHTML import ResultHTML
 from SAP.Initialize import Initialize        
 from SAP.UtilityFunctions import *
+from SAP.FindPlugins import *
 from SAP.InstallDependencies import assertNetblastInstalled, assertClustalw2Installed
 
 def sap():
