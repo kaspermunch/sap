@@ -172,6 +172,10 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           type="int",
                           default=0,
                           help="Extra flanks to add to the homologue before aligning the set.")
+        self.parser.add_option("--notruncate",
+                          action="store_true",
+                          default=False,
+                          help="Do not truncate homologue sequence to match of sample-sequence. Used when the sample-sequence and database are prealigned.")
 
         # Alignment options:
         self.parser.add_option("--alignmentoption",
