@@ -80,7 +80,7 @@ class Aligner:
 
             alignment.write_nexus_data(filename=alignmentFileName)
             
-            print "done", 
+            print "done." 
             sys.stdout.flush()
 
 
