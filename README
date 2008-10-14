@@ -1,30 +1,20 @@
 
 DESCRIPTION:
-===================================================================
+=========================================================================================
 
-TaxonoPhy is used to make a statistical assingment of an unknown DNA
-sequence to taxa represented by sequences in GenBank. Each assignment
-is associated with a posterior probility that serve as a confidence in
-the assignment.
-
+SAP makes statistical assingment of an unknown DNA sequence to taxa represented by
+sequences in GenBank. Each assignment is associated with a posterior probility that serve
+as a confidence in the assignment.
 
 REQUIREMENTS:
-===================================================================
+=========================================================================================
 
-TaxoniPhy needs the Python interpreter to run: If you are running on
-OSX you have it installed. Otherwise it is easlily downloaded and
-installed from: http://www.activestate.com/products/activepython.
-
-Clustalw2 is used to make alignments of homologues. This is easily
-downloaded and installed from
-ftp://ftp.ebi.ac.uk/pub/software/clustalw2/
-
-The first time you run TaxoniPhy it will check if you have Netblast on
-your system. If not it will download and install it for you.
-
+You need the Python interpreter (version 2.4 or newer) to run SAP. If you already have
+Python installed you can check the version by typing python in your terminal. Python is
+easlily downloaded and installed from: http://www.activestate.com/products/activepython.
 
 INSTALATION:
-===================================================================
+=========================================================================================
 
 If you have administrator privileges on your machine you type:
 
@@ -37,11 +27,10 @@ python path. Then you just type:
 
 python setup.py install --prefix=<some_dir>
 
-
 FIREWALL SETTINGS:
-===================================================================
+=========================================================================================
 
-TaxonoPhy relies on netblast to access genbank. If you are behind a
+SAP relies on netblast to access genbank. If you are behind a
 firewall you may need to configure your firewass settings. The
 following is copied from the netblast documentation.
 
