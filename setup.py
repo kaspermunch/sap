@@ -1,8 +1,47 @@
 
+#####################################################################################
 # To build extensions you need svn version of macholib (http://svn.pythonmac.org/macholib/macholib/trunk/) In addition to the py2app package.
+# 
+# To build on windows:
+# 
+# Installed pyhton 2.5
+# installed ansi wxpython for 2.5
+# installed py2exe for 2.5
+# installed cygwin (under Development including gcc, gdb, make)
+# 
+# In /cygdrive/c/Python25/Lib/distutils/version.py:
+# changed:
+# version_re = re.compile(r'^(\d+) \. (\d+) (\. (\d+))? ([ab](\d+))?$',
+#                             re.VERBOSE)
+# to:
+# version_re = re.compile(r'^(\d+) \. (\d+) (\. (\d+))? ([ab.](\d+))?$',
+#                             re.VERBOSE)
+# 
+# Install Borland compiler 5.5 and make the necessary changes to Path and environmental variables (see supplemental inform
+# ation on the website)
+# 
+# changed the setup.cfg file by:
+# /cygdrive/c/Python25/python setup.py setopt --command=build --option=compiler --set-value=bcpp
+# 
+# If you build in windows the WINDOWS variable must be defined in crossplatform.h in ext/barcoder
+# 
+# The first time sap is run it will download and install dependencies. To it must be run in a command prompt as administra
+# tor (type "Command" in search field and right-click on "Command Prompt" and choose "Run as administrator")
+# 
+# 
+# 
+# in barcoder/iomanager.cpp: On windows with Borland compiler getcwd() must be _getcwd() and <direct.h> must be imported
+# 
+# 
+# 
+# "/" has to be exchanged for "\\" using a defined PATH_SEPERATOR
+# 
+# 
+# crashes in fourth line when initializing Bipartition in constraints.cpp
+# crashes in model.cpp when setting up transition probs.
+######################################################################################
 
 # bdist_mpkg (to create a osx gui installer) does not currently work on Leopard - but may at some point.
-
 import ez_setup
 ez_setup.use_setuptools()
 
@@ -39,15 +78,6 @@ if sys.platform == 'darwin':
 
     
 elif sys.platform == 'win32':
-
-    # This is a hack that is supposed to help py2exe find modules in eggs by declaring
-    # the namespace and adding paths to the eggs to modulefinder which is what py2exe uses
-    # to find dependencies:
-    __import__('pkg_resources').declare_namespace(__name__)
-    import modulefinder
-    for p in __path__:
-        modulefinder.AddPackagePath(__name__, p)
-
     try:
         import py2exe
         # NB: Only do"python setup.py bdist_wininst --install-script winpostinstall.py" when using py2exe on gui
