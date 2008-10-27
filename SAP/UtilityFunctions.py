@@ -199,7 +199,7 @@ def writeNexusFile(fileName, seqList):
     seqs = []
     longestName = 0
     for fastaRecord in seqList:
-        assert len(fastaRecord.sequence) == alnLength, "SEQUENCES NOT SAME LENGTH"
+        assert len(fastaRecord.sequence) == alnLength, "SEQUENCES NOT SAME LENGTH: %s != %s" % (len(fastaRecord.sequence), alnLength)
         names.append(fastaRecord.title)
         seqs.append(fastaRecord.sequence)
         longestName = max(len(fastaRecord.title), longestName)

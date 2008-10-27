@@ -325,7 +325,7 @@ class HomolCompiler:
                             startIndex = max(0, startIndex - self.options.flanks)
                             endIndex = min(endIndex + self.options.flanks, len(homologue.sequence))
 
-                        if not options.notruncate:
+                        if not self.options.notruncate:
                            # (I multiply the minimal flanks by two to account for the maximal nr of gaps possible in these retions.)
                            homologue.sequence = homologue.sequence[startIndex:endIndex]
 
@@ -337,7 +337,7 @@ class HomolCompiler:
                         # from the sequence that goes into the HomologyData object:
                         homologue.sequence = re.sub(r'(^N*)|(N{50,})|(N*$)', '', homologue.sequence)
 
-                        if not self.options.quickcompile and not options.notruncate:
+                        if not self.options.quickcompile and not self.options.notruncate:
                            alignment = pairwiseClustalw2(queryName, fastaRecord.sequence, gi, homologue.sequence)
                            # Get sequences:
                            alignedQuery = alignment.matrix[queryName].tostring()

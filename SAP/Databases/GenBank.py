@@ -256,7 +256,6 @@ class DB:
        assert taxonomy is not None, taxonomyFile
        return taxonomy
 
-
 if __name__ == "__main__":
     main()
 

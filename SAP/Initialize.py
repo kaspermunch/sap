@@ -104,10 +104,10 @@ class Initialize:
 
                 sequenceNameMap[baseName][fastaRecord.title] = origName
 
-                # Strip sequence of gap chars:
-                fastaRecord.sequence = fastaRecord.sequence.replace('-', '')
-                fastaRecord.sequence = fastaRecord.sequence.replace('~', '')
-                fastaRecord.sequence = fastaRecord.sequence.replace('.', '')
+#                 # Strip sequence of gap chars:
+#                 fastaRecord.sequence = fastaRecord.sequence.replace('-', '')
+#                 fastaRecord.sequence = fastaRecord.sequence.replace('~', '')
+#                 fastaRecord.sequence = fastaRecord.sequence.replace('.', '')
 
                 fastaRecord.sequence = re.sub('[^%s]' % allowedLetters, 'N', fastaRecord.sequence)
                 

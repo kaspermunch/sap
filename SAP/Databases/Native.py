@@ -106,7 +106,7 @@ class DB:
                         self.db = plugin.DB(self.options)
                 identifier = fastaRecord.title
                 if not re.match(r'\d+', identifier):
-                    raise Exception
+                    raise Exception, 'taxonomic information missing from header and sequence name is not a NCBI gi nr.'
                 if firstMissedTaxonomy:
                     print "Retrieving missing taxonomic annotation from NCBI's Taxonomy Browser:\n\t%s" % identifier
                     firstMissedTaxonomy = False
