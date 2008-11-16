@@ -23,8 +23,8 @@ class Initialize:
         # Create cache and data directories if not already there
         if not os.path.exists(self.options.blastcache):
             os.makedirs(self.options.blastcache)
-        if not os.path.exists(self.options.genbankcache):
-            os.makedirs(self.options.genbankcache)
+        if not os.path.exists(self.options.dbcache):
+            os.makedirs(self.options.dbcache)
         if not os.path.exists(self.options.alignmentcache):
             os.makedirs(self.options.alignmentcache)
         if not os.path.exists(self.options.homologcache):
@@ -104,12 +104,14 @@ class Initialize:
 
                 sequenceNameMap[baseName][fastaRecord.title] = origName
 
-#                 # Strip sequence of gap chars:
-#                 fastaRecord.sequence = fastaRecord.sequence.replace('-', '')
-#                 fastaRecord.sequence = fastaRecord.sequence.replace('~', '')
-#                 fastaRecord.sequence = fastaRecord.sequence.replace('.', '')
+                # Strip sequence of gap chars:
+                #fastaRecord.sequence = fastaRecord.sequence.replace('-', '')
+                fastaRecord.sequence = fastaRecord.sequence.replace('~', '')
+                fastaRecord.sequence = fastaRecord.sequence.replace('.', '')
 
-                fastaRecord.sequence = re.sub('[^%s]' % allowedLetters, 'N', fastaRecord.sequence)
+                # fastaRecord.sequence = re.sub('[^%s]' % allowedLetters, 'N', fastaRecord.sequence)
+                fastaRecord.sequence = re.sub('[^%s-]' % allowedLetters, 'N', fastaRecord.sequence)
+
                 
                 # Print only if there is some sequence left:
                 if len(fastaRecord.sequence) > 0:
@@ -140,9 +142,9 @@ class Initialize:
             pickleFile.close()
 
             # Lists of options that deprecates cache entries:
-            deleteBlastCacheList = ["database", "maxblasthits", "limitquery", "evaluecutoff", "nolowcomplexfilter"]
+            deleteBlastCacheList = ["database", "maxblasthits", "limitquery", "minsignificance", "nolowcomplexfilter"]
 
-            deleteHomologueCacheList = [ "quickcompile", "minidentity", "forceidentity", "subspecieslevel", "fillinall", "fillineven", "fillintomatch", "individuals", "evaluesignificance", "minsignificant",
+            deleteHomologueCacheList = [ "quickcompile", "minidentity", "forceidentity", "subspecieslevel", "fillinall", "fillineven", "fillintomatch", "individuals", "significance", "nrsignificant",
                                          "relbitscore", "phyla", "classes", "orders", "families", "genera",
                                          "besthits", "alignmentlimit", "minimaltaxonomy", "harddiversity", "forceincludefile", "forceincludegilist", "forceexcludegilist"]
             deleteHomologueCacheList.extend(deleteBlastCacheList)
