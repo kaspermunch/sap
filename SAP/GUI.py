@@ -357,9 +357,9 @@ class OptionsDialog(wx.Dialog):
                     '--besthits',             '--individuals',       
                     '--alignmentlimit',       '--nofillin',           
                     '--relbitscore',          '--fillinall',         
-                    '--evaluesignificance',   '--fillintomatch',     
-                    '--minsignificant',       '--forceexcludegilist',
-                    '--evaluecutoff',         '--forceincludegilist',  
+                    '--significance',         '--fillintomatch',     
+                    '--nrsignificant',        '--forceexcludegilist',
+                    '--minsignificance',      '--forceincludegilist',  
                     '--minidentity',          '--forceidentity',                                             
                     '--subspecieslevel',      '--forceincludefile'                                               
                     ]
