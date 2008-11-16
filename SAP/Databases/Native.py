@@ -11,7 +11,15 @@ try:
 except ImportError:
     import pickle
 
-class DB:
+from SAP.SearchResult import BlastSearchResult
+
+class SearchResult(BlastSearchResult):   
+    """
+    Generic class for search attributes.
+    """
+    pass
+
+class DB(object):
 
     def __init__(self, fastaFileName, options, rebuild=False):
         """
@@ -181,57 +189,89 @@ class DB:
 
     def search(self, fastaRecord, excludelist=[], usecache=True):
 
-        print "\n\t\tSearching database...", 
-        sys.stdout.flush()
-
         # Write the query to a tmp file:
         tmpDirName = tempfile.mkdtemp()
         tmpQueryFile, tmpQueryFileName = tempfile.mkstemp(dir=tmpDirName)
         writeFile(tmpQueryFileName, str(fastaRecord))
 
-        if excludelist:
-            # Build a blast db of the relevant records:
-            excludeIDs = []
-            for taxon in excludelist:
-                excludeIDs.extend(self.index[taxon])
-            includeIDs = Set(self.db.keys()).difference(excludeIDs)
+        # File name used for blast cache
+        fileSuffix = ''
+        for name in excludelist:
+            l = re.split(r'\s+', name)
+            for n in l:
+                fileSuffix += n[0]
+        if fileSuffix:
+           fileSuffix = '_' + fileSuffix
 
-            blastDBfileName = "tmpBlastDB.fasta"
-            tmpFastaFile = open(blastDBfileName, 'w')
-            for key in includeIDs:
-                tmpFastaFile.write(str(self.db[str(key)]['fastaRecord']))
-            tmpFastaFile.close()
-            cmd = "xdformat -n -o %s %s" % (blastDBfileName, blastDBfileName)
-            stdin, stdout, stderr = os.popen3(cmd)
+        blastFileName = os.path.join(self.options.blastcache, "%s.%d_%s%s.xml" % (fastaRecord.title,
+                                               self.options.maxblasthits, self.options.minsignificance, fileSuffix))
+
+        if usecache and os.path.exists(blastFileName) and os.path.getsize(blastFileName)>0:
+            # Use cached blast result
+            if excludelist:
+               print "\n\t\tUsing cached Blast results (excluding %s)..." % ', '.join(excludelist),
+            else:
+                print "\n\t\tUsing cached Blast results...", 
+            sys.stdout.flush()
+
+            blastFile = open(blastFileName, 'r')
         else:
-            blastDBfileName = self.blastDB
+            if excludelist:
+                print "\n\t\tSearching database (excluding %s)..." % ', '.join(excludelist), 
+            else:
+                print "\n\t\tSearching database...", 
+            sys.stdout.flush()
+
+            if excludelist:
+                # Build a blast db of the relevant records:
+                excludeIDs = []
+                for taxon in excludelist:
+                    excludeIDs.extend(self.index[taxon])
+                includeIDs = Set(self.db.keys()).difference(excludeIDs)
+
+                blastDBfileName = "tmpBlastDB.fasta"
+                tmpFastaFile = open(blastDBfileName, 'w')
+                for key in includeIDs:
+                    tmpFastaFile.write(str(self.db[str(key)]['fastaRecord']))
+                tmpFastaFile.close()
+                cmd = "xdformat -n -o %s %s" % (blastDBfileName, blastDBfileName)
+                stdin, stdout, stderr = os.popen3(cmd)
+            else:
+                blastDBfileName = self.blastDB
             
-        # Blast:
-        cmd = "blastn %s %s -mformat 7" % (blastDBfileName, tmpQueryFileName)
-        stdin, stdout, stderr = os.popen3(cmd)
+            # Blast:
+            cmd = "blastn %s %s -mformat 7" % (blastDBfileName, tmpQueryFileName)
+
+            stdin, stdout, stderr = os.popen3(cmd)
+
+            blastContent = stdout.read()
+            writeFile(blastFileName, blastContent)
+
+            blastFile = StringIO.StringIO(blastContent)
+
         blastParser = NCBIXML.BlastParser()
         try:
-            blastRecord = blastParser.parse(StringIO.StringIO(stdout.read())) 
+            blastRecord = blastParser.parse(blastFile) 
         except:
             blastRecord = None        
 
         print "done.\n\t\t\t",
         sys.stdout.flush()
-
-        return blastRecord
         
-    def get(self, gi, evalue):
+        return SearchResult(blastRecord)
+        
+    def get(self, gi):
 
-        fastaRecord = self.db[str(gi)]['fastaRecord']
-        taxonomy = self.db[str(gi)]['taxonomy']
-
-        retrievalStatus = '(n)'
+        try:
+            fastaRecord = self.db[str(gi)]['fastaRecord']
+            taxonomy = self.db[str(gi)]['taxonomy']
+            retrievalStatus = '(l)'
+        except:
+            return None, retrievalStatus.replace(")", "!?)")
 
         return Homology.Homologue(gi=gi,
                                   sequence=fastaRecord.sequence,
-                                  evalue = evalue, 
-                                  taxonomy=taxonomy,
-                                  options=None), retrievalStatus
+                                  taxonomy=taxonomy), retrievalStatus
 
 
 if __name__ == "__main__":
