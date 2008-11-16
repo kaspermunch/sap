@@ -142,7 +142,7 @@ class Initialize:
             # Lists of options that deprecates cache entries:
             deleteBlastCacheList = ["database", "maxblasthits", "limitquery", "evaluecutoff", "nolowcomplexfilter"]
 
-            deleteHomologueCacheList = [ "quickcompile", "minidentity", "forceidentity", "subspecieslevel", "fillinall", "fillineven", "fillintomatch", "individuals", "evaluesignificance", "minsignificant",
+            deleteHomologueCacheList = [ "notruncate", "quickcompile", "minidentity", "forceidentity", "subspecieslevel", "fillinall", "fillineven", "fillintomatch", "individuals", "evaluesignificance", "minsignificant",
                                          "relbitscore", "phyla", "classes", "orders", "families", "genera",
                                          "besthits", "alignmentlimit", "minimaltaxonomy", "harddiversity", "forceincludefile", "forceincludegilist", "forceexcludegilist"]
             deleteHomologueCacheList.extend(deleteBlastCacheList)
@@ -155,6 +155,9 @@ class Initialize:
             print "Checking cache for deprecated entries"
 
             for option in self.options.__dict__.keys():
+
+                if not prevOptions.__dict__.has_key(option):
+                    print "New option for SAP \"%s\" will take default value \"%s\"" % (option, self.options.__dict__[option])
 
                 if option in deleteBlastCacheList and self.options.__dict__[option] != prevOptions.__dict__[option]:
                     print '\tBlast cache'
