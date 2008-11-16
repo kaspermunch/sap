@@ -12,7 +12,9 @@ levelList = ['superkingdom', 'kingdom', 'subkingdom',
              'supergenus', 'genus', 'subgenus',
              'species group', 'species subgroup',
              'species', 'subspecies',
-             'organism']
+             'organism'] # organism is normally its own attribute, but it is added to the
+                         # list because we need to add organism level then producing a
+                         # constraint summary tree.
 
 levelRanks = {}
 for i, level in enumerate(levelList):
@@ -174,15 +176,26 @@ class Taxonomy:
                 levelList.append(taxLevel)
         return Taxonomy(levelList)
 
-    def populateFromString(self, str):
+#     def populateFromString(self, str):
+#         """
+#         Populate the a Taxonomy object from a string in the following format:
+# 
+#         family: Hominidae, genus: Homo, species: Homo sapiens, subspecies: Homo sapiens neanderthalensis
+#         """
+#         taxonomyLevelList  = []
+#         for pair in re.split(r'\s*,\s*', str):
+#             taxonLevel, taxonName = re.split(r'\s*:\s*', pair)
+#             taxonomyLevelList.append(TaxonomyLevel(taxonName, taxonLevel))
+#         self.add(taxonomyLevelList)
+    def populateFromString(self, str, fieldsep=',', subfieldsep=':'):
         """
         Populate the a Taxonomy object from a string in the following format:
 
         family: Hominidae, genus: Homo, species: Homo sapiens, subspecies: Homo sapiens neanderthalensis
         """
         taxonomyLevelList  = []
-        for pair in re.split(r'\s*,\s*', str):
-            taxonLevel, taxonName = re.split(r'\s*:\s*', pair)
+        for pair in re.split(r'\s*%s\s*' % fieldsep, str):
+            taxonLevel, taxonName = re.split('\s*%s\s*' % subfieldsep , pair)
             taxonomyLevelList.append(TaxonomyLevel(taxonName, taxonLevel))
         self.add(taxonomyLevelList)
 
