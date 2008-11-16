@@ -45,6 +45,10 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           type="string",
                           default=False,
                           help="View results of in specified project folder in default browser.")
+        self.parser.add_option("--installdependencies",
+                          action="store_true",
+                          default=False,
+                          help="Used for installing dependencies if you want to do that before you run the program for the first time.")
 
         # Parallel options:
         self.parser.add_option("--hostfile",
@@ -57,22 +61,34 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           help="Use this option to run parallel assignments on a Sun Grid Engine cluster with a shared file system. Use the qrun.sh script to do this. The program uses the SGE queue to mannage its sub-tasks. This means that sub-tasks are submitted to the queue individually. The sge option is given two arguments. The argument is the maximal number of queued sub-jobs allowed.")
 
         # Blast options:
-        self.parser.add_option("-e", "--evaluecutoff",
+        self.parser.add_option("-t", "--minsignificance",
                           type="string",
                           default='10',
-                          help="Lower E-value bound for accepting homologue sequences.")
-        self.parser.add_option("-t", "--evaluesignificance",
+                          help="Lower sinificance bound (E-value if using GenBank) for accepting homologue sequences.")
+        self.parser.add_option("-s", "--significance",
                           type="float",
                           default=0.1,
-                          help="E-value cutoff for significant hits")
-        self.parser.add_option("-s", "--minsignificant",
+                          help="Value above which hits are considered significant")
+        self.parser.add_option("-n", "--nrsignificant",
                           type="int",
                           default=5,
                           help="Minimum number of accepted significant homologues required.")
+#         self.parser.add_option("-e", "--evaluecutoff",
+#                           type="string",
+#                           default='10',
+#                           help="Lower E-value bound for accepting homologue sequences.")
+#         self.parser.add_option("-t", "--evaluesignificance",
+#                           type="float",
+#                           default=0.1,
+#                           help="E-value cutoff for significant hits")
+#         self.parser.add_option("-s", "--minsignificant",
+#                           type="int",
+#                           default=5,
+#                           help="Minimum number of accepted significant homologues required.")
         self.parser.add_option("-l", "--limitquery",
                           type="string",
                           default="all[FILT]",
-                          help="Entrez query to limit blast database. Eg. 'COI[GENE] AND Hominidae[ORGANISM]'")
+                          help="Entrez query to limit blast database. Eg. 'COI[GENE] AND Hominidae[ORGANISM]' to compare only to Human COI sequences, or 'keyword[barcode]' to compare to only sequences labeled barcode entries.")
         self.parser.add_option("--minidentity",
                           type="float",
                           default=0.95,
@@ -228,10 +244,10 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           #default=None,
                           default='blastcache',
                           help="Where to put cached blast files. FOR INTERNAL USE ONLY.")
-        self.parser.add_option("--genbankcache",
+        self.parser.add_option("--dbcache",
                           type="string",
                           #default=None,
-                          default='genbankcache',
+                          default='dbcache',
                           help="Where to put cached GenBank files.")
         self.parser.add_option("--homologcache",
                           type="string",
@@ -323,7 +339,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         self.options.project = os.path.abspath(self.options.project)
 
         self.options.blastcache = os.path.join(self.options.project, self.options.blastcache)
-        self.options.genbankcache = os.path.join(self.options.project, self.options.genbankcache)
+        self.options.dbcache = os.path.join(self.options.project, self.options.dbcache)
         self.options.homologcache = os.path.join(self.options.project, self.options.homologcache)
         self.options.alignmentcache = os.path.join(self.options.project, self.options.alignmentcache)
         self.options.treestatscache = os.path.join(self.options.project, self.options.treestatscache)
