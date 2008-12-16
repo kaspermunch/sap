@@ -386,10 +386,13 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                         else:
                             text += '<tr class="light">\n'
 
-
-                        # Left cell: Taxonmic name as link to NCBI Taxonomy:
-                        text += '<td valign="top"><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Undef&name=%s">%s</a></td>\n' \
-                                % (name, name)
+                        if self.options.database == "GenBank":
+                           # Left cell: Taxonmic name as link to NCBI Taxonomy:
+                           text += '<td valign="top"><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Undef&name=%s">%s</a></td>\n' % (name, name)
+                        else:
+                           # Left cell: Taxonmic name as link to EOL:
+                           text += '<td valign="top"><a href="http://www.eol.org/search?q=%s&search_image=">%s</a></td>\n' \
+                                   % (name.replace(" ", "+"), name)
 
                         # Right cell: List of taxonomix names:
                         text += "<td>\n"

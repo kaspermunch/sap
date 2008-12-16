@@ -37,19 +37,16 @@ from SAP import Fasta
 from SAP.Bio.EUtils.Datatypes import DBIds
 from SAP.Bio.EUtils.ThinClient import ThinClient
 
-from Taxoniphy import Homology # I should rename this to Homology
+from SAP import Homology # I should rename this to Homology
 
 class DB(object):
 
     def __init__(self):
+        """
+        Instantiate the database, build it if necessary.
+        """
         pass
 
-    def build(**kwargs):
-        """
-        Called when the database is built. If your database is
-        prebuilt you can leave it as it is.
-        """
-        pass
 
     def search(self, fastaRecord, excludelist=[], usecache=True):
         """
@@ -58,7 +55,7 @@ class DB(object):
 
         return SAP.Bio.Blast.Record()
 
-    def get(self, gi, evalue):
+    def get(self, gi):
        """
        Called to retrieve a homologue and its taxonomic annotation
        from the database. Must return a fully populated

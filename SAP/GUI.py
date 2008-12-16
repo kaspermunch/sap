@@ -24,14 +24,9 @@ from SAP.Bio.Nexus import Nexus, Trees, Nodes
 from SAP import Fasta, NeighbourJoin, MachinePool, Options
 
 # Custom modules:
-#import SAP
 from SAP.XML2Obj import XML2Obj
 from SAP.Homology import HomolCompiler, HomologySet, Homologue
 from SAP.TreeStatistics import TreeStatistics
-# from ClustalWrapper import ClustalWrapper
-# from MrBayesWrapper import MrBayesWrapper
-# from BarcoderWrapper import BarcoderWrapper
-# from NeighbourJoinWrapper import NeighbourJoinWrapper
 from SAP.PairWiseDiffs import PairWiseDiffs
 from SAP.ResultHTML import ResultHTML
 from SAP.Initialize import Initialize
@@ -109,17 +104,6 @@ class MyDirDropTarget(MyDropTarget):
              return
        self.textctrl.SetInsertionPointEnd()
        self.textctrl.WriteText(" ".join(filenames))
-
-
-# class MyFileDropTarget(wx.FileDropTarget):
-#     def __init__(self, window, textctrl):
-#         wx.FileDropTarget.__init__(self)
-#         self.window = window
-#         self.textctrl = textctrl
-# 
-#     def OnDropFiles(self, x, y, filenames):
-#         self.textctrl.SetInsertionPointEnd()
-#         self.textctrl.WriteText(" ".join(filenames))
 
 class OutputEnqueue:
     def __init__(self):
@@ -237,7 +221,10 @@ class OptionsValidator(wx.PyValidator):
                    newValue = text
             except ValueError:
                inputError = True
-         else:
+
+         elif not getattr(optionParser.options, self.optionName):            
+            newValue = None
+         else:            
             inputError = True
 
          # Make some sanity checks:
@@ -274,12 +261,9 @@ class OptionsValidator(wx.PyValidator):
              occurred.  We simply return True, as we don't do any data transfer.
          """
          return True # Prevent wxDialog from complaining.
-     
 
 class BoundTextCtrl(wx.TextCtrl):
     def __init__ (self, parent, optionName):
-
-        #wx.TextCtrl.__init__(self, parent, -1, str(getattr(optionParser.options, optionName)), size=(100, -1), validator=OptionsValidator(optionName))
         wx.TextCtrl.__init__(self, parent, -1, self.formatDefaultSring(optionParser, optionName), size=(100, -1), validator=OptionsValidator(optionName))
 
         self.Bind(wx.EVT_TEXT, self.EvtText)
@@ -290,11 +274,16 @@ class BoundTextCtrl(wx.TextCtrl):
 
     def formatDefaultSring(self, optionParser, optionName):
        opt = getattr(optionParser.options, optionName)
-       s = str(opt)
-       if type(opt) == type([]):
-          return s[1:-1]
+
+       if opt is None:
+          return ''
+       elif type(opt) == type([]):
+          if len(opt) == 1:
+             return str(opt[0])
+          else:
+             return ", ".join(opt)
        else:
-          return s
+          return str(opt)
 
     def EvtText(self, evt):
         varString = evt.GetString()
@@ -314,6 +303,80 @@ class BoundTextCtrl(wx.TextCtrl):
     def OnWindowDestroy(self, evt):
         evt.Skip()
 
+class BoolChoice(wx.Choice):
+    def __init__ (self, parent, optionName, choiceList=[]):
+       self.optionName = optionName
+       opt = getattr(optionParser.options, self.optionName)
+       if opt is True:
+          choiceList = ['Yes', 'No']
+       else:
+          choiceList = ['No', 'Yes']
+       wx.Choice.__init__(self, parent, -1, pos=(100, 50), size=(100,-1), choices = choiceList)
+       self.Bind(wx.EVT_CHOICE, self.EvtChoice, self)
+
+    def EvtChoice(self, event):
+       choice = event.GetString()
+       if choice == 'Yes':
+          choice = True
+       if choice == 'No':
+          choice = False
+       setattr(optionParser.options, self.optionName, choice)
+
+class StringChoice(wx.Choice):
+    def __init__ (self, parent, optionName, choiceList=[]):
+       self.optionName = optionName
+       self.choiceList = choiceList
+       opt = getattr(optionParser.options, self.optionName)       
+       wx.Choice.__init__(self, parent, -1, pos=(100, 50), size=(100,-1), choices = self.choiceList)
+
+       currentVal = getattr(optionParser.options, optionName)
+       if choiceList[0] != currentVal:
+          # remove the current val from where it is in the list:
+          for i, s in enumerate(choiceList):
+             if s == currentVal:
+                choiceList.pop(i)
+                break             
+          # Put the list back together in the right order:
+          self.SetString(0, currentVal)
+          for i in range(1-len(choiceList)-1):
+             self.SetString(choiceList[i], currentVal)
+          self.Append(choiceList[-1])
+
+
+       self.Bind(wx.EVT_CHOICE, self.EvtChoice, self)
+
+    def EvtChoice(self, event):
+       choice = event.GetString()
+       setattr(optionParser.options, self.optionName, choice)
+
+class DatabaseChoice(StringChoice):
+
+    def fileBrowse(self):
+        dlg = wx.FileDialog(
+            self, message="Choose a local file to use as database. See manual for formating details.",
+            defaultDir=os.getcwd(), 
+            defaultFile="",
+            wildcard=wildcard,
+            #style=wx.OPEN | wx.MULTIPLE | wx.CHANGE_DIR
+            style=wx.OPEN
+            )
+
+        if dlg.ShowModal() == wx.ID_OK:
+            # This returns a Python list of files that were selected.
+            paths = dlg.GetPaths()
+            self.inputFiles = paths
+            self.choice = paths[0]
+
+        dlg.Destroy()
+
+    def EvtChoice(self, event):
+       self.choice = event.GetString()
+       if self.choice == 'Add local file to list...':
+          self.fileBrowse()
+          self.SetString(len(self.choiceList)-1, self.choice)
+          self.Append('Add local file to list...')
+
+       setattr(optionParser.options, self.optionName, self.choice)
 
 class OptionsDialog(wx.Dialog):
     def __init__(self, parent):
@@ -332,8 +395,6 @@ class OptionsDialog(wx.Dialog):
         sizer.Add(col1sizer, 0, 0, 0)
         sizer.Add(col2sizer, 0, 0, 0)
         
-
-
         box1 = wx.StaticBox(self, -1, "Compilation of set of homologues")
         box1sizer = wx.StaticBoxSizer(box1, wx.VERTICAL)
         
@@ -342,9 +403,6 @@ class OptionsDialog(wx.Dialog):
 
         box1sizer.Add(box1GridSizer, 0, wx.TOP|wx.LEFT, 10)
         col1sizer.Add(box1sizer, 0, wx.ALL, 10)
-
-#         # Add grid sizer to box sizer:
-#         sizer.Add(box1GridSizer, 0, 0, 0)
 
         objList = []
 
@@ -357,9 +415,9 @@ class OptionsDialog(wx.Dialog):
                     '--besthits',             '--individuals',       
                     '--alignmentlimit',       '--nofillin',           
                     '--relbitscore',          '--fillinall',         
-                    '--evaluesignificance',   '--fillintomatch',     
-                    '--minsignificant',       '--forceexcludegilist',
-                    '--evaluecutoff',         '--forceincludegilist',  
+                    '--significance',         '--fillintomatch',     
+                    '--nrsignificant',        '--forceexcludegilist',
+                    '--minsignificance',      '--forceincludegilist',  
                     '--minidentity',          '--forceidentity',                                             
                     '--subspecieslevel',      '--forceincludefile'                                               
                     ]
@@ -367,14 +425,18 @@ class OptionsDialog(wx.Dialog):
         for optionName in usedList:
             option = optionParser.parser.get_option(optionName)
             l = wx.StaticText(self, -1, "%s:" % option.dest, size=(130, -1))
-            t = BoundTextCtrl(self, option.dest)
+            if optionName == '--database':
+               t = DatabaseChoice(self, option.dest, ['GenBank', 'BOLI', 'Add local file to list...'])
+            elif type(getattr(optionParser.options, option.dest)) == type(True):
+               t = BoolChoice(self, option.dest)
+            else:
+               t = BoundTextCtrl(self, option.dest)
             l.SetHelpText(option.help)            
             objList.extend([l,t])
 
+
         # Add the fields to the grid sizer:
         box1GridSizer.AddMany(objList)
-
-
 
         box2 = wx.StaticBox(self, -1, "Alignment")
         box2sizer = wx.StaticBoxSizer(box2, wx.VERTICAL)
@@ -385,9 +447,6 @@ class OptionsDialog(wx.Dialog):
         box2sizer.Add(box2GridSizer, 0, wx.TOP|wx.LEFT, 10)
         col2sizer.Add(box2sizer, 0, wx.ALL, 10)
 
-#         # Add grid sizer to box sizer:
-#         sizer.Add(box2GridSizer, 0, 0, 0)
-
         objList = []
 
         usedList = ['--alignment', '--warnongaps', '--alignmentoption']
@@ -395,14 +454,17 @@ class OptionsDialog(wx.Dialog):
         for optionName in usedList:
             option = optionParser.parser.get_option(optionName)
             l = wx.StaticText(self, -1, "%s:" % option.dest, size=(130, -1))
-            t = BoundTextCtrl(self, option.dest)
+            if optionName == '--alignment':
+               t = StringChoice(self, option.dest, ['Clustalw2'])
+            elif type(getattr(optionParser.options, option.dest)) == type(True):
+               t = BoolChoice(self, option.dest)
+            else:
+               t = BoundTextCtrl(self, option.dest)
             l.SetHelpText(option.help)            
             objList.extend([l,t])
 
         # Add the fields to the grid sizer:
         box2GridSizer.AddMany(objList)
-
-
 
         box3 = wx.StaticBox(self, -1, "Tree sampling and assignmnet statistics")
         box3sizer = wx.StaticBoxSizer(box3, wx.VERTICAL)
@@ -413,9 +475,6 @@ class OptionsDialog(wx.Dialog):
         box3sizer.Add(box3GridSizer, 0, wx.TOP|wx.LEFT, 10)
         col2sizer.Add(box3sizer, 0, wx.ALL, 10)
 
-#         # Add grid sizer to box sizer:
-#         sizer.Add(box3GridSizer, 0, 0, 0)
-
         objList = []
 
         usedList = ['--prunelevel', '--sampler']
@@ -423,15 +482,15 @@ class OptionsDialog(wx.Dialog):
         for optionName in usedList:
             option = optionParser.parser.get_option(optionName)
             l = wx.StaticText(self, -1, "%s:" % option.dest, size=(130, -1))
-            t = BoundTextCtrl(self, option.dest)
+            if optionName == '--sampler':
+               t = StringChoice(self, option.dest, ['Barcoder', 'ConstrainedNJ'])
+            else:
+               t = BoundTextCtrl(self, option.dest)
             l.SetHelpText(option.help)            
             objList.extend([l,t])
 
-
         # Add the fields to the grid sizer:
         box3GridSizer.AddMany(objList)
-
-
 
         box4 = wx.StaticBox(self, -1, "Result formatting options")
         box4sizer = wx.StaticBoxSizer(box4, wx.VERTICAL)
@@ -442,34 +501,28 @@ class OptionsDialog(wx.Dialog):
         box4sizer.Add(box4GridSizer, 0, wx.TOP|wx.LEFT, 10)
         col2sizer.Add(box4sizer, 0, wx.ALL, 10)
 
-#         # Add grid sizer to box sizer:
-#         sizer.Add(box4GridSizer, 0, 0, 0)
-
         objList = []
-
 
         usedList = ['--ppcutoff', '--svg', '--cleanlook', '--diffs']
 
         for optionName in usedList:
             option = optionParser.parser.get_option(optionName)
             l = wx.StaticText(self, -1, "%s:" % option.dest, size=(130, -1))
-            t = BoundTextCtrl(self, option.dest)
+            if type(getattr(optionParser.options, option.dest)) == type(True):
+               t = BoolChoice(self, option.dest)
+            else:
+               t = BoundTextCtrl(self, option.dest)
             l.SetHelpText(option.help)            
             objList.extend([l,t])
-
 
         # Add the fields to the grid sizer:
         box4GridSizer.AddMany(objList)
 
-
-
-
-
         border = wx.BoxSizer(wx.VERTICAL)
 
         cBtn = wx.ContextHelpButton(self)
-        cBtn.SetHelpText("Click the question mark and THEN the option name you need help on.")
-        cBtnText = wx.StaticText(self, -1, "Click the question mark and then the option name you need help on.")
+        cBtn.SetHelpText("FIRST click the question mark and THEN the option name you need help on.")
+        cBtnText = wx.StaticText(self, -1, "Help: Click the question mark and then the option name you need help on.")
 
         helpBox = wx.BoxSizer(wx.HORIZONTAL)
         helpBox.Add(cBtn, 0, wx.ALL, 5)
@@ -504,42 +557,6 @@ class MyFrame(wx.Frame):
 
         self.logframe = LogFrame(self, -1, "Log", size=(700, 500))
 
-
-#         MenuBar = wx.MenuBar()
-# 
-#         FileMenu = wx.Menu()
-#         
-#         item = FileMenu.Append(wx.ID_EXIT, text = "&Exit")
-#         self.Bind(wx.EVT_MENU, self.OnQuit, item)
-# 
-#         item = FileMenu.Append(wx.ID_ANY, text = "&Open")
-#         self.Bind(wx.EVT_MENU, self.OnOpen, item)
-# 
-#         item = FileMenu.Append(wx.ID_PREFERENCES, text = "&Preferences")
-#         self.Bind(wx.EVT_MENU, self.OnPrefs, item)
-# 
-#         MenuBar.Append(FileMenu, "&File")
-#         
-#         HelpMenu = wx.Menu()
-# 
-#         item = HelpMenu.Append(wx.ID_HELP, "Test &Help",
-#                                 "Help for this simple test")
-#         self.Bind(wx.EVT_MENU, self.OnHelp, item)
-# 
-#         ## this gets put in the App menu on OS-X
-#         item = HelpMenu.Append(wx.ID_ABOUT, "&About",
-#                                 "More information About this program")
-#         self.Bind(wx.EVT_MENU, self.OnAbout, item)
-#         MenuBar.Append(HelpMenu, "&Help")
-# 
-#         self.SetMenuBar(MenuBar)
-# 
-#         btn = wx.Button(self, label = "Quit")
-# 
-#         btn.Bind(wx.EVT_BUTTON, self.OnQuit )
-# 
-#         self.Bind(wx.EVT_CLOSE, self.OnQuit)
-
         # Prepare the menu bar
         menuBar = wx.MenuBar()
         # 1st menu from left
@@ -564,12 +581,9 @@ class MyFrame(wx.Frame):
 
         self.Bind(wx.EVT_MENU, self.openProject, id=102)        
         self.Bind(wx.EVT_MENU, self.showResults, id=201)
-        ## self.Bind(wx.EVT_MENU, self.onOptionsButton, id=202)
         self.Bind(wx.EVT_MENU, self.menu203, id=203)
         self.Bind(wx.EVT_MENU, self.menu301, id=301)
         self.Bind(wx.EVT_MENU, self.menu302, id=302)
-
-#         self.Bind(wx.EVT_WINDOW_DESTROY, self.OnWindowDestroy)
 
         self.resultPath = None
 
@@ -587,49 +601,6 @@ class MyFrame(wx.Frame):
         # Make a sizer for the top input fields and add it to the top sizer with a bit of margin:
         topGridSizer = wx.FlexGridSizer(cols=3, hgap=14, vgap=14)
         tabSizer.Add(topGridSizer, 1, wx.EXPAND|wx.ALL, 10)
-
-#         self.l1 = l1 = wx.StaticText(panel, -1, "Sequence:")
-#         self.t1 = t1 = wx.TextCtrl(panel, -1, "", size=(350, 120), style=wx.TE_MULTILINE)
-#         dt1 = MyFileDropTarget(self, t1)
-#         self.t1.SetDropTarget(dt1)
-#         wx.CallAfter(t1.SetInsertionPoint, 0)
-# 
-#         self.l2 = l2 = wx.StaticText(panel, -1, "Sequence file:")
-#         #self.t2 = t2 = wx.TextCtrl(panel, -1, "", size=(350, -1))
-#         self.t2 = t2 = wx.TextCtrl(panel, -1, "", size=(350, 50), style=wx.TE_MULTILINE)
-#         dt2 = MyFileDropTarget(self, t2)
-#         self.t2.SetDropTarget(dt2)
-#         self.b2 = b2 = wx.Button(panel, -1, "Browse")
-#         self.Bind(wx.EVT_BUTTON, self.onFileBrowseButton, b2)
-#         wx.CallAfter(t2.SetInsertionPoint, 0)
-# 
-# 
-#         self.l3 = l3 = wx.StaticText(panel, -1, "Project folder:")
-#         self.t3 = t3 = wx.TextCtrl(panel, -1, "", size=(350, -1))
-#         dt3 = MyDirDropTarget(self, t3)
-#         self.t3.SetDropTarget(dt3)
-#         self.b3 = b3 = wx.Button(panel, -1, "Browse")
-#         self.Bind(wx.EVT_BUTTON, self.onDirBrowseButton, b3)
-#         wx.CallAfter(t3.SetInsertionPoint, 0)
-# 
-#         self.runB = runB = wx.Button(panel, -1, "Run")        
-#         runB.SetDefault()
-#         self.Bind(wx.EVT_BUTTON, self.onRunButton, runB)
-# 
-#         self.abortB = abortB = wx.Button(panel, -1, "Abort")        
-#         abortB.Enable(False)
-#         self.Bind(wx.EVT_BUTTON, self.onAbortButton, abortB)
-# 
-#         self.optionsB = optionsB = wx.Button(panel, -1, "Options")        
-#         self.Bind(wx.EVT_BUTTON, self.onOptionsButton, optionsB)
-# 
-#         topGridSizer.AddMany([ l1, t1, (0,0),
-#                                l2, t2, b2,
-#                                l3, t3, b3,
-#                                (0,0), (0,0,), (0,0,),
-#                                optionsB, (0,0,), runB,
-#                                (0,0,), (0,0,), abortB
-#                                ])
 
         self.l1 = l1 = wx.StaticText(panel, -1, "Sequence files:")
         self.t1 = t1 = wx.TextCtrl(panel, -1, "", size=(350, 50), style=wx.TE_MULTILINE)
@@ -684,6 +655,12 @@ class MyFrame(wx.Frame):
     
     def openProject(self, evt):
 
+        if self.abortB.IsEnabled():
+           dlg = wx.MessageDialog(self, 'You need to finish or abort you current analysis before you can open a new project.', 'Analysis running.', wx.OK | wx.ICON_INFORMATION)
+           dlg.ShowModal()
+           dlg.Destroy()
+           return
+     
         projectWildcard = "SAP projects (*.sap)|*.sap|"     \
                    "All files (*.*)|*.*"
 
@@ -692,7 +669,8 @@ class MyFrame(wx.Frame):
             defaultDir=os.getcwd(), 
             defaultFile="",
             wildcard=projectWildcard,
-            style=wx.OPEN | wx.MULTIPLE | wx.CHANGE_DIR
+            #style=wx.OPEN | wx.MULTIPLE | wx.CHANGE_DIR
+            style=wx.OPEN | wx.MULTIPLE
             )
 
         if dlg.ShowModal() == wx.ID_OK:
@@ -719,8 +697,6 @@ class MyFrame(wx.Frame):
           if dlg.ShowModal() == wx.ID_YES:
              self.Close(True)
              self.Destroy() # frame
-#              dlg.Destroy()
-
        else:
           self.Close(True)
 
@@ -740,18 +716,6 @@ class MyFrame(wx.Frame):
         
             fastaFileBaseNames = []
     
-#             try:
-#                plugin = findPlugin('Clustalw2', 'SAP.alignment')
-#             except PluginNotFoundError:
-#                from SAP.Alignment import Clustalw2 as plugin
-#             aligner = plugin.Aligner(optionParser.options)
-# 
-#             try:
-#                plugin = findPlugin('Barcoder', 'SAP.sampler')
-#             except PluginNotFoundError:
-#                from SAP.Sampling import Barcoder as plugin
-#             sampler = plugin.Sampler(optionParser.options)
-
             try:
                plugin = findPlugin(optionParser.options.alignment, 'SAP.alignment')
             except PluginNotFoundError:
@@ -866,6 +830,8 @@ class MyFrame(wx.Frame):
 
         except SystemExit, exitVal:
             sys.exit(exitVal)
+        except delayedresult.AbortedException:
+            return None
         except Exception, exe: 
             print """
 ## SAP crached, sorry ###############################################
@@ -877,27 +843,9 @@ folder and the sequence input file used.
             print exe
             raise Exception
     
-# 
-#         # Summary tree stats:
-#         print 'Computing tree statistics summary...'
-#         treeStatistics = TreeStatistics(optionParser.options)
-#         treeStatistics.runTreeStatistics(inputFiles, generateSummary=True)
-#         print "done"
-# 
-#         if abortEvent():
-#             return jobID
-# 
-#         # Make HTML output:
-#         print '\tGenerating HTML output...'
-#         resultHTML = ResultHTML(optionParser.options)
-#         resultHTML.webify([optionParser.options.treestatscache + '/summary.pickle'], fastaFileBaseNames)
-#         print 'done'
-# 
-#         return jobID
-
     def onAbortButton(self, event): 
         """Abort the result computation."""
-        print "\n[Aborting cleanly: the analysis is aborted after completion of current subtask...]\n"
+        print "\n[Aborting cleanly after completion of current subtask...]"
         self.abortB.Enable(False)
         self.abortEvent.set()
         dlg = wx.MessageDialog(self, 'Analysis is aborting after completion of next sub-task. This is ensures that all retrievals and computations are cached. If you want to discard the analysis altogether quit SAP.\n\nIf you want to force abortion you have to quit SAP.', 'Aborting.', wx.OK | wx.ICON_INFORMATION)
@@ -907,13 +855,13 @@ folder and the sequence input file used.
     def _resultConsumer(self, delayedResult):
         jobID = delayedResult.getJobID()
         assert jobID == self.jobID
+        result = None
         try:
             result = delayedResult.get()
         except Exception, exc:
             traceback.print_tb(sys.exc_info()[2])
             print "Result for job %s raised exception: %s" % (jobID, exc)
-            return
-                
+
         # get ready for next job:
         self.runB.Enable(True)
         self.runB.SetDefault()
@@ -924,8 +872,9 @@ folder and the sequence input file used.
         self.t2.Enable(True)
         self.abortB.Enable(False)
 
-        self.resultPath =  os.path.join(optionParser.options.resultdir, 'index.html')
-        self.showResults(None)
+        if result is not None:
+           self.resultPath =  os.path.join(optionParser.options.resultdir, 'index.html')
+           self.showResults(None)
 
                 
     def onRunButton(self, evt):
@@ -971,11 +920,6 @@ folder and the sequence input file used.
         # this does not return until the dialog is closed.
         val = dlg.ShowModal()
     
-        ## if val == wx.ID_OK:
-        ##     print "You pressed OK\n"
-        ## else:
-        ##     print "You pressed Cancel\n"
-
         dlg.Destroy()
 
     def showResults(self, evt):
@@ -1038,7 +982,7 @@ folder and the sequence input file used.
         self.Destroy()
 
 
-    def onFileBrowseButton(self,evt):
+    def onFileBrowseButton(self, evt):
 
         # Create the dialog. In this case the current directory is forced as the starting
         # directory for the dialog, and no default file name is forced. This can easilly
@@ -1048,7 +992,7 @@ folder and the sequence input file used.
         # Finally, if the directory is changed in the process of getting files, this
         # dialog is set up to change the current working directory to the path chosen.
         dlg = wx.FileDialog(
-            self, message="Choose a file",
+            self, message="Choose a Fasta file",
             defaultDir=os.getcwd(), 
             defaultFile="",
             wildcard=wildcard,
@@ -1137,17 +1081,6 @@ folder and the sequence input file used.
 
 class MyApp(wx.App):
 
-#     def OnPreInit(self):
-# 
-#         ###########################
-#         optionParser.options.project = '/Users/kasper/Desktop/guitest'
-#         optionParser.postProcess()
-#         from SAP.Sampling import Barcoder as plugin
-#         sampler = plugin.Sampler(optionParser.options)
-#         sampler.run('/Users/kasper/Desktop/guitest/alignmentcache/test_50262771_sediment_one.nex')
-#         sys.exit()
-#         ###########################
-
     def OnInit(self):
 
         wx.InitAllImageHandlers()
@@ -1157,10 +1090,6 @@ class MyApp(wx.App):
 
         assertNetblastInstalled(guiParent=frame_1)
         assertClustalw2Installed(guiParent=frame_1)
-
-#         dlg = wx.MessageDialog(frame_1, str(os.environ['PATH']), 'TESTING', wx.OK | wx.ICON_INFORMATION)
-#         dlg.ShowModal()
-#         dlg.Destroy()
 
         frame_1.Show()
         return 1

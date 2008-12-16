@@ -9,23 +9,73 @@ from SAP.Bio.EUtils.Datatypes import DBIds
 from SAP.Bio.EUtils.ThinClient import ThinClient
 
 from SAP import Fasta
-from SAP import UtilityFunctions as util
+from SAP import UtilityFunctions as utils
 # from SAP import NCBIWWW # locally hacked to allow retrieval or more hits
 from SAP import NCBIXML # locally hacked to better parse string info
 from SAP import Taxonomy
 from SAP import XML2Obj
 
+from SAP.SearchResult import BlastSearchResult
+
 from SAP import Homology # I should rename this to Homology
+
+
+class SearchResult(BlastSearchResult):   
+   """
+   Generic class for search attributes.
+   """
+   def __init__(self, blastRecord):
+       BlastSearchResult.__init__(self, blastRecord)
+
+       # Seperate the gi from the full hit titles:
+       for i in range(len(self.search_list)):         
+           self.search_list[i].id = self.search_list[i].id.split('|')[1]
+
 
 class DB:
 
     def __init__(self, options):
         self.options = options
+        self.prevExcludeList = None
+        
+    def search(self, fastaRecord, excludelist=[]):
 
-    def search(self, fastaRecord, excludelist=[], usecache=True):
+        # Check that we get a new exclude list for every blast:
+        if self.prevExcludeList is not None and excludelist == self.prevExcludeList:
+            # Seems we are running in circles.
+            print "WAARNING: Blast running in circles - breaking"
+            return None
+        else:
+           self.prevExcludeList = excludelist
+
+        # Get a blast record:
+        useBlastCache = True
+        for i in range(3):
+            time.sleep(i * 2)
+            #blastRecord = self.getBlastRecord(fastaRecord, excludelist, useBlastCache)
+            blastRecord = self._netblast_search(fastaRecord, excludelist=excludelist, usecache=useBlastCache)
+            if blastRecord is None:
+                print "failed - trying again.\n\t\t\t",
+                useBlastCache = False
+            elif len(blastRecord.descriptions) == 0:
+                print "no hits - strange - trying again.\n\t\t\t",
+                useBlastCache = False
+            else:
+                break
+        if blastRecord is None:
+            print "WARNING: Blast failed - skipping entry\n\t\t\t",
+            return None
+        else:
+           return SearchResult(blastRecord)
+
+
+    def _netblast_search(self, fastaRecord, excludelist=[], usecache=True):
         """
         Blast against genbank over web
         """
+
+        self.prevExcludeList = None
+
 
         # Make a query to filter the returned results:
         if excludelist:
@@ -43,7 +93,7 @@ class DB:
 
         # File name used for blast cache
         blastFileName = os.path.join(self.options.blastcache, "%s.%d_%s%s.xml" % (fastaRecord.title,
-                                               self.options.maxblasthits, self.options.evaluecutoff, fileSuffix))
+                                               self.options.maxblasthits, self.options.minsignificance, fileSuffix))
         
         if usecache and os.path.exists(blastFileName) and os.path.getsize(blastFileName)>0:
             # Use cached blast result
@@ -60,7 +110,7 @@ class DB:
                 print "\n\t\tSearching database...", 
             sys.stdout.flush()
 
-            fastaRecordFileName = os.path.join(self.options.project, util.randomString(8))
+            fastaRecordFileName = os.path.join(self.options.project, utils.randomString(8))
             fastaRecordFile = open(fastaRecordFileName, 'w')
             fastaRecordFile.write(str(fastaRecord))
             fastaRecordFile.close()
@@ -70,7 +120,7 @@ class DB:
             else:
                 filterOption = '-F T'
             blastCmd = 'blastcl3 -p blastn -m 7 -d nr %s -e %s -v %d -b %d -u "%s" -i %s -o %s' \
-                       % (filterOption, self.options.evaluecutoff, self.options.maxblasthits, self.options.maxblasthits, \
+                       % (filterOption, self.options.minsignificance, self.options.maxblasthits, self.options.maxblasthits, \
                           entrezQuery, fastaRecordFileName, blastFileName)
 
             for i in range(20):
@@ -97,22 +147,21 @@ class DB:
         blastHandle.close()
 
         return blastRecord
-
-
+     
   
-    def get(self, gi, evalue):
+    def get(self, gi):
         """
         Look up genbank records by their GI
         """
 
-        taxonomyFileName = os.path.join(self.options.genbankcache, gi + ".tax")
-        fastaFileName = os.path.join(self.options.genbankcache, gi + ".fasta")
+        taxonomyFileName = os.path.join(self.options.dbcache, gi + ".tax")
+        fastaFileName = os.path.join(self.options.dbcache, gi + ".fasta")
 
         if (os.path.exists(taxonomyFileName) and os.path.getsize(taxonomyFileName) != 0 and
             os.path.exists(fastaFileName) and os.path.getsize(fastaFileName) != 0):
             retrievalStatus = "(c)"
-            taxonomy = self.safeReadTaxonomyCache(taxonomyFileName)
-            sequence = self.safeReadFastaCache(fastaFileName)
+            taxonomy = utils.safeReadTaxonomyCache(taxonomyFileName)
+            sequence = utils.safeReadFastaCache(fastaFileName)
         else:
             retrievalStatus = "(d)"
 
@@ -151,7 +200,7 @@ class DB:
                 except MemoryError:
                     # Write an empty file to cache to keep the script from
                     # trying to download the sequence next time.
-                    util.writeFile(fastaFileName, '')
+                    utils.writeFile(fastaFileName, '')
                     return None, retrievalStatus.replace(")", "!M)")
                 except:
                    ## print ' retrieving failed - retrying'
@@ -187,36 +236,14 @@ class DB:
 
             # Cache the sequence:
             fastaEntry = ">%s\n%s\n" % (gi, sequence)
-            util.writeFile(fastaFileName, fastaEntry)
+            utils.writeFile(fastaFileName, fastaEntry)
 
         # Create an object instance to hold the homologue data:
         return Homology.Homologue(gi=gi,
                                   sequence=sequence,
-                                  evalue = evalue, 
-                                  taxonomy=taxonomy,
-                                  options=self.options), retrievalStatus
+                                  taxonomy=taxonomy), retrievalStatus
 
-    def safeReadFastaCache(self, fastaFileName):
-       """
-       Reads in a genbank fasta entry, and tries again if reading
-       failes because others are writing to it.
-       """
-       fastaEntry = None
-       for i in range(5):
-          fastaFile = open(fastaFileName, 'r')
-          fastaIterator = Fasta.Iterator(fastaFile)
-          try:
-             fastaEntry = fastaIterator.next()
-          except:             
-             print 'Fasta cache reading failed - retrying'
-          fastaFile.close()
-          if fastaEntry is not None:
-             break
-          time.sleep(i * 2)
-       assert fastaEntry, fastaFileName
-       return fastaEntry.sequence
-
-#     def safeReadFastaCache(self, fastaFileName):
+#     def _safeReadFastaCache(self, fastaFileName):
 #        """
 #        Reads in a genbank fasta entry, and tries again if reading
 #        failes because others are writing to it.
@@ -234,27 +261,48 @@ class DB:
 #              break
 #           time.sleep(i * 2)
 #        assert fastaEntry, fastaFileName
-#        seq = fastaEntry.seq.data
-#        return seq
+#        return fastaEntry.sequence
+# 
+# #     def _safeReadFastaCache(self, fastaFileName):
+# #        """
+# #        Reads in a genbank fasta entry, and tries again if reading
+# #        failes because others are writing to it.
+# #        """
+# #        fastaEntry = None
+# #        for i in range(5):
+# #           fastaFile = open(fastaFileName, 'r')
+# #           fastaIterator = Fasta.Iterator(fastaFile)
+# #           try:
+# #              fastaEntry = fastaIterator.next()
+# #           except:             
+# #              print 'Fasta cache reading failed - retrying'
+# #           fastaFile.close()
+# #           if fastaEntry is not None:
+# #              break
+# #           time.sleep(i * 2)
+# #        assert fastaEntry, fastaFileName
+# #        seq = fastaEntry.seq.data
+# #        return seq
+# 
+#     def _safeReadTaxonomyCache(self, taxonomyFileName):
+#        """
+#        Reads in a genbank taxonomy entry, and tries again if reading
+#        failes because others are writing to it.
+#        """
+#        taxonomy = None
+#        for i in range(5):
+#           taxonomyFile = open(taxonomyFileName, 'r')
+#           try:
+#              taxonomy = pickle.load(taxonomyFile)
+#           except:
+#              print 'Taxonomy cache reading failed - retrying'
+#           taxonomyFile.close()    
+#           if taxonomy is not None:
+#              break
+#           time.sleep(i * 2)
+#        assert taxonomy is not None, taxonomyFile
+#        return taxonomy
 
-    def safeReadTaxonomyCache(self, taxonomyFileName):
-       """
-       Reads in a genbank taxonomy entry, and tries again if reading
-       failes because others are writing to it.
-       """
-       taxonomy = None
-       for i in range(5):
-          taxonomyFile = open(taxonomyFileName, 'r')
-          try:
-             taxonomy = pickle.load(taxonomyFile)
-          except:
-             print 'Taxonomy cache reading failed - retrying'
-          taxonomyFile.close()    
-          if taxonomy is not None:
-             break
-          time.sleep(i * 2)
-       assert taxonomy is not None, taxonomyFile
-       return taxonomy
 
 if __name__ == "__main__":
     main()

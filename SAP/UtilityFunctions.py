@@ -1,8 +1,12 @@
 
+try:
+   import cPickle as pickle
+except:
+   import pickle
 import re, random, string, time, sys, os, glob, subprocess
 # from pkg_resources import load_entry_point, get_entry_info, get_entry_map, iter_entry_points, EntryPoint
 from SAP.Bio.Nexus import Nexus
-
+from SAP import Fasta
 
 # class Error(Exception):
 #     """
@@ -41,12 +45,12 @@ def systemCall(cmd, stdout=None, stderr=None):
         retcode = subprocess.call(cmdlist, shell=False, env=os.environ, stdout=stdout, stderr=stderr)
         #retcode = subprocess.call(cmdlist, shell=False, env=os.environ, stdout=stdout, stderr=stderr, startupinfo=STARTUPINFO)
         if retcode < 0:
-            print >>sys.stderr, 'System call "%s" was terminated by signal' % cmd, -retcode
+            print 'System call "%s" was terminated by signal' % cmd, -retcode
             return False
         else:
             return retcode
     except OSError, e:
-        print >>sys.stderr, 'System call "%s" failed:' % cmd, e
+        print 'System call "%s" failed:' % cmd, e
 
 def pairwiseClustalw2(id1, sequence1, id2, sequence2):
     """
@@ -70,8 +74,8 @@ def pairwiseClustalw2(id1, sequence1, id2, sequence2):
     else:
         commandLine = "clustalw2 -infile=%s -output=NEXUS -gapopen=50 -outfile=%s" \
                       % (os.path.basename(tmpFastaFileName), os.path.basename(tmpAlnFileName))
-    #systemCall(commandLine, stdout='IGNORE', stderr='IGNORE')
-    os.system(commandLine)
+    systemCall(commandLine, stdout='IGNORE', stderr='IGNORE')
+    #os.system(commandLine)
 
     # small bug fix:
     nexusContents = readFile(tmpAlnFileName)
@@ -275,7 +279,7 @@ def writePhylipFile(fileName, seqList):
 
 
 def randomString(length):
-    chars = string.ascii_lowercase + string.digits
+    chars = string.ascii_lowercase + string.digits #  We use only lowercase to make names cross-platform compatible...
     rand = ''
     for i in range(length):
         rand = rand + random.choice(chars)
@@ -374,6 +378,45 @@ def copyCacheForSequenceDoubles(dict, options):
                     s = readFile(copyFile)
                     s = s.replace(copyFrom, copyTo)
                     writeFile(newFileName, s)
+
+def safeReadFastaCache(fastaFileName):
+    """
+    Reads in a genbank fasta entry, and tries again if reading
+    failes because others are writing to it.
+    """
+    fastaEntry = None
+    for i in range(5):
+        fastaFile = open(fastaFileName, 'r')
+        fastaIterator = Fasta.Iterator(fastaFile)
+        try:
+            fastaEntry = fastaIterator.next()
+        except:             
+            print 'Fasta cache reading failed - retrying'
+        fastaFile.close()
+        if fastaEntry is not None:
+            break
+        time.sleep(i * 2)
+    assert fastaEntry, fastaFileName
+    return fastaEntry.sequence
+
+def safeReadTaxonomyCache(taxonomyFileName):
+    """
+    Reads in a genbank taxonomy entry, and tries again if reading
+    failes because others are writing to it.
+    """
+    taxonomy = None
+    for i in range(5):
+        taxonomyFile = open(taxonomyFileName, 'r')
+        try:
+            taxonomy = pickle.load(taxonomyFile)
+        except:
+            print 'Taxonomy cache reading failed - retrying'
+        taxonomyFile.close()    
+        if taxonomy is not None:
+            break
+        time.sleep(i * 2)
+    assert taxonomy is not None, taxonomyFile
+    return taxonomy
 
 
 if __name__ == "__main__":

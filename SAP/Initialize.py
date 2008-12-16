@@ -23,8 +23,8 @@ class Initialize:
         # Create cache and data directories if not already there
         if not os.path.exists(self.options.blastcache):
             os.makedirs(self.options.blastcache)
-        if not os.path.exists(self.options.genbankcache):
-            os.makedirs(self.options.genbankcache)
+        if not os.path.exists(self.options.dbcache):
+            os.makedirs(self.options.dbcache)
         if not os.path.exists(self.options.alignmentcache):
             os.makedirs(self.options.alignmentcache)
         if not os.path.exists(self.options.homologcache):
@@ -104,12 +104,14 @@ class Initialize:
 
                 sequenceNameMap[baseName][fastaRecord.title] = origName
 
-#                 # Strip sequence of gap chars:
-#                 fastaRecord.sequence = fastaRecord.sequence.replace('-', '')
-#                 fastaRecord.sequence = fastaRecord.sequence.replace('~', '')
-#                 fastaRecord.sequence = fastaRecord.sequence.replace('.', '')
+                # Strip sequence of gap chars:
+                #fastaRecord.sequence = fastaRecord.sequence.replace('-', '')
+                fastaRecord.sequence = fastaRecord.sequence.replace('~', '')
+                fastaRecord.sequence = fastaRecord.sequence.replace('.', '')
 
-                fastaRecord.sequence = re.sub('[^%s]' % allowedLetters, 'N', fastaRecord.sequence)
+                # fastaRecord.sequence = re.sub('[^%s]' % allowedLetters, 'N', fastaRecord.sequence)
+                fastaRecord.sequence = re.sub('[^%s-]' % allowedLetters, 'N', fastaRecord.sequence)
+
                 
                 # Print only if there is some sequence left:
                 if len(fastaRecord.sequence) > 0:
@@ -140,9 +142,9 @@ class Initialize:
             pickleFile.close()
 
             # Lists of options that deprecates cache entries:
-            deleteBlastCacheList = ["database", "maxblasthits", "limitquery", "evaluecutoff", "nolowcomplexfilter"]
+            deleteBlastCacheList = ["database", "maxblasthits", "limitquery", "minsignificance", "nolowcomplexfilter"]
 
-            deleteHomologueCacheList = [ "notruncate", "quickcompile", "minidentity", "forceidentity", "subspecieslevel", "fillinall", "fillineven", "fillintomatch", "individuals", "evaluesignificance", "minsignificant",
+            deleteHomologueCacheList = [ "notruncate", "quickcompile", "minidentity", "forceidentity", "subspecieslevel", "fillinall", "fillineven", "fillintomatch", "individuals", "significance", "nrsignificant",
                                          "relbitscore", "phyla", "classes", "orders", "families", "genera",
                                          "besthits", "alignmentlimit", "minimaltaxonomy", "harddiversity", "forceincludefile", "forceincludegilist", "forceexcludegilist"]
             deleteHomologueCacheList.extend(deleteBlastCacheList)
@@ -156,10 +158,21 @@ class Initialize:
 
             for option in self.options.__dict__.keys():
 
+                # This serves to map between new and older option names:
+                prevVersionOption = option;
                 if not prevOptions.__dict__.has_key(option):
-                    print "New option for SAP \"%s\" will take default value \"%s\"" % (option, self.options.__dict__[option])
+                    if option == 'dbcache':
+                       prevVersionOption = 'genbankcache'
+                    elif option == 'minsignificance':
+                       prevVersionOption = 'evaluecutoff'
+                    elif option == 'significance':
+                       prevVersionOption = 'evaluesignificance'
+                    elif option == 'nrsignificant':
+                       prevVersionOption = 'minsignificant'
+                    else:
+                       print "New option for SAP \"%s\" will take default value \"%s\"" % (option, self.options.__dict__[option])
 
-                if option in deleteBlastCacheList and self.options.__dict__[option] != prevOptions.__dict__[option]:
+                if option in deleteBlastCacheList and self.options.__dict__[option] != prevOptions.__dict__[prevVersionOption]:
                     print '\tBlast cache'
                     for queryID in idList:
                         for entry in glob.glob(os.path.join(self.options.blastcache, queryID) + '*'):
@@ -167,7 +180,7 @@ class Initialize:
                             os.remove(entry)
                     deleteBlastCacheList = []
 
-                if option in deleteHomologueCacheList and self.options.__dict__[option] != prevOptions.__dict__[option]:
+                if option in deleteHomologueCacheList and self.options.__dict__[option] != prevOptions.__dict__[prevVersionOption]:
                     # Delete the homologcache for the entries in the input files:
                     print '\tHomologue and alignment cache'
                     for queryID in idList:
@@ -179,32 +192,7 @@ class Initialize:
                             os.remove(entry)
                     deleteHomologueCacheList = []
 
-#                 if option in deleteNJCacheList and self.options.__dict__[option] != prevOptions.__dict__[option]:
-#                     # Delete the nj trees cache for the entries in the input files:
-#                     print '\tNeighbour joning cache'
-#                     for queryID in idList:
-#                         entry = "%s/%s.CNJ.nex" % (self.options.treescache, queryID)
-#                         print "\t\t" + os.path.split(entry)[-1]
-#                         os.remove(entry)
-# #                         for entry in glob.glob("%s/%s.CNJ.nex*" % (self.options.treescache, queryID)):
-# #                             print "\t\t" + os.path.split(entry)[-1]
-# #                             os.remove(entry)
-#                     deleteNJCacheList = []
-# 
-#                 if option in deleteBCCacheList and self.options.__dict__[option] != prevOptions.__dict__[option]:
-#                     # Delete the mrbayes trees cache for the entries in the input files:
-#                     print '\tBC cache'
-#                     for queryID in idList:
-#                         entry = "%s/%s.Barcoder.nex" % (self.options.treescache, queryID)
-#                         print "\t\t" + os.path.split(entry)[-1]
-#                         os.remove(entry)
-# #                         for entry in glob.glob("%s/%s*[out|parm|tree|done]" \
-# #                                                % (self.options.treescache, queryID)):
-# #                             print "\t\t" + os.path.split(entry)[-1]
-# #                             os.remove(entry)
-#                     deleteBCCacheList = []
-
-                if option in deleteTreeStatsCacheList and self.options.__dict__[option] != prevOptions.__dict__[option]:
+                if option in deleteTreeStatsCacheList and self.options.__dict__[option] != prevOptions.__dict__[prevVersionOption]:
                     # Delete the tree statistics cache for the entries in the input files:
                     print '\tTree statistics cache'
                     for queryID in idList:

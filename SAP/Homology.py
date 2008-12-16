@@ -1,5 +1,4 @@
 
-
 # Standard libs:
 try:
    import cPickle as pickle
@@ -50,10 +49,10 @@ class Homologue:
     """
     Container class for information gathered from GenBank on each homologue.
     """
-    def __init__(self, gi, sequence, evalue, taxonomy, options):
+    def __init__(self, gi, sequence, taxonomy, significance=None):
         self.gi = gi
         self.sequence = sequence
-        self.evalue = evalue
+        self.significance = significance
         self.taxonomy = taxonomy
 
     def __repr__(self):
@@ -152,7 +151,7 @@ class HomolCompiler:
             genera = {}
 
             print "\tRetrieval of homologs:"
-            print "\t\tEntry status: (c)=cached, (d)=downloaded,"
+            print "\t\tEntry status: (c)=cached, (d)=downloaded, (l)=local"
             print "\t\tError types:"
             print "\t\t              (!M)=Memory error, (!D)=Download error,"
             print "\t\t              (!T)=Annotation error, (!?)=Unknown error"
@@ -162,7 +161,7 @@ class HomolCompiler:
             individualsCounter = {}
 
             significantHomologuesCount = 0
-            lastAcceptedEvalue = None
+            lastAcceptedSignificance = None
             dataBaseExhausted = False
             speciesLevelExhausted = False
             #noHitsAtAll = False
@@ -175,8 +174,6 @@ class HomolCompiler:
             # List of taxonomic names we don't want in the blast results:
             speciesList = []
             excludeList = []            
-#             prevTitleList = []
-            prevExcludeList = None
 
             # For saving homologs that are not accepted first of:
             savedForFillIn = {}
@@ -189,93 +186,35 @@ class HomolCompiler:
 
                 seqLen = 0
 
-                # Check that we get a new exclude list for every blast:
-                if prevExcludeList is not None and excludeList == prevExcludeList:
-                    # Seems we are running in circles.
-                    print "WAARNING: Blast running in circles - breaking"
-                    break
-                else:
-                   prevExcludeList = excludeList
+                searchResult = self.db.search(fastaRecord, excludelist=excludeList)
 
-                # Get a blast record:
-                useBlastCache = True
-                for i in range(3):
-                    time.sleep(i * 2)
-                    #blastRecord = self.getBlastRecord(fastaRecord, excludeList, useBlastCache)
-                    blastRecord = self.db.search(fastaRecord, excludelist=excludeList, usecache=useBlastCache)
-                    if blastRecord is None:
-                        print "failed - trying again.\n\t\t\t",
-                        useBlastCache = False
-                    elif len(blastRecord.descriptions) == 0:
-                        print "no hits - strange - trying again.\n\t\t\t",
-                        useBlastCache = False
-                    else:
-                        break
-                if blastRecord is None:
-                    print "WARNING: Blast failed - skipping entry\n\t\t\t",
-                    return None
-
-                # This is to ensure that we don't keep making the same
-                # blast search over and over again:
-                titleList = [d.title for d in blastRecord.descriptions]
-                titleList.sort()
-
-                if len(blastRecord.alignments) == 0:
-                    # No htis in this blast.
+                if len(searchResult.search_list) == 0:
+                    # No htis in this search.
                     break
                 else:
                     # Record that there is at least one hit:
                     noHitsAtAll = False
 
                 # Iterate over hits:
-                for i in range(len(blastRecord.alignments)):
-                    if re.match(r'gi', blastRecord.alignments[i].title):
-                        gi = blastRecord.alignments[i].title.split('|')[1]
-                    else:
-                        gi = blastRecord.alignments[i].title.split(' ')[0]     
-
+                for i in range(len(searchResult.search_list)):
+                    gi = searchResult.search_list[i].id
+                    
                     # Check that we don't have that gi yet (from forceinclusion or other database)
                     if gi in homologyResult.homologues.keys():
                         continue
 
-                    ### TESTING: ######################################################
-                    if self.options.TESTING:
-                        # We don't want matches to self:
-                        if gi == homologyResult.origQueryName:
-                            continue
-                    ###################################################################
+                    # We don't want matches to self:
+                    if gi == homologyResult.origQueryName:
+                        continue
 
-                    alignment = blastRecord.alignments[i]
-                    description = blastRecord.descriptions[i]
-
-                    totalBitScore = 0.0  # Total bit score for all hsps in the hit:
-                    hspCoords = []
-                    queryCoords = []
-
-                    hsp = alignment.hsps[0]
-                    totalBitScore += hsp.bits
-                    hspCoords += [hsp.sbjct_start, hsp.sbjct_end]
-                    queryCoords.append([hsp.query_start, hsp.query_end])
-
-                    assert totalBitScore > 0
-                    hspCoords.sort()
-                    sbjctHitStartIndex = hspCoords[0] - 1 # Coords are 1-based
-                    sbjctHitLength = hspCoords[-1] - hspCoords[0] + 1
-
-                    newQueryCoords = []
-                    for x in flatten(queryCoords):
-                       newQueryCoords.append(x)
-                    queryCoords = newQueryCoords
-                    queryCoords.sort()
-                    queryHitStartIndex = queryCoords[0] - 1 # Coords are 1-based
-                    queryHitLength = queryCoords[-1] - queryCoords[0] + 1
+                    search_hit = searchResult.search_list[i]
 
                     # Keep track of best bit score (will be the first hit considered)
-                    bestBitScore = max(bestBitScore, float(totalBitScore))
+                    bestBitScore = max(bestBitScore, float(search_hit.score))
 
-                    if totalBitScore < bestBitScore * self.options.relbitscore \
+                    if search_hit.score < bestBitScore * self.options.relbitscore \
                            and len(homologyResult.homologues) >= 3 \
-                           and len(homologyResult.homologues) >= self.options.minsignificant:
+                           and len(homologyResult.homologues) >= self.options.nrsignificant:
                         dataBaseExhausted = True
                         lowestTaxonomicLevelExhausted = excludeLevel
                     if len(homologyResult.homologues) >= self.options.alignmentlimit:
@@ -286,8 +225,7 @@ class HomolCompiler:
                     seqLen = self.printWithinBounds(gi, seqLen, 70, "\t\t\t")
 
                     # Retrieve genbank record:
-                    #(homologue, retrievalStatus) = self.getGenBankRecord(gi, description.e)
-                    (homologue, retrievalStatus) = self.db.get(gi, description.e)
+                    (homologue, retrievalStatus) = self.db.get(gi)
 
                     # Print retrieval status:
                     sys.stdout.write(retrievalStatus)
@@ -301,6 +239,9 @@ class HomolCompiler:
                         seqLen += 1
                         continue
 
+                    # Add significance to homology object:
+                    homologue.significance = search_hit.significance
+
                     # If the gi is not in the list of onew we don't want:
                     if not gi in self.options.forceexcludegilist:
 
@@ -311,15 +252,14 @@ class HomolCompiler:
 
                         # Check for reverse complementation macth:                            
                         strandMatch = 1
-                        leftFlank = 2 * queryHitStartIndex
-                        rightFlank = 2 * (queryLength - queryHitLength - queryHitStartIndex)
-                        if alignment.hsps[0].query_start > alignment.hsps[0].query_end:
+                        leftFlank = 2 * search_hit.query_start
+                        rightFlank = 2 * (queryLength - search_hit.query_length - search_hit.query_start)
+                        if search_hit.query_strand == -1:
                            strandMatch = -1
                            leftFlank, rightFlank = rightFlank, leftFlank
 
-
-                        startIndex = max(0, sbjctHitStartIndex - leftFlank)
-                        endIndex = min(sbjctHitStartIndex + sbjctHitLength + rightFlank, len(homologue.sequence))
+                        startIndex = max(0, search_hit.subject_start - leftFlank)
+                        endIndex = min(search_hit.subject_start + search_hit.subject_length + rightFlank, len(homologue.sequence))
 
                         if self.options.flanks:
                             startIndex = max(0, startIndex - self.options.flanks)
@@ -333,9 +273,9 @@ class HomolCompiler:
                             # Reverse complement sequence
                             homologue.sequence = string.translate(homologue.sequence[::-1], string.maketrans('AGTC', 'TCAG'))
 
-                        # Remove flanking Ns internal N-stretches of more than 50
-                        # from the sequence that goes into the HomologyData object:
-                        homologue.sequence = re.sub(r'(^N*)|(N{50,})|(N*$)', '', homologue.sequence)
+#                         # Remove flanking Ns internal N-stretches of more than 50
+#                         # from the sequence that goes into the HomologyData object:
+#                         homologue.sequence = re.sub(r'(^N*)|(N{50,})|(N*$)', '', homologue.sequence)
 
                         if not self.options.quickcompile and not self.options.notruncate:
                            alignment = pairwiseClustalw2(queryName, fastaRecord.sequence, gi, homologue.sequence)
@@ -426,19 +366,6 @@ class HomolCompiler:
                                 sys.stdout.flush()
                                 seqLen += 1
                         else:
-                            # I don't think we need this as long as we use bitscore: a previously accepted sequence can not be
-                            # contained in the present homolgue because the previously accepted one would then to have a
-                            # lower bit-score than the present one - which is not possible. As long as we use bit-score anyway.
-                            ## for i in range(len(setList)):
-                            ##     # If an already accepted sequence constitutes a
-                            ##     # subsequence or the same sequence we remove the smaller
-                            ##     # homologue sequence.
-                            ##     m = re.search(setList[i]['seq'], homologue.sequence, re.I)
-                            ##     if m:
-                            ##         if homologyResult.homologues[setList[i]['gi']].evalue <= self.options.evaluesignificance:
-                            ##             significantHomologuesCount -= 1
-                            ##         del homologyResult.homologues[setList[i]['gi']]
-
                             # Include homologue in data set
                             homologyResult.homologues[homologue.gi] = homologue
 
@@ -459,18 +386,18 @@ class HomolCompiler:
                             if self.options.individuals and speciesTag:
                                 individualsCounter.setdefault(speciesTag, []).append(gi)
 
-                            # Check last evalue and number of significant hits:
-                            if description.e <= self.options.evaluesignificance:
+                            # Check last significance and number of significant hits:
+                            if search_hit.significance <= self.options.significance:
                                 # Count number of significant hits
                                 significantHomologuesCount += 1
-                            elif significantHomologuesCount < self.options.minsignificant:
+                            elif significantHomologuesCount < self.options.nrsignificant:
                                 # We are not going to get enough significant homologues anyway so stop here:
                                 notEnoughSignificant = True
                                 break
 
                             # Keep track of what the last e-value is:
-                            lastAcceptedEvalue = description.e
-                            lastAcceptedBitScore = totalBitScore
+                            lastAcceptedSignificance = search_hit.significance
+                            lastAcceptedBitScore = search_hit.score
 
                             sys.stdout.write('* ')
                             sys.stdout.flush()
@@ -547,9 +474,9 @@ class HomolCompiler:
                 for forceGI in self.options.forceincludegilist:
                     if not forceGI in giList:
                         # Retrieve genbank record
-                        evalue = 0            
-                        #(homologue, retrievalStatus) = self.getGenBankRecord(forceGI, evalue)
-                        (homologue, retrievalStatus) = self.db.get(forceGI, evalue)
+                        significance = 0            
+                        #(homologue, retrievalStatus) = self.getGenBankRecord(forceGI, significance)
+                        (homologue, retrievalStatus) = self.db.get(forceGI, significance)
 
                         # Check whether a homologue was found
                         if homologue == None:
@@ -757,7 +684,7 @@ class HomolCompiler:
                        # Add the homologues:
                        for homologue in homologuesToAddInThisRound:
                           homologyResult.homologues[homologue.gi] = homologue
-                          if homologue.evalue <= self.options.evaluesignificance:
+                          if homologue.significance <= self.options.significance:
                              # Count number of significant hits
                              significantHomologuesCount += 1
                           seqLen = self.printWithinBounds(homologue.gi+' ', seqLen, 70, "\t\t\t")
@@ -770,7 +697,7 @@ class HomolCompiler:
             print ''
             print "\t%d significant homologues found." % significantHomologuesCount
 
-            if not noHitsAtAll and lastAcceptedEvalue is not None:
+            if not noHitsAtAll and lastAcceptedSignificance is not None:
 
                print "\t%s homologues in set:" % len(homologyResult.homologues)
 
@@ -801,22 +728,22 @@ class HomolCompiler:
                print ""
 
             if noHitsAtAll:
-                print "\tWARNING: No blast hits below evalue threshold."
+                print "\tWARNING: No blast hits below significance threshold."
                 return None
-            elif lastAcceptedEvalue is None:
+            elif lastAcceptedSignificance is None:
                 print "\tWARNING: No accepted homologs."
                 return None
             else:
-                # Status on last accepted evalue:
-                if lastAcceptedEvalue > 1:
-                    print "\tLast accepted E-value is %f" % float(lastAcceptedEvalue)
+                # Status on last accepted significance:
+                if lastAcceptedSignificance > 1:
+                    print "\tLast accepted E-value is %f" % float(lastAcceptedSignificance)
                 else:
-                    print "\tLast accepted E-value is %e" % float(lastAcceptedEvalue)
+                    print "\tLast accepted E-value is %e" % float(lastAcceptedSignificance)
 
                 print "\tRatio of lowest to highest bit score is:", lastAcceptedBitScore / bestBitScore
 
                 # Status on number of significant homologues:
-                if significantHomologuesCount < self.options.minsignificant:
+                if significantHomologuesCount < self.options.nrsignificant:
                     print "\tNot enough significant homologues found - Rejecting sequence."
                     self.updateNotEnoughList(queryName, True, notEnoughSignifListFileName)
                     return None
@@ -978,11 +905,11 @@ class HomolCompiler:
                 fastaRecord.title = forceTitle + '_' + '_'.join(taxonomy.organism.split(' '))            
 
                 # Write the file to cache:
-                fastaFileName = os.path.join(self.options.genbankcache, forceTitle + ".fasta")
+                fastaFileName = os.path.join(self.options.dbcache, forceTitle + ".fasta")
                 writeFile(fastaFileName, str(fastaRecord) + "\n")
 
                 # Write taxonomy to cache:
-                taxonomyFileName = os.path.join(self.options.genbankcache, forceTitle + ".tax")
+                taxonomyFileName = os.path.join(self.options.dbcache, forceTitle + ".tax")
                 fp = open(taxonomyFileName, 'w')
                 pickle.dump(taxonomy, fp)
                 fp.close()
@@ -990,12 +917,12 @@ class HomolCompiler:
                 # Make a homology object:
                 homologue = Homologue(gi=forceTitle,
                                       sequence=sequence,
-                                      evalue = 0, 
+                                      significance = 0, 
                                       taxonomy=taxonomy,
                                       options=self.options)
 
 #                 # Read in sequence from cache.
-#                 fastaFileName = os.path.join(self.options.genbankcache, forceTitle + ".fasta")
+#                 fastaFileName = os.path.join(self.options.dbcache, forceTitle + ".fasta")
 #                 sequence = self.safeReadFastaCache(fastaFileName)
 # #                 fastaFile = open(fastaFileName, 'r')
 # #                 fastaIterator = Fasta.Iterator(fastaFile, parser=Fasta.SequenceParser())
@@ -1038,7 +965,7 @@ class HomolCompiler:
                     fastaFileContents += str(fastaRecord) + "\n\n"
 
             homologueList = homologyResult.homologues.values()
-            homologueList.sort(lambda a, b: cmp(a.evalue, b.evalue))
+            homologueList.sort(lambda a, b: cmp(a.significance, b.significance))
             for homologue in homologueList:
                 fastaRec = Fasta.Record()
                 fastaRec.title = "%s_%s" % (homologue.gi,

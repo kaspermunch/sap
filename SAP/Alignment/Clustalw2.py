@@ -44,6 +44,7 @@ class Aligner:
             systemCall(commandLine, stdout='IGNORE', stderr='IGNORE')
             #os.system(commandLine)
 
+
             writeFile(tmpAlignmentFileName, readFile(outputTmpFileName))
             os.unlink(outputTmpFileName)
 

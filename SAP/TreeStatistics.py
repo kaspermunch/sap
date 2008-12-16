@@ -220,7 +220,7 @@ class TreeStatistics:
 
                     summary['nrSignificantHomologues'][queryName] = 0
                     for h in homologyResult.homologues.values():
-                        if h.evalue <= self.options.evaluesignificance:
+                        if h.significance <= self.options.significance:
                             summary['nrSignificantHomologues'][queryName] += 1                        
 
                     #summary['exhaustionLevel'][queryName] = None
