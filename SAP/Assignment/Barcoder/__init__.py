@@ -17,7 +17,7 @@ from SAP.UtilityFunctions import *
 # release_ThisIsAlsoACopy.nex.bc.parm
 # release_ThisIsAlsoACopy.nex.bc.tree
 
-class Sampler:
+class Assignment:
 
     def __init__(self, options):
         self.options = options

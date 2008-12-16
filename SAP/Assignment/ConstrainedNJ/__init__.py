@@ -11,7 +11,7 @@ from ConstrainedNJ import ConstrainedNJ
 # <filename>_<query>.<samplername>.out
 # <filename>_<query>.<samplername>.err
 
-class Sampler:
+class Assignment:
 
     def __init__(self, options):
         self.options = options

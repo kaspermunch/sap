@@ -152,7 +152,7 @@ class Initialize:
             deleteAlignmentCacheList = ["alignment", "alignmentoption"]
             deleteAlignmentCacheList.extend(deleteHomologueCacheList)
 
-            deleteTreeStatsCacheList = ["sampler", "prunelevel"]
+            deleteTreeStatsCacheList = ["assignment", "prunelevel"]
 
             print "Checking cache for deprecated entries"
 
@@ -161,7 +161,9 @@ class Initialize:
                 # This serves to map between new and older option names:
                 prevVersionOption = option;
                 if not prevOptions.__dict__.has_key(option):
-                    if option == 'dbcache':
+                    if option == 'assignment':
+                       prevVersionOption = 'sampler'
+                    elif option == 'dbcache':
                        prevVersionOption = 'genbankcache'
                     elif option == 'minsignificance':
                        prevVersionOption = 'evaluecutoff'

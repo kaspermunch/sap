@@ -29,7 +29,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           type="string",
                           default = "GenBank",
                           help="Name of database plugin to use. Default is online GenBank. You can also specify the path to a file in FASTA format to serve as database.")
-        self.parser.add_option("-S", "--sampler", "--sampling",
+        self.parser.add_option("-S", "--assignment",
                           type="string",
                           default = "Barcoder",
                           help="Name of sampling plugin to use. Default is Barcoder. The alternative is ConstrainedNJ")

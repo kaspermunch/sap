@@ -426,7 +426,7 @@ class OptionsDialog(wx.Dialog):
             option = optionParser.parser.get_option(optionName)
             l = wx.StaticText(self, -1, "%s:" % option.dest, size=(130, -1))
             if optionName == '--database':
-               t = DatabaseChoice(self, option.dest, ['GenBank', 'BOLI', 'Add local file to list...'])
+               t = DatabaseChoice(self, option.dest, ['GenBank', 'Add local file to list...'])
             elif type(getattr(optionParser.options, option.dest)) == type(True):
                t = BoolChoice(self, option.dest)
             else:
@@ -477,12 +477,12 @@ class OptionsDialog(wx.Dialog):
 
         objList = []
 
-        usedList = ['--prunelevel', '--sampler']
+        usedList = ['--prunelevel', '--assignment']
 
         for optionName in usedList:
             option = optionParser.parser.get_option(optionName)
             l = wx.StaticText(self, -1, "%s:" % option.dest, size=(130, -1))
-            if optionName == '--sampler':
+            if optionName == '--assignment':
                t = StringChoice(self, option.dest, ['Barcoder', 'ConstrainedNJ'])
             else:
                t = BoundTextCtrl(self, option.dest)
@@ -723,10 +723,10 @@ class MyFrame(wx.Frame):
             aligner = plugin.Aligner(optionParser.options)
 
             try:
-               plugin = findPlugin(optionParser.options.sampler, 'SAP.sampler')
+               plugin = findPlugin(optionParser.options.assignment, 'SAP.assignment')
             except PluginNotFoundError:
-               exec("from SAP.Sampling import %s as plugin" % optionParser.options.sampler)
-            sampler = plugin.Sampler(optionParser.options)
+               exec("from SAP.Sampling import %s as plugin" % optionParser.options.assignment)
+            assignment = plugin.Assignment(optionParser.options)
     
             uniqueDict = {}
             copyLaterDict = {}
@@ -773,7 +773,7 @@ class MyFrame(wx.Frame):
                         if abortEvent():
                             return jobID
 
-                        sampler.run(os.path.join(optionParser.options.alignmentcache, homologyResult.alignmentFileName))
+                        assignment.run(os.path.join(optionParser.options.alignmentcache, homologyResult.alignmentFileName))
     
                         if abortEvent():
                             return jobID

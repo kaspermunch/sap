@@ -150,12 +150,12 @@ class TreeStatistics:
                     alignmentFileName = os.path.join(self.options.alignmentcache, queryName + ".nex")
                     if os.path.exists(alignmentFileName):
                         analyses[analysis]['alignmentFiles'].append(alignmentFileName)
-                    treeFileName = os.path.join(self.options.treescache, "%s.%s.nex" % (queryName, self.options.sampler))
+                    treeFileName = os.path.join(self.options.treescache, "%s.%s.nex" % (queryName, self.options.assignment))
                     if os.path.exists(treeFileName):
                         analyses[analysis]['treeFiles'].append(treeFileName)
     
                     # Check whether all treeStatistics files have a corresponding tree file
-                    treeStatName = os.path.join(self.options.treescache, "%s.%s.nex" % (sequence, self.options.sampler))
+                    treeStatName = os.path.join(self.options.treescache, "%s.%s.nex" % (sequence, self.options.assignment))
                     if not treeStatName in analyses[analysis]['treeFiles'] and not doubleToAnalyzedDict.has_key(sequence) and os.path.exists(treeStatFile):
                         print "TreeStatFile don't have a TreeFile:", os.path.basename(treeStatFile)
     
@@ -340,7 +340,7 @@ class TreeStatistics:
                           if os.path.exists(alignmentFileName):
                               summary[analysis]['nrDoubleInst']['alignmentFiles'].append(alignmentFileName)
 
-                          treeStatName = os.path.join(self.options.treescache, doubleToAnalyzedDict[n], "%s.%s.nex" % (self.options.sampler))
+                          treeStatName = os.path.join(self.options.treescache, doubleToAnalyzedDict[n], "%s.%s.nex" % (self.options.assignment))
                           if os.path.exists(treeFileName):
                               summary[analysis]['nrDoubleInst']['treeFiles'].append(treeFileName)
             #########################################################################################################################
@@ -710,7 +710,7 @@ class TreeStatistics:
         sys.stdout.flush()
 
         # Test if run has finished
-        if not os.path.exists(os.path.join(self.options.treescache, homologyResult.treeBaseFileName) + ".%s.nex" % self.options.sampler):
+        if not os.path.exists(os.path.join(self.options.treescache, homologyResult.treeBaseFileName) + ".%s.nex" % self.options.assignment):
             print "Run not finished - skipping - %s %s" % (homologyResult.queryName, os.path.join(self.options.treescache, homologyResult.treeBaseFileName))
             return None
 
@@ -740,10 +740,10 @@ class TreeStatistics:
 
             noConsTax = 0
 
-            treeFileNames = [os.path.join(self.options.treescache, homologyResult.treeBaseFileName) + ".%s.nex" % self.options.sampler]
+            treeFileNames = [os.path.join(self.options.treescache, homologyResult.treeBaseFileName) + ".%s.nex" % self.options.assignment]
 
 #             # Number fo trees skipped in burnin:
-#             if self.options.sampler == 'CNJ':
+#             if self.options.assignment == 'CNJ':
 #                nrBurninTrees = 0
 #             else:
 #                nrBurninTrees = self.options.mcmcrelburnin * self.options.mcmcgenerations / self.options.mcmcsamplefreq
@@ -760,7 +760,7 @@ class TreeStatistics:
                         for tree in treeFile.trees:
                             treeNr += 1
 #                             # Skip the tree if it is part of the specified burnin:
-#                             if not self.options.sampler == 'CNJ' and treeNr < nrBurninTrees:
+#                             if not self.options.assignment == 'CNJ' and treeNr < nrBurninTrees:
 #                                 continue
 
                             ## # For each 1000 trees after burnin print

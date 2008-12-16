@@ -72,12 +72,12 @@ def sap():
                 aligner.align(fastaFileName)
         elif options._sample:
             try:
-                plugin = findPlugin(options.sampler, 'sap.sampler')
+                plugin = findPlugin(options.assignment, 'sap.assignment')
             except PluginNotFoundError, X:
                 print "The plugin or file %s was not found." % X.plugin
-            sampler = plugin.Sampler(options)
+            assignment = plugin.Assignment(options)
             for alignmentFileName in args:
-                sampler.run(alignmentFileName)        
+                assignment.run(alignmentFileName)        
         elif options._stats:
             treeStatistics = TreeStatistics(options)
             treeStatistics.runTreeStatistics(args, generateSummary=False)
@@ -193,7 +193,7 @@ def sap():
                               % (sys.argv[0], optionStr, os.path.join(options.homologcache, homologyResult.homologuesFileName))
     
     
-                        print "\t\tTree sampling using", options.sampler
+                        print "\t\tTree sampling using", options.assignment
                         cmd += "%s %s --_sample %s ; " % (sys.argv[0], optionStr, os.path.join(options.alignmentcache, homologyResult.alignmentFileName))
             
                         # Calculation of tree statistics. (Reads pickled
@@ -333,12 +333,12 @@ def sap_boli_backend():
 
         elif options._sample:
             try:
-                plugin = findPlugin(options.sampler, 'sap.sampler')
+                plugin = findPlugin(options.assignment, 'sap.assignment')
             except PluginNotFoundError, X:
                 print "The plugin or file %s was not found." % X.plugin
-            sampler = plugin.Sampler(options)
+            assignment = plugin.Assignment(options)
             for alignmentFileName in args:
-                sampler.run(alignmentFileName)        
+                assignment.run(alignmentFileName)        
         elif options._stats:
             treeStatistics = TreeStatistics(options)
             treeStatistics.runTreeStatistics(args, generateSummary=False)
@@ -445,7 +445,7 @@ def sap_boli_backend():
                         step3CommandFile.write(cmd)
                         ############################################
     
-                        print "\t\tTree sampling using", options.sampler
+                        print "\t\tTree sampling using", options.assignment
                         ############################################
                         # Instead of executing we write the relevant commands to files:                        
                         #cmd += "%s %s --_sample %s ; " % (sys.argv[0], optionStr, os.path.join(options.alignmentcache, homologyResult.alignmentFileName))

@@ -7,8 +7,7 @@ import os, shutil
 from math import floor
 from UtilityFunctions import *
 from SAP.Bio.Nexus import Nexus
-from Sampling.ConstrainedNJ import ConstrainedNJ
-#import NeighbourJoin
+from Assignment.ConstrainedNJ import ConstrainedNJ
 
 class ResultHTML:
 
