@@ -49,7 +49,7 @@ class TreeStatistics:
             tree.link(tree.root, newNodeId)
 
 
-    def runTreeStatistics(self, args, generateSummary=False, doubleToAnalyzedDict=None):
+    def runTreeStatistics(self, args, generateSummary=False, doubleToAnalyzedDict=None, inputQueryNames=None):
 
         if doubleToAnalyzedDict is not None:
             analyzedToDoubleDict = {}
@@ -61,13 +61,17 @@ class TreeStatistics:
         homologuePickleFileNames = []
         fastaFileNames = []
         for arg in args:
-            if arg.split(".")[-1] == "fasta":
-                fastaFileNames.append(arg)
-            elif arg.split(".")[-1] == "pickle":
+            if arg.split(".")[-1] == "pickle":
                 homologuePickleFileNames.append(arg)
             else:
-                print "Unknown filetype:", arg
-                sys.exit()
+                fastaFileNames.append(arg)
+#             if arg.split(".")[-1] == "fasta":
+#                 fastaFileNames.append(arg)
+#             elif arg.split(".")[-1] == "pickle":
+#                 homologuePickleFileNames.append(arg)
+#             else:
+#                 print "Unknown filetype:", arg
+#                 sys.exit()
 
         # Create a list of names of the original fasta entries.
         analyses = {}
@@ -111,6 +115,7 @@ class TreeStatistics:
             # Calculate taxonomy summary
             taxonomy = self.treeStatistics(homologyResult)
 
+
 #         # Read in the corresponding homologue pickle files from homologueCache
 #         for sequence in sequences:
 #             homologuePickleFileName = "%s/%s" % (self.options.homologcache, sequence + ".pickle")
@@ -129,6 +134,8 @@ class TreeStatistics:
         # treeStatistics.py with the summary option. Generates a summary
         # file used by webify.py
         if generateSummary:
+
+            failedAssignmentLog = open(os.path.join(self.options.statsdir, "failedAssignments_%s.tbl" % self.options.assignment), 'w')
            
             homologueFiles = {}
             alignmentFiles = {}
@@ -158,8 +165,15 @@ class TreeStatistics:
                     treeStatName = os.path.join(self.options.treescache, "%s.%s.nex" % (sequence, self.options.assignment))
                     if not treeStatName in analyses[analysis]['treeFiles'] and not doubleToAnalyzedDict.has_key(sequence) and os.path.exists(treeStatFile):
                         print "TreeStatFile don't have a TreeFile:", os.path.basename(treeStatFile)
+
+                    # Print to the log file if assignment seems to have failed:
+                    if treeStatName not in analyses[analysis]['treeFiles'] and not doubleToAnalyzedDict.has_key(sequence):
+                       failedAssignmentLog.write("%s\t%s\n" % (analysis, sequence))
+
+            failedAssignmentLog.close()         
+
     
-            def createSummary(taxonomyDict, sequences, homologueFiles, alignmentFiles, treeFiles, treeStatFiles, doubleToAnalyzedDict):
+            def createSummary(taxonomyDict, sequences, homologueFiles, alignmentFiles, treeFiles, treeStatFiles, doubleToAnalyzedDict, inputQueryNames):
                 """
                 Create summary object
                 """
@@ -177,6 +191,7 @@ class TreeStatistics:
                     return significantRankList
 
                 summary = {}
+                summary['inputQueryNames'] = inputQueryNames
                 summary['doubleToAnalyzedDict'] = doubleToAnalyzedDict
                 summary['taxonomyDict'] = taxonomyDict
                 summary['sequences'] = sequences
@@ -185,8 +200,10 @@ class TreeStatistics:
                 summary['treeFiles'] = treeFiles
                 summary['treeStatFiles'] = treeStatFiles            
                 summary['significantRanks'] = []
-                for cutOff in self.options.ppcutoff:
-                    summary['significantRanks'] += createSummaryRanks(cutOff, taxonomyDict)
+#                 summary['significantAssignmentTrees'] = []
+                for cutoff in self.options.ppcutoff:
+                    summary['significantRanks'] += createSummaryRanks(cutoff, taxonomyDict)
+#                     summary['significantAssignmentTrees'].append([cutoff, self.createSignifTree(cutoff, taxonomyDict)])
 
                 # Make a dict of what homologue sets that exhaust the database:
                 summary['dbExhausted'] = {}
@@ -200,7 +217,7 @@ class TreeStatistics:
                 summary['lowestHomolProb'] = {}            
 
                 summary['nrSignificantHomologues'] = {}
-                summary['minLevelProbs'] = {}
+#                 summary['minLevelProbs'] = {}
                 #summary['exhaustionLevel'] = {}
                 summary['avgStdevSplitFreq'] = {}
 
@@ -239,12 +256,12 @@ class TreeStatistics:
                         homolProbs.append(float(occourencesOfHomologueInSisterGroup[key]) / treesCount)
                     summary['lowestHomolProb'][queryName] = min(homolProbs)
 
-                    # Get probabilities for the levels to be reported in the HTML summary:
-                    summary['minLevelProbs'][queryName] = {}
-                    for rank in ['species', 'genus', 'family', 'order', 'class', 'phylum']:
-                        levelProbs = taxonomyDict[queryName].getLevelProbs(rank, probList=[])
-                        if len(levelProbs):
-                            summary['minLevelProbs'][queryName][rank] = min(levelProbs)
+#                     # Get probabilities for the levels to be reported in the HTML summary:
+#                     summary['minLevelProbs'][queryName] = {}
+#                     for rank in ['species', 'genus', 'family', 'order', 'class', 'phylum']:
+#                         levelProbs = taxonomyDict[queryName].getLevelProbs(rank, probList=[])
+#                         if len(levelProbs):
+#                             summary['minLevelProbs'][queryName][rank] = min(levelProbs)
 
                     # Find the lowest post. prob. at the lowest levels (leafs):
                     allLiefProbs = taxonomyDict[queryName].getLiefProbs(probList=[])
@@ -289,7 +306,8 @@ class TreeStatistics:
                                                   analyses[analysis]['alignmentFiles'],
                                                   analyses[analysis]['treeFiles'],
                                                   analyses[analysis]['treeStatFiles'],
-                                                  doubleToAnalyzedDict)                                                
+                                                  doubleToAnalyzedDict,
+                                                  inputQueryNames)                                                
 
             ######### This is a bit of a hack to update the summary with information on doubles... ###########################
             if self.options.nocopycache:                       
@@ -711,7 +729,7 @@ class TreeStatistics:
 
         # Test if run has finished
         if not os.path.exists(os.path.join(self.options.treescache, homologyResult.treeBaseFileName) + ".%s.nex" % self.options.assignment):
-            print "Run not finished - skipping - %s %s" % (homologyResult.queryName, os.path.join(self.options.treescache, homologyResult.treeBaseFileName))
+            print "Run not finished - skipping - %s" % homologyResult.queryName
             return None
 
         pickleFileName = os.path.join(self.options.treestatscache, homologyResult.treeStatisticsPickleFileName)
@@ -787,20 +805,20 @@ class TreeStatistics:
                                                                                       tree,
                                                                                       queryNodeNumber,
                                                                                       queryNodeNumber)
-                            # If the we can't find a consensus taxonomy we skip the tree:
+
                             if len(consensusTaxonomy) == 0:
                                 noConsTax += 1
-                                continue
-
+                                groupTerminals = tree.get_taxa(sisterGroupRoot)
+                            else:                               
+                                # Get the lowest level in the consensustaxonomy
+                                lowestConsensusTaxLevel = list(consensusTaxonomy)[-1]
+                                # Find the names of all the leaf nodes that has lowestCensensusTaxLevel in its taxonomy.
+                                groupTerminals = self.getTerminalsTaxonomicGroup(homologyResult,
+                                                                            tree,
+                                                                            lowestConsensusTaxLevel.name,
+                                                                            lowestConsensusTaxLevel.level)
                             treesCount += 1
 
-                            # Get the lowest level in the consensustaxonomy
-                            lowestConsensusTaxLevel = list(consensusTaxonomy)[-1]
-                            # Find the names of all the leaf nodes that has lowestCensensusTaxLevel in its taxonomy.
-                            groupTerminals = self.getTerminalsTaxonomicGroup(homologyResult,
-                                                                        tree,
-                                                                        lowestConsensusTaxLevel.name,
-                                                                        lowestConsensusTaxLevel.level)
                             # Add the query:
                             groupTerminals.append(homologyResult.queryName)
 
@@ -835,6 +853,11 @@ class TreeStatistics:
                                 print "%s and %s do not align" % (X.level1, X.level2)
                                 continue
 
+#             print " Not consolidated: ###############################################################################################################"
+#             print taxonomySummary._notConsolidatedString()
+#             print " Consolidated: ###################################################################################################################"
+#             print taxonomySummary._consolidatedString()            
+
             if noConsTax > 0:
                 print "Failed finding a consensus taxonomies for %d trees.\n" % noConsTax,
 
@@ -857,6 +880,7 @@ class TreeStatistics:
 
             print "done."
             sys.stdout.flush()
+
 
         return taxonomySummary
 
@@ -894,7 +918,7 @@ class TreeStatistics:
         """
         Find significantly identified names at different ranks
         """
-        significantRanks = {'class': {}, 'order':{}, 'family':{}, 'genus':{}, 'species':{}, 'subspecies':{}}
+        significantRanks = {'phylum': {}, 'class': {}, 'order':{}, 'family':{}, 'genus':{}, 'species':{}, 'subspecies':{}}
 
         for queryName in taxonomyDict.keys():
             taxonomyDict[queryName].findSignificantOrderFamilyGenus(significantRanks, queryName,
@@ -903,3 +927,23 @@ class TreeStatistics:
         return significantRanks
 
 
+    def createSignifTree(self, significance, taxonomyDict):
+
+        from SAP.Taxonomy import levelRanks, levelList
+
+        signifTaxonomySummary = Taxonomy.TaxonomySummary(pruneLevel=self.options.prunelevel, significanceSummary=True)
+        
+        for query, taxSummary in taxonomyDict.items():           
+
+            signifTaxonomy = taxSummary.getSignificantTaxonomy(significance/100.0)
+
+            if len(signifTaxonomy):
+
+               highestLevelRank = levelRanks[signifTaxonomy[-1].level]
+               liefLevel = Taxonomy.TaxonomyLevel(query, levelList[highestLevelRank+1], dbid=query)
+
+               signifTaxonomy.add(liefLevel)
+
+               signifTaxonomySummary.addTaxonomy(signifTaxonomy)
+
+        return signifTaxonomySummary

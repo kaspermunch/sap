@@ -14,7 +14,6 @@ Maddison, Swofford, Maddison. 1997. Syst. Biol. 46(4):590-621
 """
 
 import os,sys, math, random, copy
-import sets
 
 from copy import deepcopy
 
@@ -208,7 +207,7 @@ def safename(name,mrbayes=False):
         safe=''.join([c for c in safe if c in MRBAYESSAFE])
     else:
         safe=name.replace("'","''")
-        if sets.Set(safe).intersection(sets.Set(WHITESPACE+PUNCTUATION)):
+        if set(safe).intersection(set(WHITESPACE+PUNCTUATION)):
             safe="'"+safe+"'"
     return safe
 
@@ -245,7 +244,7 @@ def _sort_keys_by_values(p):
     
 def _make_unique(l):
     """Check that all values in list are unique and return a pruned and sorted list."""
-    l=list(sets.Set(l))
+    l=list(set(l))
     l.sort()
     return l
 
@@ -260,7 +259,7 @@ def _compact4nexus(orig_list):
     
     if not orig_list:
         return ''
-    orig_list=list(sets.Set(orig_list))
+    orig_list=list(set(orig_list))
     orig_list.sort()
     shortlist=[]
     clist=orig_list[:]
@@ -299,7 +298,7 @@ def combine(matrices):
         return None
     name=matrices[0][0]
     combined=copy.deepcopy(matrices[0][1]) # initiate with copy of first matrix
-    mixed_datatypes=(len(sets.Set([n[1].datatype for n in matrices]))>1)
+    mixed_datatypes=(len(set([n[1].datatype for n in matrices]))>1)
     if mixed_datatypes:
         combined.datatype='None'    # dealing with mixed matrices is application specific. You take care of that yourself!
     #    raise NexusError, 'Matrices must be of same datatype' 
@@ -654,7 +653,7 @@ class Nexus(object):
                 self.symbols=self.symbols[1:-1].replace(' ','')
             if not self.respectcase:
                 self.symbols=self.symbols.lower()+self.symbols.upper()
-                self.symbols=list(sets.Set(self.symbols))
+                self.symbols=list(set(self.symbols))
         if options.has_key('datatype'):
             self.datatype=options['datatype'].lower()
             if self.datatype=='dna' or self.datatype=='nucleotide':
@@ -1175,7 +1174,7 @@ class Nexus(object):
         if not filename:
             filename=self.filename
         if [t for t in delete if not self._check_taxlabels(t)]:
-            raise NexusError, 'Unknown taxa: %s' % ', '.join(sets.Set(delete).difference(sets.Set(self.taxlabels)))
+            raise NexusError, 'Unknown taxa: %s' % ', '.join(set(delete).difference(set(self.taxlabels)))
         if interleave_by_partition:
             if not interleave_by_partition in self.charpartitions:
                 raise NexusError, 'Unknown partition: '+interleave_by_partition
@@ -1364,7 +1363,7 @@ class Nexus(object):
                     # subset of an ambig or only missing in previous -> take subset
                     newconstant.append((site[0],self.ambiguous_values.get(seqsite,seqsite)))
                 elif seqsite in self.ambiguous_values:  # is it an ambig: check the intersection with prev. values
-                    intersect=sets.Set(self.ambiguous_values[seqsite]).intersection(sets.Set(site[1]))
+                    intersect=set(self.ambiguous_values[seqsite]).intersection(set(site[1]))
                     if intersect:
                         newconstant.append((site[0],''.join(intersect)))
                     #    print 'ok'
@@ -1418,7 +1417,7 @@ class Nexus(object):
         if not matrix:
             matrix=self.matrix
         if [t for t in delete if not self._check_taxlabels(t)]:
-            raise NexusError, 'Unknwon taxa: %s' % ', '.join(sets.Set(delete).difference(self.taxlabels))
+            raise NexusError, 'Unknwon taxa: %s' % ', '.join(set(delete).difference(self.taxlabels))
         if exclude!=[]:
             undelete=[t for t in self.taxlabels if t in matrix and t not in delete]
             if not undelete:
@@ -1557,11 +1556,11 @@ class Nexus(object):
 
     def gaponly(self,include_missing=False):
         """Return gap-only sites."""
-        gap=sets.Set(self.gap)
+        gap=set(self.gap)
         if include_missing:
             gap.add(self.missing)
         sitesm=zip(*[self.matrix[t].tostring() for t in self.taxlabels])
-        gaponly=[i for i,site in enumerate(sitesm) if sets.Set(site).issubset(gap)]
+        gaponly=[i for i,site in enumerate(sitesm) if set(site).issubset(gap)]
         return gaponly 
         
     def terminal_gap_to_missing(self,missing=None,skip_n=True):

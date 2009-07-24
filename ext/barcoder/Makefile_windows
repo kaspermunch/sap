@@ -1,0 +1,75 @@
+LIBS     =   -lm
+
+CFLAGS   =   
+
+CC       =   bcc32
+
+OBJECTS  =   main.obj alignment.obj condlikes.obj constraints.obj iomanager.obj MbBitfield.obj MbEigensystem.obj MbMath.obj MbRandom.obj MbTransitionMatrix.obj mcmc.obj model.obj parm.obj parm_basefreqs.obj parm_shape.obj parm_subrates.obj parm_tree.obj settings.obj tiprobs.obj
+
+PROGS    = bc1
+
+all:		$(PROGS)
+
+bc1:		$(OBJECTS)
+		$(CC) $(CFLAGS) -ebc1 $(OBJECTS) $(LIBS)
+		
+main.obj:	main.cpp
+		$(CC) $(CFLAGS) -c main.cpp
+
+alignment.obj:	alignment.cpp
+		$(CC) $(CFLAGS) -c alignment.cpp
+
+condlikes.obj:	condlikes.cpp
+		$(CC) $(CFLAGS) -c condlikes.cpp
+
+constraints.obj:	constraints.cpp
+		$(CC) $(CFLAGS) -c constraints.cpp
+
+iomanager.obj:	iomanager.cpp
+		$(CC) $(CFLAGS) -c iomanager.cpp
+
+MbBitfield.obj:	MbBitfield.cpp
+		$(CC) $(CFLAGS) -c MbBitfield.cpp
+
+MbEigensystem.obj:	MbEigensystem.cpp
+		$(CC) $(CFLAGS) -c MbEigensystem.cpp
+
+MbMath.obj:	MbMath.cpp
+		$(CC) $(CFLAGS) -c MbMath.cpp
+
+MbRandom.obj:	MbRandom.cpp
+		$(CC) $(CFLAGS) -c MbRandom.cpp
+
+MbTransitionMatrix.obj:	MbTransitionMatrix.cpp
+		$(CC) $(CFLAGS) -c MbTransitionMatrix.cpp
+
+mcmc.obj:	mcmc.cpp
+		$(CC) $(CFLAGS) -c mcmc.cpp
+
+model.obj:	model.cpp
+		$(CC) $(CFLAGS) -c model.cpp
+
+parm.obj:	parm.cpp
+		$(CC) $(CFLAGS) -c parm.cpp
+
+parm_basefreqs.obj:	parm_basefreqs.cpp
+		$(CC) $(CFLAGS) -c parm_basefreqs.cpp
+
+parm_shape.obj:	parm_shape.cpp
+		$(CC) $(CFLAGS) -c parm_shape.cpp
+
+parm_subrates.obj:	parm_subrates.cpp
+		$(CC) $(CFLAGS) -c parm_subrates.cpp
+
+parm_tree.obj:	parm_tree.cpp
+		$(CC) $(CFLAGS) -c parm_tree.cpp
+
+settings.obj:	settings.cpp
+		$(CC) $(CFLAGS) -c settings.cpp
+
+tiprobs.obj:	tiprobs.cpp
+		$(CC) $(CFLAGS) -c tiprobs.cpp
+
+
+clean:		
+		rm -f *.obj

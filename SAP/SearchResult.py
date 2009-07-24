@@ -35,9 +35,12 @@ class BlastSearchResult(object):
    """
    Generic class for search attributes.
    """
-   def __init__(self, blastRecord):
+   def __init__(self, blastRecord, realign=False):
 
       self.search_list = []
+
+      if blastRecord is None:
+         return
 
       for i in range(len(blastRecord.alignments)):
 

@@ -1,7 +1,6 @@
 import os, re, sys, os
 from SAP.Bio.Nexus import Nexus
 from SAP import Fasta
-from SAP.Bio import pairwise2
 from SAP.UtilityFunctions import *
 
 class Aligner:
@@ -38,12 +37,25 @@ class Aligner:
             # Write the remaining homologes:
             for fastaRecord in fastaIterator:
                 sequence = fastaRecord.sequence
-                # Splice in the introduced gaps
-                for i in range(len(introducedGaps)):
-                    sequence = sequence[:introducedGaps[i]] + '-' + sequence[introducedGaps[i]:]
-                # Removing irelevant flanks from sequence:
-                fastaRecord.sequence = sequence[leftBoundary:rightBoundary]
                 seqList.append(fastaRecord)
+
+            fastaFile.close()
+
+            # Get rid of columns that are all gaps:
+            gapCols = []
+            seqlen = len(seqList[0].sequence)
+            for i in range(seqlen):
+                isGapCol = True
+                for j in range(len(seqList)):
+                    if seqList[j].sequence[i] != '-':
+                        isGapCol = False
+                        break
+                if isGapCol:
+                    gapCols.append(i)            
+            for j in range(len(seqList)):
+                for i in gapCols[::-1]:
+                    seqList[j].sequence = seqList[j].sequence[:i] + seqList[j].sequence[i+1:]
+
 
             # Write the nexus alignment:
             writeNexusFile(alignmentFileName, seqList)

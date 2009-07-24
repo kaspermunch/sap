@@ -253,7 +253,7 @@ inline void MbBitfield::clearBits(void) {
  * \brief Set bits
  */
 inline void MbBitfield::flipBits(void) {
-	
+
 	for (int i=0; i<m; i++)
 		v[i] = v[i] ^ ULONG_MAX;
 	v[m-1] &= mask;	// ensure clear trailing bits

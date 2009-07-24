@@ -19,7 +19,7 @@ class Bipartition {
 						   void   normalizeBipartition(void);
 						    int   getBipartition(int tn);
 							int   getMask(int tn);
-				     MbBitfield   *getBipartitionPtr(void) { return parts; }
+					 MbBitfield   *getBipartitionPtr(void) { return parts; }
 					 MbBitfield   *getMaskPtr(void) { return mask; }
 						   void   print(void);
 

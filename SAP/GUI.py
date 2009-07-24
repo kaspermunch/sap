@@ -32,7 +32,7 @@ from SAP.ResultHTML import ResultHTML
 from SAP.Initialize import Initialize
 
 # We need to import these here so py2app can map them as dependencies:
-from SAP.Sampling import Barcoder, ConstrainedNJ
+from SAP.Assignment import Barcoder, ConstrainedNJ
 from SAP.Alignment import Clustalw2
         
 from SAP.UtilityFunctions import *
@@ -366,17 +366,38 @@ class DatabaseChoice(StringChoice):
             paths = dlg.GetPaths()
             self.inputFiles = paths
             self.choice = paths[0]
+        else:
+           self.choice = None
 
         dlg.Destroy()
 
     def EvtChoice(self, event):
-       self.choice = event.GetString()
-       if self.choice == 'Add local file to list...':
-          self.fileBrowse()
-          self.SetString(len(self.choiceList)-1, self.choice)
-          self.Append('Add local file to list...')
+        self.choice = event.GetString()
+        if self.choice == 'Add local file to list...':
+            self.fileBrowse()
+            if self.choice is not None:
+               self.SetString(len(self.choiceList)-1, self.choice)
+               self.Append('Add local file to list...')
+               setattr(optionParser.options, self.optionName, self.choice)
+            else:
 
-       setattr(optionParser.options, self.optionName, self.choice)
+#                # Turn the list back to what is was before:
+#                oldChoiceList = self.choiceList
+#                i = 0
+#                for s in oldChoiceList:
+#                   if s != getattr(optionParser.options, self.optionName):
+#                      print i, s
+#                      self.SetString(i, s)
+#                      i += 1
+#                self.SetString(i, getattr(optionParser.options, self.optionName))      
+
+               dlg = wx.MessageDialog(self, 'You canceled choice of a local database file so you need to re-select one of the built in databases.', 'Select a database', wx.OK | wx.ICON_INFORMATION)
+               dlg.ShowModal()
+               dlg.Destroy()
+
+        else:
+           setattr(optionParser.options, self.optionName, self.choice)
+
 
 class OptionsDialog(wx.Dialog):
     def __init__(self, parent):
@@ -561,7 +582,7 @@ class MyFrame(wx.Frame):
         menuBar = wx.MenuBar()
         # 1st menu from left
         menu1 = wx.Menu()
-        menu1.Append(102, "Open project\tCtrl+O")
+        menu1.Append(102, "Open existing project\tCtrl+O")
         # Add menu to the menu bar
         menuBar.Append(menu1, "File")
         # Shortcuts
@@ -703,10 +724,11 @@ class MyFrame(wx.Frame):
     def _resultProducer(self, jobID, abortEvent, inputFiles):
 
         try:
+
             sys.stdout = OutputEnqueue()
-    
+
             global optionParser
-    
+
             # Make directories and write fixed inputfiles:
             init = Initialize(optionParser.options)
             init.createDirs()
@@ -717,19 +739,22 @@ class MyFrame(wx.Frame):
             fastaFileBaseNames = []
     
             try:
-               plugin = findPlugin(optionParser.options.alignment, 'SAP.alignment')
+               alignmentPlugin = findPlugin(optionParser.options.alignment, 'SAP.alignment')
             except PluginNotFoundError:
-               exec("from SAP.Alignment import %s as plugin" % optionParser.options.alignment)
-            aligner = plugin.Aligner(optionParser.options)
+               exec("from SAP.Alignment import %s as alignmentPlugin" % optionParser.options.alignment)
+            aligner = alignmentPlugin.Aligner(optionParser.options)
 
             try:
-               plugin = findPlugin(optionParser.options.assignment, 'SAP.assignment')
+               assignmentPlugin = findPlugin(optionParser.options.assignment, 'SAP.assignment')
             except PluginNotFoundError:
-               exec("from SAP.Sampling import %s as plugin" % optionParser.options.assignment)
-            assignment = plugin.Assignment(optionParser.options)
-    
+               exec("from SAP.Assignment import %s as assignmentPlugin" % optionParser.options.assignment)
+            assignment = assignmentPlugin.Assignment(optionParser.options)
+
+
             uniqueDict = {}
             copyLaterDict = {}
+
+            homolcompiler = HomolCompiler(optionParser.options)
     
             # For each fasta file execute pipeline
             for fastaFileName in inputFiles:
@@ -741,13 +766,16 @@ class MyFrame(wx.Frame):
     
                 if abortEvent():
                     return jobID
+
+                inputQueryNames[fastaFileBaseName] = {}
                 
                 for fastaRecord in fastaIterator:
-    
-                    homolcompiler = HomolCompiler(optionParser.options)
+
                     
                     # Discard the header except for the first id word:
                     fastaRecord.title = re.search(r'^(\S+)', fastaRecord.title).group(1)
+
+                    inputQueryNames[fastaFileBaseName][fastaRecord.title] = True
     
                     print "%s -> %s: " % (fastaFileBaseName, fastaRecord.title)
     
@@ -772,26 +800,34 @@ class MyFrame(wx.Frame):
     
                         if abortEvent():
                             return jobID
-
-                        assignment.run(os.path.join(optionParser.options.alignmentcache, homologyResult.alignmentFileName))
+                         
+                        try:
+                           assignment.run(os.path.join(optionParser.options.alignmentcache, homologyResult.alignmentFileName))
+                        except assignmentPlugin.AssignmentError, X:
+                           print X.message
     
                         if abortEvent():
                             return jobID
     
                         treeStatistics = TreeStatistics(optionParser.options)
                         treeStatistics.runTreeStatistics([os.path.join(optionParser.options.homologcache, homologyResult.homologuesPickleFileName)], generateSummary=False)
+
+                        if abortEvent():
+                            return jobID                        
+
+                fastaFile.close()
     
             if abortEvent():
                 return jobID
     
-            # Calculate the pairwise differences between sequences in each file:
-            if optionParser.options.diffs:
-                pairwisediffs = PairWiseDiffs(optionParser.options)
-                pairwisediffs.runPairWiseDiffs(inputFiles)
-                #runPairWiseDiffs(inputFiles)
-    
-            if abortEvent():
-                return jobID
+#             # Calculate the pairwise differences between sequences in each file:
+#             if optionParser.options.diffs:
+#                 pairwisediffs = PairWiseDiffs(optionParser.options)
+#                 pairwisediffs.runPairWiseDiffs(inputFiles)
+#                 #runPairWiseDiffs(inputFiles)
+#     
+#             if abortEvent():
+#                 return jobID
     
     
             # Make dictionary to map doubles the ones analyzed:
@@ -807,13 +843,15 @@ class MyFrame(wx.Frame):
             # Calculate the pairwise differences between sequences in each file:
             if optionParser.options.diffs:
                 pairwisediffs = PairWiseDiffs(optionParser.options)
-                pairwisediffs.runPairWiseDiffs(args)
-                #runPairWiseDiffs(args)
-    
+                pairwisediffs.runPairWiseDiffs(inputFiles)
+
+            if abortEvent():
+                return jobID
+
             # Summary tree stats:
             print 'Computing tree statistics summary...'
             treeStatistics = TreeStatistics(optionParser.options)
-            treeStatistics.runTreeStatistics(inputFiles, generateSummary=True, doubleToAnalyzedDict=doubleToAnalyzedDict)
+            treeStatistics.runTreeStatistics(inputFiles, generateSummary=True, doubleToAnalyzedDict=doubleToAnalyzedDict, inputQueryNames=inputQueryNames)
             print "done"
     
             if abortEvent():
@@ -830,7 +868,12 @@ class MyFrame(wx.Frame):
 
         except SystemExit, exitVal:
             sys.exit(exitVal)
-        except delayedresult.AbortedException:
+        except AnalysisTerminated, exe:
+            print "#####################################################################"
+            print exe.message
+            print "#####################################################################"
+            raise Exception
+        except delayedresult.AbortedException:           
             return None
         except Exception, exe: 
             print """
@@ -841,7 +884,9 @@ folder and the sequence input file used.
 """
             print "".join(traceback.format_tb(sys.exc_info()[2]))
             print exe
+            print "#############################################################"
             raise Exception
+
     
     def onAbortButton(self, event): 
         """Abort the result computation."""
@@ -917,9 +962,16 @@ folder and the sequence input file used.
         dlg = OptionsDialog(self)
         dlg.CenterOnScreen()
 
-        # this does not return until the dialog is closed.
-        val = dlg.ShowModal()
-    
+#         # this does not return until the dialog is closed.
+#         val = dlg.ShowModal()
+
+        if dlg.ShowModal() == wx.ID_OK:        
+           # See if we are using any 
+           global optionParser
+           if os.path.exists(optionParser.options.database):
+              assertBlastInstalled(guiParent=self)
+
+
         dlg.Destroy()
 
     def showResults(self, evt):

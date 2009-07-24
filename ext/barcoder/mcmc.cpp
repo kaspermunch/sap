@@ -68,7 +68,7 @@ Mcmc::Mcmc(Model *m, MbRandom *r, Settings *s, IoManager *outputPtr) {
 		Parm *parmOld = modelPtr->getCurParameter(whichParm);
 		modelPtr->flipActiveParm();
 		Parm *parmNew = modelPtr->getCurParameter(whichParm);
-		
+
 		/* change the parameter */
 		double lnProposalRatio = parmNew->change();
 		

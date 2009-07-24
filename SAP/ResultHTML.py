@@ -3,7 +3,7 @@ try:
    import cPickle as pickle
 except:
    import pickle
-import os, shutil
+import os, shutil, sys
 from math import floor
 from UtilityFunctions import *
 from SAP.Bio.Nexus import Nexus
@@ -65,6 +65,8 @@ class ResultHTML:
     def createMainPage(self, mainSummary, sequenceNameMap):
         """Create front page containing tables of identified names"""
 
+        print "Creating main page...",
+        sys.stdout.flush()
 
         notExhaustedListFileName = '%s/notExhausted.tbl' % (self.options.statsdir)
         notExhaustedListFile = open(notExhaustedListFileName, 'w')
@@ -173,6 +175,12 @@ td {
     background-color: #999999;
 }
 
+.lightblue {
+    /* color: #0000FF;*/
+    background-color: #CEE0F3;
+    /* background-color: #ADDFFF; */
+}
+
 .dark {
     background-color: #dddddd;
 }
@@ -211,6 +219,10 @@ h3 {
     margin-top: 2pt;
     margin-left: 3pt;
     font-weight: bold;
+}
+
+a:active blue {
+    color: #666666;
 }
 
 a:active {
@@ -268,10 +280,10 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
 }
 """
 
-        writeFile(self.options.resultdir + '/style.css', styleCSS)
-        writeFile(self.options.resultdir + '/clones/style.css', styleCSS)
-        writeFile(self.options.resultdir + '/tooltip.css', tooltipCSS)
-        writeFile(self.options.resultdir + '/tooltip.js', tooltipJS)
+        writeFile(os.path.join(self.options.resultdir, 'style.css'), styleCSS)
+        writeFile(os.path.join(self.options.resultdir, 'clones', 'style.css'), styleCSS)
+        writeFile(os.path.join(self.options.resultdir, 'tooltip.css'), tooltipCSS)
+        writeFile(os.path.join(self.options.resultdir, 'tooltip.js'), tooltipJS)
         
         text = "<h1>Assignment Summary</h1>"
 
@@ -345,11 +357,58 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                               'Input sequences assigned to taxonomic levels: %s <br>' % len(summary['taxonomyDict'])])
             text += '</div>\n'
 
-            # Make a table for each significance cut-off:
-            for significanceLevel in summary['significantRanks']:
-                text += '<br>\n<a name="%s"></a><h3>Assignments at %s level:</h3>\n' % (experiment+significanceLevel[0], significanceLevel[0])
 
-                significantRanks = significanceLevel[1]
+            ###############################################################
+            levelCountsListFileName = '%s/levelcounts_%s.tbl' % (self.options.statsdir, experiment)
+            levelCountsListFile = open(levelCountsListFileName, 'w')
+            levelCountsListFile.write("Experiment: %s\n" % experiment)
+            for significanceLevel, significantRanks in summary['significantRanks']:
+                levelCountsListFile.write("\tSignificance level: %s\n" % significanceLevel)
+                levelsSummaried = ['phylum', 'class', 'order', 'family', 'genus', 'species']
+                if self.options.subspecieslevel:
+                    levelsSummaried.append('subspecies')
+                for rank in levelsSummaried:
+                    if not significantRanks['ranks'][rank].keys():
+                        continue
+                    levelCountsListFile.write("\t\tRank: %s\n" % rank)
+                    nrIdent = 0
+                    for name in significantRanks['ranks'][rank].keys():                        
+                        nr = len(significantRanks['ranks'][rank][name])
+                        nrIdent += nr
+                        levelCountsListFile.write("\t\t\t%s\t%s\n" % (name, nr))
+
+                    for item in significantRanks['normalization']:
+                        if item[1]:
+                            levelCountsListFile.write("\t\ttotal/%s %s/%s %.1f%%\n" % (item[0], nrIdent, item[1], 100*nrIdent/float(item[1])))
+                        else:
+                            levelCountsListFile.write("\t\ttotal/%s %s/%s 0%%\n" % (item[0], nrIdent, item[1]))
+                    levelCountsListFile.write("\n")
+            levelCountsListFile.close()
+            ###############################################################
+               
+
+            # Make a table for each significance cut-off:
+            for significanceLevel, significantRanks in summary['significantRanks']:
+                text += '<br>\n<a name="%s"></a><h3>Assignments at %s level:</h3>\n' % (experiment+significanceLevel, significanceLevel)
+
+#                 print "\tdoing", significanceLevel,
+#                 sys.stdout.flush()
+# 
+#                 for cutoff, signifTree in summary['significantAssignmentTrees']:
+# 
+#                    if "%d%%" % cutoff == significanceLevel:
+#                       text += "<p>The followng tree summaizes the taxonomic assignments at the given cut off. To ambiguities in taxonomic annotation the assignments shown represented this way may at times be conservative. Click each sample-sequence to get the full detail on each assignemnt.</p>" 
+#                       text += '<div class="taxonomysummary">\n'
+#                       text += '<pre>'
+#                       text += str(signifTree)
+#                       text += '</pre>'
+#                       text += '</div>\n'
+#                       break
+# 
+#                 print "done"
+#                 sys.stdout.flush()
+                      
+                #significantRanks = significanceLevel[1]
 
                 # Container table for the this significance level results:
                 text += '<table>\n<tr>\n<td class="ranktable">\n'
@@ -357,7 +416,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 #for rank in ['class', 'order', 'family', 'genus', 'species', 'subspecies']:
                 #for rank in ['class', 'order', 'family', 'genus']:
 
-                levelsSummaried = ['class', 'order', 'family', 'genus', 'species']
+                levelsSummaried = ['phylum', 'class', 'order', 'family', 'genus', 'species']
                 if self.options.subspecieslevel:
                     levelsSummaried.append('subspecies')
 
@@ -377,6 +436,8 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                     text += "<h3>%s</h3>\n" % rank
                     text += "</td>\n"
 
+                    clonesAssignedDict = {}
+
                     nClones = 0;
                     for name in sorted(significantRanks['ranks'][rank].keys()):
                         # New row:
@@ -384,6 +445,8 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                             text += '<tr class="dark">\n'
                         else:
                             text += '<tr class="light">\n'
+
+                        clonesAssignedDict[name] = True
 
                         if self.options.database == "GenBank":
                            # Left cell: Taxonmic name as link to NCBI Taxonomy:
@@ -445,12 +508,25 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                         else:
                             text += "<tr><td><b>total/%s</b></td><td>%s/%s 0%%</td></tr>\n" % (item[0], nClones, item[1])
 
+                    if summary.has_key('inputQueryNames'): # for backwards compatatbility...
+                       
+                        notAssignedFile = "%s_%s_%s.html" % (experiment, significanceLevel[:-1], rank)
+                        text += '<tr><td><b><a href="stats/%s">list not assigned</></b></td></tr>\n' % notAssignedFile
+ 
+                        # Write the list of queryNames that was not assigned:
+                        fh = open(os.path.join(self.options.resultdir, 'stats', notAssignedFile), 'w')
+                        for q in summary['inputQueryNames'][experiment].keys():
+                            if not clonesAssignedDict.has_key(q):
+                                l = q.split('_')
+                                fh.write("%s: %s<br>" % (experiment, "_".join(l[1:])))
+                        fh.close()
+ 
                     # End table for this rank:
                     text += "</table></td>\n"
 
                 # End of container table:
                 text += "</td></tr></table>\n"
-
+ 
                 text += "<hr>\n"
 
                 total = len(self.totIdentifiedNames(significantRanks['ranks']))
@@ -459,10 +535,12 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                     if item[1]:
                         text += 'total/%s=%s/%s = %s%%<br>\n' % (item[0], total, item[1], 100*total/float(item[1]))
                 text += "</p>"
-                text += "<br>"
+                #text += "<br>"
                 
         htmlContents = self.createHtml("Summary page", text, header=True)
         writeFile(self.options.resultdir + '/index.html', htmlContents)
+
+        print "done"
 
 
     def createStatPage(self, mainSummary):
@@ -618,6 +696,22 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 text += "</center>\n"
                 text += '<h1>Sequence: %s</h1>\n' % self.mapBackQueryName(name, sequenceNameMap)
 
+                ##################################################
+                # Write warning on page:
+                treeStatFileName = os.path.join(self.options.treestatscache, name + ".txt")
+                if os.path.exists(treeStatFileName):
+
+                   if summary['nrSignificantHomologues'][name] < 5:
+                       text += '<p>The number of significant homologues is <font color="red">%d</font>.<p/>'
+                   if not summary['dbExhausted'][name]:
+                       if summary['lowestHomolProb'][name] > 0.0001:
+                          text += '<p>The homologue that is least often part of a defining clade is so in <font color="red">%.2f%%</font> of sampled trees.</p>' % summary['nrSignificantHomologues'][name]
+                       if summary['lowestTaxonProb'][name] > 0.0001:
+                          text += '<p>The database was not exhausted and the smallest posterior probability at the lowest taxonomic level with any support is <font color="red">%.2f%%</font>.</p>' % (summary['lowestTaxonProb'][name] * 100)
+                   if not summary['gapsInQuery'].has_key(name):
+                    text += '<p>The alignment has <font color="red">gaps</font> in the sample sequence. Please inspect alignment for correctness.</p>'
+                ##################################################
+
                 if self.options.svg:
                     treeStatFileSVGName = os.path.join(self.options.treestatscache, name + ".svg")
                     if os.path.exists(treeStatFileSVGName):
@@ -625,8 +719,9 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                         s = readFile(treeStatFileSVGName)
                         canvasHeight = s.count('</text>') * 15 + 50 # 15 is the line height set in txt2svg() in the Taxonomy class
                         writeFile(localTreeStatFileSVGName, s)
-                        text += '<h2>Consensus taxonomy of sister group</h2>'
-                        text += '<p>Each line in the tree has the entries: taxon, level, posterior probability, count, and Bayes factor. The Bayes factor is not calculated if the prior is one.</p>'
+                        text += '<h2>Consensus taxonomy of sister group</h2>'                            
+                        #text += '<p>Each line in the tree has the entries: taxon, level, posterior probability, topology count, and Bayes factor. The Bayes factor is not calculated if the prior is one.</p>'
+                        text += '<p>Each line in the tree has the entries: taxon, level, posterior probability.</p>'
                         text += '<div class="taxonomysummary">\n'
                         text += '<embed src="%s.svg" width="800" height="%d" type="image/svg+xml" name="emap">' % (name, canvasHeight)
                         text += '</div>\n'
@@ -648,7 +743,8 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                     treeStatFileName = os.path.join(self.options.treestatscache, name + ".txt")
                     if os.path.exists(treeStatFileName):
                         text += '<h2>Assignment consensus taxonomy:</h2>'
-                        text += '<p>Each line in the tree has the entries: taxon, level, posterior probability, count, and Bayes factor. The Bayes factor is not calculated if the prior is one.</p>'
+                        #text += '<p>Each line in the tree has the entries: taxon, level, posterior probability, count, and Bayes factor. The Bayes factor is not calculated if the prior is one.</p>'
+                        text += '<p>Each line in the tree has the entries: taxon, level, posterior probability.</p>'
                         text += '<div class="taxonomysummary">\n'
                         text += "<pre>%s</pre>" %  readFile(treeStatFileName)
                         text += '</div>\n'
@@ -684,7 +780,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
 
 
                 text += '<h2>Aligned query and homologues:</h2>\n'
-                text += '<p>Black ATGC characters represet nucleotides that match the query sequence. Mouse over <it>colored</it> nucleotides to see what homologue it is part of.</p>\n'
+                text += '<p>Black ATGC characters represet nucleotides that match the query sequence. Mouse over <it>colored</it> nucleotides to see what homologue it is part of.<br>The numbers on the left side of the alignment are identities to the sample-sequence. For readability a space is inserted for each 20 bases.</p>\n'
 
                 alignmentFileName = os.path.join(self.options.alignmentcache, name + ".nex")
 
@@ -695,7 +791,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 def markupSequence(sequence, name):
                     """Colorise the upppercase characters"""
                     sequence = re.sub(r'(.{20})', r'\1&nbsp;&nbsp;', sequence)
-                    Sequence = re.sub(r'(A)', r'<font color="green">\1</font>', sequence)
+                    sequence = re.sub(r'(A)', r'<font color="green">\1</font>', sequence)
                     sequence = re.sub(r'(T)', r'<font color="red">\1</font>', sequence)
                     sequence = re.sub(r'(G)', r'<font color="blue">\1</font>', sequence)
                     sequence = re.sub(r'(C)', r'<font color="orange">\1</font>', sequence)
@@ -760,7 +856,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 bColorValue = "00"
             return "#" + rColorValue + gColorValue + bColorValue
 
-        text = '<h1>Pairwise distance between sequences</h1>\n<br>\n'
+        text = '<h1>Pairwise distance between the input query sequences</h1>\n<br>\n'
 
         text += '<p>Similarities are calculated as munber of identical bases divided by the length of the shortest sequence. The sequences are ordered using neighbour joining to help spot clusters. Hover over a cell to see names of sequence pairs.</p>'
 
@@ -799,8 +895,8 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
             
             alignment = Nexus.Nexus(alignmentFileName)
             try:
-                nj = ConstrainedNJ(alignment)
-                nj.dumpNexus(njTreeFileName)
+                nj = ConstrainedNJ(alignment) # FIXME: does not seem to work
+                nj.dumpNexusString(njTreeFileName)
                 nexusTree = Nexus.Nexus(njTreeFileName).trees[0]
                 combifyTree(nexusTree, nexusTree.root)
                 nameList = nexusTree.get_taxa()

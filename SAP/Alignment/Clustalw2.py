@@ -30,20 +30,14 @@ class Aligner:
             sys.stdout.flush()
 
             alignmentoptions = " ".join(self.options.alignmentoption)
-#             if os.name == 'nt':
-#                 commandLine = 'clustalw2 "%s" -output=NEXUS -outfile="%s" %s > nul' % (fastaFileName, outputTmpFileName, alignmentoptions)
-#             else:
-#                 commandLine = "clustalw2 -infile=%s -output=NEXUS -outfile=%s %s &> /dev/null" % (fastaFileName, outputTmpFileName, alignmentoptions)
-#             os.system(commandLine)
+
             if os.name == 'nt':
-                commandLine = 'clustalw2 "%s" -output=NEXUS -outfile="%s" %s' \
+                commandLine = "clustalw2 %s -output=NEXUS -outfile=%s %s" \
                               % (fastaFileName, outputTmpFileName, alignmentoptions)
             else:
                 commandLine = "clustalw2 -infile=%s -output=NEXUS -outfile=%s %s" \
                               % (fastaFileName, outputTmpFileName, alignmentoptions)
             systemCall(commandLine, stdout='IGNORE', stderr='IGNORE')
-            #os.system(commandLine)
-
 
             writeFile(tmpAlignmentFileName, readFile(outputTmpFileName))
             os.unlink(outputTmpFileName)
@@ -79,7 +73,8 @@ class Aligner:
                     seq = alignment.matrix[key].tostring()
                     alignment.matrix[key].data = seq[leftBound:rightBound]
 
-            alignment.write_nexus_data(filename=alignmentFileName)
+            # we convet to str here to get anound wxpython unicode....
+            alignment.write_nexus_data(filename=str(alignmentFileName))
             
             print "done." 
             sys.stdout.flush()

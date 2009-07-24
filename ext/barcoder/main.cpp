@@ -15,7 +15,7 @@ using namespace std;
 int main (int argc, char *argv[]) {
 
 	cout << endl;
-	cout << "   Barcoder 1.0" << endl << endl;
+	cout << "   Barcoder 1.01" << endl << endl;
 	cout << "   John P. Huelsenbeck" << endl;
 	cout << "   Department of Integrative Biology" << endl;
 	cout << "   University of California, Berkeley" << endl << endl;
@@ -36,7 +36,7 @@ int main (int argc, char *argv[]) {
 	Constraints myConstraints( constraintFileInfo.getFilePath(), constraintFileInfo.getFileName(), &alignment );
 	
 	/* instantiate random number generator */
-	MbRandom myRandom;
+	MbRandom myRandom(3);
 	
 	/* instantiate the phylogenetic model */
 	Model myModel( &myRandom, &alignment, &myConstraints, &mySettings );

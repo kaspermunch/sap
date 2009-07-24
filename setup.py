@@ -49,10 +49,10 @@ elif sys.platform == 'win32':
         extra_options = {}
 else:
     extra_options = {}
-    
+
 setup(name='SAP',
-      version='1.0',
-      description='Statistical assignment of DNA (max 200 chars)',
+      version='1.0.9',
+      description='Statistical Assignment Package (SAP)',
       long_description='SAP does statistial assignment of unknown DNA to estabilish what taxononomic groups the DNA sample originates from. Itx uses a Baysian approach to calculate a probability distribution over all taxa represented in a sequence database. The probability of assignment to eaach taxa serves as a measure of confidence in the assignment.',
       author='Kasper Munch',
       author_email='kasmunch@bi.ku.dk',
@@ -60,15 +60,12 @@ setup(name='SAP',
       packages = find_packages(exclude=['ez_setup']),
       package_dir = {'SAP': 'SAP'},
       include_package_data = True,
-      entry_points = { 'console_scripts': [ 'sap = SAP.ConsoleScripts:sap',
-                                            #'sap_boli = SAP.ConsoleScripts:sap_boli',
-                                            #'sap_boli_backend = SAP.ConsoleScripts:sap_boli_backend'
-                                            ],
+      entry_points = { 'console_scripts': [ 'sap = SAP.ConsoleScripts:sap', ],
                        #'gui_scripts': [ 'sap_gui = SAP.GUI:start_gui', ],
                        'sap.database': [ 'Native = SAP.Databases.Native',
                                          'GenBank = SAP.Databases.GenBank' ],
                        'sap.alignment': [ 'Clustalw2 = SAP.Alignment.Clustalw2',
-                                          'MapToPreAligned = SAP.Alignment.MapToPreAligned',
+#                                           'MapToPreAligned = SAP.Alignment.MapToPreAligned',
                                           'PreAligned = SAP.Alignment.PreAligned' ],
                        'sap.assignment': [ 'Barcoder = SAP.Assignment.Barcoder',
                                         'ConstrainedNJ = SAP.Assignment.ConstrainedNJ' ],

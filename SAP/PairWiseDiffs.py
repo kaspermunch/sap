@@ -82,16 +82,18 @@ class PairWiseDiffs:
                             minimumLength = len(seq1)
 
                         if key1 == key2:
-                           simScore = 1
+                           simScore = 1.0
                            matrices[fastaFileBaseName][key1][key2]['alignedSequences'] = (seq1, seq2)
                            matrices[fastaFileBaseName][key2][key1]['alignedSequences'] = (seq2, seq1)
                         else:
                            alignment = pairwiseClustalw2(key1, seq1, key2, seq2)
-                           aligned1 = alignment.matrix[key2].tostring()
+                           aligned1 = alignment.matrix[key1].tostring()
                            aligned2 = alignment.matrix[key2].tostring()
                            simScore = similarityScore(aligned1, aligned2)
+
                            matrices[fastaFileBaseName][key1][key2]['alignedSequences'] = (aligned1, aligned2)
                            matrices[fastaFileBaseName][key2][key1]['alignedSequences'] = (aligned2, aligned1)
+
 
                         matrices[fastaFileBaseName][key1][key2]['score'] = simScore
                         matrices[fastaFileBaseName][key2][key1]['score'] = simScore
@@ -108,7 +110,8 @@ class PairWiseDiffs:
                         not matrices[fastaFileBaseName][key2][key1].has_key('genus')):
 
                         # Read the most probable taxonomic level from the taxonomy statistics pickle files:
-                        pickleFileName1 = "treeStatistics/%s_%s.pickle" % (fastaFileBaseName, key1)
+                        pickleFileName1 = os.path.join(self.options.treestatscache, "%s_%s.pickle" % (fastaFileBaseName, key1))
+
                         if os.path.exists(pickleFileName1):
                             pickleFile1 = open(pickleFileName1, 'r')
                             try:
@@ -121,7 +124,7 @@ class PairWiseDiffs:
                         else:
                             mostProbableTaxonomyNames1 = {'class':{}, 'order':{}, 'family':{}, 'genus':{}}
 
-                        pickleFileName2 = "treeStatistics/%s_%s.pickle" % (fastaFileBaseName, key2)
+                        pickleFileName2 = os.path.join(self.options.treestatscache, "%s_%s.pickle" % (fastaFileBaseName, key2))
                         if os.path.exists(pickleFileName2):
                             pickleFile2 = open(pickleFileName2, 'r')
                             try:

@@ -106,7 +106,7 @@ Tree::Tree(MbRandom *rn, Model *mp, int nt, bool ir, double lm, vector<string> n
 
 Tree::Tree(MbRandom *rn, Model *mp, int nt, bool ir, double lm, vector<string> names, Constraints *cs) : Parm(rn, mp) {
 
-	parmName = "tree";
+	parmName       = "tree";
 	numTaxa        = nt;
 	isRooted       = ir;
 	lambda         = lm;
@@ -311,6 +311,8 @@ void Tree::buildRandomTree(vector<string> names, Constraints *cs) {
 		{
 		/* get a pointer to the current constraint */
 		Bipartition *prt = cs->getBipartitionPtr( n );
+		//cout << "bipartition" << endl;
+		//prt->print();
 		
 		/* put nodes on left side of the bipartition into a vector */
 		for (int i=0; i<numTaxa; i++)
@@ -318,14 +320,16 @@ void Tree::buildRandomTree(vector<string> names, Constraints *cs) {
 		int numTaxaInLftBipartition = 0;
 		for (int i=0; i<numTaxa; i++)
 			{
-			if (prt->getMask(i) == 1 && prt->getBipartition(i) == 1)
-				partNodesLft[numTaxaInLftBipartition++] = &nodes[i];
+			if ( prt->getMask(i) == 1 && prt->getBipartition(i) == 1 )
+				partNodesLft[ numTaxaInLftBipartition++ ] = &nodes[i];
 			}
 		
-		//cout << "partNodesLft: ";
-		//for (int i=0; i<numTaxaInLftBipartition; i++)
-		//	cout << partNodesLft[i]->getIndex() << " ";
-		//cout << endl;
+		/*for (int i=0; i<numTaxa; i++)
+			cout << i << " -- " << partNodesLft[i] << endl;
+		cout << "partNodesLft: ";
+		for (int i=0; i<numTaxaInLftBipartition; i++)
+			cout << partNodesLft[i]->getIndex() << " ";
+		cout << endl;*/
 			
 		/* find the common ancestor of all of the nodes on left/right side of the bipartition */
 		Node *a = findCommonAncestor(partNodesLft, numTaxaInLftBipartition);
@@ -386,9 +390,9 @@ void Tree::buildRandomTree(vector<string> names, Constraints *cs) {
 		}
 	delete [] partNodesLft;
 
-	//cout << "Tree after constraints:" << endl;
-	//listNodes();
-	//cout << "root = " << root->getIndex() << endl;
+	/*cout << "Tree after constraints:" << endl;
+	listNodes();
+	cout << "root = " << root->getIndex() << endl;*/
 	
 	/* randomly resolve all of the polytomies */
 	bool stopResolving = false;
@@ -489,7 +493,6 @@ void Tree::buildRandomTree(vector<string> names, Constraints *cs) {
 		else
 			p->setV( 0.0 );
 		}
-
 }
 
 
@@ -1404,20 +1407,13 @@ bool Tree::isTreeConsistentWithConstraints(void) {
 			if (rlt == prt || rlt == con)
 				isCompatible = true;
 				
-			//cout << "i = " << i << endl;
-			//cout << "prt       = " << prt << endl;
-			//cout << "con       = " << con << endl;
-			//cout << "prt & con = " << rlt << endl;
-				
 			prt.flipBits();
+			prt &= (*m);
+
 			rlt = (prt & con);
 			if (rlt == prt || rlt == con)
 				isCompatible = true;
 				
-			//cout << "prt       = " << prt << endl;
-			//cout << "con       = " << con << endl;
-			//cout << "prt & con = " << rlt << endl;
-			
 			if (isCompatible == false)
 				{
 				isPartCompatible = false;
@@ -1428,7 +1424,6 @@ bool Tree::isTreeConsistentWithConstraints(void) {
 		if (isPartCompatible == false)
 			break;
 		}
-		
 	return isPartCompatible;
 	
 }

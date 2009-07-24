@@ -81,12 +81,22 @@ void Bipartition::print(void) {
 
 void Bipartition::normalizeBipartition(void) {
 
+#	if 0
 	if (parts->isBitSet(0) == true)
 		{
 		parts->flipBits();
 		(*parts) &= (*mask);
 		}
-
+#	else
+	if (parts->isBitSet(0) == true)
+		{
+		for (int i=0; i<parts->dim(); i++)
+			{
+			if (mask->isBitSet(i) == true)
+				parts->flipBit(i);
+			}
+		}
+#	endif
 }
 
 
@@ -115,7 +125,8 @@ Constraints::Constraints(string filePath, string fileName, Alignment *al) {
 		cerr << "      ERROR: Cannot open file \"" + fileName + "\"" << endl;
 		exit(1);
 		}
-	cout << "### starting" << endl;
+
+	// read the constraints, one line at a time
 	string word = "";
 	char ch;
 	int line = 0;
@@ -123,9 +134,8 @@ Constraints::Constraints(string filePath, string fileName, Alignment *al) {
 	int wordNum = 0;
 	int numOnSide[2] = { 0, 0 };
 	int numConstraints = 0;
-	while ( (ch = myFileStream.get()) != EOF)
+	while ( (ch = myFileStream.get()) != EOF )
 		{
-		  cout << ch;
 		//cout << ch;
 		if ( ch == ' ' || ch == '\t' || ch == '\n' )
 			{
@@ -148,7 +158,10 @@ Constraints::Constraints(string filePath, string fileName, Alignment *al) {
 				{
 				int whichTaxon = alignmentPtr->getTaxonIndex( word );
 				if (whichSide == 0)
+					{
+					//cout << "adding " << whichTaxon << " to bipartition " << biparts[line] << endl;
 					biparts[line]->addToBipartition(whichTaxon);
+					}
 				biparts[line]->addToMask(whichTaxon);
 				numOnSide[whichSide]++;
 				}
@@ -176,8 +189,11 @@ Constraints::Constraints(string filePath, string fileName, Alignment *al) {
 				}
 			}
 		}
+		
+	// close the file
 	myFileStream.close();
-	cout << "### Ended" << endl;
+
+	// normalize the taxon bipartitions
 	for (vector<Bipartition *>::iterator p=biparts.begin(); p != biparts.end(); p++)
 		(*p)->normalizeBipartition();
 		

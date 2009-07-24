@@ -9,9 +9,36 @@ as a confidence in the assignment.
 REQUIREMENTS:
 =========================================================================================
 
+You need the Python interpreter (version 2.4 or later). This is easily downloaded and
+installed from http://www.python.org. A new version 2.6 is available but I recommend
+installing the thoroughly tested 2.5 version. If you do not have the Active state python
+version or the one that comes with OSX Leopard you will need to make sure that the python
+installation includes the header file Python.h. This is the case for the the MacPython
+distribution but not for linux versions. In that case you need to install the python-dev
+package too. By default SAP generates ASCII graphics in the HTML output. If you want
+pretty SVG graphics you will also need the Adobe's SVG plugin for your browser to view
+results. This can be downloaded from http://www.adobe.com/svg/viewer/install/main.html.
+The package relies on gcc and g++ to compile extensions. If you are using Ubuntu g++ is
+not installed by default. You can install it like this: "sudo apt-get install g++", and
+then make sure that gcc and g++ are the same versions like this: "gcc --version" and "g++
+--version"
+
+
 You need the Python interpreter (version 2.4 or newer) to run SAP. If you already have
 Python installed you can check the version by typing python in your terminal. Python is
 easlily downloaded and installed from: http://www.activestate.com/products/activepython.
+
+You also need to have gcc and g++ installed. This is part the the default installation on
+Macintosh and most Linux distributions. For some reason, however, Ubuntu does not include
+g++ by default. You need to install this yourself like this:
+
+sudo apt-get install g++
+
+And then make sure that gcc and g++ are the same versions like this:
+
+gcc --version
+g++ --version
+
 
 INSTALATION:
 =========================================================================================

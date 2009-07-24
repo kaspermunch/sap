@@ -59,7 +59,6 @@ class Node {
 							int   activeTi;
 						   bool   updateCl;
 						   bool   updateTi;
-
 };
 
 
@@ -126,7 +125,6 @@ class Tree : public Parm {
 					     double   tuningBrlen;
 						 double   tuningNni;
 						 double   tuningSpr;
-                            
 };
 
 #endif

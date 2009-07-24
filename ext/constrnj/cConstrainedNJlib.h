@@ -1,6 +1,13 @@
 #ifndef CCONSTRAINEDNJLIB_H
 #define CCONSTRAINEDNJLIB_H
 
+/* template<typename T>
+ * inline bool isanyinf(T value)
+ * {
+ *   return value >= std::numeric_limits<T>::min() && value <= std::numeric_limits<T>::max();
+ * }
+ */
+
 class TooFewAlnBasesError: public std::exception
 {
   virtual const char* what() const throw()

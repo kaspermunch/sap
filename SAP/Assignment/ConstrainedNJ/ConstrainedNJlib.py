@@ -2,6 +2,7 @@
 import os
 from SAP.Bio.Nexus import Nexus
 import random, copy, sys, re, math
+from decimal import Decimal
 
 # Array of array alignment[<sequence_nr>][base_nr]
 alignment = None          
@@ -176,7 +177,7 @@ def k2pStats(i, j):
                 transitions += 1
             elif y == 'T' or y == 'C' or y == 'Y':
                 transversions += 1
-        elif x == 'C' or y == 'Y':
+        elif x == 'C':
             if y == 'T':
                 transitions += 1
             elif y == 'A' or y == 'G' or y == 'R':
@@ -192,11 +193,11 @@ def k2pStats(i, j):
             elif y == 'T' or y == 'C' or y == 'Y':
                 transversions += 1
         elif x == 'R':
-            if y == 'Y':
+            if y == 'T' or y == 'C' or y == 'Y':
                 transversions += 1
-#         elif x == 'Y':
-#             if y == 'R':
-#                 transversions += 1
+        elif x == 'Y':
+            if y == 'A' or y == 'G' or y == 'R':
+                transversions += 1
 
     alignedBases = alignmentLength - extraGaps - indels - uninformative
 

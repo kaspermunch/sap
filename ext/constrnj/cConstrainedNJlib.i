@@ -54,14 +54,15 @@
 }
 
 %exception {
+   Py_BEGIN_ALLOW_THREADS	
    try {
-      Py_BEGIN_ALLOW_THREADS
       $action
-      Py_END_ALLOW_THREADS
    } catch (std::exception &e) {
+      Py_BLOCK_THREADS
       PyErr_SetString(PyExc_RuntimeError, const_cast<char*>(e.what()));
       return NULL;
    }
+   Py_END_ALLOW_THREADS
 }
 
 %module cConstrainedNJlib

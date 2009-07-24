@@ -1,6 +1,10 @@
 
 import re, time, os, sys
 from optparse import OptionParser
+try:
+   import cPickle as pickle
+except:
+   import pickle
 
 class Options:
 
@@ -9,11 +13,11 @@ class Options:
         usage="""%prog [options] <input files>
 
 The program does statistical assignment of DNA sequences to taxonomic
-groups represented in an annnotated sequence database.
+groups represented in an annotated sequence database.
 
 Type 'sap --onlinehelp' to open the online manual in your default browser."""
 
-        self.parser = OptionParser(usage=usage, version="%prog 1.0")
+        self.parser = OptionParser(usage=usage, version="%prog 1.0.9")
 
         # General options:
         self.parser.add_option("--onlinehelp",
@@ -49,22 +53,26 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           action="store_true",
                           default=False,
                           help="Used for installing dependencies if you want to do that before you run the program for the first time.")
+        self.parser.add_option("--printoptions",
+                          type="string",
+                          default=False,
+                          help="Print options for an existing project specified as argument.")
 
         # Parallel options:
         self.parser.add_option("--hostfile",
                           type="string",
                           default=False,
-                          help="Use this option to specify a file with a newline seperated list of host nanmes. The program will then use this pool of machines to distribute the assignment of individual seuences between the machines using ssh.")
+                          help="Use this option to specify a file with a newline separated list of host names. The program will then use this pool of machines to distribute the assignment of individual sequences between the machines using ssh.")
         self.parser.add_option("--sge",
                           type="int",
                           default=0,
-                          help="Use this option to run parallel assignments on a Sun Grid Engine cluster with a shared file system. Use the qrun.sh script to do this. The program uses the SGE queue to mannage its sub-tasks. This means that sub-tasks are submitted to the queue individually. The sge option is given two arguments. The argument is the maximal number of queued sub-jobs allowed.")
+                          help="Use this option to run parallel assignments on a Sun Grid Engine cluster with a shared file system. Use the qrun.sh script to do this. The program uses the SGE queue to manage its sub-tasks. This means that sub-tasks are submitted to the queue individually. The sge option is given two arguments. The argument is the maximal number of queued sub-jobs allowed.")
 
         # Blast options:
         self.parser.add_option("-t", "--minsignificance",
-                          type="string",
+                          type="float",
                           default='10',
-                          help="Lower sinificance bound (E-value if using GenBank) for accepting homologue sequences.")
+                          help="Lower significance bound (E-value if using GenBank) for accepting homologue sequences.")
         self.parser.add_option("-s", "--significance",
                           type="float",
                           default=0.1,
@@ -105,16 +113,21 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           action="store_true",
                           default=False,
                           help="Disable low-complexity filtering of query sequences.")
+        self.parser.add_option("--blastwordsize",
+                          type="int",
+                          default=False,
+                          help="Blast word size.")
+
 
         # Homologue set compilation options:
         self.parser.add_option("-q", "--quickcompile",
                           action="store_true",
                           default=False,
-                          help="Do not make pairwise alignments to sample-sequence to further ensure that the homologue maches up.")
+                          help="Do not make pairwise alignments to sample-sequence to further ensure that the homologue maches up. NB: Using this option disables --minidentity cutoff")
         self.parser.add_option("-b", "--besthits", "--softalignmentlimit",
                           type="int",
                           default=30,
-                          help="Maximal numbber of homologues to add to  alignment purely based on significant E-value")
+                          help="Maximal number of homologues to add to  alignment purely based on significant E-value")
         self.parser.add_option("-a", "--alignmentlimit",
                           dest="alignmentlimit",
                           type="int",
@@ -160,12 +173,12 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           type="string",
                           #default=False,
                           default=None,
-                          help="Space seperated list of gi numbers to force exclude in each homology set. Takes priority over forceincludegilist")
+                          help="Space separated list of gi numbers to force exclude in each homology set. Takes priority over forceincludegilist")
         self.parser.add_option("--forceincludegilist",
                           type="string",
                           #default=False,
                           default=None,
-                          help="Space seperated list of gi numbers to force include in each homology set.")
+                          help="Space separated list of gi numbers to force include in each homology set.")
         self.parser.add_option("--forceidentity",
                           type="float",
                           default=0.9,
@@ -186,7 +199,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         self.parser.add_option("--fillintomatch",
                           type="string",
                           default=False,
-                          help="Used with the force include options to fill in individuals up to the number of of homologues for the specied species or subspecies.")
+                          help="Used with the force include options to fill in individuals up to the number of of homologues for the specified species or subspecies.")
         self.parser.add_option("--flanks",
                           type="int",
                           default=0,
@@ -194,14 +207,18 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         self.parser.add_option("--notruncate",
                           action="store_true",
                           default=False,
-                          help="Do not truncate homologue sequence to match of sample-sequence. Used when the sample-sequence and database are prealigned.")
+                          help="Do not truncate homologue sequence to match of sample-sequence.")
+#         self.parser.add_option("--unclassified",
+#                           action="store_true",
+#                           default=False,
+#                           help="Include sequences from GenBank litle or no taxonomic annotation.")
 
         # Alignment options:
         self.parser.add_option("--alignmentoption",
                           type="string",
                           action="append",
                           default=['-gapopen=50'],
-                          help="Options passed to ClustalW2. Secify once for every option. Defaults to '-gapopen=50'")
+                          help="Options passed to ClustalW2. Specify once for every option. You can specify multiple options as a comma separated list. Defaults to -gapopen=50")
 
         # Tree statistics options:
         self.parser.add_option("--prunelevel",
@@ -231,11 +248,11 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         self.parser.add_option("--warnongaps",
                           action="store_true",
                           default=False,
-                          help="Issue a warning if the querySequence has internal gaps in the alignment.")
+                          help="Issue a warning if the sample-sequence has internal gaps in the alignment.")
         self.parser.add_option("--bayesfactors",
                           action="store_true",
                           default=False,
-                          help="Print bayes factors as well.")
+                          help="Print Bayes factors as well.")
         self.parser.add_option("--svg",
                           action="store_true",
                           default=False,
@@ -291,19 +308,19 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         self.parser.add_option("--_align",
                           action="store_true",
                           default=False,
-                          help="Runs alignment. For internal use ony.")
+                          help="Runs alignment. For internal use only.")
         self.parser.add_option("--_sample",
                           action="store_true",
                           default=False,
-                          help="Runs sampling. For internal use ony.")
+                          help="Runs sampling. For internal use Ont.")
         self.parser.add_option("--_stats",
                           action="store_true",
                           default=False,
-                          help="Runs tree statistics. For internal use ony.")
+                          help="Runs tree statistics. For internal use on.")
         self.parser.add_option("--_clustalw",
                           action="store_true",
                           default=False,
-                          help="Runs clustalw. For internal use ony.")
+                          help="Runs clustalw. For internal use only.")
 
         self.parser.add_option("--mb",
                           action="store_true",
@@ -316,6 +333,28 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           default=False)
 
         self.options, self.args = self.parser.parse_args()
+
+        if self.options.printoptions:
+            pickleFileName = os.path.join(self.options.printoptions, os.path.split(self.options.printoptions)[1] + '.sap')
+            pickleFile = open(pickleFileName, 'r')
+            prevOptions = pickle.load(pickleFile)
+            pickleFile.close()
+            for k, v in prevOptions.__dict__.items():
+                if k == 'printoptions':
+                    continue
+                    
+                # This is for the list options like forceincludegilist that are None by default and then turned into empty lists if not used:
+                if type([]) == type(v) and len(v) == 0 and self.options.__dict__[k] is None:
+                    continue
+
+                if type('') == type(v) and prevOptions.__dict__[k] == os.path.join(self.options.project, v):
+                    continue
+
+                if self.options.__dict__.has_key(k) and self.options.__dict__[k] != prevOptions.__dict__[k]:
+                    print "--%s %s" % (k, v)
+            sys.exit()
+
+            
 
     def showMessageAndExit(self, msg, guiParent=None):
 
@@ -333,7 +372,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         """
         Post process options
         """
-        
+
         if os.name == 'nt' and (self.options.sge or self.options.hostfile):
             self.showMessageAndExit("Parallel computing is not available on Windows.", guiParent=guiParent)
 
@@ -385,6 +424,8 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         # Make sure ppcutoffs are unique and sorted:
         u = {}
         for x in self.options.ppcutoff:
+            if x < 50:
+               self.showMessageAndExit("Don't use the a significance cutoff below 50%.", guiParent=guiParent)
             u[x] = 1
         self.options.ppcutoff = u.keys()
         self.options.ppcutoff.sort()

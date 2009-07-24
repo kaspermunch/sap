@@ -10,13 +10,6 @@ from SAP.Bio.Nexus import Nexus
 import Barcoder
 from SAP.UtilityFunctions import *
 
-# release_ThisIsAlsoACopy.bc.constr
-# release_ThisIsAlsoACopy.nex.bc.done
-# release_ThisIsAlsoACopy.nex.bc.err
-# release_ThisIsAlsoACopy.nex.bc.out
-# release_ThisIsAlsoACopy.nex.bc.parm
-# release_ThisIsAlsoACopy.nex.bc.tree
-
 class Assignment:
 
     def __init__(self, options):
@@ -58,7 +51,8 @@ class Assignment:
 
             # Produce a list of groups that needs to be enforced in each sampled tree:
             rootNode=constraintTree.root
-            constraintList = self.constraintPartitions(constraintTree, rootNode)
+            #constraintList = self.constraintPartitions(constraintTree, rootNode)
+            constraintList = self.constraintPartitions(constraintTree, rootNode, partList=[])
             #constraintList = filter(lambda x: len(x) > 1, constraintList)
             constraintList.sort(lambda a, b: cmp(len(a),len(b)))            
 
@@ -78,7 +72,7 @@ class Assignment:
             # Make a list of partition constraint strings of the form: a b c | d e f g
             constraintPartitionList = []
             for i in range(len(constraintList) - 1):
-                assert constraintList[-1].issuperset(constraintList[i])
+                assert constraintList[-1].issuperset(constraintList[i])                   
                 partitionList = []
                 for otus in constraintList[i]:
                     partitionList.append(otus)
@@ -138,7 +132,8 @@ class Assignment:
             print "done."
             sys.stdout.flush()
 
-    def constraintPartitions(self, tree, nodeID, partList=[]):
+    #def constraintPartitions(self, tree, nodeID, partList=[]):
+    def constraintPartitions(self, tree, nodeID, partList):
         """
         Creates a list of all partitions in the constraint tree.
         """

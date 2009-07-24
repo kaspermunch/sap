@@ -78,11 +78,15 @@ MbBitfield::MbBitfield(int numBits)
 			v[i] = 0;
 
 		// set mask
-		mask = (hb >> (n%bpl));
-		mask -= 1;
-		mask ^= ULONG_MAX;
+		if ( n % bpl != 0 )
+			{
+			mask = (hb >> (n % bpl));
+			mask -= 1;
+			mask ^= ULONG_MAX;
+			}
+		else
+			mask = ULONG_MAX;
 	}
-
 	refCount = new int;
 	*refCount = 1;
 

@@ -4,12 +4,25 @@ from SAP.Bio.Nexus import Nexus
 from SAP.Bio.Nexus import Trees as NexusTrees
 
 from SAP.UtilityFunctions import *
-from ConstrainedNJ import ConstrainedNJ
+from ConstrainedNJ import ConstrainedNJ, BootstrapError
 
 # The sampler writes the following files to the cache dir (existence of the nex file should indication proper completion):
 # <filename>_<query>.<samplername>.nex
 # <filename>_<query>.<samplername>.out
 # <filename>_<query>.<samplername>.err
+
+class Error(Exception):
+    """
+    Base class for exceptions in this module.
+    """
+    pass
+
+class AssignmentError(Error):
+    """
+    Exception raised when assignment fails.
+    """
+    def __init__(self, message):
+        self.message = message
 
 class Assignment:
 
@@ -47,8 +60,10 @@ class Assignment:
             queryName = baseName
             alignment = Nexus.Nexus(alignmentFileName)
             cnj = ConstrainedNJ(alignment, constraintTree=constraintTree)
-
-            cnj.dumpBootstrapTreesNexus(bootstraps, treeFileName)
+            try:
+                cnj.dumpBootstrapTreesNexus(bootstraps, treeFileName)
+            except BootstrapError, X:
+                raise AssignmentError(X.message)
 
             # Make a consensus tree and write it to a seperate file:
 #             bootstrapTrees = Nexus.Nexus(treeFileName)

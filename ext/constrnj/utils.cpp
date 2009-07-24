@@ -51,6 +51,7 @@ struct pair_compare {
 bool pair_identity (int *first, int *second) {
   // testing identiry of two pairs for use in list unique.
   if (first[0] == second[0] && first[1] == second[1]) {
+    delete [] second;
     return true;
   } else {
     return false;
@@ -112,8 +113,8 @@ void swapInts(int *p1, int *p2) {
 
 std::vector<int*> get_pairwise_combinations(std::vector<int> elements) {
   std::vector<int*> pairList;
-  for (int i=0; i<elements.size(); i++) {
-    for (int j=i+1; j<elements.size(); j++) {
+  for (unsigned int i=0; i<elements.size(); i++) {
+    for (unsigned int j=i+1; j<elements.size(); j++) {
       int* pair = new int[2];
       pair[0] = intMin(elements[i], elements[j]);
       pair[1] = intMax(elements[i], elements[j]);
@@ -124,7 +125,7 @@ std::vector<int*> get_pairwise_combinations(std::vector<int> elements) {
 }
 
 std::vector<std::string> stringSplit(std::string str, std::string delim) {
-  int cutAt;
+  unsigned int cutAt;
   std::vector<std::string> results;
   while( (cutAt = str.find_first_of(delim)) != str.npos ) {
     if(cutAt > 0) {

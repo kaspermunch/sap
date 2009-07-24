@@ -43,11 +43,10 @@ class DB:
         # Check that we get a new exclude list for every blast:
         if self.prevExcludeList is not None and excludelist == self.prevExcludeList:
             # Seems we are running in circles.
-            print "WAARNING: Blast running in circles - breaking"
             return None
         else:
            self.prevExcludeList = excludelist
-
+           
         # Get a blast record:
         useBlastCache = True
         for i in range(3):
@@ -73,9 +72,6 @@ class DB:
         """
         Blast against genbank over web
         """
-
-        self.prevExcludeList = None
-
 
         # Make a query to filter the returned results:
         if excludelist:
@@ -119,17 +115,27 @@ class DB:
                 filterOption = '-F F'
             else:
                 filterOption = '-F T'
-            blastCmd = 'blastcl3 -p blastn -m 7 -d nr %s -e %s -v %d -b %d -u "%s" -i %s -o %s' \
-                       % (filterOption, self.options.minsignificance, self.options.maxblasthits, self.options.maxblasthits, \
+
+            if self.options.blastwordsize:
+                wordSize = '-W %s' % self.options.blastwordsize
+            else:
+                wordSize = ''
+
+            blastCmd = 'blastcl3 -p blastn -m 7 -d nr %s %s -e %s -v %d -b %d -u "%s" -i %s -o %s' \
+                       % (wordSize, filterOption, self.options.minsignificance, self.options.maxblasthits, self.options.maxblasthits, \
                           entrezQuery, fastaRecordFileName, blastFileName)
 
             for i in range(20):
                 time.sleep(2 * i)
                 try:
-                    os.system(blastCmd)
+                    #os.system(blastCmd)
+                    retval = os.system(blastCmd)
+                    if retval != 0:
+                       print "Netblast failed with return value %d. Trying again..." % retval
+                       continue
                     break
                 except:
-                    print "Blast failed. Trying again..."
+                    print "Netblast failed. Trying again..."
                     pass
             os.remove(fastaRecordFileName)
 
@@ -192,11 +198,21 @@ class DB:
                         lengthMatch = seqLengthRE.search(line)
                         sequenceMatch = sequenceRE.search(line)
                         if taxonMatch:
-                            taxonXref = taxonMatch.group(1)
+                            if taxonXref is None:
+                               taxonXref = taxonMatch.group(1)
+#                             else:
+#                                print "There was more than one taxon xref for %s. Picking the first one (%s)." % (gi, taxonXref)
                         if lengthMatch:
                             seqLength = lengthMatch.group(1)
                         if sequenceMatch:
                             sequence = sequenceMatch.group(1)
+
+                    if not (taxonXref and sequence):
+                       # Give it another try:
+                       continue
+
+                except KeyboardInterrupt:
+                   sys.exit()
                 except MemoryError:
                     # Write an empty file to cache to keep the script from
                     # trying to download the sequence next time.
@@ -221,8 +237,8 @@ class DB:
             taxonomy = Taxonomy.Taxonomy()
             try:
                taxonomy.populateFromNCBI(dbid=taxonXref,
-                                         minimaltaxonomy=self.options.minimaltaxonomy,
-                                         subspecieslevel=self.options.subspecieslevel)
+#                                          allow_unclassified=self.options.unclassified,
+                                         minimaltaxonomy=self.options.minimaltaxonomy)
             except Taxonomy.NCBIPopulationError, X:
                return None, retrievalStatus.replace(")", " !%s)" % X.status)
                

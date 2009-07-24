@@ -19,15 +19,9 @@ class Error(Exception):
 class BootstrapError(Error):
     """
     Exception raised when bootstrap failes.
-
-    Attributes:
-        expression -- input expression in which
-                      the error occurred
-        message -- explanation of the error
     """
     def __init__(self, message):
         self.message = message
-        print self.message
 
 class ConstrainedNJ(object):
 
@@ -207,7 +201,14 @@ if __name__ == "__main__":
  
     cnj = ConstrainedNJ(alignment, constraintTree=constraintTree)
 
-    print cnj.getTreeString()
+    print cnj.getNexusString()
+        
+#     for i in range(1):
+#         print cnj.getTreeString()
+        
+    #print cnj.getBootstrapTreesNexus(1000)
+
+
 
 #     cnj.dumpNexusString('/Users/kasper/Desktop/cnj.nex')
 #     cnj.dumpBootstrapTreesNexus(1000, '/Users/kasper/Desktop/tmp.nex')

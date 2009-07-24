@@ -8,6 +8,8 @@ import re, random, string, time, sys, os, glob, subprocess
 from SAP.Bio.Nexus import Nexus
 from SAP import Fasta
 
+from SAP.Exceptions import AnalysisTerminated
+
 # class Error(Exception):
 #     """
 #     Base class for exceptions in this module.
@@ -37,20 +39,25 @@ def systemCall(cmd, stdout=None, stderr=None):
     if stderr == 'IGNORE':
         stderr = open(null, 'w')
 
-#     STARTUPINFO = subprocess.STARTUPINFO()
-#     STARTUPINFO.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    STARTUPINFO = None
+    if os.name == 'nt':
+       STARTUPINFO = subprocess.STARTUPINFO()
+       STARTUPINFO.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
     cmdlist = re.split(r'\s+', cmd)
+    
     try:
-        retcode = subprocess.call(cmdlist, shell=False, env=os.environ, stdout=stdout, stderr=stderr)
-        #retcode = subprocess.call(cmdlist, shell=False, env=os.environ, stdout=stdout, stderr=stderr, startupinfo=STARTUPINFO)
+        retcode = subprocess.call(cmdlist, shell=False, env=os.environ, stdout=stdout, stderr=stderr, startupinfo=STARTUPINFO)
         if retcode < 0:
-            print 'System call "%s" was terminated by signal' % cmd, -retcode
+            print 'System call "%s" was terminated with return code' % cmd, -retcode
             return False
         else:
             return retcode
     except OSError, e:
         print 'System call "%s" failed:' % cmd, e
+
+    stdout.close()
+    stderr.close()
 
 def pairwiseClustalw2(id1, sequence1, id2, sequence2):
     """
@@ -193,8 +200,8 @@ def writeNexusFile(fileName, seqList):
     """
     fp = open(fileName, 'w')
     alnLength = len(seqList[0].sequence)
-    width = 100
-    #width = alnLength
+    #width = 100
+    width = alnLength
     end = width
     entry = "#NEXUS\nbegin data;\n        dimensions ntax=%d nchar=%d;\n        format datatype=dna missing=? gap=-;\nmatrix\n"  % (len(seqList), alnLength)
 
@@ -214,7 +221,7 @@ def writeNexusFile(fileName, seqList):
             entry += "%- *s %s\n" % (longestName, names[i], s)         
         end += width
         entry += "\n"
-    entry += "end;\n"
+    entry += ";\nend;\n"
     fp.write(entry)
     fp.close()
 
@@ -319,8 +326,9 @@ def readFile(fileName):
             continue
         break
     if fp is None:
-        print "Could not find/read file: %s" % fileName
-        sys.exit(1)
+        raise AnalysisTerminated(1, "Could not find/read file: %s" % fileName)
+#         print "Could not find/read file: %s" % fileName
+#         sys.exit(1)
     else:
         contents = fp.read()
         fp.close()
@@ -339,8 +347,9 @@ def readFileLines(fileName):
             continue
         break
     if fp is None:
-        print "Could not find/read file: %s" % fileName
-        sys.exit(1)
+        raise AnalysisTerminated(1, "Could not find/read file: %s" % fileName)
+#         print "Could not find/read file: %s" % fileName
+#         sys.exit(1)
     else:
         contents = fp.readlines()
         fp.close()

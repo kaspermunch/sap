@@ -18,6 +18,8 @@ from SAP import NCBIXML # locally hacked to better parse string info
 from SAP import Taxonomy
 from SAP.XML2Obj import XML2Obj
 
+from SAP.Exceptions import AnalysisTerminated
+
 class HomologySet:
     """
     Container class for information related to the homologue set.
@@ -86,8 +88,9 @@ class HomolCompiler:
                  from SAP.Databases import Native as plugin
               self.db = plugin.DB(self.options.database, self.options)              
            else:
-              print 'The plugin or file "%s" was not found.' % X.plugin
-              sys.exit(1)
+              raise AnalysisTerminated(1, 'The plugin or file "%s" was not found.' % X.plugin)
+#               print 'The plugin or file "%s" was not found.' % X.plugin
+#               sys.exit(1)
 
     def compileHomologueSet(self, fastaRecord, fastaFileBaseName):
 
@@ -104,7 +107,8 @@ class HomolCompiler:
         fastaRecord.title = queryName
 
         # Remove gaps in sequence
-        fastaRecord.sequence = fastaRecord.sequence.replace("-","")
+        if not self.options.alignment == 'PreAligned':
+           fastaRecord.sequence = fastaRecord.sequence.replace("-","")
 
         # Keep track of what the bit score of the best hit is:
         bestBitScore = 0.0
@@ -154,7 +158,7 @@ class HomolCompiler:
             print "\t\tEntry status: (c)=cached, (d)=downloaded, (l)=local"
             print "\t\tError types:"
             print "\t\t              (!M)=Memory error, (!D)=Download error,"
-            print "\t\t              (!T)=Annotation error, (!?)=Unknown error"
+            print "\t\t              (!T)=Insufficient/inconsistent taxonomic annotation, (!?)=Unknown error"
 
             # Dict of gi lists keyed by species name to keep track of how
             # many representatives of each species we have so far:
@@ -188,7 +192,7 @@ class HomolCompiler:
 
                 searchResult = self.db.search(fastaRecord, excludelist=excludeList)
 
-                if len(searchResult.search_list) == 0:
+                if searchResult is None or len(searchResult.search_list) == 0:
                     # No htis in this search.
                     break
                 else:
@@ -198,7 +202,7 @@ class HomolCompiler:
                 # Iterate over hits:
                 for i in range(len(searchResult.search_list)):
                     gi = searchResult.search_list[i].id
-                    
+
                     # Check that we don't have that gi yet (from forceinclusion or other database)
                     if gi in homologyResult.homologues.keys():
                         continue
@@ -239,6 +243,18 @@ class HomolCompiler:
                         seqLen += 1
                         continue
 
+                    #########################
+                    # This is a small hack to force include the subspecies name in 'Homo sapiens sapiens':
+                    if self.options.subspecieslevel and homologue.taxonomy.name('species') == 'Homo sapiens' and not homologue.taxonomy.name('subspecies'):
+                        subSpeciesLevel = TaxonomyLevel("Homo sapiens sapiens", 'subspecies')
+                        homologue.taxonomy.add(subSpeciesLevel)
+                    #########################
+
+                    if not self.options.subspecieslevel and homologue.taxonomy.name('subspecies'):
+                        # Trim of subspecies level:
+                        assert homologue.taxonomy[-1].level == 'subspecies'
+                        del homologue.taxonomy[-1]
+                        
                     # Add significance to homology object:
                     homologue.significance = search_hit.significance
 
@@ -265,7 +281,7 @@ class HomolCompiler:
                             startIndex = max(0, startIndex - self.options.flanks)
                             endIndex = min(endIndex + self.options.flanks, len(homologue.sequence))
 
-                        if not self.options.notruncate:
+                        if not self.options.notruncate and not self.options.alignment == 'PreAligned':
                            # (I multiply the minimal flanks by two to account for the maximal nr of gaps possible in these retions.)
                            homologue.sequence = homologue.sequence[startIndex:endIndex]
 
@@ -277,20 +293,25 @@ class HomolCompiler:
 #                         # from the sequence that goes into the HomologyData object:
 #                         homologue.sequence = re.sub(r'(^N*)|(N{50,})|(N*$)', '', homologue.sequence)
 
-                        if not self.options.quickcompile and not self.options.notruncate:
-                           alignment = pairwiseClustalw2(queryName, fastaRecord.sequence, gi, homologue.sequence)
-                           # Get sequences:
-                           alignedQuery = alignment.matrix[queryName].tostring()
-                           alignedHomol = alignment.matrix[gi].tostring()
-                           simScore = similarityScore(alignedQuery, alignedHomol)
-                           if len(homologyResult.homologues) == 0 and simScore < self.options.minidentity:
-                               sys.stdout.write('\n\tMinimum identity enforced (%.2f < %.2f)' % (simScore, self.options.minidentity))
-                               sys.stdout.flush()
-                               minIdentEnforced = True
-                               break                            
-                           leftBoundary = len(re.search("^(-*)", alignedQuery).groups()[0])
-                           rightBoundary = len(alignedQuery) - len(re.search("(-*)$", alignedQuery).groups()[0])
-                           homologue.sequence = homologue.sequence[leftBoundary:rightBoundary]
+                        if not self.options.quickcompile:
+                            # Get sequences:
+                            if self.options.alignment == 'PreAligned':
+                               simScore = similarityScore(fastaRecord.sequence, homologue.sequence)
+                            else:
+                               alignment = pairwiseClustalw2(queryName, fastaRecord.sequence, gi, homologue.sequence)
+                               alignedQuery = alignment.matrix[queryName].tostring()
+                               alignedHomol = alignment.matrix[gi].tostring()
+                               simScore = similarityScore(alignedQuery, alignedHomol)
+                            if len(homologyResult.homologues) == 0 and simScore < self.options.minidentity:
+                                sys.stdout.write('\n\tMinimum identity enforced (%.2f < %.2f) consider changing the --minidentity value' \
+                                                 % (simScore, self.options.minidentity))
+                                sys.stdout.flush()
+                                minIdentEnforced = True
+                                break                            
+                            if not self.options.notruncate and not self.options.alignment == 'PreAligned':
+                                leftBoundary = len(re.search("^(-*)", alignedQuery).groups()[0])
+                                rightBoundary = len(alignedQuery) - len(re.search("(-*)$", alignedQuery).groups()[0])
+                                homologue.sequence = homologue.sequence[leftBoundary:rightBoundary]                           
 
                         # Skip the homologue if we already have as many individuals as we want from a species:
                         speciesTag = None
@@ -476,7 +497,7 @@ class HomolCompiler:
                         # Retrieve genbank record
                         significance = 0            
                         #(homologue, retrievalStatus) = self.getGenBankRecord(forceGI, significance)
-                        (homologue, retrievalStatus) = self.db.get(forceGI, significance)
+                        (homologue, retrievalStatus) = self.db.get(forceGI)
 
                         # Check whether a homologue was found
                         if homologue == None:
@@ -550,14 +571,14 @@ class HomolCompiler:
                                 # homologue sequence.
                                 m = re.search(setList[i]['seq'], homologue.sequence, re.I)
                                 if m:
-                                    print 'WARNING: Contained in existing %s - replacing %s' \
+                                    print 'NOTE: Contained in existing %s - replacing %s' \
                                           % (homologue.taxonomy.name('species'), homologue.gi)
                                     del homologyResult.homologues[setList[i]['gi']]
 
                             # Add the homologue to the blast result obj.
                             homologyResult.homologues[forceGI] = homologue
                         else:
-                            print 'WARNING: identical - skipping'
+                            print 'NOTE: identical - skipping'
                             continue
                         print
                         
@@ -728,10 +749,12 @@ class HomolCompiler:
                print ""
 
             if noHitsAtAll:
-                print "\tWARNING: No blast hits below significance threshold."
+                print "No blast hits below significance threshold %.2e. Consider raising the value for the --minsignificance option." \
+                      % self.options.minsignificance
                 return None
             elif lastAcceptedSignificance is None:
-                print "\tWARNING: No accepted homologs."
+                print "No accepted homologs at significance level %.2e. Consider raising the value for the --minsignificance option." \
+                      % self.options.significance
                 return None
             else:
                 # Status on last accepted significance:
@@ -797,6 +820,7 @@ class HomolCompiler:
                      
             # Produce a constraint tree:
             constraintSummary = Taxonomy.TaxonomySummary(0)
+            # Produce a prior summary (of the taxonomic levels included in the set of homologues):
             priorSummary = Taxonomy.TaxonomySummary(0)
             for gi, homologue in homologyResult.homologues.items():
                 # Add taxonomy to prior summary:
@@ -806,7 +830,7 @@ class HomolCompiler:
                 # Add a lief organism taxon to the taxonomy with organism name as it will appear in the nexus
                 # file returned by clustalw2:
                 tmpName = "%s_%s" % (tmpHomologue.gi, tmpHomologue.taxonomy.organism.replace(" ","_").replace("-","_").replace("'",""))
-                taxonomyLevel = Taxonomy.TaxonomyLevel(tmpName, 'organism')
+                taxonomyLevel = Taxonomy.TaxonomyLevel(tmpName, 'otu')
                 tmpHomologue.taxonomy.add(taxonomyLevel)
                 # Add the modified taxonomy to the summary:
                 constraintSummary.addTaxonomy(tmpHomologue.taxonomy)
@@ -918,8 +942,7 @@ class HomolCompiler:
                 homologue = Homologue(gi=forceTitle,
                                       sequence=sequence,
                                       significance = 0, 
-                                      taxonomy=taxonomy,
-                                      options=self.options)
+                                      taxonomy=taxonomy)
 
 #                 # Read in sequence from cache.
 #                 fastaFileName = os.path.join(self.options.dbcache, forceTitle + ".fasta")
@@ -936,6 +959,8 @@ class HomolCompiler:
 #                 fastaString += str(fastaRecord) + "\n\n"
 
         print ''
+
+        forceFastaFile.close()
 
         return homologyResult
 

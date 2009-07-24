@@ -11,15 +11,15 @@ levelList = ['superkingdom', 'kingdom', 'subkingdom',
              'supertribe', 'tribe', 'subtribe',
              'supergenus', 'genus', 'subgenus',
              'species group', 'species subgroup',
-             'species', 'subspecies',
-             'organism'] # organism is normally its own attribute, but it is added to the
-                         # list because we need to add organism level then producing a
-                         # constraint summary tree.
+             'species', 'subspecies', 'varietas',
+             'otu'] # is added to the list because we need to a sample-sequence level then
+                    #  producing a constraint summary tree.
 
 levelRanks = {}
 for i, level in enumerate(levelList):
     levelRanks[level] = i + 1
 
+from SAP.Exceptions import AnalysisTerminated
 
 class Error(Exception):
     """
@@ -77,6 +77,7 @@ class TaxonomyLevel:
     def __cmp__(self, other):
 
         global levelRanks
+        assert levelRanks[self.level] != levelRanks[other.level], "two %s: %s and %s" % (self.level, self.name, other.name)
         return cmp(levelRanks[self.level], levelRanks[other.level])
 
     def __str__(self):
@@ -87,7 +88,6 @@ class TaxonomyLevel:
             return True
         else:
             return False
-
 
 class Taxonomy:
     """
@@ -199,9 +199,8 @@ class Taxonomy:
             taxonomyLevelList.append(TaxonomyLevel(taxonName, taxonLevel))
         self.add(taxonomyLevelList)
 
-    def populateFromNCBI(self, subspecieslevel=False, minimaltaxonomy=5, dbid=None):
-
-        self.subspecieslevel = subspecieslevel
+    #def populateFromNCBI(self, subspecieslevel=False, minimaltaxonomy=5, dbid=None, allow_unclassified=False):
+    def populateFromNCBI(self, minimaltaxonomy=5, dbid=None):
 
         # Retrieve the taxonomy information:
         url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&report=xml&id=' + dbid
@@ -242,26 +241,44 @@ class Taxonomy:
         try:
             taxaSet = parser.Parse(entry)
         except:
-            raise NCBIPopulationError("T0")
-            #return None, retrievalStatus.replace(")", "!T0)")
+            raise AnalysisTerminated(1, "There seems to be a problem at the NCBI server. The retrieved annotation is not valid XML. Try again later")
+            #raise NCBIPopulationError("T0")
 
-        #assert taxaSet.name == 'TaxaSet', taxaSet.name
         if taxaSet.name != 'TaxaSet':
-            raise NCBIPopulationError("T00")
-            #return None, retrievalStatus.replace(")", "!T00)")
+            raise AnalysisTerminated(1, "There seems to be a problem at the NCBI server. Top level XML label is \"%s\". Try again later" % taxaSet.name)
+            #raise NCBIPopulationError("T00")
 
         children = taxaSet.children
         if not len(children) == 1:
-            raise NCBIPopulationError("t")
-            #return None,  retrievalStatus.replace(")", "!t)")
+            raise NCBIPopulationError("T000")
         top = children[0]
+
+        organismTaxonID = None
+        organismRank = None
+        organismName = None
 
         for topElement in top.children:
             # Get the top elements describing the organism:
             if topElement.name == 'TaxId':
                 organismTaxonID = topElement.cdata.strip()
+            if topElement.name == 'Rank':
+                if topElement.cdata.strip() != 'no rank':
+                    organismRank = topElement.cdata.strip()                
+#                 if organismRank == 'varietas':
+#                     organismRank = 'subspecies'
             if topElement.name == 'ScientificName':
                 organismName = topElement.cdata.strip()
+
+            # If we have collected all the information we add the level corresponding the the level we looked up at NCBI:
+            if organismName and organismRank and organismTaxonID and not self.name(organismRank):
+                try:
+                    taxonomyLevel = TaxonomyLevel(organismName, organismRank, dbid=organismTaxonID)                    
+                    self.add(taxonomyLevel)
+                except InputError, X:
+                    print "%s: %s\n" % (X.expression, X.message)
+                    raise NCBIPopulationError("T11")                
+
+            # Add the taxonomy:
             if topElement.name == 'LineageEx':
                 # Get the taxonomic levels of the extended lineage description:
                 taxonID = None
@@ -282,29 +299,30 @@ class Taxonomy:
                     assert taxonLevel                
                     # Record all canonocal taxonomic levels:
                     if not re.search('no rank', taxonLevel):                        
-                        # Make sure that we only get the species
-                        # qualifier if both genus and species names
-                        # are used to specify the species or
-                        # subspecies level:
-                        nameList = re.split(r'\s+', taxonName.strip())
-                        if taxonLevel == 'species':
-                            if len(nameList) == 2 and self.level(nameList[0]) == 'genus':
-                                taxonName = " ".join(nameList[:2])
-                            else:
-                                raise NCBIPopulationError("T41")
-                                #return None, retrievalStatus.replace(")", "!T41)")
-                        elif taxonLevel == 'subspecies':                   
-                            if len(nameList) >= 3 and self.level(" ".join(nameList[:2])) == 'species':
-                                if nameList[2] == 'subsp.' and len(nameList) > 3:
-                                    del nameList[2]
-                                taxonName = " ".join(nameList[:3]).strip()
-                            elif len(nameList) == 2 and self.name('genus') and self.level(" ".join(self.name('genus'), nameList[0])) == 'species':
-                                taxonName = " ".join(self.name(genus) + nameList[:2])
-                            else:
-                                raise NCBIPopulationError("T42")
-                                #return None, retrievalStatus.replace(")", "!T42)")
+#                         # Make sure that we only get the species
+#                         # qualifier if both genus and species names
+#                         # are used to specify the species or
+#                         # subspecies level:
+#                         nameList = re.split(r'\s+', taxonName.strip())
+#                         if taxonLevel == 'species' and not self.name('species'):
+#                             if len(nameList) == 2 and self.level(nameList[0]) == 'genus':
+#                                 taxonName = " ".join(nameList[:2])
+#                             else:
+#                                 raise NCBIPopulationError("T41")
+#                                 #return None, retrievalStatus.replace(")", "!T41)")
+#                         elif taxonLevel == 'subspecies' and not self.name('subspecies'):                   
+#                             if len(nameList) >= 3 and self.level(" ".join(nameList[:2])) == 'species':
+#                                 if nameList[2] == 'subsp.' and len(nameList) > 3:
+#                                     del nameList[2]
+#                                 taxonName = " ".join(nameList[:3]).strip()
+#                             elif len(nameList) == 2 and self.name('genus') and self.level(" ".join(self.name('genus'), nameList[0])) == 'species':
+#                                 taxonName = " ".join(self.name(genus) + nameList[:2])
+#                             else:
+#                                 raise NCBIPopulationError("T42")
+#                                 #return None, retrievalStatus.replace(")", "!T42)")
 
                         # Make and add the taxonomic level if not unclassified
+                        #if not re.search(r'unclassified', taxonName) or allow_unclassified:
                         if not re.search(r'unclassified', taxonName):
                             try:
                                 taxonomyLevel = TaxonomyLevel(taxonName, taxonLevel, dbid=taxonID)
@@ -314,52 +332,51 @@ class Taxonomy:
                                 raise NCBIPopulationError("T1")
                                 #return None, retrievalStatus.replace(")", "!T1)")
 
+
+        # FIXME: For now we don't want the varietas level:
+        if self[-1].level == 'varietas':
+            del self[-1]
+
+
         # Make sure we have a minimal taxonomy:
         #if len(self) < self.options.minimalTaxonomy:
+        #if len(self) < minimaltaxonomy:
+        #if len(self) < minimaltaxonomy and not allow_unclassified:
         if len(self) < minimaltaxonomy:
             raise NCBIPopulationError("T3")
             #return None, retrievalStatus.replace(")", "!T3)")
 
-        # See if the organism name can specify some species or
-        # subspecies information nat contained in the taxonomy
-        # already:
-        orgNameList = re.split(r'\s+', organismName.strip())
-        if not self.name('species'):
-            if not len(orgNameList) > 1:
-                raise NCBIPopulationError("T43")
-                #return None, retrievalStatus.replace(")", "!T43)")
-            else:
-                if self.level(orgNameList[0]) == 'genus':
-                   speciesLevel = TaxonomyLevel(" ".join(orgNameList[:2]), 'species')
-                else:
-                    raise NCBIPopulationError("T44")
-                    #return None, retrievalStatus.replace(")", "!T44)")
-            try:
-                # Add the organism info to the taxonomy:
-                self.add(speciesLevel)
-            except InputError, X:
-                print X.expression, ": ", X.message
-
-        if not self.name('subspecies'):
-            if len(orgNameList) == 3:
-                if self.level(" ".join(orgNameList[:2])) == 'species' and re.match(r'[a-z]+', orgNameList[2]):
-                    subSpeciesLevel = TaxonomyLevel(" ".join(orgNameList[:3]), 'subspecies')
-                    try:
-                        # Add the organism info to the taxonomy:
-                        self.add(subSpeciesLevel)
-                    except InputError, X:
-                        print X.expression, ": ", X.message
-
-        #########################
-        # This is a small hack to force include the subspecies name in 'Homo sapiens sapiens':
-        if self.subspecieslevel and self.name('species') == 'Homo sapiens' and not self.name('subspecies'):
-            subSpeciesLevel = TaxonomyLevel("Homo sapiens sapiens", 'subspecies')
-            try:
-                # Add the organism info to the taxonomy:
-                self.add(subSpeciesLevel)
-            except InputError, X:
-                print X.expression, ": ", X.message
-        #########################
+#         # See if the organism name can specify some species or
+#         # subspecies information nat contained in the taxonomy
+#         # already:
+#         orgNameList = re.split(r'\s+', organismName.strip())
+#         #if not self.name('species') and not allow_unclassified:
+#         if not self.name('species'):
+#             if not len(orgNameList) > 1:
+#                 raise NCBIPopulationError("T43")
+#                 #return None, retrievalStatus.replace(")", "!T43)")
+#             else:
+#                 if self.level(orgNameList[0]) == 'genus':
+#                    speciesLevel = TaxonomyLevel(" ".join(orgNameList[:2]), 'species')
+#                 else:
+#                     raise NCBIPopulationError("T44")
+#                     #return None, retrievalStatus.replace(")", "!T44)")
+#             try:
+#                 # Add the organism info to the taxonomy:
+#                 self.add(speciesLevel)
+#             except InputError, X:
+#                 print X.expression, ": ", X.message
+# 
+#         #if not self.name('subspecies') and not allow_unclassified:
+#         if not self.name('subspecies'):
+#             if len(orgNameList) == 3:
+#                 if self.level(" ".join(orgNameList[:2])) == 'species' and re.match(r'[a-z]+', orgNameList[2]):
+#                     subSpeciesLevel = TaxonomyLevel(" ".join(orgNameList[:3]), 'subspecies')
+#                     try:
+#                         # Add the organism info to the taxonomy:
+#                         self.add(subSpeciesLevel)
+#                     except InputError, X:
+#                         print X.expression, ": ", X.message
 
         # Substiture all non-word characterrs with a space. This is to
         # make sure they don't mess up the Nexus format later:
@@ -370,19 +387,20 @@ class Taxonomy:
 
 class TaxonomySummary:
 
-    def __init__(self, pruneLevel=0, priorSummary=None, bayesFactors=False):
+    def __init__(self, pruneLevel=0, priorSummary=None, bayesFactors=False, significanceSummary=False, dbid=None):
         self.pruneLevel = pruneLevel
         self.bayesFactors = bayesFactors
         self.pruneList = []
         self.dict = {}
         self.count = 0
         self.level = None
-        self.dbid = None
+        self.dbid = dbid
         self.prior = None
         self.priorSummary = priorSummary
         self.monophyleticCount = 0
         self.definingTaxonMonophyleticCount = 0
         self.ingroupCount = 0
+        self.significanceSummary = significanceSummary
 
     def __getitem__(self, key):
         return self.dict[key]
@@ -412,8 +430,8 @@ class TaxonomySummary:
                 elif len(matchList) > 1:
                     print "could not iadd: multple matches in self"
                 else:
-                    instance = matchList[0]
-                    instance.__iadd__(other)                    
+                    inst = matchList[0]
+                    inst.__iadd__(other)                    
             else:
                 # level missing from self:
                 matchList = other._find(self.dict.keys(), self.level)
@@ -422,8 +440,8 @@ class TaxonomySummary:
                 elif len(matchList) > 1:
                     print "could not iadd: multple matches in other"
                 else:
-                    instance = matchList[0]
-                    self.__iadd__(instance)                    
+                    inst = matchList[0]
+                    self.__iadd__(inst)                    
 
         else:
             self.count += other.count
@@ -462,7 +480,7 @@ class TaxonomySummary:
             # Add other to self:
             for name in other.dict.keys():
                 if not self.dict.has_key(name):
-                    self.dict[name] = TaxonomySummary(self.pruneLevel, self.priorSummary)
+                    self.dict[name] = TaxonomySummary(self.pruneLevel, self.priorSummary, significanceSummary=self.significanceSummary, dbid=other.dict[name].dbid)
                 self.dict[name].__iadd__(other.dict[name])
 
         return self
@@ -516,10 +534,14 @@ class TaxonomySummary:
 #             placeHolder.dict['placeHolder'] = copy.copy(self.dict[key])
 #             self.dict[key] = placeHolder
         for key in self.dict.keys():
-            placeHolder = TaxonomySummary(self.pruneLevel, self.priorSummary)
+            if self.dict[key].level == level:
+                continue
+            placeHolder = TaxonomySummary(self.pruneLevel, self.priorSummary, significanceSummary=self.significanceSummary)
             placeHolder.level = level
             placeHolder.count = copy.copy(self.dict[key].count)
             placeHolder.dict['placeHolder'] = copy.copy(self.dict[key])
+            placeHolder.dbid = self.dict[key].dbid
+            #print "inserting placeholder child at level WHY IS DBID SOMETIMES NONE?", level, key, self.dict[key].dbid
             self.dict[key] = placeHolder
 
 
@@ -556,6 +578,7 @@ class TaxonomySummary:
         summary if a grandchild levels exists. Where grandchildren
         does not exist it makes the child level the ternimal level.
         """
+
         # Put a suffix on all the keys that will be deleted anyway so
         # we don't run into name clashes if the child levels have
         # identical names like in species - subspecies cases:
@@ -563,7 +586,6 @@ class TaxonomySummary:
             self.dict[key + '--'] = copy.copy(self.dict[key])
             del self.dict[key]
         levelKeys = self.dict.keys()
-
         ###################################
         # Find the largest taxonomic level of child levels (If they
         # are not all the same:)
@@ -574,23 +596,32 @@ class TaxonomySummary:
                     minChildRank = min(levelRanks[self.dict[key].dict[k].level], minChildRank)
         ###################################
         for key in levelKeys:
+
+#             if self.significanceSummary and key == "Metazoa--":
+#                 print self.dict[key]._notConsolidatedString()
+#             else:
+#                 print key
+            
             for k in self.dict[key].dict.keys():
                 assert k != key, "Probably species subspecies name clash"
                 ###################################
-                while self.dict[key].dict[k].level is not None \
-                          and levelRanks[self.dict[key].dict[k].level] > minChildRank:                    
+                while self.dict[key].dict[k].level is not None and levelRanks[self.dict[key].dict[k].level] > minChildRank:                    
                     subtree = copy.copy(self.dict[key].dict[k])
-                    self.dict[key].dict[k] = TaxonomySummary(self.pruneLevel, self.priorSummary)
+                    self.dict[key].dict[k] = TaxonomySummary(self.pruneLevel, self.priorSummary, significanceSummary=self.significanceSummary)
                     tax = Taxonomy()
-                    tax.add(TaxonomyLevel('placeHolder', levelList[minChildRank-1]))
-                    self.dict[key].dict[k].addTaxonomy(tax, None)
+#                     tax.add(TaxonomyLevel('placeHolder', levelList[minChildRank-1]))
+                    tax.add(TaxonomyLevel('placeHolder', levelList[minChildRank-1], dbid=subtree.dbid))
+                    self.dict[key].dict[k].addTaxonomy(tax)
                     self.dict[key].dict[k].count = subtree.count
+                    self.definingTaxonMonophyleticCount = subtree.definingTaxonMonophyleticCount
+                    self.ingroupCount = subtree.ingroupCount
+                    self.dict[key].dict[k].dbid = subtree.dbid
                     self.dict[key].dict[k].dict['placeHolder'] = subtree
-                    #print self.dict[key].dict[k].dict['placeHolder']._notConsolidatedString()
-                    #print self.dict[key].dict[k]._notConsolidatedString()
+#                     print self.dict[key].dict[k].dict['placeHolder']._notConsolidatedString()
+#                     print self.dict[key].dict[k]._notConsolidatedString()
                 ###################################
                 if self.dict.has_key(k):
-                    self.dict[k] += self.dict[key].dict[k]
+                    self.dict[k] += self.dict[key].dict[k]                    
                 else:
                     self.dict[k] = self.dict[key].dict[k]
             self.level = self.dict[key].level
@@ -612,6 +643,11 @@ class TaxonomySummary:
 #             del self.dict[key]
 
 # }}}
+
+#             if self.significanceSummary and key == "Metazoa--":
+#                 print self.dict['placeHolder']._notConsolidatedString()
+#                 import sys
+#                 sys.exit()
 
     def _recalculateCounts(self):
         """
@@ -655,22 +691,55 @@ class TaxonomySummary:
         placeholders or the freak taxonomy levels. (Preorder traversal)
         """
         while self.dict.has_key('placeHolder'):
-            # Add up counts for place holders and real levels:
-            placeHolderCount = self.dict['placeHolder'].count
-            realLevelsCount = 0
-            for key in self.dict.keys():
-                if key != 'placeHolder':
-                    realLevelsCount += self.dict[key].count
-            if placeHolderCount < realLevelsCount * self.pruneLevel:
-                # Remove the placeHolder and all decendants:
-                #print 'deleting', self.level
-                self.pruneList.append(self.dict['placeHolder'])
-                del self.dict['placeHolder']
-                self._recalculateCounts()
+
+            if self.significanceSummary:
+
+                # Collect the liefs (querys) we don't want removed:
+                liefList = []
+                for k in self.dict.keys():
+                    if self.dict[k]._isLief():
+                        liefList.append((k, self.dict[k]))
+                # Collapse the level:
+                self._collapseLevel()            
+                # Add back the liefs (querys)
+                for k, l in liefList:
+                    self.dict[k] = l
+# 
+#                 if filter(lambda x: self.dict[x]._isLief(), self.dict.keys()):
+#                     levelIncludesLief = True
+#                 else:
+#                     levelIncludesLief = False
+# 
+#                 # Check if any of the entries are lief levels:
+#                 if levelIncludesLief:
+#                     # Do not collapse the level if any of the taxa are leafs.
+#                     # Instead, remove the placeHolder and all decendants:
+#                     self.pruneList.append(self.dict['placeHolder'])
+#                     del self.dict['placeHolder']
+#                     self._recalculateCounts()
+#                 else:
+#                     # Collapse the child level keeping lower decendents:
+#                     self._collapseLevel()            
+
+
             else:
-                # Collapse the child level keeping lower decendents:
-                #print 'collapsing', self.level
-                self._collapseLevel()
+                # Add up counts for place holders and real levels:
+                placeHolderCount = self.dict['placeHolder'].count
+                realLevelsCount = 0
+                for key in self.dict.keys():
+                    if key != 'placeHolder':
+                        realLevelsCount += self.dict[key].count
+                #if placeHolderCount < realLevelsCount * self.pruneLevel or levelIncludesLief:
+                if placeHolderCount < realLevelsCount * self.pruneLevel:
+                    # Remove the placeHolder and all decendants:
+                    #print 'deleting', self.level
+                    self.pruneList.append(self.dict['placeHolder'])
+                    del self.dict['placeHolder']
+                    self._recalculateCounts()
+                else:
+                    # Collapse the child level keeping lower decendents:
+                    #print 'collapsing', self.level
+                    self._collapseLevel()
 
         for key in self.dict.keys():
             self.dict[key]._removePlaceHolders()
@@ -720,7 +789,7 @@ class TaxonomySummary:
         always run, levels will always be consistent. So that either
         levels for all keys are different between self and other - or
         none are.
-        """
+        """        
         for selfKey in self.dict.keys():
             for otherKey in other.dict.keys():
                 if levelRanks[self.dict[selfKey].level] > levelRanks[other.dict[otherKey].level]:
@@ -754,7 +823,10 @@ class TaxonomySummary:
             indentString = strList[-1][0] + 4*" "
 
         counter = 0
-        for key in self.dict.keys():
+        #for key in self.dict.keys():
+        keyList = self.dict.keys()
+        keyList.sort(lambda x, y: cmp(self.dict[y]._isLief(), self.dict[x]._isLief()))
+        for key in keyList:
             counter += 1
             strList.append(["",""])
             
@@ -830,20 +902,35 @@ class TaxonomySummary:
 #                     return name
 
 
-            if not self.bayesFactors:
-                strList[-1][1] += "+%s (%s) %.0f%% (%s)" % (nameLink(key, self.dbid), self.level, 100*probability, count)
+            if self.significanceSummary:            
+                #if self.level == 'otu':
+                if self.dict[key]._isLief():
+                    strList[-1][1] += "%s" % ('<a class="lightblue" href="clones/%s.html">%s</a>' % (self.dict[key].dbid, self.dict[key].dbid))
+                else:
+                    strList[-1][1] += "+%s (%s)" % (nameLink(key, self.dict[key].dbid), self.level)
+
+            elif not self.bayesFactors:
+                try: # The try is little hack to make sure the bug fixes with the dbids are backwards compatible with peoples dbcachees...
+                    #strList[-1][1] += "+%s (%s) %.0f%% (%s)" % (nameLink(key, self.dict[key].dbid), self.level, 100*probability, count)
+                    #strList[-1][1] += "+%s (%s) %.0f%% (crown:%.0f%%)" % (nameLink(key, self.dict[key].dbid), self.level, 100*probability, 100*ingroupProbability)
+                    strList[-1][1] += "+%s (%s) %.0f%%" % (nameLink(key, self.dict[key].dbid), self.level, 100*probability)
+                except:
+                    #strList[-1][1] += "+%s (%s) %.0f%% (%s)" % (key, self.level, 100*probability, count)
+                    strList[-1][1] += "+%s (%s) %.0f%%" % (key, self.level, 100*probability)
             elif self.dict[key].prior is None:
-                strList[-1][1] += "+%s (%s) %.0f%% (%s) K not calc." % (nameLink(key, self.dbid), self.level, 100*probability, count)
+                #strList[-1][1] += "+%s (%s) %.0f%% (%s) K not calc." % (nameLink(key, self.dict[key].dbid), self.level, 100*probability, count)
+                strList[-1][1] += "+%s (%s) %.0f%% K not calc." % (nameLink(key, self.dict[key].dbid), self.level, 100*probability)
             else:
                 prior = self.dict[key].prior
 
                 if prior == 1:
-                    strList[-1][1] += "+%s (%s) %.0f%% (%s)" % (nameLink(key, self.dbid), self.level, 100*probability, count)
+                    #strList[-1][1] += "+%s (%s) %.0f%% (%s)" % (nameLink(key, self.dict[key].dbid), self.level, 100*probability, count)
+                    strList[-1][1] += "+%s (%s) %.0f%%" % (nameLink(key, self.dict[key].dbid), self.level, 100*probability)
                 elif probability == 1:
-                    strList[-1][1] += "+%s (%s) %.0f%% (%s) K~Inf" % (nameLink(key, self.dbid), self.level, 100*probability, count)
+                    strList[-1][1] += "+%s (%s) %.0f%% K~Inf" % (nameLink(key, self.dict[key].dbid), self.level, 100*probability)
                 else:
                     bayesFactor = (probability / (1 - probability)) / (prior / (1 - prior))                    
-                    strList[-1][1] += "+%s (%s) %.0f%% (%s) K~%.0f" % (nameLink(key, self.dbid), self.level, 100*probability, count, bayesFactor)
+                    strList[-1][1] += "+%s (%s) %.0f%% K~%.0f" % (nameLink(key, self.dict[key].dbid), self.level, 100*probability, bayesFactor)
 
             # put a an approx sign on the probs that are rounded to zero:
             strList[-1][1] = re.sub(r' 0%', ' ~0%', strList[-1][1])
@@ -862,8 +949,8 @@ class TaxonomySummary:
         Generates a printable representation of the non-consolidated
         summary for testing purposes.
         """
-        instance = copy.deepcopy(self)
-        strList = instance._print([["",""]])
+        inst = copy.deepcopy(self)
+        strList = inst._print([["",""]])
         s = ""
         for str in strList:
             s += "%s\n" % (str[0]+str[1])
@@ -880,9 +967,9 @@ class TaxonomySummary:
         """
         Make a SVG graphics string representation
         """
-        instance = copy.deepcopy(self)
-        instance._consolidate()
-        txt = str(instance)
+        inst = copy.deepcopy(self)
+        inst._consolidate()
+        txt = str(inst)
         lines = re.split(r'\n', txt)
         y = 0    
         stringRE = re.compile(r'^([|+ ]*)(.*)$')
@@ -955,21 +1042,28 @@ class TaxonomySummary:
         return s
 
     def __str__(self):
-        instance = copy.deepcopy(self)
-        instance._consolidate()
+        inst = copy.deepcopy(self)
+        inst._consolidate()
 
-        strList = instance._print([["",""]])
-        s = ""
-        for str in strList:
-            s += "%s\n" % (str[0]+str[1])
-        if instance.pruneList:
-            s += "\tPruned subtrees:\n"
-            for subTree in instance.pruneList:
+        strList = inst._print([["",""]])
+        toprint = ""
+        for s in strList:
+            toprint += "%s\n" % (s[0]+s[1])
+        if inst.pruneList:
+            toprint += "\n\n"
+#             print 'pruneList:', inst.pruneList
+            for subTree in inst.pruneList:
+                subTree.count = inst.count # to make the count at root the same which is what is compared to when calculating probs
+
+#                 print 'subtree type:', type(subTree)
+#                 toprint += str(subTree)
+#                 print 'string:', toprint
+
                 strList = subTree._print([["",""]])
-                for str in strList:
-                    s += "%s\n" % (str[0]+str[1])
-                s += "\n"
-        return s
+                for s in strList:
+                    toprint += "%s\n" % (s[0]+s[1])
+                toprint += "\n"
+        return toprint
 
     def keys(self):
         return self.dict.keys()     
@@ -979,6 +1073,15 @@ class TaxonomySummary:
 
     def values(self):
         return self.dict.values()
+
+    def _findHighestRankingChildLevel(self):
+        # Find the highest level X (lowest levelrank) of the summary children:
+        highestRankingChildLevel = None
+        for k in self.dict.keys():
+            if self.dict[k].level is not None:
+                if highestRankingChildLevel is None or levelRanks[self.dict[k].level] < levelRanks[highestRankingChildLevel]:
+                    highestRankingChildLevel = self.dict[k].level
+        return highestRankingChildLevel
 
     def addTaxonomy(self, taxonomy,
 #                     taxLevelMonophyletic,
@@ -1005,7 +1108,6 @@ class TaxonomySummary:
         if self.level is None:
             # Iniialise if this is a newly created instance:
             self.level = taxonomy[0].level
-            self.dbid = taxonomy[0].dbid
         elif levelRanks[self.level] != levelRanks[taxonomy[0].level]:
 
             # Make a local copy before we change it:
@@ -1035,49 +1137,149 @@ class TaxonomySummary:
 #         if taxLevelMonophyletic is not None and taxLevelMonophyletic.has_key(taxonomy[0].name):
 #             self.monophyleticCount += 1
 
-        # Make sure that the taxonomic levels of the next recurtion are the same:
+
+#         #####################################################################################################
+# 
+#         # Make sure that the taxonomic levels of the next recurtion are the same:
+#         offset = 1
+#         while 1:
+#             # Get the taxon names of the next level:
+#             keys = self.dict.keys()
+#             if not keys:
+#                 # There isn't any so we can't run into alignment problems.
+#                 break
+#             if self.dict[keys[0]].level is not None and offset < len(taxonomy):
+#                 #if levelRanks[self.dict[keys[0]].level] < levelRanks[taxonomy[offset].level]:
+#                 if self._childLevelsMissingFromLevel(taxonomy[offset]) < 0:
+#                     # The next level in self is missing from other:
+#                     print '#### addTaxonomy: inserting %s in taxonomy %s' % (self.dict[keys[0]].level, str(taxonomy))
+#                     placeHolder = TaxonomyLevel('placeHolder', self.dict[keys[0]].level, dbid=taxonomy[0].dbid)                    
+#                     taxonomy.add(placeHolder)
+#                 elif self._childLevelsMissingFromLevel(taxonomy[offset]) > 0:
+#                 # elif levelRanks[self.dict[keys[0]].level] > levelRanks[taxonomy[offset].level]:
+#                     # The next level in other is missing from self:
+#                     print '#### addTaxonomy: inserting %s in self %s' % (taxonomy[offset].level, self._notConsolidatedString())
+#                     self._insertPlaceHolderChild(taxonomy[offset].level)
+#                     print '#### to accomodoate:', str(taxonomy)
+#                     print '#### and got this:', self._notConsolidatedString()
+#                 else:
+#                     break
+#             else:
+#                 break
+# 
+# 
+#         #####################################################################################################
+
+        # It is because it is BOTH larger and smaller. the taxonomy level
+        # class falls between the child levels order and subphylum in the
+        # summary. So to make it fit I would have to insert a subpylum in
+        # the taxonomy and the make sure all children of the summary are subphylum. The rule should then be to:
+
         offset = 1
-        while 1:
-            # Get the taxon names of the next level:
-            keys = self.dict.keys()
-            if not keys:
-                # There isn't any so we can't run into alignment problems.
-                break
-            if self.dict[keys[0]].level is not None and offset < len(taxonomy):
-                #if levelRanks[self.dict[keys[0]].level] < levelRanks[taxonomy[offset].level]:
-                if self._childLevelsMissingFromLevel(taxonomy[offset]) < 0:
+
+        highestRankingChildLevel = self._findHighestRankingChildLevel()
+
+        if len(self.dict):
+
+            if highestRankingChildLevel is not None and offset < len(taxonomy):
+
+                # Add padding of upper levels to the taxonomy to make its top level X
+                while levelRanks[highestRankingChildLevel] < levelRanks[taxonomy[offset].level]:
+                    #print '########## addTaxonomy: inserting %s in taxonomy %s' % (highestRankingChildLevel, str(taxonomy))
                     # The next level in self is missing from other:
-                    #print 'addTaxonomy: inserting %s in taxonomy' % self.dict[keys[0]].level
-                    placeHolder = TaxonomyLevel('placeHolder', self.dict[keys[0]].level)
+                    placeHolder = TaxonomyLevel('placeHolder', highestRankingChildLevel, dbid=taxonomy[0].dbid)
                     taxonomy.add(placeHolder)
-                elif self._childLevelsMissingFromLevel(taxonomy[offset]) > 0:
-                # elif levelRanks[self.dict[keys[0]].level] > levelRanks[taxonomy[offset].level]:
+
+
+
+#                 for key in self.dict.keys():
+#                     print 'key', self.dict[key].level, 'hitgest ranking:', highestRankingChildLevel
+#                     if levelRanks[self.dict[key].level] > levelRanks[highestRankingChildLevel]:
+#                         print "Adding a", highestRankingChildLevel, "on top of", self.dict[key].level
+# 
+#                         placeHolder = TaxonomySummary(self.pruneLevel, self.priorSummary, significanceSummary=self.significanceSummary)
+#                         placeHolder.level = highestRankingChildLevel
+#                         placeHolder.count = copy.copy(self.dict[key].count)
+#                         placeHolder.dict['placeHolder'] = copy.copy(self.dict[key])
+#                         placeHolder.dbid = self.dict[key].dbid
+#                         self.dict[key] = placeHolder
+# 
+# 
+#                 print [self.dict[x].level for x in self.dict.keys()]
+                    
+
+                # Make sure the summary children are all the same level and insert placeholders if required.
+                while levelRanks[highestRankingChildLevel] > levelRanks[taxonomy[offset].level]:
+                    #print '#### addTaxonomy: inserting %s in self %s' % (taxonomy[offset].level, self._notConsolidatedString())
                     # The next level in other is missing from self:
-                    #print 'addTaxonomy: inserting %s in self' % taxonomy[offset].level
                     self._insertPlaceHolderChild(taxonomy[offset].level)
-                else:
-                    break
-            else:
-                break
+                    #print '#### to accomodoate:', str(taxonomy)
+                    #print '#### and got this:', self._notConsolidatedString()
 
+                    highestRankingChildLevel = self._findHighestRankingChildLevel()
+
+        #####################################################################################################                        
+
+
+#         keys = self.dict.keys()
+#         if keys and self.dict[keys[0]].level is not None and offset < len(taxonomy):
+#             assert self.dict[keys[0]].level == taxonomy[offset].level, self.dict[keys[0]].level +' '+ taxonomy[offset].level 
         keys = self.dict.keys()
-        if keys and self.dict[keys[0]].level is not None and offset < len(taxonomy):
-            assert self.dict[keys[0]].level == taxonomy[offset].level, self.dict[keys[0]].level +' '+ taxonomy[offset].level 
+        if keys and offset < len(taxonomy):
+            for i in range(len(keys)):
+                if self.dict[keys[i]].level is not None:
+                    assert self.dict[keys[i]].level == taxonomy[offset].level, self.dict[keys[i]].level +' '+ taxonomy[offset].level 
 
+
+     
         if offset < len(taxonomy):
-            self.dict.setdefault(taxonomy[0].name, TaxonomySummary(self.pruneLevel, self.priorSummary)).addTaxonomy(taxonomy[offset:],
-#                                                     taxLevelMonophyletic,
+            self.dict.setdefault(taxonomy[0].name, TaxonomySummary(self.pruneLevel, self.priorSummary, dbid=taxonomy[0].dbid, significanceSummary=self.significanceSummary)).addTaxonomy(taxonomy[offset:],
+#                                                     taxLevelMonophyletic,                                                    
                                                     definingTaxonMonophyletic=definingTaxonMonophyletic,
                                                     ingroupOfDefiningTaxon=ingroupOfDefiningTaxon)
         else:
-            self.dict.setdefault(taxonomy[0].name, TaxonomySummary(self.pruneLevel, self.priorSummary)).addTaxonomy(Taxonomy(),
+            self.dict.setdefault(taxonomy[0].name, TaxonomySummary(self.pruneLevel, self.priorSummary, dbid=taxonomy[0].dbid,significanceSummary=self.significanceSummary)).addTaxonomy(Taxonomy(),
 #                                                     taxLevelMonophyletic,
                                                     definingTaxonMonophyletic=definingTaxonMonophyletic,
                                                     ingroupOfDefiningTaxon=ingroupOfDefiningTaxon)
 
 
+    def getSignificantTaxonomy(self, cutoff, baseProb=1.0, consolidated=False):
+        """
+
+        """
+        # Consolidate the summary if this has not been done:
+        inst = copy.deepcopy(self)
+        if not consolidated:
+            inst._consolidate()
+            consolidated = True
+
+        taxonomy = Taxonomy()
+
+        # Loop over the taxa for this level:
+        for key in inst.dict.keys():
+            
+            # Calculate the probability:
+            count = 0
+            if inst.dict[key] is not None:
+                count = inst.dict[key].count
+            probability = 1.00
+            if inst.count:
+                probability = baseProb*float(count)/float(inst.count)
+
+            if probability >= cutoff:
+                taxonomy = inst.dict[key].getSignificantTaxonomy(cutoff, probability, consolidated)            
+                newLevel = TaxonomyLevel(name=key, level=inst.level, dbid=inst.dict[key].dbid)
+                taxonomy.add(newLevel)
+
+                # There will only be one key with probabiilty over cuttoff if this is > 0.5
+                break
+
+        return taxonomy
+
+
     def findSignificantOrderFamilyGenus(self, significantRanks, queryName,
-                                        baseProb=1.0, classFound=False,
+                                        baseProb=1.0, phylumFound=False, classFound=False,
                                         orderFound=False, familyFound=False,
                                         genusFound=False, speciesFound=False,
                                         subspeciesFound=False,
@@ -1094,41 +1296,48 @@ class TaxonomySummary:
         subspeciesFound = subspeciesFound
 
         # Consolidate the summary if this has not been done:
-        instance = copy.deepcopy(self)
+        inst = copy.deepcopy(self)
         if not consolidated:
-            instance._consolidate()
+            inst._consolidate()
             consolidated = True
             
-        for key in instance.dict.keys():
+        for key in inst.dict.keys():
             count = 0
-            if instance.dict[key] != None:
-                count = instance.dict[key].count
+            if inst.dict[key] != None:
+                count = inst.dict[key].count
             probability = 1.00
-            if instance.count != 0:
-                probability = baseProb*float(count)/float(instance.count)
+            if inst.count != 0:
+                probability = baseProb*float(count)/float(inst.count)
 
-            if instance.level == 'class':
+            if inst.level == 'phylum':
+                if probability >= significanceLevel and not phylumFound:
+                    if not significantRanks['phylum'].has_key(key):
+                        significantRanks['phylum'][key] = []
+                    significantRanks['phylum'][key].append({"name":queryName, "probability":probability})
+                    phylumFound = True
+
+            if inst.level == 'class':
                 if probability >= significanceLevel and not classFound:
                     if not significantRanks['class'].has_key(key):
                         significantRanks['class'][key] = []
                     significantRanks['class'][key].append({"name":queryName, "probability":probability})
                     classFound = True
 
-            if instance.level == 'order':
+            if inst.level == 'order':
                 if probability >= significanceLevel:
                     if not significantRanks['order'].has_key(key):
                         significantRanks['order'][key] = []
                     significantRanks['order'][key].append({"name":queryName, "probability":probability})
                     orderFound = True
 
-            if instance.level == 'family':
+            if inst.level == 'family':
                 if probability >= significanceLevel:
                     if not significantRanks['family'].has_key(key):
                         significantRanks['family'][key] = []
                     significantRanks['family'][key].append({"name":queryName, "probability":probability})
                     familyFound = True
 
-            if instance.level == 'genus':
+            if inst.level == 'genus':
                 # Check that either order or family has been found before genus
                 if probability >= significanceLevel and (orderFound or familyFound):
                     if not significantRanks['genus'].has_key(key):
@@ -1136,7 +1345,7 @@ class TaxonomySummary:
                     significantRanks['genus'][key].append({"name":queryName, "probability":probability})
                     genusFound = True
 
-            if instance.level == 'species':
+            if inst.level == 'species':
                 # Check that either order or family has been found before genus
                 if probability >= significanceLevel and genusFound:
                     if not significantRanks['species'].has_key(key):
@@ -1149,7 +1358,7 @@ class TaxonomySummary:
                         significantRanks['species'][key].append({"name":queryName, "probability":probability})
 
             # TODO: we need to make the subspecies part work more reliably.
-            if instance.level == 'subspecies':
+            if inst.level == 'subspecies':
                 # Check that either order or family has been found before genus
                 if probability >= significanceLevel and speciesFound:
                     if not significantRanks['subspecies'].has_key(key):
@@ -1158,8 +1367,8 @@ class TaxonomySummary:
 
 
             if probability >= significanceLevel:
-                instance.dict[key].findSignificantOrderFamilyGenus(significantRanks, queryName,
-                                                               probability, classFound,
+                inst.dict[key].findSignificantOrderFamilyGenus(significantRanks, queryName,
+                                                               probability, phylumFound, classFound,
                                                                orderFound, familyFound,
                                                                genusFound, speciesFound,
                                                                subspeciesFound,
@@ -1242,20 +1451,20 @@ class TaxonomySummary:
         """
         Returns a list of the posterior probabilities for all taxons.
         """
-        instance = copy.deepcopy(self)
-        instance._consolidate()
+        inst = copy.deepcopy(self)
+        inst._consolidate()
 
-        for key in instance.dict.keys():
+        for key in inst.dict.keys():
             count = 0
-            if instance.dict[key] is not None:
-                count = instance.dict[key].count
+            if inst.dict[key] is not None:
+                count = inst.dict[key].count
             probability = 1.00
-            if instance.count:
-                probability = baseProb*float(count)/float(instance.count)
+            if inst.count:
+                probability = baseProb*float(count)/float(inst.count)
                 probList.append(probability)
             # Call recursively
-            if instance.dict[key] != None:
-                instance.dict[key].getAllProbs(probList, probability)
+            if inst.dict[key] != None:
+                inst.dict[key].getAllProbs(probList, probability)
 
         return probList
 
@@ -1264,22 +1473,22 @@ class TaxonomySummary:
         """
         Returns a list of the posterior probabilities for lief taxons.
         """
-        instance = copy.deepcopy(self)
-        instance._consolidate()
+        inst = copy.deepcopy(self)
+        inst._consolidate()
 
-        for key in instance.dict.keys():
+        for key in inst.dict.keys():
             count = 0
-            if instance.dict[key] is not None:
-                count = instance.dict[key].count
+            if inst.dict[key] is not None:
+                count = inst.dict[key].count
             probability = 1.00
-            if instance.count:
-                probability = baseProb*float(count)/float(instance.count)
-                if not instance.dict[key].dict.keys():
+            if inst.count:
+                probability = baseProb*float(count)/float(inst.count)
+                if not inst.dict[key].dict.keys():
                     # This is a lief level:
                     probList.append(probability)
             # Call recursively unless this is a lief level:
-            if instance.dict[key] != None:
-                instance.dict[key].getLiefProbs(probList, probability)
+            if inst.dict[key] != None:
+                inst.dict[key].getLiefProbs(probList, probability)
                 
         return probList
 
@@ -1288,22 +1497,22 @@ class TaxonomySummary:
         """
         Returns a list of the posterior probabilities for a give taxonomic level.
         """
-        instance = copy.deepcopy(self)
-        instance._consolidate()
+        inst = copy.deepcopy(self)
+        inst._consolidate()
 
-        for key in instance.dict.keys():
+        for key in inst.dict.keys():
             count = 0
-            if instance.dict[key] is not None:
-                count = instance.dict[key].count
+            if inst.dict[key] is not None:
+                count = inst.dict[key].count
             probability = 1.00
-            if instance.count:
-                probability = baseProb*float(count)/float(instance.count)
-                if instance.level == level:
+            if inst.count:
+                probability = baseProb*float(count)/float(inst.count)
+                if inst.level == level:
                     # This is taxonomic level we want probs for:
                     probList.append(probability)
             # Call recursively unless this is a lief level:
-            if instance.dict[key] != None:
-                instance.dict[key].getLevelProbs(level, probList, probability)
+            if inst.dict[key] != None:
+                inst.dict[key].getLevelProbs(level, probList, probability)
                 
         return probList
 
@@ -1313,18 +1522,18 @@ class TaxonomySummary:
         For testing purposes only. Returns a list with one taxa
         element holding test stats.
         """
-        instance = copy.deepcopy(self)
-        instance._consolidate()
+        inst = copy.deepcopy(self)
+        inst._consolidate()
 
-        for key in instance.dict.keys():
+        for key in inst.dict.keys():
 
             count = 0
-            if instance.dict[key] is not None:
-                count = instance.dict[key].count
+            if inst.dict[key] is not None:
+                count = inst.dict[key].count
 
             probability = 1.00
-            if instance.count != 0:
-                probability = baseProb*float(count)/float(instance.count)
+            if inst.count != 0:
+                probability = baseProb*float(count)/float(inst.count)
 
             if self.level == level:
                 if key == facitName:
@@ -1334,39 +1543,39 @@ class TaxonomySummary:
                 resultList.append(d)                    
 
             # Call recursively
-            if instance.dict[key] != None:
-                instance.dict[key].assignmentStats(level, facitName, resultList, probability)
+            if inst.dict[key] != None:
+                inst.dict[key].assignmentStats(level, facitName, resultList, probability)
 
 #             if key == facitName:
 #                 d = {'count': count, 'prob': probability, 'correct': True}
 #                 resultList.append(d)
 #             else:
 #                 # Call recursively
-#                 if instance.dict[key] != None:
-#                     instance.dict[key].assignmentStats(level, facitName, resultList, probability)
+#                 if inst.dict[key] != None:
+#                     inst.dict[key].assignmentStats(level, facitName, resultList, probability)
         return resultList
 
     def treeString(self, baseProb=1.0, consolidate=True, consensusTaxonomy=None):
         """
         Retrurns a string representation of the summary.
         """
-        instance = copy.deepcopy(self)
+        inst = copy.deepcopy(self)
         if consolidate:
-            instance._consolidate()
+            inst._consolidate()
 
         subStringList = []
         leafNameList = []
-        for key in instance.dict.keys():
+        for key in inst.dict.keys():
             count = 0
-            if instance.dict[key] is not None:
-                count = instance.dict[key].count
+            if inst.dict[key] is not None:
+                count = inst.dict[key].count
             probability = 1.00
-            if instance.count:
-                probability = baseProb*float(count)/float(instance.count)
+            if inst.count:
+                probability = baseProb*float(count)/float(inst.count)
 
             # Call recursively unless this is a lief level:
-            if instance.dict[key].dict.keys():
-                subStringList.append(instance.dict[key].treeString(probability, consolidate=consolidate))
+            if inst.dict[key].dict.keys():
+                subStringList.append(inst.dict[key].treeString(probability, consolidate=consolidate))
             else:
                 leafNameList.append(key)
 
@@ -1378,26 +1587,26 @@ class TaxonomySummary:
             else:
                 return joinedList[0]
 
-#         instance = copy.deepcopy(self)
+#         inst = copy.deepcopy(self)
 #         if consolidate:
-#             instance._consolidate()
+#             inst._consolidate()
 # 
 #         sList = []
 #         leafList = []
-#         for key in instance.dict.keys():
+#         for key in inst.dict.keys():
 #             count = 0
-#             if instance.dict[key] is not None:
-#                 count = instance.dict[key].count
+#             if inst.dict[key] is not None:
+#                 count = inst.dict[key].count
 #             probability = 1.00
-#             if instance.count:
-#                 probability = baseProb*float(count)/float(instance.count)
+#             if inst.count:
+#                 probability = baseProb*float(count)/float(inst.count)
 # 
 #             # Call recursively unless this is a lief level:
-#             if instance.dict[key].dict.keys():
-#                 sList.append(instance.dict[key].treeString(probability, consolidate=consolidate))
+#             if inst.dict[key].dict.keys():
+#                 sList.append(inst.dict[key].treeString(probability, consolidate=consolidate))
 #             else:
 #                 leafList.append(key)
-#                 #return ','.join(instance.dict.keys())
+#                 #return ','.join(inst.dict.keys())
 #                 #return key
 # 
 #         if len(leafList):
@@ -1437,17 +1646,17 @@ class TaxonomySummary:
 # #         """
 # #         Retrurns a partitionList of the summary.
 # #         """
-# #         instance = copy.deepcopy(self)
+# #         inst = copy.deepcopy(self)
 # #         if consolidate:
-# #             instance._consolidate()
+# #             inst._consolidate()
 # # 
 # #         leafList = []
 # #         partList = []
-# #         for key in instance.dict.keys():
+# #         for key in inst.dict.keys():
 # #             # Call recursively unless this is a leaf level:
-# #             if instance.dict[key].dict.keys():
+# #             if inst.dict[key].dict.keys():
 # #                 # get leafs below this point
-# #                 partList, newLeafList = instance.dict[key].partitionList(consolidate=consolidate)
+# #                 partList, newLeafList = inst.dict[key].partitionList(consolidate=consolidate)
 # #                 leafList += newLeafList
 # #             else:
 # #                 leafList.append(key)
@@ -1480,9 +1689,9 @@ class TaxonomySummary:
 # 
 # #     def _partitionList(self, parentLevel=None, consolidate=False):
 # # 
-# #         instance = copy.deepcopy(self)
+# #         inst = copy.deepcopy(self)
 # #         if consolidate:
-# #             instance._consolidate()
+# #             inst._consolidate()
 # # 
 # #         leafList = []
 # #         partList = []
@@ -1506,9 +1715,9 @@ class TaxonomySummary:
 
     def _partitionList(self, consolidate=True):
 
-        instance = copy.deepcopy(self)
+        inst = copy.deepcopy(self)
         if consolidate:
-            instance._consolidate()
+            inst._consolidate()
 
         leafList = []
         partList = []
@@ -1640,90 +1849,90 @@ class TaxonomySummary:
 #                 self.dict[key]._calcPriors(count)
 
 
+
 if __name__ == "__main__":
 
-    priorSummary = TaxonomySummary(pruneLevel=0)
+#     priorSummary = TaxonomySummary(pruneLevel=0)
+# 
+#     fullTaxonomy = Taxonomy()
+#     for level in ['phylum', 'class', 'order', 'family', 'genus', 'species']:
+#         if level == 'family':
+#             name = level + '0'
+#         else:
+#             name = level
+#         fullTaxonomy.add(TaxonomyLevel(name, level))
+# 
+#     extraSuperClass = Taxonomy()
+#     for level in ['phylum', 'superclass', 'order', 'family', 'genus', 'species']:
+#         if level != 'phylum':
+#             name = level + '*'
+#         else:
+#             name = level
+#         extraSuperClass.add(TaxonomyLevel(name, level))
+# 
+#     for i in range(20):
+#         extraSuperOrder = Taxonomy()
+#         for level in ['phylum', 'class', 'superorder',  'family', 'genus', 'species']:
+#             if level != 'phylum':
+#                 name = level + '+'
+#             else:
+#                 name = level
+#             extraSuperOrder.add(TaxonomyLevel(name, level))
+#         priorSummary.addTaxonomy(extraSuperOrder, None)
+# 
+#     missingSpecies = Taxonomy()
+#     for level in ['phylum', 'class', 'superorder',  'family', 'genus']:
+#         if level != 'phylum':
+#             name = level + '+'
+#         else:
+#             name = level
+#         missingSpecies.add(TaxonomyLevel(name, level))
+#     priorSummary.addTaxonomy(missingSpecies, None)
+# 
+#     priorSummary.addTaxonomy(fullTaxonomy, None)
+#     priorSummary.addTaxonomy(extraSuperClass, None)
+#     priorSummary.addTaxonomy(extraSuperOrder, None)
+# 
+#     ##########
+# 
+#     summary1 = TaxonomySummary(pruneLevel=0, priorSummary=priorSummary)
+# 
+#     fullTaxonomy = Taxonomy()
+#     for level in ['phylum', 'class', 'order', 'family', 'genus', 'species']:
+#         if level == 'family':
+#             name = level + '0'
+#         else:
+#             name = level
+#         fullTaxonomy.add(TaxonomyLevel(name, level))
+# 
+#     extraSuperClass = Taxonomy()
+#     for level in ['phylum', 'superclass', 'order', 'family', 'genus', 'species']:
+#         if level != 'phylum':
+#             name = level + '*'
+#         else:
+#             name = level
+#         extraSuperClass.add(TaxonomyLevel(name, level))
+# 
+#     for i in range(20):
+#         extraSuperOrder = Taxonomy()
+#         for level in ['phylum', 'class', 'superorder',  'family', 'genus', 'species']:
+#             if level != 'phylum':
+#                 name = level + '+'
+#             else:
+#                 name = level
+#             extraSuperOrder.add(TaxonomyLevel(name, level))
+#         summary1.addTaxonomy(extraSuperOrder, None)
+# 
+#     missingSpecies = Taxonomy()
+#     for level in ['phylum', 'class', 'superorder',  'family', 'genus']:
+#         if level != 'phylum':
+#             name = level + '+'
+#         else:
+#             name = level
+#         missingSpecies.add(TaxonomyLevel(name, level))
+#     summary1.addTaxonomy(missingSpecies, None)
 
-    fullTaxonomy = Taxonomy()
-    for level in ['phylum', 'class', 'order', 'family', 'genus', 'species']:
-        if level == 'family':
-            name = level + '0'
-        else:
-            name = level
-        fullTaxonomy.add(TaxonomyLevel(name, level))
 
-    extraSuperClass = Taxonomy()
-    for level in ['phylum', 'superclass', 'order', 'family', 'genus', 'species']:
-        if level != 'phylum':
-            name = level + '*'
-        else:
-            name = level
-        extraSuperClass.add(TaxonomyLevel(name, level))
-
-    for i in range(20):
-        extraSuperOrder = Taxonomy()
-        for level in ['phylum', 'class', 'superorder',  'family', 'genus', 'species']:
-            if level != 'phylum':
-                name = level + '+'
-            else:
-                name = level
-            extraSuperOrder.add(TaxonomyLevel(name, level))
-        priorSummary.addTaxonomy(extraSuperOrder, None)
-
-    missingSpecies = Taxonomy()
-    for level in ['phylum', 'class', 'superorder',  'family', 'genus']:
-        if level != 'phylum':
-            name = level + '+'
-        else:
-            name = level
-        missingSpecies.add(TaxonomyLevel(name, level))
-    priorSummary.addTaxonomy(missingSpecies, None)
-
-    priorSummary.addTaxonomy(fullTaxonomy, None)
-    priorSummary.addTaxonomy(extraSuperClass, None)
-    priorSummary.addTaxonomy(extraSuperOrder, None)
-
-    ##########
-
-    summary1 = TaxonomySummary(pruneLevel=0, priorSummary=priorSummary)
-
-    fullTaxonomy = Taxonomy()
-    for level in ['phylum', 'class', 'order', 'family', 'genus', 'species']:
-        if level == 'family':
-            name = level + '0'
-        else:
-            name = level
-        fullTaxonomy.add(TaxonomyLevel(name, level))
-
-    extraSuperClass = Taxonomy()
-    for level in ['phylum', 'superclass', 'order', 'family', 'genus', 'species']:
-        if level != 'phylum':
-            name = level + '*'
-        else:
-            name = level
-        extraSuperClass.add(TaxonomyLevel(name, level))
-
-    for i in range(20):
-        extraSuperOrder = Taxonomy()
-        for level in ['phylum', 'class', 'superorder',  'family', 'genus', 'species']:
-            if level != 'phylum':
-                name = level + '+'
-            else:
-                name = level
-            extraSuperOrder.add(TaxonomyLevel(name, level))
-        summary1.addTaxonomy(extraSuperOrder, None)
-
-    missingSpecies = Taxonomy()
-    for level in ['phylum', 'class', 'superorder',  'family', 'genus']:
-        if level != 'phylum':
-            name = level + '+'
-        else:
-            name = level
-        missingSpecies.add(TaxonomyLevel(name, level))
-    summary1.addTaxonomy(missingSpecies, None)
-
-
-# {{{ other tests
 
 #     orderMissing2 = Taxonomy()
 #     for level in ['phylum', 'class', 'family', 'genus', 'species']:
@@ -1788,16 +1997,40 @@ if __name__ == "__main__":
 #     summary1.addTaxonomy(phylumMissing, None)
 #     summary1.addTaxonomy(speciesMissing, None)
 
-# }}}
 
-    summary1.addTaxonomy(fullTaxonomy, None)
-    summary1.addTaxonomy(extraSuperClass, None)
-    summary1.addTaxonomy(extraSuperOrder, None)
 
-    count = summary1._getTaxonCount('family+', countList=[])
-    print count
-    print summary1._notConsolidatedString()
-    print summary1
+#     summary1.addTaxonomy(fullTaxonomy, None)
+#     summary1.addTaxonomy(extraSuperClass, None)
+#     summary1.addTaxonomy(extraSuperOrder, None)
+# 
+#     count = summary1._getTaxonCount('family+', countList=[])
+#     print count
+#     print summary1._notConsolidatedString()
+#     print summary1
+# 
+#     print summary1.getSignificantTaxonomy(0.9)
+
+
+
+
+
+    numbers = Taxonomy()
+    numbers.populateFromString('phylum: one, class:two, superorder:three, genus:five, species:six')
+
+    cars = Taxonomy()
+    cars.populateFromString('phylum: one, class:two, superorder:three, family:bike')
+
+    drinks = Taxonomy()
+    drinks.populateFromString('phylum:juics, class:wine, superorder:milk, family:water')
+
+    #summaryTest = TaxonomySummary(significanceSummary=True)
+    summaryTest = TaxonomySummary()
+    summaryTest.addTaxonomy(numbers, ingroupOfDefiningTaxon=True)
+    summaryTest.addTaxonomy(cars)
+    summaryTest.addTaxonomy(drinks)
+
+    print summaryTest._notConsolidatedString()
+    print summaryTest
 
 
 ######

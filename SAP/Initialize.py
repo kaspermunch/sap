@@ -11,6 +11,8 @@ from SAP.Bio.Alphabet import IUPAC
 from SAP.Bio.Nexus import Nexus
 from UtilityFunctions import *
 
+from SAP.Exceptions import AnalysisTerminated
+
 import Fasta
 
 class Initialize:
@@ -48,6 +50,7 @@ class Initialize:
 
     def fixAndMoveInput(self, files):
 
+
         allowedLetters = IUPAC.IUPACAmbiguousDNA().letters
 
         sequenceCount = 0
@@ -56,8 +59,9 @@ class Initialize:
         for inputFileName in files:
 
             if not os.path.exists(inputFileName):
-                print " Input filename %s does not exist!" % inputFileName
-                sys.exit(1)
+               raise AnalysisTerminated(1, " Input filename %s does not exist!" % inputFileName)
+#                 print " Input filename %s does not exist!" % inputFileName
+#                 sys.exit(1)
 
             if self.options.inputformat == 'nexus':
                nex = Nexus.Nexus(inputFileName)
@@ -67,8 +71,9 @@ class Initialize:
             elif self.options.inputformat == 'fasta':
                fileContent = readFile(inputFileName)               
             else:
-               print "The supported input formats are 'fasta' and 'nexus'"
-               sys.exit()
+               raise AnalysisTerminated(1, "The supported input formats are 'fasta' and 'nexus'")
+#                print "The supported input formats are 'fasta' and 'nexus'"
+#                sys.exit()
 
             fileContent = re.sub(r'\r+', '\n', fileContent)
             tmpOutputFileName = os.path.join(self.options.datadir, "%s.tmp" % os.path.split(inputFileName)[-1])
@@ -97,9 +102,9 @@ class Initialize:
                 # Make sure ids are unique:
                 if usedIDs.has_key(fastaRecord.title.lower()): # we use lower to make sure they don't just differ in case.
                     i = 1
-                    while usedIDs.has_key("%d_%s" % (fastaRecord.title, i)):
+                    while usedIDs.has_key("%s_%d" % (fastaRecord.title, i)):
                         i += 1
-                    fastaRecord.title = "%d_%s" % (fastaRecord.title, i)
+                    fastaRecord.title = "%s_%d" % (fastaRecord.title, i)
                 usedIDs[fastaRecord.title.lower()] = True
 
                 sequenceNameMap[baseName][fastaRecord.title] = origName
@@ -108,6 +113,15 @@ class Initialize:
                 #fastaRecord.sequence = fastaRecord.sequence.replace('-', '')
                 fastaRecord.sequence = fastaRecord.sequence.replace('~', '')
                 fastaRecord.sequence = fastaRecord.sequence.replace('.', '')
+
+#                 if allowedLetters is None:
+#                    if len(re.findall(IUPAC.IUPACAmbiguousDNA().letters, fastaRecord.sequence)) / len(fastaRecord.sequence) > 0.5:
+#                       allowedLetters = IUPAC.IUPACAmbiguousDNA().letters
+#                       wildcard = 'N'
+#                    else:
+#                       allowedLetters = ExtendedIUPACProtein().letters
+#                       wildcard = 'X'
+#                 fastaRecord.sequence = re.sub('[^%s-]' % allowedLetters, wildcard, fastaRecord.sequence)
 
                 # fastaRecord.sequence = re.sub('[^%s]' % allowedLetters, 'N', fastaRecord.sequence)
                 fastaRecord.sequence = re.sub('[^%s-]' % allowedLetters, 'N', fastaRecord.sequence)
@@ -142,8 +156,9 @@ class Initialize:
             pickleFile.close()
 
             # Lists of options that deprecates cache entries:
-            deleteBlastCacheList = ["database", "maxblasthits", "limitquery", "minsignificance", "nolowcomplexfilter"]
+            deleteBlastCacheList = ["database", "maxblasthits", "limitquery", "minsignificance", "nolowcomplexfilter", "blastwordsize"]
 
+            #deleteHomologueCacheList = [ "unclassified", "notruncate", "quickcompile", "minidentity", "forceidentity", "subspecieslevel", "fillinall", "fillineven", "fillintomatch", "individuals", "significance", "nrsignificant",
             deleteHomologueCacheList = [ "notruncate", "quickcompile", "minidentity", "forceidentity", "subspecieslevel", "fillinall", "fillineven", "fillintomatch", "individuals", "significance", "nrsignificant",
                                          "relbitscore", "phyla", "classes", "orders", "families", "genera",
                                          "besthits", "alignmentlimit", "minimaltaxonomy", "harddiversity", "forceincludefile", "forceincludegilist", "forceexcludegilist"]
@@ -152,14 +167,19 @@ class Initialize:
             deleteAlignmentCacheList = ["alignment", "alignmentoption"]
             deleteAlignmentCacheList.extend(deleteHomologueCacheList)
 
+            deleteTreesCacheList = []
+            deleteTreesCacheList.extend(deleteAlignmentCacheList)
+
             deleteTreeStatsCacheList = ["assignment", "prunelevel"]
+            deleteTreeStatsCacheList.extend(deleteTreesCacheList)
+
 
             print "Checking cache for deprecated entries"
 
             for option in self.options.__dict__.keys():
 
                 # This serves to map between new and older option names:
-                prevVersionOption = option;
+                prevVersionOption = option
                 if not prevOptions.__dict__.has_key(option):
                     if option == 'assignment':
                        prevVersionOption = 'sampler'
@@ -186,19 +206,28 @@ class Initialize:
                     # Delete the homologcache for the entries in the input files:
                     print '\tHomologue and alignment cache'
                     for queryID in idList:
-                        for entry in glob.glob(os.path.join(self.options.homologcache, queryID) + '*'):
+                        for entry in glob.glob(os.path.join(self.options.homologcache, queryID) + '.*'):
                             print "\t\t" + os.path.split(entry)[-1]
                             os.remove(entry)
-                        for entry in glob.glob(os.path.join(self.options.alignmentcache, queryID) + '*'):
+                        for entry in glob.glob(os.path.join(self.options.alignmentcache, queryID) + '.*'):
                             print "\t\t" + os.path.split(entry)[-1]
                             os.remove(entry)
                     deleteHomologueCacheList = []
+
+                if option in deleteTreesCacheList and self.options.__dict__[option] != prevOptions.__dict__[prevVersionOption]:
+                    # Delete the tree statistics cache for the entries in the input files:
+                    print '\tTree sampling cache'
+                    for queryID in idList:
+                        for entry in glob.glob(os.path.join(self.options.treescache, queryID) + '.*'):
+                            print "\t\t" + os.path.split(entry)[-1]
+                            os.remove(entry)
+                    deleteTreesCacheList = []
 
                 if option in deleteTreeStatsCacheList and self.options.__dict__[option] != prevOptions.__dict__[prevVersionOption]:
                     # Delete the tree statistics cache for the entries in the input files:
                     print '\tTree statistics cache'
                     for queryID in idList:
-                        for entry in glob.glob(os.path.join(self.options.treestatscache, queryID) + '*'):
+                        for entry in glob.glob(os.path.join(self.options.treestatscache, queryID) + '.*'):
                             print "\t\t" + os.path.split(entry)[-1]
                             os.remove(entry)
                     deleteTreeStatsCacheList = []
