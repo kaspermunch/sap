@@ -1,0 +1,3 @@
+bin : executables
+src : source files
+data: example and real data files

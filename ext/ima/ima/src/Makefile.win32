@@ -1,0 +1,79 @@
+CFG=IMamp - Win32 Debug
+CPP=cl.exe
+MTL=midl.exe
+RSC=rc.exe
+LINK32=link
+
+SOURCE= \
+ima_main.c \
+build_gtree.c \
+build_poptree.c \
+calc_prob_data.c \
+ginfo.c \
+initialize.c \
+mcmcfile.c \
+multi_t_bins.c \
+output.c \
+readata.c \
+surface_call_functions.c \
+surface_search_functions.c \
+swapchains.c \
+treeprint.c \
+update_gtree.c \
+update_gtree_common.c \
+update_gtree_covar.c \
+update_mc_params.c \
+update_t_NW.c \
+update_t_RY.c \
+utilities.c \
+msdirent.c \
+updateassignment.c \
+freemem.c \
+popmig.c \
+gtint.c \
+histograms.c \
+autoc.c \
+imagsl.c
+
+# Source lines for imamp
+#msdirent.c 
+
+# Source lines for assignment
+#msdirent.c \
+#updateassignment.c \
+#imagsl.c
+
+APP      = IMamp
+EXEFILE  = $(APP).exe
+
+# for RELEASE
+#CFLAGS = /nologo /Ox /GL /W3 /EHsc /MP /D "ASSIGNMENT" /D "WIN32" /D "_RELEASE" /D "_CONSOLE" /FD 
+#CFLAGS = /nologo /Ox /GL /W3 /EHsc /MP /Wall /D "ASSIGNMENT" /D "WIN32" /D "_RELEASE" /D "_CONSOLE" /FD 
+#CFLAGS = /nologo /Ox /GL /W3 /EHsc /MP /Wall /D "WIN32" /D "_RELEASE" /D "_CONSOLE" /D "SANGCHUL" /FD 
+#CFLAGS =  /D "WIN32" /D "_RELEASE" /D "_CONSOLE"
+# for DEBUG
+#CFLAGS = /nologo /Od /MTd /Zi /ZI /GZ /RTC1 /Wall /D "ASSIGNMENT" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" 
+CFLAGS = /nologo /Od /MTd /Zi /ZI /GZ /RTC1 /D "WIN32" /D "_DEBUG" /D "_CONSOLE" 
+#CFLAGS = /nologo /Od /MTd /Zi /ZI /GZ /RTC1 /D "WIN32" /D "_DEBUG" /D "_CONSOLE" 
+# for Multithreaded
+#CFLAGS = /Ox /arch /GL /MT
+
+# for RELEASE
+#LIBFILES = kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+#LFLAGS = /nologo /subsystem:console /machine:I386 /VERSION:0.1
+# for DEBUG	
+LFLAGS = kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /DEBUG /machine:I386 /VERSION:0.1 /VERBOSE
+
+RFLAGS = /l 0x1009 /d "_DEBUG"
+
+$(EXEFILE): $(SOURCE) 
+	$(CPP) $(CFLAGS) $(SOURCE) $(LIBFILES) 
+	rename ima_main.exe $(EXEFILE)
+
+#$(CPP) $(CFLAGS) $(SOURCE) $(LIBFILES) /out:$(EXEFILE) /link $(LFLAGS) 
+
+clean:
+	del *.obj *.res *.tds *.map *.exe *.idb
+
+
+
