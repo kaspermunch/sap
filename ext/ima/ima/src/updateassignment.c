@@ -10698,6 +10698,7 @@ IMA_maxrgf (int *f, int m)
   return maxn;
 }
 
+
 void 
 IMA_align_genealogy (char *fname, int n)
 {
@@ -11065,6 +11066,10 @@ IMA_structurama_localrun (char *fname)
 }
 
 
+/*********************************************************************/
+/*                      TCP/IP not for Windows                       */
+/*********************************************************************/
+#ifndef _MSC_VER
 
 /**********************************************************************/
 /*                                                                    */
@@ -11080,6 +11085,7 @@ IMA_structurama_localrun (char *fname)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -11366,8 +11372,23 @@ IMA_structurama_run (char *fname)
   close (sockfd);
 
 }
-
 #undef PORT
 #undef HOST 
 #undef bufsize
+
+#else
+void 
+IMA_structurama_run (char *fname)
+{
+  IMA_structurama_localrun (fname);
+}
+#endif /* _MSC_VER */
+
+/*********************************************************************/
+/*                      TCP/IP not for Windows                       */
+/*********************************************************************/
+
+
+
+
 

@@ -2743,7 +2743,8 @@ int run_main (int argc, char *argv[])
   IMA_rgf_saveSaasn ();
 #endif /* COUNT_PRIOR_ASSIGNMENT */
 
-  if (assignmentoptions[POPULATIONASSIGNMENT] == 1)
+  if (assignmentoptions[POPULATIONASSIGNMENT] == 1
+      && assignmentoptions[POPULATIONASSIGNMENTASSIGNED] == 0)
   {
     IMA_align_genealogy (outfilename, treessaved);
   }
