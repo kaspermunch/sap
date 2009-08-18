@@ -223,7 +223,7 @@ int IMA_genealogy_lineages (int ci, int li, int pi, double td, int *seq);
 int IMA_genealogy_migrates (int ci, int ki, int pi); 
 int IMA_genealogy_samplepop (int ci, int li, int z, double td); 
 double likelihoodJC (int ci, int li, double u);
-int computeLk (double (*l_k)[], double u, int li, im_edge *t, int k, int si);
+int computeLk (double (*l_k)[4], double u, int li, im_edge *t, int k, int si);
 double PijJC (int i, int j, double t);
 double IMA_edge_length (im_edge *t, int ei);
 double likelihoodSWP (int ci, int li, int ai, double u);

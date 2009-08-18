@@ -1,3 +1,4 @@
+#define _MSC_VER
 #ifndef _MSC_VER
 #include "config.h"
 #endif /* _MSC_VER */

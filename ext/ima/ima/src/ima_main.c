@@ -1,3 +1,4 @@
+
 /* IMa  2007-2009  Jody Hey, Rasmus Nielsen and Sang Chul Choi*/
 /*
   IMa 2.0  recent history
@@ -520,7 +521,7 @@ no flag is followed by nothing
         break;
       case 'I':
         lenptr = strlen (pstr);
-        infilename = malloc ((lenptr + 1) * sizeof (char));
+        infilename = (char *) malloc ((lenptr + 1) * sizeof (char));
         strcpy (infilename, pstr);
         Ip = 1;
         break;
@@ -592,7 +593,7 @@ no flag is followed by nothing
         break;
       case 'O':
         lenptr = strlen (pstr);
-        outfilename = malloc ((lenptr + 1) * sizeof (char));
+        outfilename = (char *) malloc ((lenptr + 1) * sizeof (char));
         strcpy (outfilename, pstr);
         Op = 1;
         break;
@@ -667,7 +668,7 @@ no flag is followed by nothing
         if (strchr (pstr, '.') == NULL)
         {
           lenptr = strlen (pstr);
-          trueassignment = malloc ((lenptr + 1) * sizeof (char));
+          trueassignment = (char *) malloc ((lenptr + 1) * sizeof (char));
           strcpy (trueassignment, pstr);
           gbeta = 1.0;
         }
@@ -881,7 +882,7 @@ no flag is followed by nothing
 void
 print_outputfile_info_string (void)
 {
-  fpstri = malloc (sizeof (int));
+  fpstri = (int *) malloc (sizeof (int));
   *fpstri = 0;
   SP "IMa version 2.0 - Isolation with Migration Analysis  -  Jody Hey, Rasmus Nielsen, Sang Chul Choi 2009 \n\n");
   SP "\nINPUT AND STARTING INFORMATION \n");
@@ -1002,13 +1003,13 @@ void start (int argc, char *argv[])
   {
     strcpy (migplotfilename, outfilename);
     strcat (migplotfilename, ".mpt");
-    migcount = malloc ((nloci + (nloci > 1)) * sizeof (int *));
+    migcount = (int **) malloc ((nloci + (nloci > 1)) * sizeof (int *));
     for (i = 0; i < nloci + (nloci > 1); i++)
     {
-      migcount[i] = malloc (nummigrateparams * sizeof (int));
+      migcount[i] = (int *) malloc (nummigrateparams * sizeof (int));
     }
-    migfrom = malloc (nummigrateparams * sizeof (int));
-    migto = malloc (nummigrateparams * sizeof (int));
+    migfrom = (int *) malloc (nummigrateparams * sizeof (int));
+    migto = (int *) malloc (nummigrateparams * sizeof (int));
     for (i = 0; i < nummigrateparams; i++)
     {
       if (strchr (imig[i].str, ',') == NULL)    // migration parameters note done by period
@@ -1978,16 +1979,16 @@ void savetreeinfo (void)        // use floats to save space
   {
     if (cdurationmode == TIMESTEPS)
     {
-      gsampinf = malloc (treestosave * sizeof (float *));
+      gsampinf = (float **) malloc (treestosave * sizeof (float *));
       for (i = 0; i < treestosave; i++)
-        gsampinf[i] = malloc (gsampinflength * sizeof (float));
+        gsampinf[i] = (float *) malloc (gsampinflength * sizeof (float));
       memfortreessaved = treestosave;
     }
     else                        /* cdurationmode == TIMEINF */
     {
-      gsampinf = malloc (MAXTREESTOSAVE * sizeof (float *));
+      gsampinf = (float **) malloc (MAXTREESTOSAVE * sizeof (float *));
       for (i = 0; i < MAXTREESTOSAVE; i++)
-        gsampinf[i] = malloc (gsampinflength * sizeof (float));
+        gsampinf[i] = (float *) malloc (gsampinflength * sizeof (float));
       memfortreessaved = MAXTREESTOSAVE;
     }
   }
@@ -2030,8 +2031,8 @@ void loadtreevalues (void)
   SP "Base filename for loading files with sampled genealogies: %s\n", filenamewildcard);
   SP "Files loaded with sampled genealogies:\n");
   numtreefiles = 0;
-  textline = malloc (300 * sizeof (char));
-  dataline = malloc (gsampinflength * charspervalue * sizeof (char));
+textline = (char *) malloc (300 * sizeof (char));
+dataline = (char *) malloc (gsampinflength * charspervalue * sizeof (char));
   ctp = &textline[0];
   numtrees = totalnumtrees = 0;
   if ((dp = opendir (defaultdir)) == NULL)
@@ -2088,7 +2089,7 @@ void loadtreevalues (void)
     numtoload = totalnumtrees;
   numtoload = IMIN (numtoload, MAXTREESTOSAVE);
   memfortreessaved = numtoload;
-  gsampinf = malloc (numtoload * sizeof (float *));
+  gsampinf = (float **) malloc (numtoload * sizeof (float *));
   loadall = numtoload >= totalnumtrees;
   nottoload = totalnumtrees - numtoload;
   load_notload_ratio = (float) numtoload / (float) nottoload;
@@ -2133,7 +2134,7 @@ void loadtreevalues (void)
         if (loadall || (loaded == 0)
             || ((float) loaded / (float) notloaded) <= load_notload_ratio)
         {
-          gsampinf[loaded] = malloc (gsampinflength * sizeof (float));
+          gsampinf[loaded] = (float *) malloc (gsampinflength * sizeof (float));
           c = dataline;
           for (i = 0; i < gsampinflength; i++)
           {
@@ -2314,10 +2315,10 @@ void callasciicurves (void)
       if (L[li].model == HKY)
         numcurve++;
 // allocate
-  curvexy = malloc (numcurve * sizeof (struct plotpoint *));
-  curvestr = malloc (numcurve * sizeof (char *));
-  nrecstep = malloc (numcurve * sizeof (int));
-  curve_do_logplot = malloc (numcurve * sizeof (int));
+  curvexy = (struct plotpoint **)malloc (numcurve * sizeof (struct plotpoint *));
+  curvestr = (char **) malloc (numcurve * sizeof (char *));
+  nrecstep = (int *) malloc (numcurve * sizeof (int));
+  curve_do_logplot = (int *) malloc (numcurve * sizeof (int));
 // assign
   j = 0;
   if (modeloptions[SPLITTINGRATEPARAMETER] == 1)
@@ -2483,7 +2484,7 @@ printoutput (void)         // mostly calls functions in output.c
     p =
       numpopsizeparams + nummigrateparams +
       modeloptions[SPLITTINGRATEPARAMETER];
-    holdpeakloc = malloc (p * sizeof (float));
+    holdpeakloc = (float *) malloc (p * sizeof (float));
     printf ("surface calculations . . .\n");
     findmarginpeaks (outfile, holdpeakloc);
 /* not implemented
@@ -2685,7 +2686,7 @@ void check_to_record (void)
   }
 }                               // check_to_record
 
-int main (int argc, char *argv[])
+int run_main (int argc, char *argv[])
 {
 #ifdef HPDBG
   int tmpFlag = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG);

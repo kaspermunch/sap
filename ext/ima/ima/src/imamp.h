@@ -1029,15 +1029,15 @@ gextern struct i_param isplit;
 gextern double thetaprior, mprior, splitprior, tprior;
 gextern struct chain **C;       //points to an array of pointers to chains 
 //added 1/9/09 
-struct chainstate_record_updates_and_values *T;
+gextern struct chainstate_record_updates_and_values *T;
 //added 1/9/09 
-struct locus *L;
+gextern struct locus *L;
         // record for likelihood measurements
-struct value_record *lpgpd_v;
+gextern struct value_record *lpgpd_v;
   // used if outputoptions[MIGRATEHIST]
-struct value_record **migration_counts_times;
+gextern struct value_record **migration_counts_times;
 //added 3/17/09
-im_chainstate_updateonly *Cupinf;
+gextern im_chainstate_updateonly *Cupinf;
 gextern int step;
 gextern int nurates;
 gextern int numchains;

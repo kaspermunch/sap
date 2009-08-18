@@ -1,3 +1,5 @@
+#ifdef _MSC_VER
+
 /* this is only needed if _MSC_VER  is defined  */
 /* other compilers - at least GNU - should have their own dirent.h */
 
@@ -144,3 +146,4 @@ extern "C"
     But that said, if there are any problems please get in touch.
 
 */
+#endif
