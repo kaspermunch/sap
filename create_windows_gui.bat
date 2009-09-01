@@ -1,11 +1,17 @@
-REM Install python 2.5
+REM Install python 2.5 if you don't have it. I highly recommend the Enthought Python Distribution (EPD) 
+REM that comes with a lot of things that makes compiling SAP a breeze.
 REM 
-REM Add ;C:\Python25; to the path environmental variable
+REM Add ";C:\Python25;" (without the quotes) to the enf of your "path" environmental variable
 REM 
-REM Install unicode wxpython for 2.5
+REM Install ansi wxpython for 2.5
 REM 
-REM Installed py2exe for 2.5
+REM Install py2exe for 2.5
 REM 
+REM If have mingw installed (you do if you are using the Enthought Python Distribution) then just skip to where it says INSTALL USING MINGW COMPILER.
+REM If not, read below:
+REM
+REM INSTALL USING BORLAND COMPILER:
+REM
 REM Install Borland compiler 5.5 and make the necessary changes to Path and environmental
 REM variables (form the supplemental information on the website):
 REM 
@@ -87,15 +93,18 @@ REM extension needs a library (eg. foo) Distutils checks first if it finds a lib
 REM suffix _bcpp (eg. foo_bcpp.lib) and then uses this library. In the case it doesn't find
 REM such a special library it uses the default name (foo.lib.)
 REM 
-REM Install NSIS
-REM 
-REM 
-REM If you are installing the command line version of SAP on Windows do:
+REM To install the command line version of SAP do:
 REM 
 REM python setup.py setopt --command=build --option=compiler --set-value=bcpp
 REM python setup.py install
 REM 
 REM Before you can run sap from the command line you need to do the follwoing
+REM
+REM INSTALL USING MINGW COMPILER:
+REM
+REM python setup.py build -c mingw32 install
+REM
+REM AFTER YOU INSTALL:
 REM 
 REM   Add a path reference to the Environment variables:
 REM   3.  Using the mouse, right-click on the "My Computer" and choose "Properties".
@@ -109,15 +118,36 @@ REM
 REM Locate "Set Associations" using the search field in "Control Panels". Hithlight the ".py"
 REM file extension and associate it with the python executable in C:\Python25. Do the same for
 REM the ".pyc" extension.
+
+REM If you want to create a windows distribution for an unsupported version of Windows (to make SAP available to more users) install NSIS.
+REM You can then use the following commands:
 REM 
+REM Using mingw compiler:       
+REM python setup.py setopt --command=build --option=compiler --set-value=mingw32
+REM
+REM Using borland compiler:       
+REM python setup.py setopt --command=build --option=compiler --set-value=bcpp
+REM 
+REM python setup.py bdist_wininst
+REM 
+REM REM python setup.py bdist_msi
+REM 
+REM python setup.py py2exe
+REM 
+REM copy C:\Python25\lib\site-packages\wx-2.8-msw-ansi\wx\gdiplus.dll dist
+REM copy C:\Python25\lib\site-packages\wx-2.8-msw-ansi\wx\MSVCP71.dll dist
+REM 
+REM "C:\Program Files\NSIS\makensis.exe" win_installer_script.nsi
 
-copy /Y ext\barcoder\crossplatform_win.h ext\barcoder\crossplatform.h
+python setup.py setopt --command=build --option=compiler --set-value=mingw32
 
-python setup.py setopt --command=build --option=compiler --set-value=bcpp
+python setup.py bdist_wininst
+
+REM python setup.py bdist_msi
 
 python setup.py py2exe
 
-copy C:\Python25\lib\site-packages\wx-2.8-msw-unicode\wx\gdiplus.dll dist
-copy C:\Python25\lib\site-packages\wx-2.8-msw-unicode\wx\MSVCP71.dll dist
+copy C:\Python25\lib\site-packages\wx-2.8-msw-ansi\wx\gdiplus.dll dist
+copy C:\Python25\lib\site-packages\wx-2.8-msw-ansi\wx\MSVCP71.dll dist
 
 "C:\Program Files\NSIS\makensis.exe" win_installer_script.nsi
