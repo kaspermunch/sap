@@ -23,6 +23,13 @@ from SAP.Exceptions import AnalysisTerminated
 #     def __init__(self, plugin):
 #         self.plugin = plugin
 
+def killExternally():
+
+   if os.name == 'nt':
+      systemCall("takskill /F /PID " + os.getpid())
+   else:
+      os.kill(os.getpid(), signal.SIGKILL)
+
 def systemCall(cmd, stdout=None, stderr=None):
     """
     Executes a system call without a shell/CMD. Takes only single comands with no
@@ -321,6 +328,8 @@ def readFile(fileName):
     for tries in range(10):
         try:
             fp = open(fileName, "r")
+        except KeyboardInterrupt:
+           sys.exit()
         except IOError:
             time.sleep(tries * 5)
             continue
@@ -342,6 +351,8 @@ def readFileLines(fileName):
     for tries in range(10):
         try:
             fp = open(fileName, "r")
+        except KeyboardInterrupt:
+           sys.exit()
         except IOError:
             time.sleep(tries * 5)
             continue
@@ -399,6 +410,8 @@ def safeReadFastaCache(fastaFileName):
         fastaIterator = Fasta.Iterator(fastaFile)
         try:
             fastaEntry = fastaIterator.next()
+        except KeyboardInterrupt:
+           sys.exit()
         except:             
             print 'Fasta cache reading failed - retrying'
         fastaFile.close()
@@ -418,6 +431,8 @@ def safeReadTaxonomyCache(taxonomyFileName):
         taxonomyFile = open(taxonomyFileName, 'r')
         try:
             taxonomy = pickle.load(taxonomyFile)
+        except KeyboardInterrupt:
+           sys.exit()
         except:
             print 'Taxonomy cache reading failed - retrying'
         taxonomyFile.close()    
