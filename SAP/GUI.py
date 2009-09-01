@@ -755,7 +755,9 @@ class MyFrame(wx.Frame):
             copyLaterDict = {}
 
             homolcompiler = HomolCompiler(optionParser.options)
-    
+
+            inputQueryNames = {}
+
             # For each fasta file execute pipeline
             for fastaFileName in inputFiles:
     
@@ -879,14 +881,13 @@ class MyFrame(wx.Frame):
             print """
 ## SAP crached, sorry ###############################################
 Help creating a more stable program by sending the debugging informaion
-listed below to kaspermunch@gmail.com along with *.sap file in the project
-folder and the sequence input file used.
+listed below and your SAP version number to kaspermunch@gmail.com along
+with *.sap file in the project folder and the sequence input file used.
 """
             print "".join(traceback.format_tb(sys.exc_info()[2]))
             print exe
             print "#############################################################"
             raise Exception
-
     
     def onAbortButton(self, event): 
         """Abort the result computation."""
