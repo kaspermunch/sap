@@ -1,13 +1,10 @@
 #ifndef CROSSPLATFORM_H
 #define CROSSPLATFORM_H
 
-//#define WIN_PLATFORM
-
-#if defined(WIN_PLATFORM)
+#ifdef _WIN32
 
 #include <direct.h>
 #define GETCWD _getcwd
-
 #define PATH_SEPERATOR "\\"
 
 #else
