@@ -134,6 +134,8 @@ class DB:
                        print "Netblast failed with return value %d. Trying again..." % retval
                        continue
                     break
+                except KeyboardInterrupt:
+                    sys.exit()
                 except:
                     print "Netblast failed. Trying again..."
                     pass
