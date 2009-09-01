@@ -433,7 +433,8 @@ void labelgtree( int ci, int li, int edge)
 	}	older version labelgtree */
 
 /* version without recursion, suggested by Jim Long as it allows inlining of the function */
-__forceinline void
+//__forceinline
+void
 labelgtree (int ci, int li, int edge)
 {
   int dow1, sis, flag;

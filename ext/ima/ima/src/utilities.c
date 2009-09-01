@@ -338,7 +338,8 @@ expo (double c)
      return (double) - temp; */
   return -log (uniform ()) / c;
 }
-__forceinline int
+//__forceinline 
+int
 randposint (int lessthanval)    // actually should be rand_nonneg_int 
 {
   return (int) floor (uniform () * lessthanval);
@@ -348,7 +349,8 @@ randposint (int lessthanval)    // actually should be rand_nonneg_int
 #define IB1 1
 #define IB18 131072
 #define MASK 19
-__forceinline int
+//__forceinline
+int
 bitran (void)
 {
   if (*iseed & IB18)
@@ -1485,7 +1487,8 @@ IsWildcardMatch (char *wildcardString, char *stringToCheck, int caseSensitive)
 #undef TRUE
 #undef FALSE
 
-__forceinline void
+//__forceinline
+void
 checkmigt (int n, struct edge *gtree)
 {
   int cmm;
@@ -1510,7 +1513,8 @@ checkmigt (int n, struct edge *gtree)
   return;
 }
 
-__forceinline void
+//__forceinline
+void
 copymig (struct migstruct *m1, struct migstruct *m2)
 {
   m1->mp = m2->mp;
@@ -1518,7 +1522,8 @@ copymig (struct migstruct *m1, struct migstruct *m2)
 }
 
 /* realloc memory for migration arrays, as needed */
-__forceinline void
+//__forceinline
+void
 checkmig (int i, struct migstruct **mig, int *nmig)
 {
   assert (*nmig >= MIGINC);
@@ -1685,7 +1690,8 @@ bessi (int n, double x)
 /* eexp is used, generally together with struct extendnum to calculated exponentials of sums of numbers 
 that may have very large exponents */ 
 #define LOG_10_2  0.30102999566398119521
-__forceinline void
+//__forceinline
+void
 eexp (double x, double *m, int *z)
 {
   double u, zr, temp;

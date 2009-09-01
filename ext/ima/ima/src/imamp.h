@@ -10,6 +10,8 @@
 #include <assert.h>
 #include <stdarg.h>
 
+#include "crossplatform.h"
+
 // JH added 12/22/08 ,  this is a leak detection library,  only invoked in MVC++ debug mode and if vld is installed
 #ifdef _MSC_VER 
 #  ifdef _DEBUG
