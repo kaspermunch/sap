@@ -10,6 +10,19 @@ from SAP.Bio.Nexus import Nexus
 import Barcoder
 from SAP.UtilityFunctions import *
 
+class Error(Exception):
+    """
+    Base class for exceptions in this module.
+    """
+    pass
+
+class AssignmentError(Error):
+    """
+    Exception raised when assignment fails.
+    """
+    def __init__(self, message):
+        self.message = message
+
 class Assignment:
 
     def __init__(self, options):
@@ -98,8 +111,8 @@ class Assignment:
             cmd = "bc1 -i %s -c %s -o %s -l %d -p %d -s %d" % (phylipFileName, constraintsFileName, outputPrefix,
                                                                chainLength, printFreq, sampleFreq)
             arguments = cmd.split(' ')
-            
-            retval = Barcoder.runprogram(arguments, outputPrefix)
+            retval = Barcoder.runprogram([str(x) for x in arguments], str(outputPrefix))
+            #retval = Barcoder.runprogram(arguments, outputPrefix)
 
             ## outFile = os.path.join(tmpDirName, baseName + ".out")
             ## retval = os.system("bc1 -i %s -c %s -o %s -l %d -p %d -s %d &> %s" % (phylipFileName, constraintsFileName, outputPrefix,
@@ -126,8 +139,16 @@ class Assignment:
                shutil.move(outputPrefix + '.tree', self.options.treescache)
                print "Sampler: %s failed. Output files moved to trees cache for inspection" % self.name
 
-            # Remove the tempfiles:
-            shutil.rmtree(tmpDirName)
+#             # Remove the tempfiles:
+#             shutil.rmtree(tmpDirName)
+            for tries in range(3):
+               try:
+                  # Remove the tempfiles:
+                  shutil.rmtree(tmpDirName)
+               except:
+                  time.sleep(tries * 5)
+                  continue
+               break
 
             print "done."
             sys.stdout.flush()
