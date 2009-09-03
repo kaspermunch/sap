@@ -6,6 +6,7 @@ UninstPage instfiles
 Name SAP
 LicenseText "SAP is distributed under the GNU Public License" "Install SAP"
 
+
 !define UninstLog "uninstall.log"
 Var UninstLog
  
@@ -77,10 +78,11 @@ SectionEnd
 ############################################################################
 
 # define name of installer
-outFile "SAP installer.exe"
+outFile ".\dist\SAP installer.exe"
 
 # define installation directory
-installDir $DESKTOP\test_installation
+#installDir $DESKTOP\test_installation
+installDir "C:\Program Files\SAP"
 
 Section "Install Main"
 SectionIn RO
@@ -115,7 +117,6 @@ SectionIn RO
  ${File} "dist\" "wxmsw28uh_adv_vc.dll"
  ${File} "dist\" "wxmsw28uh_core_vc.dll"
  ${File} "dist\" "wxmsw28uh_html_vc.dll"
-
 
  # create a shortcut named "new shortcut" in the start menu programs directory
  # point the new shortcut at the program uninstaller

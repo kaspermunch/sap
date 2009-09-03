@@ -572,6 +572,8 @@ class MyFrame(wx.Frame):
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
 
+#         self.Bind(wx.EVT_WINDOW_DESTROY, self.OnWindowDestroy)
+
         self.webSite = "http://ib.berkeley.edu/labs/slatkin/munch/StatisticalAssignmentPackage.html"
         # Frame title
         self.SetTitle("Statistical Assignment Package")
@@ -583,6 +585,11 @@ class MyFrame(wx.Frame):
         # 1st menu from left
         menu1 = wx.Menu()
         menu1.Append(102, "Open existing project\tCtrl+O")
+
+        # Add a custum menu item for quit: - Maybe implement all of the menus this way instead of using the numbers and binding at the end....
+        item = menu1.Append(wx.ID_EXIT, text = "&Exit")
+        self.Bind(wx.EVT_MENU, self.onQuit, item)
+
         # Add menu to the menu bar
         menuBar.Append(menu1, "File")
         # Shortcuts
@@ -673,7 +680,8 @@ class MyFrame(wx.Frame):
         frameSizer.Fit(self)
 
         self.Layout()
-    
+
+
     def openProject(self, evt):
 
         if self.abortB.IsEnabled():
@@ -710,17 +718,23 @@ class MyFrame(wx.Frame):
 
         dlg.Destroy()
 
+    def onQuit(self, evt):
+       
+        dlg = wx.MessageDialog(self, "Sure you want to quit?", "Quit SAP", wx.YES_NO | wx.ICON_QUESTION)
+        
+        if dlg.ShowModal() == wx.ID_YES:
+            dlg.Destroy()
+            self.Destroy() # frame
+            # Kill externally by calling SIGKILL or what that corresponds to on windows:
+            killExternally()
+        else:
+           dlg.Destroy()
+          
     def OnWindowDestroy(self, evt):
-
-       if self.abortB.IsEnabled():
-          dlg = wx.MessageDialog(self, "Want to exit?", "Exit", wx.YES_NO | wx.ICON_QUESTION)
-
-          if dlg.ShowModal() == wx.ID_YES:
-             self.Close(True)
-             self.Destroy() # frame
-       else:
-          self.Close(True)
-
+        # Kill externally by calling SIGKILL or what that corresponds to on windows:
+        killExternally()
+          
+ 
     def _resultProducer(self, jobID, abortEvent, inputFiles):
 
         try:
@@ -757,7 +771,7 @@ class MyFrame(wx.Frame):
             homolcompiler = HomolCompiler(optionParser.options)
 
             inputQueryNames = {}
-
+    
             # For each fasta file execute pipeline
             for fastaFileName in inputFiles:
     
@@ -888,6 +902,7 @@ with *.sap file in the project folder and the sequence input file used.
             print exe
             print "#############################################################"
             raise Exception
+
     
     def onAbortButton(self, event): 
         """Abort the result computation."""

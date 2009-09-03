@@ -3,6 +3,8 @@
 
 #ifdef _WIN32
 
+#define _MSC_VER
+
 #include <direct.h>
 #define GETCWD _getcwd
 #define PATH_SEPERATOR "\\"

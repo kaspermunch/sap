@@ -1,0 +1,5 @@
+
+
+swig -c++ -python IM.i
+
+
