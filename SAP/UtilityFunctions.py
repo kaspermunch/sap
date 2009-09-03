@@ -35,7 +35,7 @@ def systemCall(cmd, stdout=None, stderr=None):
     Executes a system call without a shell/CMD. Takes only single comands with no
     redirection or ';' chars. Used where we don't want CMD to pop up on windows.
     """
-    if os.name == 'nt':
+    if os.name in ('nt', 'dos'):
         null = 'nul'
     else:
         null = '/dev/null'
@@ -51,20 +51,29 @@ def systemCall(cmd, stdout=None, stderr=None):
        STARTUPINFO = subprocess.STARTUPINFO()
        STARTUPINFO.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-    cmdlist = re.split(r'\s+', cmd)
-    
+    cmdlist = re.findall(r'".*?"|\'.*?\'|\S+', cmd)
+    cmdlist = [x.replace('"', '').replace("'", '') for x in cmdlist]
+
     try:
         retcode = subprocess.call(cmdlist, shell=False, env=os.environ, stdout=stdout, stderr=stderr, startupinfo=STARTUPINFO)
-        if retcode < 0:
-            print 'System call "%s" was terminated with return code' % cmd, -retcode
-            return False
+        if os.name in ('nt', 'dos'):           
+            # retcode is apparently allways 0 on Windows 95 and 98 so we return None:
+            error = None
         else:
-            return retcode
+            if retcode < 0: # only on Unix
+                print 'System call "%s" was terminated with return code' % cmd, -retcode
+                error = True
+            elif retcode != 0:
+                print 'System call "%s" return code %d' % cmd, retcode
+                error = True
+            else:
+                error = False
+
     except OSError, e:
         print 'System call "%s" failed:' % cmd, e
-
-    stdout.close()
-    stderr.close()
+        error = True
+        
+    return error
 
 def pairwiseClustalw2(id1, sequence1, id2, sequence2):
     """

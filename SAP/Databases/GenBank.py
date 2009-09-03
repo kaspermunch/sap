@@ -127,12 +127,17 @@ class DB:
 
             for i in range(20):
                 time.sleep(2 * i)
+                error = utils.systemCall(blastCmd)
                 try:
-                    #os.system(blastCmd)
-                    retval = os.system(blastCmd)
-                    if retval != 0:
-                       print "Netblast failed with return value %d. Trying again..." % retval
+
+#                     retval = os.system(blastCmd)
+#                     if retval != 0:
+#                        print "Netblast failed with return value %d. Trying again..." % retval                   
+                    error = utils.systemCall(blastCmd)
+                    if error or not os.path.exists(blastFileName) or os.path.getsize(blastFileName) == 0:
+                       print "Netblast failed. Trying again..."
                        continue
+
                     break
                 except KeyboardInterrupt:
                     sys.exit()
