@@ -257,7 +257,7 @@ def getPackage(name, packageRE, ftpURL=None, ftpDir=None, guiParent=None):
         failiure(guiParent=guiParent, errorNr=1)
 
     # Download package:
-    download = Download(maxValue=100, totalWidth=150, guiParent=guiParent)
+    download = Download(maxValue=100, totalWidth=80, guiParent=guiParent)
     tmpDirName, tmpFileName, success = download.downloadURL(releases[platform])
     if not success:
         failiure(guiParent=guiParent, errorNr=2)
