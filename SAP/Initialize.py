@@ -48,8 +48,10 @@ class Initialize:
         if not os.path.exists(self.options.datadir):
             os.makedirs(self.options.datadir)
 
-    def fixAndMoveInput(self, files):
+    def fixAndMoveInput(self, files, outputDir=None):
 
+        if not outputDir:
+           outputDir = self.options.datadir
 
         allowedLetters = IUPAC.IUPACAmbiguousDNA().letters
 
@@ -76,7 +78,7 @@ class Initialize:
 #                sys.exit()
 
             fileContent = re.sub(r'\r+', '\n', fileContent)
-            tmpOutputFileName = os.path.join(self.options.datadir, "%s.tmp" % os.path.split(inputFileName)[-1])
+            tmpOutputFileName = os.path.join(outputDir, "%s.tmp" % os.path.split(inputFileName)[-1])
             writeFile(tmpOutputFileName, fileContent)
 
             usedIDs = {}
@@ -87,7 +89,7 @@ class Initialize:
             if re.match(r'\d', newOutputFileBaseName):
                newOutputFileBaseName = 'n' + newOutputFileBaseName
 
-            outputFileName = os.path.join(self.options.datadir, newOutputFileBaseName)
+            outputFileName = os.path.join(outputDir, newOutputFileBaseName)
 
             baseName = os.path.splitext(os.path.basename(outputFileName))[0]
             sequenceNameMap[baseName] = {}

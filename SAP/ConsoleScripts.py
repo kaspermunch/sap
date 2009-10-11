@@ -85,7 +85,7 @@ def sap():
                 try:
                     assignment.run(alignmentFileName)
                 except plugin.AssignmentError, X:
-                    print X.message
+                    print X.msg
 
         elif options._stats:
             treeStatistics = TreeStatistics(options)
@@ -286,7 +286,7 @@ def sap():
     except SystemExit, exitVal:
         sys.exit(exitVal)
     except AnalysisTerminated, exe:
-        print "\n\n", exe.message
+        print "\n\n", exe.msg
         sys.exit(exe.exitValue)
 #     #########################
 #     except IOError, exe:

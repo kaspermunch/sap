@@ -85,6 +85,13 @@ class DB(object):
         if not os.path.exists(self.dbDirName):
             os.mkdir(self.dbDirName)
 
+        # Write a newline char version to a tmp file:
+        fileContent = readFile(self.fastaFileName)
+        fileContent = re.sub(r'\r+', '\n', fileContent)
+        tmpFile, tmpFileName = tempfile.mkstemp()
+        writeFile(tmpFileName, fileContent)
+        self.fastaFileName = tmpFileName
+
         # Create a new shelve:
         db = shelve.open(self.dbFileName, 'n')
 
@@ -119,18 +126,12 @@ class DB(object):
                 try:
                     identifier, taxonomyString, organismName = re.split(r'\s*;\s*', fastaRecord.title)
                 except ValueError:
-                    if self.options.strictlylocal:
-                        raise AnalysisTerminated(1, 'Wrongly formatted header of local database entry:\n%s' % fastaRecord.title)
-                    else:
-                        raise WrongFormatError(fastaRecord.title)
+                    raise WrongFormatError(fastaRecord.title)
                 identifier.strip()
                 taxonomyString.strip()
                 organismName.strip()
                 if not (identifier and taxonomyString and organismName):
-                    if self.options.strictlylocal:
-                        raise AnalysisTerminated(1, 'Wrongly formatted header of local database entry:\n%s' % fastaRecord.title)
-                    else:
-                        raise WrongFormatError(fastaRecord.title)
+                    raise WrongFormatError(fastaRecord.title)
                 fastaRecord.title = identifier        
                 taxonomy.populateFromString(taxonomyString)
                 taxonomy.organism = organismName
@@ -207,6 +208,10 @@ class DB(object):
         # Syncronize shelve:
         db.sync()
         db.close()
+
+        # remove tmp files:
+        os.close(tmpFile)
+        os.unlink(tmpFileName)
 
         # Close the fasta file:
         fastaFile.close()
@@ -318,11 +323,8 @@ a:hover {
 
         cmd = self.escape(cmd)
 
-        stdin, stdout, stderr = os.popen3(cmd)            
-        stdout.close()
-        stdin.close()
-        stderr.close()             
-
+        systemCall(cmd, stdout='IGNORE', stderr='IGNORE')
+                
         # Make sure all the files have been written:
         import glob, time
         tries = 5
@@ -381,10 +383,7 @@ a:hover {
                 tmpFastaFile.close()
                 cmd = "xdformat -n -o %s %s" % (blastDBfileName, blastDBfileName)
                 cmd = self.escape(cmd)
-                stdin, stdout, stderr = os.popen3(cmd)
-                stdout.close()
-                stdin.close()
-                stderr.close()             
+                systemCall(cmd, stdout='IGNORE', stderr='IGNORE')
             else:
                 blastDBfileName = self.blastDB
             
@@ -400,16 +399,26 @@ a:hover {
                 cmd = "blastall %s -e %f -p blastn -d %s.fasta -i %s -m 7" % (wordSize, self.options.minsignificance, blastDBfileName, tmpQueryFileName)
             cmd = self.escape(cmd)
 
-            stdin, stdout, stderr = os.popen3(cmd)
+
+            STARTUPINFO = None
+            if os.name == 'nt':
+                STARTUPINFO = subprocess.STARTUPINFO()
+                STARTUPINFO.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            proc = subprocess.Popen(cmd, shell=True, startupinfo=STARTUPINFO,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout_value, stderr_value = proc.communicate()
+            blastContent = str(stdout_value)
+
+#            stdin, stdout, stderr = os.popen3(cmd)             
 
             for f in glob.glob('tmpBlastDB.*'):
                 os.remove(f)
 
-            blastContent = stdout.read()
-
-            stdout.close()
-            stdin.close()
-            stderr.close()
+#             blastContent = stdout.read()
+# 
+#             stdout.close()
+#             stdin.close()
+#             stderr.close()
 
             # This is a hack to remove an xml tag that just confuses things with blastn:
             if not self.got_wublast:

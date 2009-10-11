@@ -22,7 +22,7 @@ class AssignmentError(Error):
     Exception raised when assignment fails.
     """
     def __init__(self, message):
-        self.message = message
+        self.msg = message
 
 class Assignment:
 

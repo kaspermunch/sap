@@ -820,7 +820,7 @@ class MyFrame(wx.Frame):
                         try:
                            assignment.run(os.path.join(optionParser.options.alignmentcache, homologyResult.alignmentFileName))
                         except assignmentPlugin.AssignmentError, X:
-                           print X.message
+                           print X.msg
     
                         if abortEvent():
                             return jobID
@@ -886,7 +886,7 @@ class MyFrame(wx.Frame):
             sys.exit(exitVal)
         except AnalysisTerminated, exe:
             print "#####################################################################"
-            print exe.message
+            print exe.msg
             print "#####################################################################"
             raise Exception
         except delayedresult.AbortedException:           

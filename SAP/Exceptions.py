@@ -17,4 +17,4 @@ class AnalysisTerminated(Error):
     """
     def __init__(self, exitValue, message):
         self.exitValue = exitValue
-        self.message = message
+        self.msg = message
