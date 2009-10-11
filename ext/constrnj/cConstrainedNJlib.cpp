@@ -281,7 +281,7 @@ K2Pstats k2pStats(int i, int j) {
   int alignedBases = alignmentLength - extraGaps - indels - uninformative;
   
   if (alignedBases < minPairAlnBases) {
-    freeExternMemmory();
+//     freeExternMemmory();
     throw TooFewAlnBasesError;
   }
 
