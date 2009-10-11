@@ -2,13 +2,14 @@
 import os, random, copy, sys, re, math
 from SAP.Bio.Nexus import Nexus
 
-try:
-    # Use the fast C++ implementation:
-    from cConstrainedNJlib import computeTree, initialize
-except:
-    # Fall back on the python implementation:
-    print "WARNING: C++ version of ConstrainedNJlib not found. Using the slower python implementation."
-    from ConstrainedNJlib import computeTree, initialize
+from cConstrainedNJlib import computeTree, initialize
+# try:
+#     # Use the fast C++ implementation:
+#     from cConstrainedNJlib import computeTree, initialize
+# except:
+#     # Fall back on the python implementation:
+#     print "WARNING: C++ version of ConstrainedNJlib not found. Using the slower python implementation."
+#     from ConstrainedNJlib import computeTree, initialize
 
 class Error(Exception):
     """
@@ -65,7 +66,7 @@ class ConstrainedNJ(object):
             self.constraintList = [" ".join(x) for x in self.constraintList]
             self.origConstraintList = copy.deepcopy(self.constraintList)  # extra copy for safe keeping
 
-        initialize(int(self.alignmentLength/2))
+        initialize(int(self.alignmentLength))
 
     def constraintPartitions(self, tree, nodeID, partList=[]):
         """
