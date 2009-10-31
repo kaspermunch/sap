@@ -61,10 +61,10 @@ def systemCall(cmd, stdout=None, stderr=None):
             error = None
         else:
             if retcode < 0: # only on Unix
-                print 'System call "%s" was terminated with return code' % cmd, -retcode
+                print 'System call "%s" was terminated with return code %d' % (cmd, -retcode)
                 error = True
             elif retcode != 0:
-                print 'System call "%s" return code %d' % cmd, retcode
+                print 'System call "%s" return code %d' % (cmd, retcode)
                 error = True
             else:
                 error = False
