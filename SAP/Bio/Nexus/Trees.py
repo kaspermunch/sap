@@ -14,7 +14,7 @@
 # Bug reports welcome: fkauff@duke.edu
 #
 
-import sys, random, sets
+import sys, random
 import Nodes
 
 PRECISION_BRANCHLENGTH=6
@@ -268,7 +268,7 @@ class Tree(Nodes.Chain):
         if self.node(node).succ==[]:
             return self.node(node).data.taxon
         else:
-            return sets.Set([self.set_subtree(n) for n in self.node(node).succ])
+            return set([self.set_subtree(n) for n in self.node(node).succ])
             
     def is_identical(self,tree2):
         """Compare tree and tree2 for identity.
@@ -284,18 +284,18 @@ class Tree(Nodes.Chain):
         """
 
         # check if both trees have the same set of taxa. strict=True enforces this.
-        missing2=sets.Set(self.get_taxa())-sets.Set(tree2.get_taxa())
-        missing1=sets.Set(tree2.get_taxa())-sets.Set(self.get_taxa())
+        missing2=set(self.get_taxa())-set(tree2.get_taxa())
+        missing1=set(tree2.get_taxa())-set(self.get_taxa())
         if strict and (missing1 or missing2):
             if missing1: 
                 print 'Taxon/taxa %s is/are missing in tree %s' % (','.join(missing1) , self.name)
             if missing2:
                 print 'Taxon/taxa %s is/are missing in tree %s' % (','.join(missing2) , tree2.name)
             raise TreeError, 'Can\'t compare trees with different taxon compositions.'
-        t1=[(sets.Set(self.get_taxa(n)),self.node(n).data.support) for n in self.all_ids() if \
+        t1=[(set(self.get_taxa(n)),self.node(n).data.support) for n in self.all_ids() if \
             self.node(n).succ and\
             (self.node(n).data and self.node(n).data.support and self.node(n).data.support>=threshold)]
-        t2=[(sets.Set(tree2.get_taxa(n)),tree2.node(n).data.support) for n in tree2.all_ids() if \
+        t2=[(set(tree2.get_taxa(n)),tree2.node(n).data.support) for n in tree2.all_ids() if \
             tree2.node(n).succ and\
             (tree2.node(n).data and tree2.node(n).data.support and tree2.node(n).data.support>=threshold)]
         conflict=[]
@@ -333,17 +333,17 @@ class Tree(Nodes.Chain):
         result = is_monophyletic(self,taxon_list)
         """
         if isinstance(taxon_list,str):
-            taxon_set=sets.Set([taxon_list])
+            taxon_set=set([taxon_list])
         else:
-            taxon_set=sets.Set(taxon_list)
+            taxon_set=set(taxon_list)
         node_id=self.root
         while 1:
-            subclade_taxa=sets.Set(self.get_taxa(node_id))
+            subclade_taxa=set(self.get_taxa(node_id))
             if subclade_taxa==taxon_set:                                        # are we there?
                 return node_id
             else:                                                               # check subnodes
                 for subnode in self.chain[node_id].succ:
-                    if sets.Set(self.get_taxa(subnode)).issuperset(taxon_set):  # taxon_set is downstream
+                    if set(self.get_taxa(subnode)).issuperset(taxon_set):  # taxon_set is downstream
                         node_id=subnode
                         break   # out of for loop
                 else:
@@ -625,14 +625,14 @@ def consensus(trees, threshold=0.5,outgroup=None):
     max_support=trees[0].max_support
     clades={}
     #countclades={}
-    alltaxa=sets.Set(trees[0].get_taxa())
+    alltaxa=set(trees[0].get_taxa())
     # calculate calde frequencies
     c=0
     for t in trees:
         c+=1
         #if c%50==0:
         #    print c
-        if alltaxa!=sets.Set(t.get_taxa()):
+        if alltaxa!=set(t.get_taxa()):
             raise TreeError, 'Trees for consensus must contain the same taxa'
         t.root_with_outgroup(outgroup=outgroup)
         for st_node in t._walk(t.root):
@@ -657,7 +657,7 @@ def consensus(trees, threshold=0.5,outgroup=None):
     for (c,s) in clades.items():
         node=Nodes.Node(data=dataclass())
         node.data.support=s
-        node.data.taxon=sets.Set(eval(c))
+        node.data.taxon=set(eval(c))
         consensus.add(node)
     # set root node data
     consensus.node(consensus.root).data.support=None
