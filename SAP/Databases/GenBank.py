@@ -37,15 +37,18 @@ class DB:
     def __init__(self, options):
         self.options = options
         self.prevExcludeList = None
+        self.prevQueryName = None
         
     def search(self, fastaRecord, excludelist=[]):
 
         # Check that we get a new exclude list for every blast:
-        if self.prevExcludeList is not None and excludelist == self.prevExcludeList:
+        if self.prevExcludeList is not None and excludelist == self.prevExcludeList and fastaRecord.title == self.prevQueryName:
             # Seems we are running in circles.
+            print self.prevExcludeList, excludelist
             return None
         else:
            self.prevExcludeList = excludelist
+           self.prevQueryName = fastaRecord.title
            
         # Get a blast record:
         useBlastCache = True
