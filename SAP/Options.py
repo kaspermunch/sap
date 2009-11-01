@@ -17,7 +17,7 @@ groups represented in an annotated sequence database.
 
 Type 'sap --onlinehelp' to open the online manual in your default browser."""
 
-        self.parser = OptionParser(usage=usage, version="%prog 1.0.10")
+        self.parser = OptionParser(usage=usage, version="%prog 1.0.11")
 
         # General options:
         self.parser.add_option("--onlinehelp",
