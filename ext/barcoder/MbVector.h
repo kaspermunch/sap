@@ -39,6 +39,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
+#include <cstring>
 
 /*!
  * MrBayes templated vector type. We used the Template Numerical Toolkit

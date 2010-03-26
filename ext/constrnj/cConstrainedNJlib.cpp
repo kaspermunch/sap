@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 #include <list>
-#include <cstring>
+#include <cstdlib>
 #include <limits>
 #include <exception>
 

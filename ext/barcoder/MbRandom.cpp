@@ -34,7 +34,7 @@
 #include <cmath>
 #include <ctime>
 #include <iostream>
-
+#include <cstdio>
 #include "MbRandom.h"
 #include "MbVector.h"
 

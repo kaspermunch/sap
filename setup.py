@@ -14,7 +14,7 @@ if sys.version < '2.4':
 
 guiscript = 'SAP/GUI.py'
 
-version = "1.0.11"
+version = "1.0.12"
 
 if sys.platform == 'darwin':
     # Cross-platform applications generally expect sys.argv to be used for opening files:

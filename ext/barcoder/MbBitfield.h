@@ -34,7 +34,7 @@
 #define MbBitfield_H
 
 #include <iostream>
-
+#include <limits.h>
 /*!
  * This is a class for bitfields. It stores the bits
  * in unsigned long ints.
