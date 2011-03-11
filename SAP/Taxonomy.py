@@ -1380,7 +1380,7 @@ class TaxonomySummary:
 
         if mostProbableNames == None:
             #mostProbableNames = {'class':{}, 'order':{}, 'family':{}, 'genus':{}, 'species':{}, 'subspecies':{}}
-            mostProbableNames = {'class':{}, 'order':{}, 'family':{}, 'genus':{}, 'species':{}}
+            mostProbableNames = {'phylum':{}, 'class':{}, 'order':{}, 'family':{}, 'genus':{}, 'species':{}}
 
         for key in self.dict.keys():
             count = 0
@@ -1389,6 +1389,10 @@ class TaxonomySummary:
             probability = 1.00
             if self.count != 0:
                 probability = baseProb*float(count)/float(self.count)
+
+            if self.level == 'phylum' and ((len(mostProbableNames['phylum']) == 0) or
+                                         (probability > mostProbableNames['phylum']['probability'])):
+                mostProbableNames['phylum'] = {'name':key, 'probability':probability}
 
             if self.level == 'class' and ((len(mostProbableNames['class']) == 0) or
                                          (probability > mostProbableNames['class']['probability'])):
