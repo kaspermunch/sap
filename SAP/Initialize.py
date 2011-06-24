@@ -35,16 +35,18 @@ class Initialize:
             os.makedirs(self.options.treescache)
         if not os.path.exists(self.options.treestatscache):
             os.makedirs(self.options.treestatscache)
-        if not os.path.exists(self.options.treestatscache + '/errorLogs'):
-            os.makedirs(self.options.treestatscache + '/errorLogs')
+        if not os.path.exists(os.path.join(self.options.treestatscache, 'errorLogs')):
+            os.makedirs(os.path.join(self.options.treestatscache, 'errorLogs'))
         if not os.path.exists(self.options.resultdir):
             os.makedirs(self.options.resultdir)
-        if not os.path.exists(self.options.resultdir + '/clones'):
-            os.makedirs(self.options.resultdir + '/clones')
-        if not os.path.exists(self.options.resultdir + '/stats'):
-            os.makedirs(self.options.resultdir + '/stats')
+        if not os.path.exists(os.path.join(self.options.resultdir, 'clones')):
+            os.makedirs(os.path.join(self.options.resultdir, 'clones'))
+        if not os.path.exists(os.path.join(self.options.resultdir, 'stats')):
+            os.makedirs(os.path.join(self.options.resultdir, 'stats'))
         if not os.path.exists(self.options.statsdir):
             os.makedirs(self.options.statsdir)
+        if not os.path.exists(os.path.join(self.options.statsdir, 'IMa')):
+            os.makedirs(os.path.join(self.options.statsdir, 'IMa'))
         if not os.path.exists(self.options.datadir):
             os.makedirs(self.options.datadir)
 
