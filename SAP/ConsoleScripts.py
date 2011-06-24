@@ -22,6 +22,8 @@ from SAP.UtilityFunctions import *
 from SAP.FindPlugins import *
 from SAP.InstallDependencies import assertNetblastInstalled, assertClustalw2Installed, assertBlastInstalled
 
+from SAP.PostAnalysis import IMa
+
 from SAP.Exceptions import AnalysisTerminated
 
 def sap():
@@ -71,7 +73,7 @@ def sap():
             try:
                 plugin = findPlugin(options.alignment, 'sap.alignment')
             except PluginNotFoundError, X:
-                print "The plugin or file %s was not found." % X.plugin
+                raise AnalysisTerminated(1, "The plugin or file %s was not found." % X.plugin)
             aligner = plugin.Aligner(options)
             for fastaFileName in args:
                 aligner.align(fastaFileName)
@@ -79,7 +81,7 @@ def sap():
             try:
                 plugin = findPlugin(options.assignment, 'sap.assignment')
             except PluginNotFoundError, X:
-                print "The plugin or file %s was not found." % X.plugin
+                raise AnalysisTerminated(1, "The plugin or file %s was not found." % X.plugin)
             assignment = plugin.Assignment(options)
             for alignmentFileName in args:
                 try:
@@ -90,6 +92,13 @@ def sap():
         elif options._stats:
             treeStatistics = TreeStatistics(options)
             treeStatistics.runTreeStatistics(args, generateSummary=False)
+
+            #######################################
+            if options.ghostpopulation:
+                ima = IMa.Assignment(options)
+                ima.run(args)
+            #######################################
+            
         else:
 
             # Check that netblast and clustalw2 are installed:
@@ -178,7 +187,7 @@ def sap():
                 inputQueryNames[fastaFileBaseName] = {}
                     
                 for fastaRecord in fastaIterator:
-                    
+                    #break
                     #homolcompiler = HomolCompiler(options)
     
                     # Discard the header except for the first id word:
@@ -223,7 +232,7 @@ def sap():
                         cmd += "%s %s --_stats %s" % ('sap', optionStr, os.path.join(options.homologcache, homologyResult.homologuesPickleFileName))
 
                         cmd = cmd.replace('(', '\(').replace(')', '\)')
-    
+                        
                         if options.hostfile or options.sge:
                             try:
                                 pool.enqueue(cmd)
@@ -253,7 +262,7 @@ def sap():
                 # Output current status of parallel jobs
                 poolStatus(pool)
                 print "\tPool closed"
-    
+
             # Make dictionary to map doubles the ones analyzed:
             doubleToAnalyzedDict = {}
             for k, l in copyLaterDict.items():
@@ -275,7 +284,7 @@ def sap():
             treeStatistics = TreeStatistics(options)
             treeStatistics.runTreeStatistics(args, generateSummary=True, doubleToAnalyzedDict=doubleToAnalyzedDict, inputQueryNames=inputQueryNames)
             print "done"
-    
+
             # Make HTML output:
             print '\tGenerating HTML output...'
     
@@ -296,14 +305,14 @@ def sap():
 #     #########################
     except Exception, exe: 
         print """
-## SAP crashed, sorry ###############################################
-Help creating a more stable program by sending the debugging informaion
-listed below and your SAP version number to kaspermunch@gmail.com along
+## SAP crashed, sorry ###################################################
+Help creating a more stable program by sending all the debugging information
+between the lines and your SAP version number to kaspermunch@gmail.com along
 with *.sap file in the project folder and the sequence input file used.
 """
         print "".join(traceback.format_tb(sys.exc_info()[2]))
         print exe
-        print "#####################################################################"
+        print "#########################################################################"
 
 
 if __name__ == "__main__":
