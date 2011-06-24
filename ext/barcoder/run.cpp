@@ -9,6 +9,8 @@
 #include "parm_tree.h"
 
 #include <cstdio>
+#include <cstdlib> 
+#include <cstring>
 
 using namespace std;
 
