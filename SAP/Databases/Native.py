@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import sys, os, re, shelve, tempfile, StringIO
-from sets import Set
 from SAP import Fasta, Taxonomy, Homology
 from SAP.Bio.Alphabet import IUPAC
 from SAP.InstallDependencies import assertBlastInstalled
@@ -124,12 +123,9 @@ class DB(object):
                 # See if we can get the taxonomy form the fasta title line as we are supposed to:
                 taxonomy = Taxonomy.Taxonomy()                        
                 try:
-                    identifier, taxonomyString, organismName = re.split(r'\s*;\s*', fastaRecord.title)
+                    identifier, taxonomyString, organismName = re.split(r'\s*;\s*', fastaRecord.title.strip())
                 except ValueError:
                     raise WrongFormatError(fastaRecord.title)
-                identifier.strip()
-                taxonomyString.strip()
-                organismName.strip()
                 if not (identifier and taxonomyString and organismName):
                     raise WrongFormatError(fastaRecord.title)
                 fastaRecord.title = identifier        
@@ -191,7 +187,7 @@ class DB(object):
 
             # Create a database entry:
             db[str(fastaRecord.title)] = {'fastaRecord': fastaRecord,
-                                   'taxonomy': taxonomy}
+                                          'taxonomy': taxonomy}
 
             # Write the sequence without gaps to the blast file:
             fastaRecord.sequence = fastaRecord.sequence.replace('-', '')
@@ -374,7 +370,7 @@ a:hover {
                 excludeIDs = []
                 for taxon in excludelist:
                     excludeIDs.extend(self.index[taxon])
-                includeIDs = Set(self.db.keys()).difference(excludeIDs)
+                includeIDs = set(self.db.keys()).difference(excludeIDs)
 
                 blastDBfileName = "tmpBlastDB.fasta"
                 tmpFastaFile = open(blastDBfileName, 'w')
