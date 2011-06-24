@@ -353,7 +353,10 @@ def getPackageDict(name, packageRE, ftpURL, ftpDir):
     sys.stderr.write('Fetching %s package list...' % name)
     sys.stderr.flush()
 
-    ftp = ftplib.FTP(ftpURL)
+    try:
+        ftp = ftplib.FTP(ftpURL)
+    except:
+        raise AnalysisTerminated(1, "FTP connection failed. Make sure you are connected to the internet.")
     ftp.login()
     dirList = ftp.nlst(ftpDir)
     ftp.quit()
@@ -565,6 +568,11 @@ def installClustalw2OnPosix(tmpDirName, tmpFileName, guiParent=None):
     if sys.platform == 'darwin':
         # Unpack the disk image and move the executable to the install dir:
         fail = os.system('open -g -a DiskImageMounter %s' % tmpFileName)
+
+        # Hack to for OSX 10.4 where open does not have the -g option:
+        if fail == 256:
+            fail = os.system('open -a DiskImageMounter %s' % tmpFileName)
+                
         if fail:
             return False
         while not glob.glob('/Volumes/clustalw-*/clustalw-*/clustalw2'):
