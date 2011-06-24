@@ -37,15 +37,18 @@ class DB:
     def __init__(self, options):
         self.options = options
         self.prevExcludeList = None
+        self.prevQueryName = None
         
     def search(self, fastaRecord, excludelist=[]):
 
         # Check that we get a new exclude list for every blast:
-        if self.prevExcludeList is not None and excludelist == self.prevExcludeList:
+        if self.prevExcludeList is not None and excludelist == self.prevExcludeList and fastaRecord.title == self.prevQueryName:
             # Seems we are running in circles.
+            print self.prevExcludeList, excludelist
             return None
         else:
            self.prevExcludeList = excludelist
+           self.prevQueryName = fastaRecord.title
            
         # Get a blast record:
         useBlastCache = True
@@ -72,6 +75,15 @@ class DB:
         """
         Blast against genbank over web
         """
+        
+        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+        if self.options.ONEMISSING:
+           orig_limit_query = self.options.limitquery
+           genus, species = re.search(r'_([^_]+)_([^_]+)$', fastaRecord.title).groups()
+           self.options.limitquery = "barcode[keyword] NOT %s %s[ORGN]" % (genus, species)
+           print "REFORMATTING LIMIT QUERY TO", self.options.limitquery
+        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+
 
         # Make a query to filter the returned results:
         if excludelist:
@@ -79,6 +91,11 @@ class DB:
         else:
             entrezQuery = '(' + self.options.limitquery + ') NOT uncultured[WORD]'
 
+        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+        if self.options.ONEMISSING:
+           self.options.limitquery = orig_limit_query
+        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+            
         fileSuffix = ''
         for name in excludelist:
             l = re.split(r'\s+', name)
@@ -127,7 +144,7 @@ class DB:
 
             for i in range(20):
                 time.sleep(2 * i)
-                error = utils.systemCall(blastCmd)
+                error = utils.systemCall(blastCmd, stdout='IGNORE', stderr='IGNORE')
                 try:
 
 #                     retval = os.system(blastCmd)
