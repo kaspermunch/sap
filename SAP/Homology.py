@@ -94,6 +94,12 @@ class HomolCompiler:
 
     def compileHomologueSet(self, fastaRecord, fastaFileBaseName):
 
+        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+        queryGI = re.search(r'^(\d+)', fastaRecord.title).group(1)
+        self.options.forceexcludegilist = [queryGI]
+        print "EXCLUDING SELF:", queryGI
+        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################                    
+
         # Remove certain special characters from name - clustalw and mrBayes have issues with these:
         newQueryName = safeName(copy.copy(fastaRecord.title))
 
@@ -157,8 +163,8 @@ class HomolCompiler:
             print "\tRetrieval of homologs:"
             print "\t\tEntry status: (c)=cached, (d)=downloaded, (l)=local"
             print "\t\tError types:"
-            print "\t\t              (!M)=Memory error, (!D)=Download error,"
-            print "\t\t              (!T)=Insufficient/inconsistent taxonomic annotation, (!?)=Unknown error"
+            print "\t\t              (!D)=Download error, (!?)=Unknown error"
+            print "\t\t              (!T)=Taxonomic annotation problem"
 
             # Dict of gi lists keyed by species name to keep track of how
             # many representatives of each species we have so far:
