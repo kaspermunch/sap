@@ -17,7 +17,7 @@ groups represented in an annotated sequence database.
 
 Type 'sap --onlinehelp' to open the online manual in your default browser."""
 
-        self.parser = OptionParser(usage=usage, version="%prog 1.0.10")
+        self.parser = OptionParser(usage=usage, version="%prog 1.0.12")
 
         # General options:
         self.parser.add_option("--onlinehelp",
@@ -227,6 +227,13 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           default=0,
                           help="Prune level... float")
 
+        # Post analysis options:
+        self.parser.add_option("--ghostpopulation",
+                          dest="ghostpopulation",
+                          action="store_true",
+                          default=False,
+                          help="Perform ghost population analysis using IMa.")
+
         # Output options:
         self.parser.add_option("-x", "--ppcutoff",
                           action="append",
@@ -304,6 +311,10 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           #default=None,
                           default='data',
                           help="Where to put the fixed input files.")
+        self.parser.add_option("-e", "--email",
+                          type="string",
+                          default='',
+                          help="When using GenBank remotely like sap does NCBI strongly recommends you to specify your email along with the requests. In case of excessive usage of the E-utilities, NCBI will attempt to contact a user at the email address provided before blocking access to the E-utilities.")
 
         self.parser.add_option("--_align",
                           action="store_true",
@@ -328,7 +339,14 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           help="Runs mrbayes.")
 
 
+
+
         self.parser.add_option("--TESTING",
+                          action="store_true",
+                          default=False)
+
+
+        self.parser.add_option("--ONEMISSING",
                           action="store_true",
                           default=False)
 
@@ -373,6 +391,9 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         Post process options
         """
 
+        if self.options.database == 'GenBank' and not self.options.email:
+            self.showMessageAndExit("When acessing GenBank remotely you must specify your email address using the email option.", guiParent=guiParent)
+           
         if os.name == 'nt' and (self.options.sge or self.options.hostfile):
             self.showMessageAndExit("Parallel computing is not available on Windows.", guiParent=guiParent)
 
@@ -391,12 +412,12 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         self.options.datadir = os.path.join(self.options.project, self.options.datadir)
 
         if self.options.forceincludegilist:
-            self.options.forceincludegilist = re.split(r'\s+', self.options.forceincludegilist)
+            self.options.forceincludegilist = re.split(r'[,\s]+', self.options.forceincludegilist)
         else:
             self.options.forceincludegilist = []
 
         if self.options.forceexcludegilist:
-            self.options.forceexcludegilist = re.split(r'\s+', self.options.forceexcludegilist)
+            self.options.forceexcludegilist = re.split(r'[,\s]+', self.options.forceexcludegilist)
         else:
             self.options.forceexcludegilist = []
 
