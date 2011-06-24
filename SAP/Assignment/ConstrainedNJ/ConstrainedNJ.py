@@ -15,6 +15,8 @@ class Error(Exception):
     """
     Base class for exceptions in this module.
     """
+    def __init__(self, message):
+        self.msg = message
     pass
 
 class BootstrapError(Error):
@@ -22,13 +24,13 @@ class BootstrapError(Error):
     Exception raised when bootstrap failes.
     """
     def __init__(self, message):
-        self.message = message
+        self.msg = message
 
 class ConstrainedNJ(object):
 
     def __init__(self, alignment, constraintTree=None):
         """
-        Takes an alignment object as input and s
+        Takes an Nexus alignment object as input (or a diatance matrix).
         """        
         self.nodeList = None
         
