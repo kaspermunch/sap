@@ -359,6 +359,20 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
 
 
             ###############################################################
+            speciesProbsFileName = '%s/speciesprobs_%s.tbl' % (self.options.statsdir, experiment)
+            speciesProbsFile = open(speciesProbsFileName, 'w')
+            for key, summ in summary['taxonomyDict'].items():
+               
+               speciesTupleList = summ.getLevelProbs('species', tupleList=[])
+
+               if len(speciesTupleList) != 0:
+                  speciesTupleList.sort(cmp=lambda x,y: cmp(x[1], y[1]))
+                  name, maxProb = speciesTupleList.pop()
+               else:
+                  maxProb = 0.0
+               speciesProbsFile.write("%s\t%s\t%f\n" % (key, name, maxProb))
+            speciesProbsFile.close()
+            ###############################################################
             levelCountsListFileName = '%s/levelcounts_%s.tbl' % (self.options.statsdir, experiment)
             levelCountsListFile = open(levelCountsListFileName, 'w')
             levelCountsListFile.write("Experiment: %s\n" % experiment)
