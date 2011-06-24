@@ -885,22 +885,22 @@ class MyFrame(wx.Frame):
         except SystemExit, exitVal:
             sys.exit(exitVal)
         except AnalysisTerminated, exe:
-            print "#####################################################################"
+            print "#########################################################################"
             print exe.msg
-            print "#####################################################################"
+            print "#########################################################################"
             raise Exception
         except delayedresult.AbortedException:           
             return None
         except Exception, exe: 
             print """
-## SAP crached, sorry ###############################################
-Help creating a more stable program by sending the debugging informaion
-listed below and your SAP version number to kaspermunch@gmail.com along
+## SAP crached, sorry ###################################################
+Help creating a more stable program by sending all the debugging information
+between the lines and your SAP version number to kaspermunch@gmail.com along
 with *.sap file in the project folder and the sequence input file used.
 """
             print "".join(traceback.format_tb(sys.exc_info()[2]))
             print exe
-            print "#############################################################"
+            print "#################################################################"
             raise Exception
 
     
