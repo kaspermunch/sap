@@ -14,7 +14,8 @@ if sys.version < '2.4':
 
 guiscript = 'SAP/GUI.py'
 
-version = "1.0.12"
+version = "1.0.13"
+# grep for r'version="%prog\s+[\d.]+" in SAP/Options.py
 
 if sys.platform == 'darwin':
     # Cross-platform applications generally expect sys.argv to be used for opening files:
@@ -53,6 +54,7 @@ else:
     extra_options = {}
 
 setup(name='SAP',
+      test_suite='tests',
       version=version,
       description='Statistical Assignment Package (SAP)',
       long_description='SAP does statistial assignment of unknown DNA to estabilish what taxononomic groups the DNA sample originates from. Itx uses a Baysian approach to calculate a probability distribution over all taxa represented in a sequence database. The probability of assignment to eaach taxa serves as a measure of confidence in the assignment.',
