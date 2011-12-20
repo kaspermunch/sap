@@ -1,0 +1,294 @@
+
+
+
+
+
+
+##### Box-and-whisker plots for IMa statistics:
+
+# extracting IMa probs from analysis:
+grep '^gene\[' ~/projects/sap/analyses/imatest/Myiarchus_onemissing/stats/Ima/*.IMa.txt | uniq | perl -pe 's/.*? (\S+), \[\d+\] (\S+),.*/\1\t\2/' > MyiarchusIMaProbs_onemissing.tbl
+grep '^gene\[' ~/projects/sap/analyses/imatest/Myiarchus_complete/stats/Ima/*.IMa.txt | uniq | perl -pe 's/.*? (\S+), \[\d+\] (\S+),.*/\1\t\2/' > MyiarchusIMaProbs_complete.tbl
+
+## Extracting IMa probs from analysis of those supposed to be Myiarchus tuberculifer:
+#grep '^gene\[' ~/projects/sap/analyses/imatest/Myiarchus_complete/stats/old_Ima/*.IMa.txt | uniq | grep tuberculifer | perl -pe 's/.*? (\S+), \[\d+\] (\S+),.*/\1\t\2/' > MyiarchusIMaProbs_complete.tbl 
+#grep '^gene\[' ~/projects/sap/analyses/imatest/Myiarchus_onemissing/stats/old_Ima/*.IMa.txt | uniq | grep tuberculifer | perl -pe 's/.*? (\S+), \[\d+\] (\S+),.*/\1\t\2/' > MyiarchusIMaProbs_onemissing.tbl 
+
+
+# Make box plots
+d<-read.delim("~/presentations/talks/Mexico09/MyiarchusIMaProbs_complete.tbl",head=F,as.is=T)
+pdf("MyiarchusIMaProbs_complete.pdf",wi=4,h=5)
+boxplot(d$V1,d$V2,ylab="Posterior probability",xlab="",main="",names=c("Unsampled pop.", "Correct pop."))
+dev.off()
+d<-read.delim("~/presentations/talks/Mexico09/MyiarchusIMaProbs_onemissing.tbl",head=F,as.is=T)
+pdf("MyiarchusIMaProbs_onemissing.pdf",wi=4,h=5)
+boxplot(d$V1,d$V2,ylab="Posterior probability",xlab="",main="",names=c("Unsampled pop.", "Wrong pop."))
+dev.off()
+
+
+##### Histograms for assignment probs for complete and onemissing
+
+# the MyiarchusCorrect_complete.tbl is the same as the species prob file under stats in
+# complete. The MyiarchusWrong_complete.tbl should be empty
+
+# The MyiarchusWrong_onemissing.tbl is the same as the species prob file under stats in onemissing. 
+
+# the MyiarchusCorrect_onemissing.tbl should be empty
+
+cut -f 3 ~/projects/sap/analyses/imatest/Myiarchus_complete/stats/speciesprobs_Myiarchus.tbl > MyiarchusCorrect_complete.tbl
+cut -f 3 ~/projects/sap/analyses/imatest/Myiarchus_onemissing/stats/speciesprobs_Myiarchus.tbl > MyiarchusWrong_onemissing.tbl
+
+
+pdf("histogram.pdf",wi=7,h=4)
+br<-c(0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1)
+#br<-c(0,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1)
+xlabel<-"Assignment probability"
+ylabel<-"Number of assignments"
+ylimit<-c(0,30)
+#text(200, 0.5, "Change the font just for this text", font=6)
+x<-read.table("MyiarchusCorrect_complete.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+complete<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("MyiarchusWrong_onemissing.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+onemissing<-hist(x[,1],breaks=br,plot=FALSE)
+barplot(rbind(complete$counts, onemissing$counts),main="",ylim=ylimit,beside=T,names.arg=onemissing$mids,xlab=xlabel,ylab=ylabel)
+legend(1,28,c('True species in database   (all assignments correct)', 'True species missing   (all assignments wrong)'),fil=gray.colors(2),bty="n")
+dev.off()
+
+
+
+
+
+
+
+
+##############################################################################################################
+
+par(mfrow=c(2, 2), cex=0.85, mar=c(5, 4, 2, 0))
+#par(mfrow=c(2, 2), cex=0.6, mar=c(4, 4, 1, 1))
+br<-c(0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1)
+#br<-c(0,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1)
+xlabel<-"Assignment probability"
+ylabel<-"Number of assignments"
+ylimit<-c(0,600)
+
+text(200, 0.5, "Change the font just for this text", font=6)
+
+x<-read.table("./benchmarkAb1BC/stats/correctProbs_Insecta_family.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hFam<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1BC/stats/correctProbs_Insecta_genus.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hGen<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1BC/stats/correctProbs_Insecta_species.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hSp<-hist(x[,1],breaks=br,plot=FALSE)
+#barplot(rbind(hFam$counts, hGen$counts, hSp$counts),main="Correct assignments - Insecta",ylim=ylimit,beside=T,names.arg=hSp$mids,legend.text=c('family', 'genus', 'species'),xlab=xlabel,ylab=ylabel)
+barplot(rbind(hFam$counts, hGen$counts, hSp$counts),main="Correct",ylim=ylimit,beside=T,names.arg=hSp$mids,xlab="",ylab=ylabel)
+#title(main="Post prob. correct assignments", sub="Insecta - species level", cex.main=2, font.main=3, cex.sub=0.75, font.sub=3)
+
+x<-read.table("./benchmarkAb1BC/stats/wrongProbs_Insecta_family.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hFam<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1BC/stats/wrongProbs_Insecta_genus.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hGen<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1BC/stats/wrongProbs_Insecta_species.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hSp<-hist(x[,1],breaks=br,plot=FALSE)
+barplot(rbind(hFam$counts, hGen$counts, hSp$counts),main="Wrong",ylim=ylimit,beside=T,names.arg=hSp$mids,xlab="",ylab="")
+legend(32,500,c('Family', 'Genus', 'Species'),fil=gray.colors(3),bty="n")
+
+x<-read.table("./benchmarkAb1BC/stats/correctProbs_Liliopsida_family.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hFam<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1BC/stats/correctProbs_Liliopsida_genus.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hGen<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1BC/stats/correctProbs_Liliopsida_species.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hSp<-hist(x[,1],breaks=br,plot=FALSE)
+barplot(rbind(hFam$counts, hGen$counts, hSp$counts),main="Correct",ylim=ylimit,beside=T,names.arg=hSp$mids,xlab=xlabel,ylab=ylabel)
+
+x<-read.table("./benchmarkAb1BC/stats/wrongProbs_Liliopsida_family.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hFam<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1BC/stats/wrongProbs_Liliopsida_genus.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hGen<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1BC/stats/wrongProbs_Liliopsida_species.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hSp<-hist(x[,1],breaks=br,plot=FALSE)
+#######################################################
+dummies <- c(0,0,0,0,0,0,0,0,0,0)
+barplot(rbind(dummies, hGen$counts, hSp$counts),main="Wrong",ylim=ylimit,beside=T,names.arg=hSp$mids,xlab=xlabel,ylab="")
+# barplot(rbind(hFam$counts, hGen$counts, hSp$counts),main="Wrong assignmets - Liliopsida",ylim=ylimit,beside=T,names.arg=hSp$mids,legend.text=c('family', 'genus', 'species'), xlab=xlabel,ylab=ylabel)
+#######################################################
+
+dev.copy2eps(file="./benchmarkAb1BC/stats/histograms.eps")
+
+
+
+###########################
+
+
+
+par(mfrow=c(2, 2), cex=0.7, mar=c(5, 4, 2, 2))
+#par(mfrow=c(2, 2), cex=0.6, mar=c(4, 4, 1, 1))
+br<-c(0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1)
+#br<-c(0,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1)
+xlabel<-"Assignment probability"
+ylabel<-"Number of assignments"
+ylimit<-c(0,1000)
+#text(2, 0.15, "Change the font just for this text", font=6)
+
+x<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Insecta_family.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hFam<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Insecta_genus.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hGen<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Insecta_species.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hSp<-hist(x[,1],breaks=br,plot=FALSE)
+barplot(rbind(hFam$counts, hGen$counts, hSp$counts),main="Correct assignments - Insecta",ylim=ylimit,beside=T,names.arg=hSp$mids,legend.text=c('family', 'genus', 'species'),xlab=xlabel,ylab=ylabel)
+#title(main="Post prob. correct assignments", sub="Insecta - species level", cex.main=2, font.main=3, cex.sub=0.75, font.sub=3)
+
+x<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Insecta_family.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hFam<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Insecta_genus.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hGen<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Insecta_species.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hSp<-hist(x[,1],breaks=br,plot=FALSE)
+barplot(rbind(hFam$counts, hGen$counts, hSp$counts),main="Wrong assignments - Insecta",ylim=ylimit,beside=T,names.arg=hSp$mids,legend.text=c('family', 'genus', 'species'), xlab=xlabel,ylab=ylabel)
+
+x<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Liliopsida_family.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hFam<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Liliopsida_genus.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hGen<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Liliopsida_species.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hSp<-hist(x[,1],breaks=br,plot=FALSE)
+barplot(rbind(hFam$counts, hGen$counts, hSp$counts),main="Correct assignments - Liliopsida",ylim=ylimit,beside=T,names.arg=hSp$mids,legend.text=c('family', 'genus', 'species'), xlab=xlabel,ylab=ylabel)
+
+x<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Liliopsida_family.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hFam<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Liliopsida_genus.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hGen<-hist(x[,1],breaks=br,plot=FALSE)
+x<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Liliopsida_species.tbl",sep="\t",row.names=NULL)
+x<-as.matrix(x)
+hSp<-hist(x[,1],breaks=br,plot=FALSE)
+barplot(rbind(hFam$counts, hGen$counts, hSp$counts),main="Wrong assignmets - Liliopsida",ylim=ylimit,beside=T,names.arg=hSp$mids,legend.text=c('family', 'genus', 'species'), xlab=xlabel,ylab=ylabel)
+
+dev.copy2eps(file="./benchmarkAb1ShBC/stats/histograms.eps")
+
+
+# # Insecta
+# c<-read.table("./benchmarkAb1BC/stats/correctProbs_Insecta_species.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Insecta - species")
+# w<-read.table("./benchmarkAb1BC/stats/wrongProbs_Insecta_species.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1BC/stats/histogram_Insecta_species.eps")
+# 
+# c<-read.table("./benchmarkAb1BC/stats/correctProbs_Insecta_genus.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Insecta - genus")
+# w<-read.table("./benchmarkAb1BC/stats/wrongProbs_Insecta_genus.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1BC/stats/histogram_Insecta_genus.eps")
+# 
+# c<-read.table("./benchmarkAb1BC/stats/correctProbs_Insecta_family.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Insecta - family")
+# w<-read.table("./benchmarkAb1BC/stats/wrongProbs_Insecta_family.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1BC/stats/histogram_Insecta_family.eps")
+# 
+# # Liliopsida
+# c<-read.table("./benchmarkAb1BC/stats/correctProbs_Liliopsida_species.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Liliopsida - species")
+# w<-read.table("./benchmarkAb1BC/stats/wrongProbs_Liliopsida_species.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1BC/stats/histogram_Liliopsida_species.eps")
+# 
+# c<-read.table("./benchmarkAb1BC/stats/correctProbs_Liliopsida_genus.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Liliopsida - genus")
+# w<-read.table("./benchmarkAb1BC/stats/wrongProbs_Liliopsida_genus.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1BC/stats/histogram_Liliopsida_genus.eps")
+# 
+# c<-read.table("./benchmarkAb1BC/stats/correctProbs_Liliopsida_family.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Liliopsida - family")
+# w<-read.table("./benchmarkAb1BC/stats/wrongProbs_Liliopsida_family.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1BC/stats/histogram_Liliopsida_family.eps")
+# 
+# 
+# 
+# # Insecta
+# c<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Insecta_species.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Insecta - species")
+# w<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Insecta_species.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1ShBC/stats/histogram_Insecta_species.eps")
+# 
+# c<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Insecta_genus.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Insecta - genus")
+# w<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Insecta_genus.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1ShBC/stats/histogram_Insecta_genus.eps")
+# 
+# c<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Insecta_family.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Insecta - family")
+# w<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Insecta_family.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1ShBC/stats/histogram_Insecta_family.eps")
+# 
+# # Liliopsida
+# c<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Liliopsida_species.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Liliopsida - species")
+# w<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Liliopsida_species.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1ShBC/stats/histogram_Liliopsida_species.eps")
+# 
+# c<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Liliopsida_genus.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Liliopsida - genus")
+# w<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Liliopsida_genus.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1ShBC/stats/histogram_Liliopsida_genus.eps")
+# 
+# c<-read.table("./benchmarkAb1ShBC/stats/correctProbs_Liliopsida_family.tbl",sep="\t",row.names=NULL)
+# c<-as.matrix(c)
+# hist(c[,1],breaks=br,border="red",xlim=c(0,1),xlab=xlabel,main="Best probs. Liliopsida - family")
+# w<-read.table("./benchmarkAb1ShBC/stats/wrongProbs_Liliopsida_family.tbl",sep="\t",row.names=NULL)
+# w<-as.matrix(w)
+# hist(w[,1],breaks=br,border="gray",add=TRUE)
+# dev.copy2eps(file="./benchmarkAb1ShBC/stats/histogram_Liliopsida_family.eps")
