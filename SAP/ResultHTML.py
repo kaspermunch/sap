@@ -368,9 +368,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                if len(speciesTupleList) != 0:
                   speciesTupleList.sort(cmp=lambda x,y: cmp(x[1], y[1]))
                   name, maxProb = speciesTupleList.pop()
-               else:
-                  maxProb = 0.0
-               speciesProbsFile.write("%s\t%s\t%f\n" % (key, name, maxProb))
+                  speciesProbsFile.write("%s\t%s\t%f\n" % (key, name, maxProb))
             speciesProbsFile.close()
             ###############################################################
             levelCountsListFileName = '%s/levelcounts_%s.tbl' % (self.options.statsdir, experiment)
