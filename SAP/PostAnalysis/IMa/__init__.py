@@ -1,4 +1,5 @@
 
+
 try:
     import cPickle as pickle
 except:
@@ -9,8 +10,10 @@ import re, os, sys, tempfile, shutil, copy
 from SAP.Bio import Entrez
 ####################################################
 
-from SAP import Fasta
+from SAP import Fasta, Table
 from SAP.Bio.Nexus import Nexus
+
+from SAP.Databases import Native
 
 from SAP.Assignment.ConstrainedNJ import ConstrainedNJ
 
@@ -70,7 +73,6 @@ class Assignment:
 #             if speciesTupleList > 5:
 #                 print "WARNING: too many species"    
 
-        print speciesTupleList
         speciesTupleList.sort(cmp=lambda x,y: cmp(y[1], x[1]))
 
         speciesList = []
@@ -87,53 +89,44 @@ class Assignment:
     def _retrieveSequences(self, speciesList):
 
         sequenceLists = {}
+        if os.path.exists(self.options.database):
+            # local database:
+            db = Native.DB(self.options.database, self.options)
+            for species in speciesList:
+                for seqID in db.index[species]:
+                    homologue, retrievalStat = db.get(seqID)
+                    sequenceLists.setdefault(species, []).append(Fasta.Record(homologue.gi, homologue.sequence))
+        else:
+            # genbank
+            for species in speciesList:
 
-        for species in speciesList:
+                Entrez.email = self.options.email
 
+                handle = Entrez.esearch(db="nucleotide", retmax=10, term="%s[ORGN]" % species)
+                # handle = Entrez.esearch(db="nucleotide", retmax=10, term="%s[ORGN] AND barcode[keyword]" % species)
+                record = Entrez.read(handle)
 
-# . To filter out less interesting names from a DocSum list, add some terms to the query, e.g., 2002/01/10[date] NOT uncultured[prop] NOT unspecified[prop].
+                if record["Count"] < 5:
+                    print "WARNING: only %d sequences representing %s" % (record["Count"], species)
 
+                success = False
 
-# /users/kmt/pythonlib/biopython-1.53-py2.4-linux-i686.egg/Bio/Entrez/__init__.py:311: UserWarning: 
-# Email address is not specified.
-# 
-# To make use of NCBI's E-utilities, NCBI strongly recommends you to specify
-# your email address with each request. From June 1, 2010, this will be
-# mandatory. As an example, if your email address is A.N.Other@example.com, you
-# can specify it as follows:
-#    from Bio import Entrez
-#    Entrez.email = 'A.N.Other@example.com'
-# In case of excessive usage of the E-utilities, NCBI will attempt to contact
-# a user at the email address provided before blocking access to the
-# E-utilities.
-#   E-utilities.""", UserWarning)
+                for tries in range(10):
+                    try:
+                        handle = Entrez.efetch(db="nucleotide", id=','.join(record["IdList"]), rettype="fasta", retmax=10)
+                        fastaIterator = Fasta.Iterator(handle, Fasta.RecordParser())
+                        for entry in fastaIterator:
+                            entry.sequence = re.sub('[^ATGC-]', 'N', entry.sequence)
+                            entry.title = entry.title.split('|')[1]
+                            sequenceLists.setdefault(species, []).append(entry)
+                        success = True
+                    except:
+                        time.sleep(tries * 5)
+                        continue
+                    break
 
-            Entrez.email = self.options.email
-
-            handle = Entrez.esearch(db="nucleotide", retmax=10, term="%s[ORGN] AND barcode[keyword]" % species)
-            record = Entrez.read(handle)
-            
-            if record["Count"] < 5:
-                print "WARNING: only %d sequences representing %s" % (record["Count"], species)
-
-            success = False
-                    
-            for tries in range(10):
-                try:
-                    handle = Entrez.efetch(db="nucleotide", id=','.join(record["IdList"]), rettype="fasta", retmax=10)
-                    fastaIterator = Fasta.Iterator(handle, Fasta.RecordParser())
-                    for entry in fastaIterator:
-                        entry.sequence = re.sub('[^ATGC-]', 'N', entry.sequence)
-                        entry.title = entry.title.split('|')[1]
-                        sequenceLists.setdefault(species, []).append(entry)
-                    success = True
-                except:
-                    time.sleep(tries * 5)
-                    continue
-                break
-
-            if not success:
-                return None
+                if not success:
+                    return None
 
         return sequenceLists
 
@@ -176,48 +169,72 @@ class Assignment:
 
         return alignment
 
-    def _getLargestTheta(self, sequenceLists):
+#     def _getLargestTheta(self, sequenceLists):
+#         """
+#         get the largest within population pi from the diagonal of the matrix
+#         """
+#         largest_theta = 0
+#         speciesList = sequenceLists.keys()
+#         speciesList.sort()
+# 
+#         for species in speciesList:
+#             pairs = 0
+#             distSum = 0
+#             for i in range(len(sequenceLists[species])):
+#                 for j in range(len(sequenceLists[species][i+1:])):
+#                     distSum += self._getPairwiseDiff(sequenceLists[species][i], sequenceLists[species][j])            
+#                     pairs += 1
+#                     
+#             if distSum == 0:
+#                 theta = 0
+#             else:
+#                 theta = distSum / float(pairs)
+# 
+#             if theta > largest_theta:
+#                 largest_theta = theta
+# 
+#         return largest_theta
+
+
+    def _getTheta(self, sequences):
+        total = 0.0
+        count = 0.0
+        for i, s1 in enumerate(sequences):
+            for j, s2 in enumerate(sequences[i:]):
+                total += self._getPairwiseDiff(s1, s2)                                
+                count += 1
+        print total, count
+        return total / count
+
+    def _getAverageDiv(self, sequenceLists):
         """
-        get the largest within population pi from the diagonal of the matrix
+        get the largest divergence between two populations.
         """
-        largest_theta = 0
-        speciesList = sequenceLists.keys()
-        speciesList.sort()
+        assert len(sequenceLists) == 2
+        total = 0.0
+        count = 0.0
+        for i, s1 in enumerate(sequenceLists[0]):
+            for j, s2 in enumerate(sequenceLists[1][i:]):
+                total += self._getPairwiseDiff(s1, s2)
+                count += 1
+        return total / count
 
-        for species in speciesList:
-            pairs = 0
-            distSum = 0
-            for i in range(len(sequenceLists[species])):
-                for j in range(len(sequenceLists[species][i+1:])):
-                    distSum += self._getDist(sequenceLists[species][i], sequenceLists[species][j])            
-                    pairs += 1
-                    
-            if distSum == 0:
-                theta = 0
-            else:
-                theta = distSum / float(pairs)
+    def _getPairwiseDiff(self, s1, s2):
 
-            if theta > largest_theta:
-                largest_theta = theta
+        # produce random sequence names:
+        n1 = randomString(6)
+        n2 = randomString(6)
 
-        return largest_theta
+        # align using clustalw2:
+        alignment = pairwiseClustalw2(n1, s1.sequence, n2, s2.sequence)
 
-#     def _getDist(self, s1, s2):
-# 
-#         # produce random sequence names:
-#         n1 = randomString(6)
-#         n2 = randomString(6)
-# 
-#         # align using clustalw2:
-#         alignment = pairwiseClustalw2(n1, s1.sequence, n2, s2.sequence)
-# 
-#         # extract aligned sequences and calculate distance:
-#         s1Aligned = alignment.matrix[n1].tostring()
-#         s2Aligned = alignment.matrix[n2].tostring()
-#         pi = 1 - similarityScore(s1Aligned, s2Aligned)
-# 
-#         return pi
-# 
+        # extract aligned sequences and calculate distance:
+        s1Aligned = alignment.matrix[n1].tostring()
+        s2Aligned = alignment.matrix[n2].tostring()
+        pi = 1 - similarityScore(s1Aligned, s2Aligned)
+
+        return pi
+
 #     def _getDistMatrix(self, sequenceLists, queryFastaRecord):
 # 
 #         matrix = [[0 for x in range(len(sequenceLists) + 1)] for x in range(len(sequenceLists) + 1)] # plus one for query.
@@ -318,10 +335,6 @@ class Assignment:
         # Make a temp dir for output files:
         tmpDirName = tempfile.mkdtemp()
 
-        outputPrefix = os.path.join(tmpDirName, "%s.%s" % (queryFastaRecord.title, self.name))
-        #datFileName = os.path.join(tmpDirName, queryFastaRecord.title + ".dat")
-        datFileName = os.path.join(self.options.statsdir, self.name, queryFastaRecord.title + ".dat")
-        #outputFileName = os.path.join(tmpDirName, queryFastaRecord.title + ".out")
         outputFileName = os.path.join(self.options.statsdir, self.name, "%s.%s.txt" % (queryFastaRecord.title, self.name))
 
         print "%s: Running IMa: " % queryFastaRecord.title,
@@ -346,6 +359,7 @@ class Assignment:
             # retrieve sequences from GenBank:
             sequenceLists = self._retrieveSequences(candidateSpecies)
             if sequenceLists is None:
+                print "no sequenes retrieved..."
                 return None
 
             for sList in sequenceLists.values():
@@ -364,26 +378,46 @@ class Assignment:
 #             else:
 #                 tree = self._getTree(sequenceLists, queryFastaRecord)
 
-#             maxPi = self._getLargestTheta(sequenceLists)
 
-            # Max 4Nu:
-            #maxTheta = 5.0 * maxPi
-            maxTheta = 10.0
+            if len(sequenceLists) >= 2:
+                # divergence between two most supported candidate species:
+                u = 2e-8
+                maxSplittime = 2.0 * self._getAverageDiv(sequenceLists[candidateSpecies[0]], sequenceLists[candidateSpecies[1]]) / u # mult by two to be safe...
+            else:
+                maxSplittime = 20.0
 
-            # Max scaled migration rate:
-            #maxMigration = 0.0001
+            # Theta for candidate species
+            maxTheta = 2.0 * self._getTheta(sequenceLists[candidateSpecies[0]]) # mult by two to be safe...
+            print maxTheta
+            if maxTheta == 0:
+                print "maxTheta changed to 1"
+                maxTheta = 1
+            print "remove this"
+
             maxMigration = 1.0
-            #maxMigration = 5.0 / float(maxPi)
 
-            # Max scaled split time:
-            maxSplittime = 60.0
-            #maxSplittime = maxTheta
+#             # Max 4Nu:
+#             #maxTheta = 5.0 * maxPi
+#             maxTheta = 10.0
+# 
+#             # Max scaled migration rate:
+#             #maxMigration = 0.0001
+#             maxMigration = 1.0
+#             #maxMigration = 5.0 / float(maxPi)
+# 
+#             # Max scaled split time:
+#             maxSplittime = 60.0
+#             #maxSplittime = maxTheta
+
+            sequenceLists = { candidateSpecies[0]: sequenceLists[candidateSpecies[0]] }
+
+            outputPrefix = os.path.join(tmpDirName, "%s.%s" % (queryFastaRecord.title, self.name))
+            datFileName = os.path.join(self.options.statsdir, self.name, queryFastaRecord.title + ".dat")
 
             # format and write input:
             inputFileContent = self._formatInput(queryFastaRecord, sequenceLists, tree, alignment)
-
             writeFile(datFileName, inputFileContent)
-
+            
             # Find best two species, get the constrainttree, all sequences for the relevant species and put them in datFileName
             #cmd = "ima2 -h"
 
@@ -394,15 +428,120 @@ class Assignment:
 
             #cmd = r'ima2 -iC:\Users\Administrator\Desktop\amr1.dat -oC:\Users\Administrator\Desktop\test.out -a124 -q10.0 -m1.0 -t60.0 -s5900 -b10000 -l1000 -d100 -z5000'
 
+            print cmd
             print outputPrefix
             arguments = cmd.split(' ')            
             retval = IMa.runprogram(arguments, outputPrefix)
+            print retval
+            
+            f = open(outputFileName)
+            content = f.read()
+            f.close()
+            candidateAssignmentProb, ghostAssignmentProb = re.findall(r'\[\d+\] (\S+)',  re.search(r'^(gene\[\d+\].*)', content, re.M).group(0))
+
+            t = Table.Table().add_row(IMa2candidatePop=candidateAssignmentProb,
+                                      IMa2ghostPop=ghostAssignmentProb,
+                                      IMa2maxTheta=maxTheta,
+                                      IMa2maxMigration=maxMigration,
+                                      IMa2maxSplitTime=maxSplittime)
+            
+#            t = Table.Table().load_kv(inputTableFileName).join(t)
+
+            tableFileName = os.path.join(self.options.statsdir, self.name, "%s.%s.tbl" % (queryFastaRecord.title, self.name))
+            t.write(tableFileName)
+
 
         # Remove the tempfiles:
         shutil.rmtree(tmpDirName)
 
         print "done."
         sys.stdout.flush()
+
+
+    def _benchmark(seq, **kwarg):
+
+
+        homologPickleFileName = args[0]
+        homologPickleFile = open(args[0])
+        homologySet = pickle.load(homologPickleFile)
+        homologPickleFile.close()
+
+        queryFastaRecord = homologySet.queryFasta
+
+
+
+        # Make a temp dir for output files:
+        tmpDirName = tempfile.mkdtemp()
+
+        outputFileName = os.path.join(self.options.statsdir, self.name, "%s.%s.txt" % (queryFastaRecord.title, self.name))
+
+
+        # calculate required input components:
+
+        # get the most likely species (the returned list is length one)
+        candidateSpecies = self._getCandiateSpecies(queryFastaRecord.title)
+
+        if candidateSpecies is None:
+            print "no candidates...",
+            return None
+
+        # retrieve sequences from GenBank:
+        sequenceLists = self._retrieveSequences(candidateSpecies)
+        if sequenceLists is None:
+            return None
+
+        for sList in sequenceLists.values():
+            if len(sList) < 3:
+                print "not enough seqs...",
+                return None
+
+        # compute alignment:
+        alignment = self._alignSequences(sequenceLists, queryFastaRecord)
+
+        # compute the tree topology:
+        tree = "(0,1):2"
+
+        if len(sequenceLists) >= 2:
+            # divergence between two most supported candidate species:
+            u = 2e-8
+            maxSplittime = 2.0 * self._getAverageDiv(sequenceLists[candidateSpecies[0]], sequenceLists[candidateSpecies[1]]) / u # mult by two to be safe...
+        else:
+            maxSplittime = 20.0
+
+        # Theta for candidate species
+        maxTheta = 2.0 * self._getTheta(sequenceLists[candidateSpecies[0]]) # mult by two to be safe...
+
+        maxMigration = 1.0
+
+        sequenceLists = { candidateSpecies[0]: sequenceLists[candidateSpecies[0]] }
+
+        # format and write input:
+        inputFileContent = self._formatInput(queryFastaRecord, sequenceLists, tree, alignment)
+        writeFile(datFileName, inputFileContent)
+
+        cmd = "ima2 -i%s -o%s -a124 -q%f -m%f -t%f -b1000000 -l10000 -d100 -z500000" % (datFileName, outputFileName, maxTheta, maxMigration, maxSplittime)
+
+
+        arguments = cmd.split(' ')            
+        retval = IMa.runprogram(arguments, outputPrefix)
+
+        f = open(outputFileName)
+        content = f.read()
+        f.close()
+        candidateAssignmentProb, ghostAssignmentProb = re.findall(r'\[\d+\] (\S+)',  re.search(r'^(gene\[\d+\].*)', f, re.M).group(0))
+
+
+        print "Candidate species assignment", candidateAssignmentProb
+        print "Ghost species assignment    ", ghostAssignmentProb
+
+
+        # Remove the tempfiles:
+        shutil.rmtree(tmpDirName)
+
+        print "done."
+        sys.stdout.flush()
+        
+
 
 # ima:
 # 
