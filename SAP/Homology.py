@@ -94,11 +94,11 @@ class HomolCompiler:
 
     def compileHomologueSet(self, fastaRecord, fastaFileBaseName):
 
-        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
-        queryGI = re.search(r'^(\d+)', fastaRecord.title).group(1)
-        self.options.forceexcludegilist = [queryGI]
-        print "EXCLUDING SELF:", queryGI
-        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################                    
+#         ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+#         queryGI = re.search(r'^(s\d+)', fastaRecord.title).group(1)
+#         self.options.forceexcludegilist = [queryGI]
+#         print "EXCLUDING SELF:", queryGI
+#         ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################                    
 
         # Remove certain special characters from name - clustalw and mrBayes have issues with these:
         newQueryName = safeName(copy.copy(fastaRecord.title))
@@ -539,7 +539,7 @@ class HomolCompiler:
                         identity = float(alignmentMatches)/len(alignedHomolTrunc)
                         print "\t\t%s %.0f%% identity" % (forceGI, identity * 100),
                         if identity < self.options.forceidentity:
-                            print 'WARNING: identity of match to %s too low - skipping' % queryName
+                            print 'NOTE: identity of match to %s too low - skipping' % queryName
                             continue
                         else:
                             print
@@ -789,14 +789,14 @@ class HomolCompiler:
 
                 # Status on diversity goal:
                 if not diversityGoalsMet:   
-                    print "\tWARNING: Diversity goal not reached."
+                    print "\tNOTE: Diversity goal not reached."
                     if self.options.harddiversity:
                         print "\tHard divsity limit enforced - Rejecting squence."
                         return None
 
                 # Status on data base exhaustion:
                 if not dataBaseExhausted:
-                    print "\tWARNING: Relative bit-score cut-off (%.2f) not reached." % self.options.relbitscore
+                    print "\tNOTE: Relative bit-score cut-off (%.2f) not reached." % self.options.relbitscore
                 else:
                     print "\tRelative bit-score cut-off (%.2f) at level: %s" % (self.options.relbitscore, lowestTaxonomicLevelExhausted)
 
@@ -907,7 +907,7 @@ class HomolCompiler:
             identity = float(alignmentMatches)/len(alignedHomolTrunc)
             print "\t\t%s %.0f%% identity" % (ID, identity * 100),
             if identity < self.options.forceidentity:
-                print 'WARNING: identity of match to %s too low - skipping' % homologyResult.queryName
+                print 'NOTE: identity of match to %s too low - skipping' % homologyResult.queryName
                 continue
             else:
                 print
