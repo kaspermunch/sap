@@ -7,6 +7,7 @@ import re, os, sys, tempfile, shutil
 
 from SAP.Bio.Nexus import Nexus
 
+#import Barcoder
 import Barcoder
 from SAP.UtilityFunctions import *
 
@@ -111,7 +112,8 @@ class Assignment:
             cmd = "bc1 -i %s -c %s -o %s -l %d -p %d -s %d" % (phylipFileName, constraintsFileName, outputPrefix,
                                                                chainLength, printFreq, sampleFreq)
             arguments = cmd.split(' ')
-            retval = Barcoder.runprogram([str(x) for x in arguments], str(outputPrefix))
+            barcoder = Barcoder.Barcoder()
+            retval = barcoder.runprogram([str(x) for x in arguments], str(outputPrefix))
             #retval = Barcoder.runprogram(arguments, outputPrefix)
 
             ## outFile = os.path.join(tmpDirName, baseName + ".out")

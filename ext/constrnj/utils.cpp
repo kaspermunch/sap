@@ -125,7 +125,7 @@ std::vector<int*> get_pairwise_combinations(std::vector<int> elements) {
 }
 
 std::vector<std::string> stringSplit(std::string str, std::string delim) {
-  unsigned int cutAt;
+  int cutAt;
   std::vector<std::string> results;
   while( (cutAt = str.find_first_of(delim)) != str.npos ) {
     if(cutAt > 0) {

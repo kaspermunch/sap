@@ -32,6 +32,7 @@ public:
   double distRight;
   std::set<int> leafSet;     /* list of subnodes as set in each node */
   char *getSubTreeString(char *);
+  int branchLengths; /* should we return calculated branchlengths? 0/1 */
 };  
 
 class K2Pstats {
@@ -52,8 +53,10 @@ bool updateConstraints(int, int);
 void updateMatrices(int, int);
 int *findPair(double **, std::list<int *>);
 void createParentNode(int, int);
-char *compute(int, char **, int, char **, int);
-void initCache(int);
+extern "C" char *compute(int, char **, int, char **, int, int);
+//extern "C" void initCache(int, double **);
+extern "C" void initCache(int);
+extern "C" void deleteCache(int);
 
 int main(void);
 

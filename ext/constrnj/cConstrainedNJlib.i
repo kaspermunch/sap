@@ -68,6 +68,6 @@
 %module cConstrainedNJlib
 %{
 extern void initialize(int dim);
-extern char *computeTree(int a_nrOTUs, char **a_alignment, int a_nrBackboneSets, char **a_backboneSetsList, int a_resample);
+ extern char *computeTree(int a_nrOTUs, char **a_alignment, int a_nrBackboneSets, char **a_backboneSetsList, int a_resample, int a_branchlength);
 %}
 %include interface.h

@@ -4,50 +4,80 @@
 # Don't modify this file, modify the SWIG interface instead.
 # This file is compatible with both classic and new-style classes.
 
-import _Barcoder
-import new
-new_instancemethod = new.instancemethod
-try:
-    _swig_property = property
-except NameError:
-    pass # Python < 2.2 doesn't have 'property'.
-def _swig_setattr_nondynamic(self,class_type,name,value,static=1):
-    if (name == "thisown"): return self.this.own(value)
-    if (name == "this"):
-        if type(value).__name__ == 'PySwigObject':
-            self.__dict__[name] = value
-            return
-    method = class_type.__swig_setmethods__.get(name,None)
-    if method: return method(self,value)
-    if (not static) or hasattr(self,name):
-        self.__dict__[name] = value
-    else:
-        raise AttributeError("You cannot add attributes to %s" % self)
+import ctypes, os, sys
 
-def _swig_setattr(self,class_type,name,value):
-    return _swig_setattr_nondynamic(self,class_type,name,value,0)
+class Error(Exception):
+    """
+    Base class for exceptions in this module.
+    """
+    pass
 
-def _swig_getattr(self,class_type,name):
-    if (name == "thisown"): return self.this.own()
-    method = class_type.__swig_getmethods__.get(name,None)
-    if method: return method(self)
-    raise AttributeError,name
+class BootstrapError(Error):
+    """
+    Exception raised when bootstrap failes.
+    """
+    def __init__(self, message):
+        self.message = message
 
-def _swig_repr(self):
-    try: strthis = "proxy of " + self.this.__repr__()
-    except: strthis = ""
-    return "<%s.%s; %s >" % (self.__class__.__module__, self.__class__.__name__, strthis,)
+class Barcoder(object):
 
-import types
-try:
-    _object = types.ObjectType
-    _newclass = 1
-except AttributeError:
-    class _object : pass
-    _newclass = 0
-del types
+    def __init__(self):
+        libpath = os.path.join(os.path.dirname(__file__), "_Barcoder.so")
+        self.barcoder = ctypes.CDLL(libpath)
+        self.barcoder.runprogram.restype = ctypes.c_int
+        self.barcoder.runprogram.argTypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p]
 
+    def runprogram(self, argumentList, outputPrefix):
+        def f(L):
+            a = (ctypes.c_char_p * len(L))()
+            a[:] = L
+            return len(L), a
+        return self.barcoder.runprogram(*f(argumentList) + tuple(outputPrefix))
 
-runprogram = _Barcoder.runprogram
+# import _Barcoder
+# import new
+# new_instancemethod = new.instancemethod
+# try:
+#     _swig_property = property
+# except NameError:
+#     pass # Python < 2.2 doesn't have 'property'.
+# def _swig_setattr_nondynamic(self,class_type,name,value,static=1):
+#     if (name == "thisown"): return self.this.own(value)
+#     if (name == "this"):
+#         if type(value).__name__ == 'PySwigObject':
+#             self.__dict__[name] = value
+#             return
+#     method = class_type.__swig_setmethods__.get(name,None)
+#     if method: return method(self,value)
+#     if (not static) or hasattr(self,name):
+#         self.__dict__[name] = value
+#     else:
+#         raise AttributeError("You cannot add attributes to %s" % self)
+# 
+# def _swig_setattr(self,class_type,name,value):
+#     return _swig_setattr_nondynamic(self,class_type,name,value,0)
+# 
+# def _swig_getattr(self,class_type,name):
+#     if (name == "thisown"): return self.this.own()
+#     method = class_type.__swig_getmethods__.get(name,None)
+#     if method: return method(self)
+#     raise AttributeError,name
+# 
+# def _swig_repr(self):
+#     try: strthis = "proxy of " + self.this.__repr__()
+#     except: strthis = ""
+#     return "<%s.%s; %s >" % (self.__class__.__module__, self.__class__.__name__, strthis,)
+# 
+# import types
+# try:
+#     _object = types.ObjectType
+#     _newclass = 1
+# except AttributeError:
+#     class _object : pass
+#     _newclass = 0
+# del types
+# 
+# 
+# runprogram = _Barcoder.runprogram
 
 

@@ -2,7 +2,9 @@
 import os, random, copy, sys, re, math
 from SAP.Bio.Nexus import Nexus
 
-from cConstrainedNJlib import computeTree, initialize
+#from cConstrainedNJlib import computeTree, initialize
+import ctypes
+
 # try:
 #     # Use the fast C++ implementation:
 #     from cConstrainedNJlib import computeTree, initialize
@@ -10,6 +12,7 @@ from cConstrainedNJlib import computeTree, initialize
 #     # Fall back on the python implementation:
 #     print "WARNING: C++ version of ConstrainedNJlib not found. Using the slower python implementation."
 #     from ConstrainedNJlib import computeTree, initialize
+
 
 class Error(Exception):
     """
@@ -30,6 +33,16 @@ class ConstrainedNJ(object):
         """
         Takes an alignment object as input and s
         """        
+
+        #self.cnjlib = ctypes.CDLL("/Users/kasper/projects/sap/devel/trunk/SAP/Assignment/ConstrainedNJ/_cConstrainedNJlib.so")
+        self.cnjlib = ctypes.CDLL("_cConstrainedNJlib.so")
+#         self.cnjlib.initialize.restype = None
+#         self.cnjlib.initialize.argTypes = [ctypes.c_int]
+#         self.cnjlib.cleanup.restype = None
+#         self.cnjlib.cleanup.argTypes = [ctypes.c_int]
+        self.cnjlib.computeTree.restype = ctypes.c_char_p
+        self.cnjlib.computeTree.argTypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int]
+
         self.nodeList = None
         
         # How many times the class re-tries each bootstrap iteration
@@ -51,7 +64,7 @@ class ConstrainedNJ(object):
             #self.translation[key] = str(i+1)
             self.translation[key] = str(i+1)
             self.alignment.append(alignment.matrix[key].tostring())
-        self.alignmentLength = len(self.alignment[0])
+        self.alignmentLength = int(len(self.alignment[0]))
 
         self.constraintTree = constraintTree
 
@@ -66,7 +79,14 @@ class ConstrainedNJ(object):
             self.constraintList = [" ".join(x) for x in self.constraintList]
             self.origConstraintList = copy.deepcopy(self.constraintList)  # extra copy for safe keeping
 
-        initialize(int(self.alignmentLength))
+# #         initialize(int(self.alignmentLength))
+#         self.cnjlib.initialize(int(self.alignmentLength))
+# #         cache = ((ctypes.c_double * self.alignmentLength) * self.alignmentLength)()
+# #         print cache
+# #         self.cnjlib.initialize(len(self.keyList), ctypes.byref(cache))
+# 
+#     def __del__(self):
+#         self.cnjlib.cleanup(self.alignmentLength)
 
     def constraintPartitions(self, tree, nodeID, partList=[]):
         """
@@ -84,16 +104,18 @@ class ConstrainedNJ(object):
     def resetConstraintList(self):
         self.constraintList = copy.deepcopy(self.origConstraintList)
 
-    def getTreeString(self, resample=False):
-        if resample:
-            resample = 1
-        else:
-            resample = 0
-        return computeTree(self.alignment, self.constraintList, resample)
+    def getTreeString(self, resample=False, branchlengths=False):
+        # return computeTree(self.alignment, self.constraintList, int(resample), int(branchlengths))
+        def f(L):
+            a = (ctypes.c_char_p * len(L))()
+            a[:] = L
+            return len(L), a
+#        print [a for a in self.alignment]
+        return self.cnjlib.computeTree(*f(self.alignment) + f(self.constraintList) + (int(resample), int(branchlengths)))
 
-    def getNexusString(self):
+    def getNexusString(self, resample=False, branchlengths=False):
 
-        treeString = self.getTreeString()
+        treeString = self.getTreeString(resample=resample, branchlengths=branchlengths)
         s = "#NEXUS\n\nbegin trees;\n"
         s += "   translate\n"
         for i, key in enumerate(self.keyList):
@@ -105,8 +127,8 @@ class ConstrainedNJ(object):
         s += "   tree CNJ_tree = %s;\nend;\n" % treeString
         return s
 
-    def dumpNexusString(self, fileName):
-        s = self.getNexusString()
+    def dumpNexusString(self, fileName, branchlengths=False):
+        s = self.getNexusString(branchlengths=branchlengths)
         fp = open(fileName, 'w')        
         fp.write(s)
         fp.close()
@@ -122,6 +144,7 @@ class ConstrainedNJ(object):
             else:
                 char = ','
             s += "       %d %s%s\n" % (i+1, key, char)
+
         # Loop over the bootstraps:
         for i in range(iterations):
             tries = 0
@@ -142,13 +165,15 @@ class ConstrainedNJ(object):
         s += "end;\n"
         return s
 
+
     def dumpBootstrapTreesNexus(self, iterations, fileName):
 
         s = self.getBootstrapTreesNexus(iterations)
         fp = open(fileName, 'w')
         fp.write(s)
         fp.close()    
-        
+
+
     def consensusTree(self, iterations):
 
         import tempfile
@@ -161,6 +186,58 @@ class ConstrainedNJ(object):
         consensusTree = NexusTrees.consensus(bootstrapTrees.trees)
 
         return "#NEXUS\n\nbegin trees;\n   " + consensusTree.to_string() + "\nend;\n"
+
+
+    def supportedTree(self, iterations, branchlengths=True, outgroup=None):
+
+        import tempfile
+        from SAP.Bio.Nexus import Trees as NexusTrees
+
+        tree = Nexus.Nexus(self.getNexusString(branchlengths=branchlengths)).trees[0]        
+        bootstrapTrees = Nexus.Nexus(self.getBootstrapTreesNexus(iterations)).trees
+
+        total=len(bootstrapTrees)
+        if total==0:
+            return None
+        # shouldn't we make sure that it's NodeData or subclass??
+        dataclass=bootstrapTrees[0].dataclass
+        max_support=bootstrapTrees[0].max_support
+        clades={}
+        #countclades={}
+        alltaxa=set(bootstrapTrees[0].get_taxa())
+        # calculate calde frequencies
+        c=0
+        for t in bootstrapTrees:
+            c+=1
+            #if c%50==0:
+            #    print c
+            if alltaxa!=set(t.get_taxa()):
+                raise TreeError, 'Trees for consensus must contain the same taxa'
+            t.root_with_outgroup(outgroup=outgroup)
+            for st_node in t._walk(t.root):
+                subclade_taxa=t.get_taxa(st_node)
+                subclade_taxa.sort()
+                subclade_taxa=str(subclade_taxa) # lists are not hashable
+                if subclade_taxa in clades:
+                    clades[subclade_taxa]+=float(t.weight)/total
+                else:
+                    clades[subclade_taxa]=float(t.weight)/total
+
+        if alltaxa!=set(tree.get_taxa()):
+            raise TreeError, 'Tree must contain the same taxa as trees for consensus'
+        tree.root_with_outgroup(outgroup=outgroup)
+        for st_node in tree._walk(tree.root):
+            subclade_taxa=tree.get_taxa(st_node)
+            subclade_taxa.sort()
+            subclade_taxa=str(subclade_taxa) # lists are not hashable
+            n = tree.node(st_node)
+            if subclade_taxa in clades:
+                n.data.support = clades[subclade_taxa]
+            else:
+                n.data.support = 0.0
+
+        return "#NEXUS\n\nbegin trees;\n   " + tree.to_string(plain=False) + "\nend;\n"
+        
 
     ## def bootstrapIterator(self, iterations):        
     ##     for i in range(iterations):
@@ -202,7 +279,7 @@ if __name__ == "__main__":
  
     cnj = ConstrainedNJ(alignment, constraintTree=constraintTree)
 
-    print cnj.getNexusString()
+#    print cnj.getNexusString(branchlengths=True)
         
 #     for i in range(1):
 #         print cnj.getTreeString()
@@ -212,9 +289,10 @@ if __name__ == "__main__":
 
 
 #     cnj.dumpNexusString('/Users/kasper/Desktop/cnj.nex')
-#     cnj.dumpBootstrapTreesNexus(1000, '/Users/kasper/Desktop/tmp.nex')
+#     cnj.dumpBootstrapTreesNexus(100, '/Users/kasper/Desktop/tmp.nex')
 #     cnj.dumpBootstrapTreesNexus(1000, 'c.nex')
-#     print cnj.consensusTree(1000)
+#     print cnj.consensusTree(10)
+    print cnj.supportedTree(100, outgroup="ANOCA")
 #     print cnj.getNexusString()
 #     print cnj.getBootstrapTrees(1000, '/Users/kasper/Desktop/tmp.nex')
 

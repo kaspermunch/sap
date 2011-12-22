@@ -127,11 +127,17 @@ char *Node::getSubTreeString(char *buffer) {
     //char rightBuffer[1000000];
     char *rightBuffer = new char[10000];
     if ((*left).leafSet.size() > (*right).leafSet.size()) {
-      //sprintf(buffer, "(%s:%.5f,%s:%.5f)", (*left).getSubTreeString(rightBuffer), (*left).distLeft, (*right).getSubTreeString(leftBuffer), (*right).distRight);
-      sprintf(buffer, "(%s,%s)", (*left).getSubTreeString(rightBuffer), (*right).getSubTreeString(leftBuffer));
+      if (branchLengths) {
+	sprintf(buffer, "(%s:%.5f,%s:%.5f)", (*left).getSubTreeString(leftBuffer), distLeft, (*right).getSubTreeString(rightBuffer), distRight);
+      } else {
+	sprintf(buffer, "(%s,%s)", (*left).getSubTreeString(rightBuffer), (*right).getSubTreeString(leftBuffer));
+      }
     } else {
-      //sprintf(buffer, "(%s:%.5f,%s:%.5f)", (*right).getSubTreeString(rightBuffer), (*right).distRight, (*left).getSubTreeString(leftBuffer), (*left).distLeft);
-      sprintf(buffer, "(%s,%s)", (*right).getSubTreeString(rightBuffer), (*left).getSubTreeString(leftBuffer));
+      if (branchLengths) {
+	sprintf(buffer, "(%s:%.5f,%s:%.5f)", (*right).getSubTreeString(rightBuffer), distRight, (*left).getSubTreeString(leftBuffer), distLeft);
+      } else {
+	sprintf(buffer, "(%s,%s)", (*right).getSubTreeString(rightBuffer), (*left).getSubTreeString(leftBuffer));
+      }
     }
     delete [] leftBuffer;
     delete [] rightBuffer;
@@ -299,9 +305,9 @@ double k2pDist(K2Pstats k2p) {
 
   double Q, P, distance;
 
-  if (k2p.alignedBases == alignmentLength && k2pCacheMatrix[k2p.transitions][k2p.transversions] != -1) {
-    distance = k2pCacheMatrix[k2p.transitions][k2p.transversions];
-  } else {
+//   if (k2p.alignedBases == alignmentLength && k2pCacheMatrix[k2p.transitions][k2p.transversions] != -1) {
+//     distance = k2pCacheMatrix[k2p.transitions][k2p.transversions];
+//   } else {
     P = (double) k2p.transitions / k2p.alignedBases;
     Q = (double) k2p.transversions / k2p.alignedBases;    
     if (2 * P - Q >= 1 ||  2 * Q >= 1) {
@@ -309,24 +315,7 @@ double k2pDist(K2Pstats k2p) {
     } else {
       distance = 0.5 * log(1 / (1 - 2 * P - Q)) + 0.25 * log(1 / (1 - 2 * Q));
     }
-  }
-
-
-
-
-
-//   if (k2p.alignedBases == alignmentLength && k2pCacheMatrix[k2p.transitions][k2p.transversions] != -1) {
-//     distance = k2pCacheMatrix[k2p.transitions][k2p.transversions];
-//   } else if (2 * P - Q >= 1 ||  2 * Q >= 1) {
-//     distance = 10000;
-//     //numeric_limits<double>::has_infinity
-//     //distance = static double infinity() throw();
-//   } else {
-//     P = (double) k2p.transitions / k2p.alignedBases;
-//     Q = (double) k2p.transversions / k2p.alignedBases;
-//     distance = 0.5 * log(1 / (1 - 2 * P - Q)) + 0.25 * log(1 / (1 - 2 * Q));
 //   }
-
 
 
  if (std::numeric_limits<double>::has_quiet_NaN && distance == std::numeric_limits<double>::quiet_NaN())
@@ -335,24 +324,15 @@ double k2pDist(K2Pstats k2p) {
  if (std::numeric_limits<double>::has_signaling_NaN && distance == std::numeric_limits<double>::signaling_NaN())
      distance = 10000;	
 
- if ( !(distance == distance) )
-   {
-// 	std::cout << "####################" << std::endl;
-// 	std::cout << P << " " << Q << std::endl;
-// 	std::cout << "####################" << std::endl;
-// 	exit(1);
+ if ( !(distance == distance) ) {
      distance = 10000;
-   }
-
-
-
-
+ }
 
   // Hack to avoid craches because the distance becomes inf:
   if ( distance == std::numeric_limits<double>::infinity() )
     distance = 10000;
 
-  k2pCacheMatrix[k2p.transitions][k2p.transversions] = distance;
+//   k2pCacheMatrix[k2p.transitions][k2p.transversions] = distance;
 
   return distance;
 }
@@ -679,6 +659,7 @@ void createParentNode(int i, int j) {
   node.right = &nodeList[idxN[j]];
   node.distRight = djk;
   node.leafSet = set_union(nodeList[idxN[i]].leafSet, nodeList[idxN[j]].leafSet);
+  node.branchLengths = nodeList[idxN[i]].branchLengths;
 
   nodeList[K] = node;
 
@@ -687,10 +668,12 @@ void createParentNode(int i, int j) {
 
 /** The main functions: ****************************************************************************/
 
+//void initCache(int dim, double **cache) {
 void initCache(int dim) {
 
   extern double **k2pCacheMatrix;
 
+  //  k2pCacheMatrix = cache;
   k2pCacheMatrix = new double *[dim];
   for (int i=0; i<dim; i++) {
     k2pCacheMatrix[i] = new double[dim];
@@ -700,7 +683,16 @@ void initCache(int dim) {
   }
 }
 
-char *compute(int a_nrOTUs, char **a_alignment, int a_nrBackboneSets, char **a_backboneSetsList, int a_resample) {
+void deleteCache(int dim) {
+  extern double **k2pCacheMatrix;
+
+  for(int i=0; i<dim;i++) {
+    delete [] k2pCacheMatrix[i]; 
+  }
+  delete [] k2pCacheMatrix;
+}
+
+char *compute(int a_nrOTUs, char **a_alignment, int a_nrBackboneSets, char **a_backboneSetsList, int a_resample, int a_branchlengths) {
 
   // Called like this from Python: computeTree(alignment, constraintList, queryName)
 
@@ -721,6 +713,7 @@ char *compute(int a_nrOTUs, char **a_alignment, int a_nrBackboneSets, char **a_b
   int i, j;
 
   int resample = a_resample;
+  int branchlengths = a_branchlengths;
 
   // Populate teh global variables:
   nrOTUs = a_nrOTUs;
@@ -881,6 +874,7 @@ char *compute(int a_nrOTUs, char **a_alignment, int a_nrBackboneSets, char **a_b
   for (int i=0; i<N; i++) {
    Node node;  
    node.name = i+1;
+   node.branchLengths = branchlengths;
    std::set<int> s;
    s.insert(i+1);
    node.leafSet = s;
@@ -938,11 +932,8 @@ char *compute(int a_nrOTUs, char **a_alignment, int a_nrBackboneSets, char **a_b
 
 /***************************************************************************************************/
 
+int main(void) {
 
-// int main(void) {
-// 
-// 
-// 
 //    int a_nrOTUs = 102;
 // 
 // 	char *a_alignment[102] = {		
@@ -1116,9 +1107,16 @@ char *compute(int a_nrOTUs, char **a_alignment, int a_nrBackboneSets, char **a_b
 //  *   x = 4;
 //  *   printf("%d %d\n", x, y);
 //  */
-// 
-// 
-//   return 1;
-// }
+
+
+  return 1;
+}
+
+
+
+// Cavendish:~/projects/sap/devel/trunk/ext/constrnj$ g++ -O4 -fPIC -c cConstrainedNJlib.cpp -arch i386Cavendish:~/projects/sap/devel/trunk/ext/constrnj$ g++ -O4 -fPIC -c utils.cpp -arch i386
+// Cavendish:~/projects/sap/devel/trunk/ext/constrnj$ Cavendish:~/projects/sap/devel/trunk/ext/constrnj$ 
+// Cavendish:~/projects/sap/devel/trunk/ext/constrnj$ g++ -dynamiclib -undefined suppress -flat_namespace *.o -o test.dylib -arch i386
+
 
 

@@ -34,6 +34,6 @@
 
 %module Barcoder
 %{
-extern int runprogram (int argc, char **argv, char *outputFileName);
+extern "C" int runprogram (int argc, char **argv, char *outputFileName);
 %}
 %include run.cpp
