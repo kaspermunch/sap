@@ -62,7 +62,92 @@ class ResultHTML:
                           '</html>'])
 
 
-    def createMainPage(self, mainSummary, sequenceNameMap):
+    def createTableMainPage(self, mainSummary, sequenceNameMap):
+        """Create front page containing tables of identified names"""
+
+        print "Creating main page...",
+        sys.stdout.flush()
+
+
+# New summary page: a table view by either cutoff:
+# 
+#                0.95           0.9
+# name1      Homo sapiens       Homo
+# name2      Turdus pilaris     Passer
+# name3
+# 
+# and by taxon for each cutoff:
+# 
+# Cutoff: 0.95
+#        lowestTaxonProb  lowestTaxonProb ...    pylum         class     order     family       genus    species
+# name1                                          Chordata      Passer
+# name2                                          Chordata      alsdkj    asdfaf    Homomidae
+# name3                                          Firmicutes
+
+# names should still be links to detail pages and taxon names should be links to genbank or eol
+
+###########################
+# 
+# 
+#         # For each summary generated:
+#         experiments = mainSummary.keys()
+#         experiments.sort()
+#         for experiment in experiments:
+#                
+# 
+#             # Make a table for each significance cut-off:
+#             for significanceLevel, significantRanks in summary['significantRanks']:
+#                 print "Assignments at %s level" % (experiment+significanceLevel, significanceLevel)
+# 
+#                 levelsSummaried = ['phylum', 'class', 'order', 'family', 'genus', 'species']
+#                 if self.options.subspecieslevel:
+#                     levelsSummaried.append('subspecies')
+# 
+#                 for rank in levelsSummaried:
+# 
+#                     if not significantRanks['ranks'][rank].keys():
+#                         continue
+# 
+#                     clonesAssignedDict = {}
+# 
+#                     nClones = 0;
+#                     for name in sorted(significantRanks['ranks'][rank].keys()):
+#                         print name
+#                         clonesAssignedDict[name] = True
+# 
+#                         for clone in sorted(significantRanks['ranks'][rank][name]):
+#                             nClones += 1
+#                             cloneName = clone["name"]
+#                             
+#                             print self.mapBackQueryName(cloneName, sequenceNameMap).replace(' ', '_'), clone["probability"] * 100
+# 
+# 
+#                             d.setdefault[self.mapBackQueryName(cloneName, sequenceNameMap).replace(' ', '_')][name] = clone["probability"] * 100
+# 
+# 
+#         for clone, data in d.items():
+#            print clone,
+#            for level in levelsSummaried:
+#               if level in data:
+#                  print data[level]
+#               else
+#                  print "\t-",
+# 
+#            
+# 
+# 
+###########################
+
+
+
+        htmlContents = self.createHtml("Summary page", text, header=True)
+        writeFile(self.options.resultdir + '/index.html', htmlContents)
+
+        print "done"
+
+
+
+    def createClassicMainPage(self, mainSummary, sequenceNameMap):
         """Create front page containing tables of identified names"""
 
         print "Creating main page...",
@@ -73,217 +158,6 @@ class ResultHTML:
 
         notConvergedListFileName = '%s/notConverged.tbl' % (self.options.statsdir)
         notConvergedListFile = open(notConvergedListFileName, 'w')
-
-        tooltipCSS = '.tip {font:10px/12px Arial,Helvetica,sans-serif; border:solid 1px #666666; padding:1px; position:absolute; z-index:100; visibility:hidden; color:#333333; top:20px; left:90px; background-color:#ffffcc; layer-background-color:#ffffcc;}'
-
-        tooltipJS = '''// Extended Tooltip Javascript
-// copyright 9th August 2002, 3rd July 2005
-// by Stephen Chapman, Felgall Pty Ltd
-
-// permission is granted to use this javascript provided that the below code is not altered
-var DH = 0;var an = 0;var al = 0;var ai = 0;if (document.getElementById) {ai = 1; DH = 1;}else {if (document.all) {al = 1; DH = 1;} else { browserVersion = parseInt(navigator.appVersion); if ((navigator.appName.indexOf('Netscape') != -1) && (browserVersion == 4)) {an = 1; DH = 1;}}} function fd(oi, wS) {if (ai) return wS ? document.getElementById(oi).style:document.getElementById(oi); if (al) return wS ? document.all[oi].style: document.all[oi]; if (an) return document.layers[oi];}
-function pw() {return window.innerWidth != null? window.innerWidth: document.body.clientWidth != null? document.body.clientWidth:null;}
-function mouseX(evt) {if (evt.pageX) return evt.pageX; else if (evt.clientX)return evt.clientX + (document.documentElement.scrollLeft ?  document.documentElement.scrollLeft : document.body.scrollLeft); else return null;}
-function mouseY(evt) {if (evt.pageY) return evt.pageY; else if (evt.clientY)return evt.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop); else return null;}
-function popUp(evt,oi) {if (DH) {var wp = pw(); ds = fd(oi,1); dm = fd(oi,0); st = ds.visibility; if (dm.offsetWidth) ew = dm.offsetWidth; else if (dm.clip.width) ew = dm.clip.width; if (st == "visible" || st == "show") { ds.visibility = "hidden"; } else {tv = mouseY(evt) + 20; lv = mouseX(evt) - (ew/4); if (lv < 2) lv = 2; else if (lv + ew > wp) lv -= ew/2; if (!an) {lv += 'px';tv += 'px';} ds.left = lv; ds.top = tv; ds.visibility = "visible";}}}
-'''
-
-        styleCSS = """body {  
-    font-family: verdana, geneva, arial, helvetica, sans-serif;
-    font-size: 12px; 
-    font-style: normal; 
-    text-decoration: none; 
-    font-weight: lighter; 
-}
-
-a {
-    font-style: normal; 
-    font-weight: lighter; 
-}
-
-/* Put a <div class="alignment"> around the alignment table and remove the pre tags. The - signs needs to be replaced for .  Create colors using <font color="red">C</font> Use regexps to catch strethes of the same letter to avoid excess font tags*/
-
-.alignment {
-    font-size:10px;
-}
-
-.alignmentseq {
-    padding:0px; 
-    margin:0px;
-    font-size: 12px;
-    font-family: "Courier New" Courier monospace;
-}
-
-.green {
-    color:#009900;
-}
-
-.center {
-    text-align: center;   
-}
-
-.key {
-    font-size:10px;
-}
-
-.key table {
-    border-style: none;
-    padding: 0px;
-    border-collapse: collapse;
-    margin: 10px;
-}
-
-.key td {
-    padding: 2px 10px 2px 2px;
-}
-
-table {
-    border-style: none;
-    margin: 0px;
-    padding: 0px;
-    border-collapse: collapse;
-}
-
-td {
-    vertical-align: top;
-    padding: 3px;
-}
-
-.ranktable {
-    padding: 0px;   
-}
-
-.quicknavigation {
-    /* background-color: #dddddd; */
-}
-
-.summary {
-    background-color: #ffffff;
-}
-
-.taxonomysummary {
-    background-color: #ffffff;
-    padding-left: 40px;
-    padding-top: 15px;
-}
-
-.clonelist td {
-    padding: 5px;
-}
-
-.header {
-    background-color: #999999;
-}
-
-.lightblue {
-    /* color: #0000FF;*/
-    background-color: #CEE0F3;
-    /* background-color: #ADDFFF; */
-}
-
-.dark {
-    background-color: #dddddd;
-}
-
-.light {
-    background-color: #eeeeee;
-}
-
-p { 
-    font-size: 12px;
-    margin-top: 2px;
-    margin-left: 5px;
-}
-
-h1 {
-    font-size: 13pt;
-    line-height: 13pt;
-    background-color: #ddd;
-    /* border:2px solid black; */
-    padding-bottom: 0pt;
-    margin-bottom: 0pt;
-/*     margin-left: 3pt; */
-    padding: 5pt;
-}
-
-h2 {
-    font-size: 11pt;
-    margin-bottom: 0pt;
-    margin-left: 3pt;
-    font-weight: bold
-}
-
-h3 {
-    font-size: 9pt;
-    margin-bottom: 0pt;
-    margin-top: 2pt;
-    margin-left: 3pt;
-    font-weight: bold;
-}
-
-a:active blue {
-    color: #666666;
-}
-
-a:active {
-    color: #666666;
-}
-
-a:link {
-    color: #000000;
-    text-decoration: underline;
-}
-
-a:visited {
-    color: #000000;
-    text-decoration: underline;
-}
-
-a:hover {
-    color: #000000;
-    text-decoration: underline;
-}
-
-/*Tooltip*/
-
-span.info{
-	position:relative; /*this is the key*/
-	/*color: silver;
-	font: bold 11px "Trebuchet MS", Verdana, Arial, sans-serif;*/
-	cursor:crosshair;
-	text-decoration: none;
-}
-
-span.info:hover {
-	/* background-color:white; */
-	color: black;
-}
-
-span.info span.tooltip {
-	display:none;
-}
-
-span.info:hover span.tooltip { /*the span will display just on :hover state*/
-    display:block;
-    position:absolute;
-    padding: 3px 3px 3px 6px;
-    top:1ex;
-    left:0;
-    width:1000%;
-/*     border:1px solid black;
-    background-color: #eeeeee; */
-    color:#000;
-    font-size:100%;
-    text-align:left;
-    z-index: 20;
-/* 	opacity: .70; */
-}
-"""
-
-        writeFile(os.path.join(self.options.resultdir, 'style.css'), styleCSS)
-        writeFile(os.path.join(self.options.resultdir, 'clones', 'style.css'), styleCSS)
-        writeFile(os.path.join(self.options.resultdir, 'tooltip.css'), tooltipCSS)
-        writeFile(os.path.join(self.options.resultdir, 'tooltip.js'), tooltipJS)
         
         text = "<h1>Assignment Summary</h1>"
 
@@ -538,7 +412,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 #text += "<br>"
                 
         htmlContents = self.createHtml("Summary page", text, header=True)
-        writeFile(self.options.resultdir + '/index.html', htmlContents)
+        writeFile(self.options.resultdir + '/index_classic.html', htmlContents)
 
         print "done"
 
@@ -938,6 +812,220 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
 
             writeFile(self.options.resultdir + '/distances.html', htmlContents)
 
+    def writeCSSandJS():
+
+        tooltipCSS = '.tip {font:10px/12px Arial,Helvetica,sans-serif; border:solid 1px #666666; padding:1px; position:absolute; z-index:100; visibility:hidden; color:#333333; top:20px; left:90px; background-color:#ffffcc; layer-background-color:#ffffcc;}'
+
+        tooltipJS = '''// Extended Tooltip Javascript
+// copyright 9th August 2002, 3rd July 2005
+// by Stephen Chapman, Felgall Pty Ltd
+
+// permission is granted to use this javascript provided that the below code is not altered
+var DH = 0;var an = 0;var al = 0;var ai = 0;if (document.getElementById) {ai = 1; DH = 1;}else {if (document.all) {al = 1; DH = 1;} else { browserVersion = parseInt(navigator.appVersion); if ((navigator.appName.indexOf('Netscape') != -1) && (browserVersion == 4)) {an = 1; DH = 1;}}} function fd(oi, wS) {if (ai) return wS ? document.getElementById(oi).style:document.getElementById(oi); if (al) return wS ? document.all[oi].style: document.all[oi]; if (an) return document.layers[oi];}
+function pw() {return window.innerWidth != null? window.innerWidth: document.body.clientWidth != null? document.body.clientWidth:null;}
+function mouseX(evt) {if (evt.pageX) return evt.pageX; else if (evt.clientX)return evt.clientX + (document.documentElement.scrollLeft ?  document.documentElement.scrollLeft : document.body.scrollLeft); else return null;}
+function mouseY(evt) {if (evt.pageY) return evt.pageY; else if (evt.clientY)return evt.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop); else return null;}
+function popUp(evt,oi) {if (DH) {var wp = pw(); ds = fd(oi,1); dm = fd(oi,0); st = ds.visibility; if (dm.offsetWidth) ew = dm.offsetWidth; else if (dm.clip.width) ew = dm.clip.width; if (st == "visible" || st == "show") { ds.visibility = "hidden"; } else {tv = mouseY(evt) + 20; lv = mouseX(evt) - (ew/4); if (lv < 2) lv = 2; else if (lv + ew > wp) lv -= ew/2; if (!an) {lv += 'px';tv += 'px';} ds.left = lv; ds.top = tv; ds.visibility = "visible";}}}
+'''
+
+        styleCSS = """body {  
+    font-family: verdana, geneva, arial, helvetica, sans-serif;
+    font-size: 12px; 
+    font-style: normal; 
+    text-decoration: none; 
+    font-weight: lighter; 
+}
+
+a {
+    font-style: normal; 
+    font-weight: lighter; 
+}
+
+/* Put a <div class="alignment"> around the alignment table and remove the pre tags. The - signs needs to be replaced for .  Create colors using <font color="red">C</font> Use regexps to catch strethes of the same letter to avoid excess font tags*/
+
+.alignment {
+    font-size:10px;
+}
+
+.alignmentseq {
+    padding:0px; 
+    margin:0px;
+    font-size: 12px;
+    font-family: "Courier New" Courier monospace;
+}
+
+.green {
+    color:#009900;
+}
+
+.center {
+    text-align: center;   
+}
+
+.key {
+    font-size:10px;
+}
+
+.key table {
+    border-style: none;
+    padding: 0px;
+    border-collapse: collapse;
+    margin: 10px;
+}
+
+.key td {
+    padding: 2px 10px 2px 2px;
+}
+
+table {
+    border-style: none;
+    margin: 0px;
+    padding: 0px;
+    border-collapse: collapse;
+}
+
+td {
+    vertical-align: top;
+    padding: 3px;
+}
+
+.ranktable {
+    padding: 0px;   
+}
+
+.quicknavigation {
+    /* background-color: #dddddd; */
+}
+
+.summary {
+    background-color: #ffffff;
+}
+
+.taxonomysummary {
+    background-color: #ffffff;
+    padding-left: 40px;
+    padding-top: 15px;
+}
+
+.clonelist td {
+    padding: 5px;
+}
+
+.header {
+    background-color: #999999;
+}
+
+.lightblue {
+    /* color: #0000FF;*/
+    background-color: #CEE0F3;
+    /* background-color: #ADDFFF; */
+}
+
+.dark {
+    background-color: #dddddd;
+}
+
+.light {
+    background-color: #eeeeee;
+}
+
+p { 
+    font-size: 12px;
+    margin-top: 2px;
+    margin-left: 5px;
+}
+
+h1 {
+    font-size: 13pt;
+    line-height: 13pt;
+    background-color: #ddd;
+    /* border:2px solid black; */
+    padding-bottom: 0pt;
+    margin-bottom: 0pt;
+/*     margin-left: 3pt; */
+    padding: 5pt;
+}
+
+h2 {
+    font-size: 11pt;
+    margin-bottom: 0pt;
+    margin-left: 3pt;
+    font-weight: bold
+}
+
+h3 {
+    font-size: 9pt;
+    margin-bottom: 0pt;
+    margin-top: 2pt;
+    margin-left: 3pt;
+    font-weight: bold;
+}
+
+a:active blue {
+    color: #666666;
+}
+
+a:active {
+    color: #666666;
+}
+
+a:link {
+    color: #000000;
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #000000;
+    text-decoration: underline;
+}
+
+a:hover {
+    color: #000000;
+    text-decoration: underline;
+}
+
+/*Tooltip*/
+
+span.info{
+	position:relative; /*this is the key*/
+	/*color: silver;
+	font: bold 11px "Trebuchet MS", Verdana, Arial, sans-serif;*/
+	cursor:crosshair;
+	text-decoration: none;
+}
+
+span.info:hover {
+	/* background-color:white; */
+	color: black;
+}
+
+span.info span.tooltip {
+	display:none;
+}
+
+span.info:hover span.tooltip { /*the span will display just on :hover state*/
+    display:block;
+    position:absolute;
+    padding: 3px 3px 3px 6px;
+    top:1ex;
+    left:0;
+    width:1000%;
+/*     border:1px solid black;
+    background-color: #eeeeee; */
+    color:#000;
+    font-size:100%;
+    text-align:left;
+    z-index: 20;
+/* 	opacity: .70; */
+}
+"""
+
+        writeFile(os.path.join(self.options.resultdir, 'style.css'), styleCSS)
+        writeFile(os.path.join(self.options.resultdir, 'clones', 'style.css'), styleCSS)
+        writeFile(os.path.join(self.options.resultdir, 'tooltip.css'), tooltipCSS)
+        writeFile(os.path.join(self.options.resultdir, 'tooltip.js'), tooltipJS)
+
+
 
     def webify(self, summaryPickleFileNames, fastaFileBaseNameList, doubleToAnalyzedDict, sequenceNameMap):
 
@@ -948,10 +1036,14 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
             summary = pickle.load(summaryPickleFile)
             summaryPickleFile.close()
 
-            self.createMainPage(summary, sequenceNameMap)
+            self.createClassicMainPage(summary, sequenceNameMap)
+            self.createTableMainPage(summary, sequenceNameMap)
+
             self.createClonePages(summary, fastaFileBaseNameList, doubleToAnalyzedDict, sequenceNameMap)
 
             self.createStatPage(summary)
 
             if self.options.diffs:
                 self.createSequenceDistancePage(fastaFileBaseNameList)
+
+            self.writeCSSandJS()
