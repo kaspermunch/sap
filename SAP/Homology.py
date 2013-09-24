@@ -6,8 +6,6 @@ except:
    import pickle
 import copy, re, os, sys, warnings, time, warnings, glob
 from SAP.Bio.Nexus import Nexus
-from SAP.Bio.EUtils.Datatypes import DBIds
-from SAP.Bio.EUtils.ThinClient import ThinClient
 
 from SAP import Fasta
 
