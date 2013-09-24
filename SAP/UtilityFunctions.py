@@ -248,7 +248,8 @@ def writePhylipFile(fileName, seqList):
     entry to a file.
     """
     fp = open(fileName, 'w')
-    alnLength = len(seqList[0][1].data)
+    #alnLength = len(seqList[0][1].data)
+    alnLength = len(seqList[0][1])
     #width = 100
     width = alnLength
     end = width
