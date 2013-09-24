@@ -315,6 +315,113 @@ with *.sap file in the project folder and the sequence input file used.
         print "#########################################################################"
 
 
+
+        """
+        simulate fasta seqquences using simulation pipeline
+        write an estimation procedure for sap that collects IMa results in a table
+
+        from SAP.PostAnalysis import IMa
+        ima = IMa.Assignment(options)
+        ima._benchmark(args)
+
+        _benchmark should take a sequence file of for each of the two candidate species as extra arguments (instead of downloading them)
+
+        should return a table row with results
+
+
+        loop over parameter grid
+        call my old simulation script
+        run IMa on simulated alignment
+
+        simulate two categories:
+        two seqs from the same small/large population
+        two seqs from different small/large populations with small/large split time
+        assess how much it matters that we have to assume the ancestral Ne
+
+
+
+Introduction
+Introduction about assignmnet, previous work, barcoding, bold progress, nr of species in the world the problem with unsampled species/populations, our idea for addressing this, outline of the method.
+
+Methods
+About sap and the framework.
+About the IMa2 model (sang chul)
+How sap and ima2 interacts
+About the benchmark analysis
+About the example analysis on Flycatchers 
+
+Results
+Benchmark analysis
+Dependence on:
+diversity/divergence (probability of ILS)
+how often do we make a wrong high confidence assignment with sap, and how often is this caught correctly by IMa
+how reliable is a low outgroup statistic in assuring us that the true species is in the database.
+When the outgroup statistic is low, how often does that mean the true species is missing?
+If the outgroup statistic is high it can be so correctly because the sequence is an outgroup to the other in the db sample - which occurs more often with a small number of sequences in the database. When the outgroup statistic is misleadingly high, how often will IMa assign to the candidate species?
+How dependent is IMa of the number of candidate sequences in the analysis?
+What if we took all bold entries in genbank and assigned them excluding the correct species. What fraction of assignments would be high confidence wrong ones?
+
+Example analysis
+
+
+Use Coasim with no recombination to simulate homology data sets to pass to alignment, assignment and IMa
+Make a benchmark_sap function in Consolescripts sap as sap but with this functionality instead of normal input
+Make a way to summarize the result information
+
+
+
+        from SimulationPipeline.SimulatePipeHotspotCTMC import simulateCoasim
+
+        assert os.path.exists(os.path.abspath(bppseqgenOptionsFile))
+
+        def spec(**args):
+            c1 = args["N1"] / args["NeRef"]
+            c2 = args["N2"] / args["NeRef"]
+            c3 = args["N3"] / args["NeRef"]
+            c12 = args["N12"] / args["NeRef"]
+            c123 = args["N123"] / args["NeRef"]
+            t1 = args["T1"] / args["g"] / (2*args["NeRef"])
+            t12 = args["T12"] / args["g"] / (2*args["NeRef"])
+            t123 = args["T123"] / args["g"] / (2*args["NeRef"])
+            speciesTree = P(c123, M(t12, [P(c3, S(1)), P(c12, M(t1, [P(c1, S(1)), P(c2, S(1))]))]))
+            return speciesTree
+
+        seq = simulateCoasim(spec, length=L, NeRef=NeRef, r=0, g=g, u=u, addOutGroup=addOutGroup, \
+                             T1=T1, T12=T12, T123=T123, \
+                             N1=N1, N2=N2, N3=N3, N12=N12, N123=N123, \
+                             optionsFile=os.path.abspath(bppseqgenOptionsFile))
+
+        print >>tmpOutputFile, seq
+
+
+
+            # Make a summary data structure    
+            homologyResult = HomologySet(queryName=queryName,
+                                            origQueryName=origQueryName,
+                                            queryFasta=fastaRecord,
+                                            blastRecord=None,
+                                            homologues={},
+                                            options=self.options)
+
+
+            taxonomy = Taxonomy()
+            taxonomy.populateFromString('family:munch,genus:kasper,species:me')
+            #populateFromString(self, str, fieldsep=',', subfieldsep=':'):
+
+            for gi in ...:
+                # Make a homology object:
+                homologue = Homologue(gi=gi,
+                                      sequence=sequence,
+                                      significance = 0, 
+                                      taxonomy=taxonomy)
+                homologyResult.homologues.apppend(homologue)
+
+
+        """
+   
+
+
+
 if __name__ == "__main__":
     main()
 
