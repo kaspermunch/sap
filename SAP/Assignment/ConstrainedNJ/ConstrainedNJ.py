@@ -35,7 +35,7 @@ class ConstrainedNJ(object):
         """        
 
         #self.cnjlib = ctypes.CDLL("/Users/kasper/projects/sap/devel/trunk/SAP/Assignment/ConstrainedNJ/_cConstrainedNJlib.so")
-        self.cnjlib = ctypes.CDLL("_cConstrainedNJlib.so")
+        self.cnjlib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "_cConstrainedNJlib.so"))
 #         self.cnjlib.initialize.restype = None
 #         self.cnjlib.initialize.argTypes = [ctypes.c_int]
 #         self.cnjlib.cleanup.restype = None
