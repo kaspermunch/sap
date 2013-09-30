@@ -5,8 +5,7 @@ except:
    import pickle
 import os, sys, time, re, pickle
 
-from SAP.Bio.EUtils.Datatypes import DBIds
-from SAP.Bio.EUtils.ThinClient import ThinClient
+from SAP.Bio import Entrez
 
 from SAP import Fasta
 from SAP import UtilityFunctions as utils
@@ -129,17 +128,17 @@ class DB:
             fastaRecordFile.close()
             resultHandle = None
             if self.options.nolowcomplexfilter:
-                filterOption = '-F F'
+                filterOption = '-dust no'
             else:
-                filterOption = '-F T'
+                filterOption = '-dust yes' # FIXME: Check that this is an ok default... It is not the defalut in blastn
 
             if self.options.blastwordsize:
-                wordSize = '-W %s' % self.options.blastwordsize
+                wordSize = '-word_size %s' % self.options.blastwordsize
             else:
                 wordSize = ''
 
-            blastCmd = 'blastcl3 -p blastn -m 7 -d nr %s %s -e %s -v %d -b %d -u "%s" -i %s -o %s' \
-                       % (wordSize, filterOption, self.options.minsignificance, self.options.maxblasthits, self.options.maxblasthits, \
+            blastCmd = 'blastn -remote -outfmt 5 -db nr %s %s -evalue %s -max_target_seqs %s -entrez_query "%s" -query %s -out %s' \
+                       % (wordSize, filterOption, self.options.minsignificance, self.options.maxblasthits, \
                           entrezQuery, fastaRecordFileName, blastFileName)
 
             for i in range(20):
@@ -167,11 +166,10 @@ class DB:
         blastHandle = open(blastFileName, 'r')
 
         # Parse the result:
-        blastParser = NCBIXML.BlastParser()
         try:
-            blastRecord = blastParser.parse(blastHandle)
-            print "done.\n\t\t\t",
-            sys.stdout.flush()
+           blastRecord = NCBIXML.read(blastHandle)
+           print "done.\n\t\t\t",
+           sys.stdout.flush()
         except:
             blastRecord = None
         blastHandle.close()
@@ -201,9 +199,8 @@ class DB:
             successful = False
             for tries in range(10):
                 try:
-                    eutils = ThinClient()
-                    dbids = DBIds("nucleotide",  [str(gi)])
-                    fp = eutils.efetch_using_dbids(dbids, retmode="xml")
+                    Entrez.email = self.options.email
+                    fp = Entrez.efetch(db="nucleotide", id=gi, retmode="xml")
 
                     # Get the cross ref to the taxonomy database:
                     taxonXrefRE = re.compile("<GBQualifier_value>taxon:(\d+)</GBQualifier_value>")
