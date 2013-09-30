@@ -388,13 +388,15 @@ class Assignment:
 
             # Theta for candidate species
             maxTheta = 2.0 * self._getTheta(sequenceLists[candidateSpecies[0]]) # mult by two to be safe...
+
+
             print maxTheta
             if maxTheta == 0:
                 print "maxTheta changed to 1"
                 maxTheta = 1
             print "remove this"
-
             maxMigration = 1.0
+
 
 #             # Max 4Nu:
 #             #maxTheta = 5.0 * maxPi
@@ -421,7 +423,8 @@ class Assignment:
             # Find best two species, get the constrainttree, all sequences for the relevant species and put them in datFileName
             #cmd = "ima2 -h"
 
-            cmd = "ima2 -i%s -o%s -a124 -q%f -m%f -t%f -b1000000 -l10000 -d100 -z500000" % (datFileName, outputFileName, maxTheta, maxMigration, maxSplittime)
+            cmd = "ima2 -i%s -o%s -a124 -q%f -m%f -t%f -b1000000 -l10000 -d100 -z500000" % \
+                  (datFileName, outputFileName, maxTheta, maxMigration, maxSplittime)
 
             #cmd = "ima2 -iamr1.dat -otest.out -a124 -q10.0 -m1.0 -t60.0 -s5900 -b1000000 -l10000 -d100 -z500000"
             #cmd = "ima2 -iamr1.dat -otest.out -a124 -q10.0 -m0.00001 -t100.0 -s5900 -b1000000 -l10000 -d100 -z500000"
@@ -439,100 +442,28 @@ class Assignment:
             f.close()
             candidateAssignmentProb, ghostAssignmentProb = re.findall(r'\[\d+\] (\S+)',  re.search(r'^(gene\[\d+\].*)', content, re.M).group(0))
 
-            t = Table.Table().add_row(IMa2candidatePop=candidateAssignmentProb,
-                                      IMa2ghostPop=ghostAssignmentProb,
-                                      IMa2maxTheta=maxTheta,
-                                      IMa2maxMigration=maxMigration,
-                                      IMa2maxSplitTime=maxSplittime)
-            
-#            t = Table.Table().load_kv(inputTableFileName).join(t)
+            print "Candidate species assignment", candidateAssignmentProb
+            print "Ghost species assignment    ", ghostAssignmentProb
 
-            tableFileName = os.path.join(self.options.statsdir, self.name, "%s.%s.tbl" % (queryFastaRecord.title, self.name))
-            t.write(tableFileName)
+            resultDict = {'IMa2candidatePop': candidateAssignmentProb,
+                          'IMa2ghostPop': ghostAssignmentProb,
+                          'IMa2maxTheta': maxTheta,
+                          'IMa2maxMigration': maxMigration,
+                          'IMa2maxSplitTime': maxSplittime}
+            pickleFileName = os.path.join(self.options.statsdir, self.name, "%s.%s.pickle" % (queryFastaRecord.title, self.name))
+            with open(pickleFileName) as f:
+                pickle.dump(f, resultDict)
 
-
-        # Remove the tempfiles:
-        shutil.rmtree(tmpDirName)
-
-        print "done."
-        sys.stdout.flush()
-
-
-    def _benchmark(seq, **kwarg):
-
-
-        homologPickleFileName = args[0]
-        homologPickleFile = open(args[0])
-        homologySet = pickle.load(homologPickleFile)
-        homologPickleFile.close()
-
-        queryFastaRecord = homologySet.queryFasta
-
-
-
-        # Make a temp dir for output files:
-        tmpDirName = tempfile.mkdtemp()
-
-        outputFileName = os.path.join(self.options.statsdir, self.name, "%s.%s.txt" % (queryFastaRecord.title, self.name))
-
-
-        # calculate required input components:
-
-        # get the most likely species (the returned list is length one)
-        candidateSpecies = self._getCandiateSpecies(queryFastaRecord.title)
-
-        if candidateSpecies is None:
-            print "no candidates...",
-            return None
-
-        # retrieve sequences from GenBank:
-        sequenceLists = self._retrieveSequences(candidateSpecies)
-        if sequenceLists is None:
-            return None
-
-        for sList in sequenceLists.values():
-            if len(sList) < 3:
-                print "not enough seqs...",
-                return None
-
-        # compute alignment:
-        alignment = self._alignSequences(sequenceLists, queryFastaRecord)
-
-        # compute the tree topology:
-        tree = "(0,1):2"
-
-        if len(sequenceLists) >= 2:
-            # divergence between two most supported candidate species:
-            u = 2e-8
-            maxSplittime = 2.0 * self._getAverageDiv(sequenceLists[candidateSpecies[0]], sequenceLists[candidateSpecies[1]]) / u # mult by two to be safe...
-        else:
-            maxSplittime = 20.0
-
-        # Theta for candidate species
-        maxTheta = 2.0 * self._getTheta(sequenceLists[candidateSpecies[0]]) # mult by two to be safe...
-
-        maxMigration = 1.0
-
-        sequenceLists = { candidateSpecies[0]: sequenceLists[candidateSpecies[0]] }
-
-        # format and write input:
-        inputFileContent = self._formatInput(queryFastaRecord, sequenceLists, tree, alignment)
-        writeFile(datFileName, inputFileContent)
-
-        cmd = "ima2 -i%s -o%s -a124 -q%f -m%f -t%f -b1000000 -l10000 -d100 -z500000" % (datFileName, outputFileName, maxTheta, maxMigration, maxSplittime)
-
-
-        arguments = cmd.split(' ')            
-        retval = IMa.runprogram(arguments, outputPrefix)
-
-        f = open(outputFileName)
-        content = f.read()
-        f.close()
-        candidateAssignmentProb, ghostAssignmentProb = re.findall(r'\[\d+\] (\S+)',  re.search(r'^(gene\[\d+\].*)', f, re.M).group(0))
-
-
-        print "Candidate species assignment", candidateAssignmentProb
-        print "Ghost species assignment    ", ghostAssignmentProb
+#             t = Table.Table().add_row(IMa2candidatePop=candidateAssignmentProb,
+#                                       IMa2ghostPop=ghostAssignmentProb,
+#                                       IMa2maxTheta=maxTheta,
+#                                       IMa2maxMigration=maxMigration,
+#                                       IMa2maxSplitTime=maxSplittime)
+#             
+# #            t = Table.Table().load_kv(inputTableFileName).join(t)
+# 
+#             tableFileName = os.path.join(self.options.statsdir, self.name, "%s.%s.tbl" % (queryFastaRecord.title, self.name))
+#             t.write(tableFileName)
 
 
         # Remove the tempfiles:
@@ -540,7 +471,7 @@ class Assignment:
 
         print "done."
         sys.stdout.flush()
-        
+
 
 
 # ima:
@@ -563,6 +494,16 @@ class Assignment:
 # Seems we do not even need the crossplatform.h file when using EPD Python with -c mingw32
 
 
+# TODO from Omni:
+# Calculate priors on population sizes and maximal splittime of last split and test these aginst simulated pareters.
+# Add crown/stem stats
+# Figure out a good generic way of keeping result information so it is easy to produce different formats.
+# Set up simulation pipeline to run sap both with and without recombination.
+# Maybe use prob of ILS as a summary measure of diversity / divergence
+# Outline paper
+# Run benchmark analysis
+# Mail and update coauthors
+# Make a vendor drop of IMa2
 
 
 #         lowest_pi = 0
@@ -639,3 +580,7 @@ class Assignment:
 # KBAR780r  ------------------------------------------CTCTATCTAATCTTCGGTGCATGAGCCGGAATAGTGGGTACTGCCCTA
 # KAARG550r ---------------------------------------------------------------------GGAATAGTGGGTACTGCCCTA
 # KAARG203a ------------------------------------------CTCTACCTAATNTTCGGCGCATGAGCCGGAATAGTGGGTACTGCCCTA
+
+
+
+
