@@ -1,0 +1,7 @@
+NW.c
+NW_wrap.c
+setup.py
+NW.egg-info/PKG-INFO
+NW.egg-info/SOURCES.txt
+NW.egg-info/dependency_links.txt
+NW.egg-info/top_level.txt

@@ -1,5 +1,5 @@
 
-import random, sys, os, re, string, time
+import random, sys, os, re, string, time, subprocess, traceback
 import threading, Queue
 
 class Error(Exception):
@@ -45,6 +45,7 @@ class QsubThread(threading.Thread):
         self.jobName = jobName
         self.jobsLeft = False
         self.idList = []
+        self.maxTriesBeforeFaliure = 3
         jobs = self._qstat()
         if jobs > 1:
             # ...if there are others jobs than the one running this code.
@@ -55,8 +56,8 @@ class QsubThread(threading.Thread):
         """
         We report errors by adding error information fo self.queue['err']
         """
-        #self.queue['err'].put(sys.exc_info()[:2])
         print sys.exc_info()[:2]
+        print "".join(traceback.format_tb(sys.exc_info()[2]))
 
     def run(self):
         """
@@ -67,23 +68,25 @@ class QsubThread(threading.Thread):
                 time.sleep(10)
             else:
                 time.sleep(0.1)
-                cmd, flag = self.queue.get()
+                cmd, testFile, flag = self.queue.get()
                 if flag == 'stop':
                     break
                 try:
                     if flag == 'process':
-                        qsubString, tmpFileName = self._writeShellScript(cmd)
-                        fp = os.popen(qsubString)
-                        output = fp.read()
-                        fp.close()
-                        m = re.search(r'Your job (\d+)', output)
+                        qsubString, tmpFileName = self._writeShellScript(cmd, testFile=testFile)
+                        sub = subprocess.Popen(qsubString, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                        stdout, stderr = sub.communicate()
+                        #fp = os.popen(qsubString)
+                        #output = fp.read()
+                        #fp.close()
+                        m = re.search(r'Your job (\d+)', stdout)
                         if m:
                             jobID = m.group(1)
                             self.idList.append(jobID)
                             self.jobsLeft = True
                             os.remove(tmpFileName)
                         else:
-                            raise QsubError(output, "could not capture job id")
+                            raise QsubError(stdout, "could not capture job id")
                     else:
                         raise ValueError, 'Unknown flag %r' % flag
                 except:
@@ -101,8 +104,16 @@ class QsubThread(threading.Thread):
         fp.close()
         return nrJobs
         
-    def _writeShellScript(self, cmd):
-        shellString = "#!/bin/sh\n#$ -N %s\n#$ -o $JOB_NAME.$JOB_ID\n#$ -cwd\n%s\n" % (self.jobName, cmd)
+    def _writeShellScript(self, cmd, testFile=None):
+        #shellString = "#!/bin/sh\n#$ -N %s\n#$ -o $JOB_NAME.$JOB_ID\n#$ -cwd\n%s\n" % (self.jobName, cmd)
+
+        shellString = "#!/bin/sh\n#$ -N %s\n#$ -o $JOB_NAME.$JOB_ID\n#$ -cwd\n" % self.jobName
+        if testFile is None:
+            shellString += "%s\n" % cmd
+        else:
+            shellString += "C=0\nwhile [[ $C -lt %d  && ( ! -e \"%s\" || ! -s \"%s\" ) ]]; do\n\t%s\n\tlet C=C+1\ndone" \
+                           % (self.maxTriesBeforeFaliure, testFile, testFile, cmd)
+            
         chars = string.letters + string.digits
         tmpFileName = "/tmp/job_%s." % self.jobName
         for i in range(7):
@@ -138,15 +149,15 @@ class SGE(object):
         self.qsubThread.setDaemon(daemons)
         self.qsubThread.start()
 
-    def enqueue(self, data, flag='process'):
+    def enqueue(self, data, testFile=None, flag='process'):
         """
         Work requests are posted as (data, flag) pairs to self.Q['in']
         """
-        self.queue.put((data, flag))
+        self.queue.put((data, testFile, flag))
 
     def close(self):
         # order is importent: first, request the thread to stop...:
-        self.enqueue(None, 'stop')
+        self.enqueue(None, flag='stop')
         # ...then wait for it to terminate:
         self.qsubThread.join()
         # wait untill all the jobs have finished:

@@ -111,6 +111,12 @@ class DB(object):
 
         taxonomySummary = Taxonomy.TaxonomySummary()
 
+
+        # A BETTER WAY TO DO THIS WOULD PROBABLY BE TO LIST ALL THE ONES WHERE WE CANT GET
+        # THE TAXONOMY FROM THE HEADER AND THEN AT THE END GET ALL THOSE TAXONOMIES IN
+        # BATCH. e.g. self.genbank.gettaxonomies(gi_list) (make sure we only download each
+        # taxonomy once - you can keep a cache dictionary of the ones we have so far.)
+
         firstMissedTaxonomy = True
         for fastaRecord in fastaIterator:
             try:

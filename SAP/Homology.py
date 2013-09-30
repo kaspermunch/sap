@@ -270,6 +270,7 @@ class HomolCompiler:
                         strandMatch = 1
                         leftFlank = 2 * search_hit.query_start
                         rightFlank = 2 * (queryLength - search_hit.query_length - search_hit.query_start)
+
                         if search_hit.query_strand == -1:
                            strandMatch = -1
                            leftFlank, rightFlank = rightFlank, leftFlank
@@ -312,6 +313,28 @@ class HomolCompiler:
                                 leftBoundary = len(re.search("^(-*)", alignedQuery).groups()[0])
                                 rightBoundary = len(alignedQuery) - len(re.search("(-*)$", alignedQuery).groups()[0])
                                 homologue.sequence = homologue.sequence[leftBoundary:rightBoundary]                           
+
+
+                        #assert homologue.sequence == searchResult.search_list[i].sequence
+
+#                         if homologue.gi == '50262772':
+#                            print "homol ", len(homologue.sequence), startIndex, endIndex, leftBoundary, rightBoundary, strandMatch
+#                            print homologue.sequence
+#                            sys.exit()
+
+                        if not homologue.sequence == searchResult.search_list[i].sequence:
+                           print "homol ", len(homologue.sequence), startIndex, endIndex, leftBoundary, rightBoundary, strandMatch
+                           print homologue.sequence
+
+                           print "realn ", len(searchResult.search_list[i].sequence)
+                           print searchResult.search_list[i].sequence
+
+                           print
+
+#                            print alignedQuery
+#                            print alignedHomol
+                           sys.exit()
+
 
                         # Skip the homologue if we already have as many individuals as we want from a species:
                         speciesTag = None

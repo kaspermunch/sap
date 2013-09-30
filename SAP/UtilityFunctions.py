@@ -8,8 +8,30 @@ import re, random, string, time, sys, os, glob, subprocess
 from SAP.Bio.Nexus import Nexus
 from SAP import Fasta
 
+from SAP import NW
+
 from SAP.Exceptions import AnalysisTerminated
 
+# homedir = os.path.expanduser('~')
+# 
+# # ...works on at least windows and linux. 
+# # In windows it points to the user's folder 
+# #  (the one directly under Documents and Settings, not My Documents)
+# 
+# 
+# # In windows, you can choose to care about local versus roaming profiles.
+# # You can fetch the current user's through PyWin32.
+# #
+# # For example, to ask for the roaming 'Application Data' directory:
+# #  (CSIDL_APPDATA asks for the roaming, CSIDL_LOCAL_APPDATA for the local one)
+# #  (See microsoft references for further CSIDL constants)
+# try:
+#     from win32com.shell import shellcon, shell            
+#     homedir = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
+#  
+# except ImportError: # quick semi-nasty fallback for non-windows/win32com case
+#     homedir = os.path.expanduser("~")
+    
 # class Error(Exception):
 #     """
 #     Base class for exceptions in this module.
@@ -22,6 +44,152 @@ from SAP.Exceptions import AnalysisTerminated
 #     """
 #     def __init__(self, plugin):
 #         self.plugin = plugin
+
+def _printAlignment(seq1, seq2):
+
+    assert len(seq1) == len(seq2)
+
+    width = 100
+    end = width
+    alnLength = len(seq1)
+    print
+    for start in range(0, alnLength, width):
+        print seq1[start:min(end, alnLength)]
+        print seq2[start:min(end, alnLength)]
+        end += width
+        print
+    print
+
+# def remap_db_hit(queryRecord, hitRecord, dbHit):
+#    
+#     # Truncate sequences with flanks of same length as the query on each
+#     # side to make sure the query sequence is covered in the alignment
+#     # no matter where the homologue maches. 
+#     queryLength = len(queryRecord.sequence)
+# 
+#     leftFlank = 2 * dbHit.query_start
+#     rightFlank = 2 * (queryLength - dbHit.query_length - dbHit.query_start)
+# 
+#     # Check for reverse complementation macth:                            
+#     strandMatch = 1
+#     if dbHit.query_strand == -1:
+#        strandMatch = -1
+#        leftFlank, rightFlank = rightFlank, leftFlank
+# 
+#     startIndex = max(0, dbHit.subject_start - leftFlank)
+#     endIndex = min(dbHit.subject_start + dbHit.subject_length + rightFlank, len(hitRecord.sequence))
+# 
+#     # reverse complement sequence if needed:
+#     if strandMatch == -1:
+#         hitRecord.sequence = string.translate(hitRecord.sequence[::-1], string.maketrans('AGTC', 'TCAG'))
+# 
+#     status, alignedQuery, alignedHomol = NW.align(queryRecord.sequence, hitRecord.sequence[startIndex:endIndex])
+# 
+#     _printAlignment(alignedQuery, alignedHomol)
+#     print queryRecord
+#     print hitRecord
+# 
+# #       print dbHit.score/float(len(alignedHomol)), utils.alignmentScore(alignedQuery, alignedHomol)
+# 
+#     dbHit.score = similarityScore(alignedQuery, alignedHomol)
+#     #dbHit.score = alignmentScore(alignedQuery, alignedHomol)
+# 
+#     leftBoundary = len(re.search("^(-*)", alignedQuery).groups()[0])
+#     rightBoundary = len(re.search("(-*)$", alignedQuery).groups()[0])
+# 
+#     dbHit.query_start -= leftFlank - leftBoundary
+#     dbHit.query_length += leftFlank - leftBoundary + rightFlank - rightBoundary
+# 
+#     dbHit.subject_start -= leftFlank - leftBoundary
+#     dbHit.subject_length += leftFlank - leftBoundary + rightFlank - rightBoundary
+# 
+# #       print leftFlank, leftBoundary, rightFlank, rightBoundary, dbHit.subject_start, dbHit.subject_length
+# 
+#     return dbHit
+
+# def remap_db_hit(queryRecord, hitRecord, dbHit):
+#    
+#     # Truncate sequences with flanks of same length as the query on each
+#     # side to make sure the query sequence is covered in the alignment
+#     # no matter where the homologue maches. 
+#     queryLength = len(queryRecord.sequence)
+# 
+#     flank = 2 * (queryLength - dbHit.query_length)
+# 
+#     subjectStartIndex = max(0, dbHit.subject_start - flank)
+#     subjectEndIndex = min(dbHit.subject_start + dbHit.subject_length + flank, len(hitRecord.sequence))
+# 
+#     # reverse complement sequence if needed:
+#     if dbHit.subject_strand == -1:
+#         hitRecord.sequence = string.translate(hitRecord.sequence[::-1], string.maketrans('AGTC', 'TCAG'))
+# 
+#     status, alignedQuery, alignedSubject = NW.align(queryRecord.sequence, hitRecord.sequence[subjectStartIndex:subjectEndIndex])
+#     #_printAlignment(alignedQuery, alignedSubject)
+# 
+#     dbHit.sequence = alignedSubject.replace("-", "")
+# 
+#     dbHit.score = similarityScore(alignedQuery, alignedSubject)
+#     #dbHit.score = alignmentScore(alignedQuery, alignedSubject)
+# 
+#     queryStartGaps = len(re.search("^(-*)", alignedQuery).groups()[0])
+#     queryEndGaps = len(re.search("(-*)$", alignedQuery).groups()[0])
+# 
+#     subjectStartGaps = len(re.search("^(-*)", alignedSubject).groups()[0])
+#     subjectEndGaps = len(re.search("(-*)$", alignedSubject).groups()[0])
+# 
+#     dbHit.query_start = subjectStartGaps
+#     dbHit.query_length = queryLength - subjectStartGaps - subjectEndGaps
+# 
+#     subject_start = subjectStartIndex - queryStartGaps
+#     subject_end = subjectEndIndex - queryEndGaps
+# 
+#     dbHit.subject_start = subject_start
+#     dbHit.subject_length = subject_end - subject_start
+# 
+#     return dbHit
+
+def remap_db_hit(queryRecord, dbHit, dbIndex):
+   
+    # Truncate sequences with flanks of same length as the query on each
+    # side to make sure the query sequence is covered in the alignment
+    # no matter where the homologue maches. 
+    queryLength = len(queryRecord.sequence)
+    hitRecordLength = dbIndex.index[dbHit.id].length
+
+    flank = int(1.2 * (queryLength - dbHit.query_length))
+    subjectStartIndex = max(0, dbHit.subject_start - flank)
+    subjectEndIndex = min(dbHit.subject_start + dbHit.subject_length + flank, hitRecordLength)
+
+    subjectCutoutLength = subjectEndIndex - subjectStartIndex
+    cutout = dbIndex.get(dbHit.id, subjectStartIndex, subjectCutoutLength, dbHit.subject_strand)
+
+    status, alignedQuery, alignedSubject = NW.align(queryRecord.sequence, cutout, 5, 2, 1)
+
+    _printAlignment(alignedQuery, alignedSubject)
+#     sys.exit()
+    
+    dbHit.sequence = alignedSubject.replace("-", "")
+
+    dbHit.score = similarityScore(alignedQuery, alignedSubject)
+    #dbHit.score = alignmentScore(alignedQuery, alignedSubject)
+
+    queryStartGaps = len(re.search("^(-*)", alignedQuery).groups()[0])
+    queryEndGaps = len(re.search("(-*)$", alignedQuery).groups()[0])
+
+    subjectStartGaps = len(re.search("^(-*)", alignedSubject).groups()[0])
+    subjectEndGaps = len(re.search("(-*)$", alignedSubject).groups()[0])
+
+    dbHit.query_start = subjectStartGaps
+    dbHit.query_length = queryLength - subjectStartGaps - subjectEndGaps
+
+    subject_start = subjectStartIndex - queryStartGaps
+    subject_end = subjectEndIndex - queryEndGaps
+
+    dbHit.subject_start = subject_start
+    dbHit.subject_length = subject_end - subject_start
+
+    return dbHit
+
 
 def systemCall(cmd, stdout=None, stderr=None):
     """
@@ -171,7 +339,6 @@ def similarityScore(seq1, seq2):
             ident += 1
     score = ident/float(length - extraGaps)
     return score
-
 
 def poolStatus(pool):
 

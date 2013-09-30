@@ -1,4 +1,4 @@
-import threading, Queue, time, os, sys
+import threading, Queue, time, os, sys, subprocess
 
 class Error(Exception):
     """
@@ -71,9 +71,9 @@ class MachinePool:
       except Queue.Empty:
          raise StopIteration
       
-   def enqueue(self, data, flag='process'):
+   def enqueue(self, data, testFile=None, flag='process'):
       """Work requests are posted as (data, flag) pairs to self.Q['in']"""
-      self.Q['in'].put((data, flag))
+      self.Q['in'].put((data, testFile, flag))
    
    def getOutput(self):
       return self.Q['out'].get() # implicily stops and waits!
@@ -125,14 +125,16 @@ class MachineThread(threading.Thread):
    def run(self):
       """The get some work done function"""
       while True:
-         cmd, flag = self.Q['in'].get()
+         cmd, testFile, flag = self.Q['in'].get()
          if flag == 'stop':
             break
          try:
             if flag == 'process':
                sshCmd = "ssh -q %s \"cd %s; %s\"" % (self.host, self.cwd, cmd)
-               fp = os.popen(sshCmd)
-               output = fp.read()
+               sub = subprocess.Popen(qsubString, stdout=PIPE, stderr=PIPE)
+               stderr, stderr = sub.communicate()
+#                fp = os.popen(sshCmd)
+#                output = fp.read()
                #output = fp.readlines()
                fp.close()
             else:
@@ -141,8 +143,10 @@ class MachineThread(threading.Thread):
             # unconditional except is right, since we report *all* errors
             self.reportError()
          else:
-            if output:
-               self.Q['out'].put(output)
+            if stdout:
+               self.Q['out'].put(stdout)
+            if stderr:
+               self.Q['err'].put(stderr)
 
 
 

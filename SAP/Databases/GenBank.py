@@ -19,6 +19,9 @@ from SAP.SearchResult import BlastSearchResult
 
 from SAP import Homology # I should rename this to Homology
 
+from SAP.ThreadedWorkerQueue import ThreadedWorkerQueue
+
+# from SAP import NW
 
 class SearchResult(BlastSearchResult):   
    """
@@ -28,8 +31,8 @@ class SearchResult(BlastSearchResult):
        BlastSearchResult.__init__(self, blastRecord)
 
        # Seperate the gi from the full hit titles:
-       for i in range(len(self.search_list)):         
-           self.search_list[i].id = self.search_list[i].id.split('|')[1]
+       for i in range(len(self.hits)):         
+           self.hits[i].id = self.hits[i].id.split('|')[1]
 
 
 class DB:
@@ -65,8 +68,133 @@ class DB:
             print "WARNING: Blast failed - skipping entry\n\t\t\t",
             return None
         else:
-           return SearchResult(blastRecord)
+           #return SearchResult(blastRecord)
+           searchResult = SearchResult(blastRecord)
 
+#           return searchResult
+
+#            ###################################################################################################
+#            # We can get the blast ranking form the list of homologues by sorting by evalue:
+#            blastRanks = []
+#            prevMax = searchResult.hits[i].score
+#            rank = 1
+#            for i in range(len(searchResult.hits)):
+#                if searchResult.hits[i].score < prevMax:
+#                    rank += 1
+#                    prevMax = searchResult.hits[i].score
+#                blastRanks.append((rank, searchResult.hits[i].id))
+#            ###################################################################################################
+
+           rerankedSearchResult = self._rerank_search_result(fastaRecord, searchResult)
+
+#            ###################################################################################################
+#            # We can get the blast ranking form the list of homologues by sorting by evalue:
+#            rerankedRanks = []
+#            prevMax = searchResult.hits[0].score
+#            rank = 1
+#            for i in range(len(searchResult.hits)):
+#                if searchResult.hits[i].score < prevMax:
+#                    rank += 1
+#                    prevMax = searchResult.hits[i].score
+#                rerankedRanks.append((rank, searchResult.hits[i].id))
+# 
+# 
+#            distanceSum = 0
+# 
+#            for blastTup in blastRanks:
+#               
+#                found = False
+#                for rerankedTup in rerankedRanks:
+#                    if blastTup[1] == rerankedTup[1]:
+#                        print blastTup[0], rerankedTup[0], blastTup[0] - rerankedTup[0]
+#                        distanceSum += abs(blastTup[0]-rerankedTup[0])
+#                        found = True
+#                assert found, rerankedTup
+# 
+#            rerankedScore = float(distanceSum) / len(rerankedRanks)
+# #            print len(rerankedRanks), rerankedScore
+# # 
+# #            sys.exit()
+#            ###################################################################################################
+           
+
+
+           return rerankedSearchResult
+
+    #fastaRecord, resultEntry, dbIdx
+    def _rerank_search_result(self, fastaRecord, searchResult):
+        """
+        Retrieve all sequences and globally align them each to the query. Then rerank the
+        list of hits based on alignment scores.
+        """
+
+        print 're-ranking results...',
+        sys.stdout.flush()
+
+        # get list of all hit ids:
+        idList = [x.id for x in  searchResult.hits]
+
+        # set up download stream:
+        eutils = ThinClient()
+        dbids = DBIds("nucleotide",  idList)
+        fileob = eutils.efetch_using_dbids(dbids, retmode="text", rettype="fasta")    
+
+        # make an iterator to read fasta entries as we get them:
+        fastaIterator = Fasta.Iterator(fileob, Fasta.RecordParser())
+
+        # set up a threaded queue for writing files:
+        fileWriteQueue = ThreadedWorkerQueue(utils.writeFile)
+
+        for resultIdx, resultEntry in enumerate(searchResult.hits):
+
+            # Get next fasta record from the iterator:
+            hitFastaEntry = fastaIterator.next()
+
+            # Convert title to just the gi nr:
+            hitFastaEntry.title = hitFastaEntry.title.split('|')[1]
+
+            # make sure we are in sync:
+            assert hitFastaEntry.title == resultEntry.id , hitFastaEntry.title + " " +  resultEntry.id
+
+            # Queue the hit fasta entry for writing to the cache:
+            fastaFileName = os.path.join(self.options.dbcache, hitFastaEntry.title + ".fasta")
+            fileWriteQueue.enqueue([fastaFileName, str(hitFastaEntry)])
+
+            # align and remap coordinates:
+            resultEntry = utils.remap_db_hit(fastaRecord, hitFastaEntry, resultEntry)
+
+            # populate it with the sequence:
+            resultEntry.sequence = hitFastaEntry.sequence[resultEntry.subject_start:resultEntry.subject_start + resultEntry.subject_length]
+
+            # updata search list:
+            searchResult.hits[resultIdx] = resultEntry
+       
+        # sort list of hits based on new scores:
+        searchResult.hits.sort(lambda a, b: cmp(b.score,a.score))
+
+        # Wait for the remaining files to be written:
+        fileWriteQueue.close()
+        
+        print "done.\n\t\t\t",
+        sys.stdout.flush()
+
+        return searchResult
+
+
+    def _printAlignment(self, seq1, seq2):
+
+        assert len(seq1) == len(seq2)
+
+        width = 100
+        end = width
+        alnLength = len(seq1)
+        print
+        for start in range(0, alnLength, width):
+            print seq1[start:min(end, alnLength)]
+            print seq2[start:min(end, alnLength)]
+            end += width
+            print
+        print
 
     def _netblast_search(self, fastaRecord, excludelist=[], usecache=True):
         """
@@ -130,6 +258,8 @@ class DB:
                 try:
                     #os.system(blastCmd)
                     retval = os.system(blastCmd)
+                    #retval = utils.systemCall(blastCmd, stdout='IGNORE', stderr='IGNORE')
+                    sys.stdout.flush()
                     if retval != 0:
                        print "Netblast failed with return value %d. Trying again..." % retval
                        continue
@@ -154,6 +284,15 @@ class DB:
 
         return blastRecord
      
+    # SEE IF YOU CAN AVOID DOWNLOADING THE FULL GENBANK XML SOMEHOW IF YOU HAVE THE
+    # FASTA. IS THERE SOME UTILITY IN THE EUTILS FOR THE TAXONOMY DATABASE THAT LETS
+    # ME GET THE TAXID FROM THE GI WITHOUT THE FULL XML?
+
+#     def getBatchTaxonomies(self, giList):
+
+       
+
+
   
     def get(self, gi):
         """
