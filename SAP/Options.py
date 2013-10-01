@@ -229,12 +229,12 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           default=0,
                           help="Prune level... float")
 
-        # Post analysis options:
-        self.parser.add_option("--ghostpopulation",
-                          dest="ghostpopulation",
-                          action="store_true",
-                          default=False,
-                          help="Perform ghost population analysis using IMa.")
+#         # Post analysis options:
+#         self.parser.add_option("--ghostpopulation",
+#                           dest="ghostpopulation",
+#                           action="store_true",
+#                           default=False,
+#                           help="Perform ghost population analysis using IMa.")
 
         # Output options:
         self.parser.add_option("-x", "--ppcutoff",

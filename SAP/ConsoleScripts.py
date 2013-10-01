@@ -93,11 +93,11 @@ def sap():
             treeStatistics = TreeStatistics(options)
             treeStatistics.runTreeStatistics(args, generateSummary=False)
 
-            #######################################
-            if options.ghostpopulation:
-                ima = IMa.Assignment(options)
-                ima.run(args)
-            #######################################
+#             #######################################
+#             if options.ghostpopulation:
+#                 ima = IMa.Assignment(options)
+#                 ima.run(args)
+#             #######################################
             
         else:
 
