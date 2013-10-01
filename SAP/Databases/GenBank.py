@@ -5,13 +5,11 @@ except:
    import pickle
 import os, sys, time, re, pickle
 
-from SAP.Bio.EUtils.Datatypes import DBIds
-from SAP.Bio.EUtils.ThinClient import ThinClient
+from SAP.Bio import Entrez
 
 from SAP import Fasta
 from SAP import UtilityFunctions as utils
-# from SAP import NCBIWWW # locally hacked to allow retrieval or more hits
-from SAP import NCBIXML # locally hacked to better parse string info
+from SAP.Bio.Blast import NCBIXML
 from SAP import Taxonomy
 from SAP import XML2Obj
 
@@ -75,6 +73,15 @@ class DB:
         """
         Blast against genbank over web
         """
+        
+        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+        if self.options.ONEMISSING:
+           orig_limit_query = self.options.limitquery
+           genus, species = re.search(r'_([^_]+)_([^_]+)$', fastaRecord.title).groups()
+           self.options.limitquery = "barcode[keyword] NOT %s %s[ORGN]" % (genus, species)
+           print "REFORMATTING LIMIT QUERY TO", self.options.limitquery
+        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+
 
         # Make a query to filter the returned results:
         if excludelist:
@@ -82,6 +89,11 @@ class DB:
         else:
             entrezQuery = '(' + self.options.limitquery + ') NOT uncultured[WORD]'
 
+        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+        if self.options.ONEMISSING:
+           self.options.limitquery = orig_limit_query
+        ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+            
         fileSuffix = ''
         for name in excludelist:
             l = re.split(r'\s+', name)
@@ -115,22 +127,22 @@ class DB:
             fastaRecordFile.close()
             resultHandle = None
             if self.options.nolowcomplexfilter:
-                filterOption = '-F F'
+                filterOption = '-dust no'
             else:
-                filterOption = '-F T'
+                filterOption = '-dust yes' # FIXME: Check that this is an ok default... It is not the defalut in blastn
 
             if self.options.blastwordsize:
-                wordSize = '-W %s' % self.options.blastwordsize
+                wordSize = '-word_size %s' % self.options.blastwordsize
             else:
                 wordSize = ''
 
-            blastCmd = 'blastcl3 -p blastn -m 7 -d nr %s %s -e %s -v %d -b %d -u "%s" -i %s -o %s' \
-                       % (wordSize, filterOption, self.options.minsignificance, self.options.maxblasthits, self.options.maxblasthits, \
+            blastCmd = 'blastn -remote -outfmt 5 -db nr %s %s -evalue %s -max_target_seqs %s -entrez_query "%s" -query %s -out %s' \
+                       % (wordSize, filterOption, self.options.minsignificance, self.options.maxblasthits, \
                           entrezQuery, fastaRecordFileName, blastFileName)
 
             for i in range(20):
                 time.sleep(2 * i)
-                error = utils.systemCall(blastCmd)
+                error = utils.systemCall(blastCmd, stdout='IGNORE', stderr='IGNORE')
                 try:
 
 #                     retval = os.system(blastCmd)
@@ -153,11 +165,10 @@ class DB:
         blastHandle = open(blastFileName, 'r')
 
         # Parse the result:
-        blastParser = NCBIXML.BlastParser()
         try:
-            blastRecord = blastParser.parse(blastHandle)
-            print "done.\n\t\t\t",
-            sys.stdout.flush()
+           blastRecord = NCBIXML.read(blastHandle)
+           print "done.\n\t\t\t",
+           sys.stdout.flush()
         except:
             blastRecord = None
         blastHandle.close()
@@ -187,9 +198,8 @@ class DB:
             successful = False
             for tries in range(10):
                 try:
-                    eutils = ThinClient()
-                    dbids = DBIds("nucleotide",  [str(gi)])
-                    fp = eutils.efetch_using_dbids(dbids, retmode="xml")
+                    Entrez.email = self.options.email
+                    fp = Entrez.efetch(db="nucleotide", id=gi, retmode="xml")
 
                     # Get the cross ref to the taxonomy database:
                     taxonXrefRE = re.compile("<GBQualifier_value>taxon:(\d+)</GBQualifier_value>")

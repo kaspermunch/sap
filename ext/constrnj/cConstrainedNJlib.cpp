@@ -1108,10 +1108,8 @@ int main(void) {
 //  *   printf("%d %d\n", x, y);
 //  */
 
-
   return 1;
 }
-
 
 
 // Cavendish:~/projects/sap/devel/trunk/ext/constrnj$ g++ -O4 -fPIC -c cConstrainedNJlib.cpp -arch i386Cavendish:~/projects/sap/devel/trunk/ext/constrnj$ g++ -O4 -fPIC -c utils.cpp -arch i386

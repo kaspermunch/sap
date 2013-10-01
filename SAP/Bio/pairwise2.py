@@ -50,29 +50,82 @@ will return a list of the alignments between the two strings.  The
 parameters of the alignment function depends on the function called.
 Some examples:
 
->>> pairwise2.align.globalxx("ACCGT", "ACG")
     # Find the best global alignment between the two sequences.
     # Identical characters are given 1 point.  No points are deducted
     # for mismatches or gaps.
-    
->>> pairwise2.align.localxx("ACCGT", "ACG")
+    >>> for a in pairwise2.align.globalxx("ACCGT", "ACG"):
+    ...     print format_alignment(*a)
+    ACCGT
+    |||||
+    AC-G-
+      Score=3
+    <BLANKLINE>
+    ACCGT
+    |||||
+    A-CG-
+      Score=3
+    <BLANKLINE>
+
     # Same thing as before, but with a local alignment.
-    
->>> pairwise2.align.globalmx("ACCGT", "ACG", 2, -1)
+    >>> for a in pairwise2.align.localxx("ACCGT", "ACG"):
+    ...     print format_alignment(*a)
+    ACCGT
+    ||||
+    AC-G-
+      Score=3
+    <BLANKLINE>
+    ACCGT
+    ||||
+    A-CG-
+      Score=3
+    <BLANKLINE>
+
     # Do a global alignment.  Identical characters are given 2 points,
     # 1 point is deducted for each non-identical character.
+    >>> for a in pairwise2.align.globalmx("ACCGT", "ACG", 2, -1):
+    ...     print format_alignment(*a)
+    ACCGT
+    |||||
+    AC-G-
+      Score=6
+    <BLANKLINE>
+    ACCGT
+    |||||
+    A-CG-
+      Score=6
+    <BLANKLINE>
 
->>> pairwise2.align.globalms("ACCGT", "ACG", 2, -1, -.5, -.1)
     # Same as above, except now 0.5 points are deducted when opening a
     # gap, and 0.1 points are deducted when extending it.
+    >>> for a in pairwise2.align.globalms("ACCGT", "ACG", 2, -1, -.5, -.1):
+    ...     print format_alignment(*a)
+    ACCGT
+    |||||
+    AC-G-
+      Score=5
+    <BLANKLINE>
+    ACCGT
+    |||||
+    A-CG-
+      Score=5
+    <BLANKLINE>
 
+The alignment function can also use known matrices already included in
+Biopython ( Bio.SubsMat -> MatrixInfo ).
+
+    >>> from Bio.SubsMat import MatrixInfo as matlist
+    >>> matrix = matlist.blosum62
+    >>> for a in pairwise2.align.globaldx("KEVLA", "EVL", matrix):
+    ...     print format_alignment(*a)
+    KEVLA
+    |||||
+    -EVL-
+      Score=13
+    <BLANKLINE>
 
 To see a description of the parameters for a function, please look at
-the docstring for the function.
-
->>> print newalign.align.localds.__doc__
-localds(sequenceA, sequenceB, match_dict, open, extend) -> alignments
-
+the docstring for the function via the help function, e.g.
+type help(pairwise2.align.localds) at the Python prompt.
 """
 # The alignment functions take some undocumented keyword parameters:
 # - penalize_extend_when_opening: boolean
@@ -95,15 +148,12 @@ localds(sequenceA, sequenceB, match_dict, open, extend) -> alignments
 # - one_alignment_only: boolean
 #   Only recover one alignment.
 
-from types import *
-
-from SAP.Bio import listfns
-
 MAX_ALIGNMENTS = 1000   # maximum alignments recovered in traceback
 
-class align:
+
+class align(object):
     """This class provides functions that do alignments."""
-    
+
     class alignment_function:
         """This class is callable impersonates an alignment function.
         The constructor takes the name of the function.  This class
@@ -113,27 +163,27 @@ class align:
         """
         # match code -> tuple of (parameters, docstring)
         match2args = {
-            'x' : ([], ''),
-            'm' : (['match', 'mismatch'],
+            'x': ([], ''),
+            'm': (['match', 'mismatch'],
 """match is the score to given to identical characters.  mismatch is
 the score given to non-identical ones."""),
-            'd' : (['match_dict'],
+            'd': (['match_dict'],
 """match_dict is a dictionary where the keys are tuples of pairs of
 characters and the values are the scores, e.g. ("A", "C") : 2.5."""),
-            'c' : (['match_fn'],
+            'c': (['match_fn'],
 """match_fn is a callback function that takes two characters and
 returns the score between them."""),
             }
         # penalty code -> tuple of (parameters, docstring)
         penalty2args = {
-            'x' : ([], ''),
-            's' : (['open', 'extend'],
+            'x': ([], ''),
+            's': (['open', 'extend'],
 """open and extend are the gap penalties when a gap is opened and
 extended.  They should be negative."""),
-            'd' : (['openA', 'extendA', 'openB', 'extendB'],
+            'd': (['openA', 'extendA', 'openB', 'extendB'],
 """openA and extendA are the gap penalties for sequenceA, and openB
 and extendB for sequeneB.  The penalties should be negative."""),
-            'c' : (['gap_A_fn', 'gap_B_fn'],
+            'c': (['gap_A_fn', 'gap_B_fn'],
 """gap_A_fn and gap_B_fn are callback functions that takes 1) the
 index where the gap is opened, and 2) the length of the gap.  They
 should return a gap penalty."""),
@@ -144,22 +194,22 @@ should return a gap penalty."""),
             # reasonable.
             if name.startswith("global"):
                 if len(name) != 8:
-                    raise AttributeError, "function should be globalXX"
+                    raise AttributeError("function should be globalXX")
             elif name.startswith("local"):
                 if len(name) != 7:
-                    raise AttributeError, "function should be localXX"
+                    raise AttributeError("function should be localXX")
             else:
-                raise AttributeError, name
+                raise AttributeError(name)
             align_type, match_type, penalty_type = \
                         name[:-2], name[-2], name[-1]
             try:
                 match_args, match_doc = self.match2args[match_type]
             except KeyError, x:
-                raise AttributeError, "unknown match type %r" % match_type
+                raise AttributeError("unknown match type %r" % match_type)
             try:
                 penalty_args, penalty_doc = self.penalty2args[penalty_type]
             except KeyError, x:
-                raise AttributeError, "unknown penalty type %r" % penalty_type
+                raise AttributeError("unknown penalty type %r" % penalty_type)
 
             # Now get the names of the parameters to this function.
             param_names = ['sequenceA', 'sequenceB']
@@ -192,13 +242,13 @@ alignment occurs.
             # this function into forms appropriate for _align.
             keywds = keywds.copy()
             if len(args) != len(self.param_names):
-                raise TypeError, "%s takes exactly %d argument (%d given)" % (
-                    self.function_name, len(self.param_names), len(args))
+                raise TypeError("%s takes exactly %d argument (%d given)"
+                    % (self.function_name, len(self.param_names), len(args)))
             i = 0
             while i < len(self.param_names):
                 if self.param_names[i] in [
-                    'sequenceA', 'sequenceB',
-                    'gap_A_fn', 'gap_B_fn', 'match_fn']:
+                   'sequenceA', 'sequenceB',
+                   'gap_A_fn', 'gap_B_fn', 'match_fn']:
                     keywds[self.param_names[i]] = args[i]
                     i += 1
                 elif self.param_names[i] == 'match':
@@ -224,8 +274,8 @@ alignment occurs.
                     keywds['gap_B_fn'] = affine_penalty(openB, extendB, pe)
                     i += 4
                 else:
-                    raise ValueError, "unknown parameter %r" % \
-                          self.param_names[i]
+                    raise ValueError("unknown parameter %r"
+                                     % self.param_names[i])
 
             # Here are the default parameters for _align.  Assign
             # these to keywds, unless already specified.
@@ -245,11 +295,11 @@ alignment occurs.
             for name, default in default_params:
                 keywds[name] = keywds.get(name, default)
             return keywds
-            
+
         def __call__(self, *args, **keywds):
             keywds = self.decode(*args, **keywds)
             return _align(**keywds)
-        
+
     def __getattr__(self, attr):
         return self.alignment_function(attr)
 align = align()
@@ -262,11 +312,8 @@ def _align(sequenceA, sequenceB, match_fn, gap_A_fn, gap_B_fn,
     if not sequenceA or not sequenceB:
         return []
 
-    if (not force_generic) and \
-       type(gap_A_fn) is InstanceType and \
-       gap_A_fn.__class__ is affine_penalty and \
-       type(gap_B_fn) is InstanceType and \
-       gap_B_fn.__class__ is affine_penalty:
+    if (not force_generic) and isinstance(gap_A_fn, affine_penalty) \
+    and isinstance(gap_B_fn, affine_penalty):
         open_A, extend_A = gap_A_fn.open, gap_A_fn.extend
         open_B, extend_B = gap_B_fn.open, gap_B_fn.extend
         x = _make_score_matrix_fast(
@@ -282,7 +329,7 @@ def _align(sequenceA, sequenceB, match_fn, gap_A_fn, gap_B_fn,
 
     #print "SCORE"; print_matrix(score_matrix)
     #print "TRACEBACK"; print_matrix(trace_matrix)
-         
+
     # Look for the proper starting point.  Get a list of all possible
     # starting points.
     starts = _find_start(
@@ -294,7 +341,7 @@ def _align(sequenceA, sequenceB, match_fn, gap_A_fn, gap_B_fn,
     # If they only want the score, then return it.
     if score_only:
         return best_score
-    
+
     tolerance = 0  # XXX do anything with this?
     # Now find all the positions within some tolerance of the best
     # score.
@@ -305,20 +352,21 @@ def _align(sequenceA, sequenceB, match_fn, gap_A_fn, gap_B_fn,
             del starts[i]
         else:
             i += 1
-    
+
     # Recover the alignments and return them.
     x = _recover_alignments(
         sequenceA, sequenceB, starts, score_matrix, trace_matrix,
         align_globally, penalize_end_gaps, gap_char, one_alignment_only)
     return x
 
+
 def _make_score_matrix_generic(
-    sequenceA, sequenceB, match_fn, gap_A_fn, gap_B_fn, 
-    penalize_extend_when_opening, penalize_end_gaps, align_globally,
-    score_only):
+        sequenceA, sequenceB, match_fn, gap_A_fn, gap_B_fn,
+        penalize_extend_when_opening, penalize_end_gaps, align_globally,
+        score_only):
     # This is an implementation of the Needleman-Wunsch dynamic
     # programming algorithm for aligning sequences.
-    
+
     # Create the score and traceback matrices.  These should be in the
     # shape:
     # sequenceA (down) x sequenceB (across)
@@ -366,7 +414,7 @@ def _make_score_matrix_generic(
             # character to align from, and thus a different length
             # gap.
             for i in range(0, col-1):
-                score = score_matrix[row-1][i] + gap_A_fn(i, col-1-i)
+                score = score_matrix[row-1][i] + gap_A_fn(row, col-1-i)
                 score_rint = rint(score)
                 if score_rint == best_score_rint:
                     best_score, best_score_rint = score, score_rint
@@ -374,10 +422,10 @@ def _make_score_matrix_generic(
                 elif score_rint > best_score_rint:
                     best_score, best_score_rint = score, score_rint
                     best_indexes = [(row-1, i)]
-            
+
             # Try to find a better score by opening gaps in sequenceB.
             for i in range(0, row-1):
-                score = score_matrix[i][col-1] + gap_B_fn(i, row-1-i)
+                score = score_matrix[i][col-1] + gap_B_fn(col, row-1-i)
                 score_rint = rint(score)
                 if score_rint == best_score_rint:
                     best_score, best_score_rint = score, score_rint
@@ -393,10 +441,11 @@ def _make_score_matrix_generic(
             trace_matrix[row][col] = best_indexes
     return score_matrix, trace_matrix
 
+
 def _make_score_matrix_fast(
-    sequenceA, sequenceB, match_fn, open_A, extend_A, open_B, extend_B,
-    penalize_extend_when_opening, penalize_end_gaps,
-    align_globally, score_only):
+        sequenceA, sequenceB, match_fn, open_A, extend_A, open_B, extend_B,
+        penalize_extend_when_opening, penalize_end_gaps,
+        align_globally, score_only):
     first_A_gap = calc_affine_penalty(1, open_A, extend_A,
                                       penalize_extend_when_opening)
     first_B_gap = calc_affine_penalty(1, open_B, extend_B,
@@ -454,14 +503,14 @@ def _make_score_matrix_fast(
     for i in range(lenB-1):
         col_cache_score[i] = score_matrix[0][i] + first_B_gap
         col_cache_index[i] = [(0, i)]
-        
+
     # Fill in the score_matrix.
     for row in range(1, lenA):
         for col in range(1, lenB):
             # Calculate the score that would occur by extending the
             # alignment without gaps.
             nogap_score = score_matrix[row-1][col-1]
-            
+
             # Check the score that would occur if there were a gap in
             # sequence A.
             if col > 1:
@@ -469,7 +518,7 @@ def _make_score_matrix_fast(
             else:
                 row_score = nogap_score - 1   # Make sure it's not the best.
             # Check the score that would occur if there were a gap in
-            # sequence B.  
+            # sequence B.
             if row > 1:
                 col_score = col_cache_score[col-1]
             else:
@@ -528,9 +577,10 @@ def _make_score_matrix_fast(
                 if (row-1, col-1) not in row_cache_index[row-1]:
                     row_cache_index[row-1] = row_cache_index[row-1] + \
                                              [(row-1, col-1)]
-                    
+
     return score_matrix, trace_matrix
-    
+
+
 def _recover_alignments(sequenceA, sequenceB, starts,
                         score_matrix, trace_matrix, align_globally,
                         penalize_end_gaps, gap_char, one_alignment_only):
@@ -576,7 +626,7 @@ def _recover_alignments(sequenceA, sequenceB, starts,
             seqB = sequenceB[:prevB] + seqB
             # add the rest of the gaps
             seqA, seqB = _lpad_until_equal(seqA, seqB, gap_char)
-            
+
             # Now make sure begin is set.
             if begin is None:
                 if align_globally:
@@ -603,8 +653,9 @@ def _recover_alignments(sequenceA, sequenceB, starts,
                         (seqA, seqB, score, begin, end, prev_pos, next_pos))
                     if one_alignment_only:
                         break
-                    
+
     return _clean_alignments(tracebacks)
+
 
 def _find_start(score_matrix, sequenceA, sequenceB, gap_A_fn, gap_B_fn,
                 penalize_end_gaps, align_globally):
@@ -620,6 +671,7 @@ def _find_start(score_matrix, sequenceA, sequenceB, gap_A_fn, gap_B_fn,
     else:
         starts = _find_local_start(score_matrix)
     return starts
+
 
 def _find_global_start(sequenceA, sequenceB,
                        score_matrix, gap_A_fn, gap_B_fn, penalize_end_gaps):
@@ -642,6 +694,7 @@ def _find_global_start(sequenceA, sequenceB,
         positions.append((score, (nrows-1, col)))
     return positions
 
+
 def _find_local_start(score_matrix):
     # Return every position in the matrix.
     positions = []
@@ -652,14 +705,18 @@ def _find_local_start(score_matrix):
             positions.append((score, (row, col)))
     return positions
 
+
 def _clean_alignments(alignments):
     # Take a list of alignments and return a cleaned version.  Remove
     # duplicates, make sure begin and end are set correctly, remove
     # empty alignments.
-    alignments = listfns.items(alignments)  # Get rid of duplicates
+    unique_alignments = []
+    for align in alignments:
+        if align not in unique_alignments:
+            unique_alignments.append(align)
     i = 0
-    while i < len(alignments):
-        seqA, seqB, score, begin, end = alignments[i]
+    while i < len(unique_alignments):
+        seqA, seqB, score, begin, end = unique_alignments[i]
         # Make sure end is set reasonably.
         if end is None:   # global alignment
             end = len(seqA)
@@ -667,11 +724,12 @@ def _clean_alignments(alignments):
             end = end + len(seqA)
         # If there's no alignment here, get rid of it.
         if begin >= end:
-            del alignments[i]
+            del unique_alignments[i]
             continue
-        alignments[i] = seqA, seqB, score, begin, end
+        unique_alignments[i] = seqA, seqB, score, begin, end
         i += 1
-    return alignments
+    return unique_alignments
+
 
 def _pad_until_equal(s1, s2, char):
     # Add char to the end of s1 or s2 until they are equal length.
@@ -681,6 +739,7 @@ def _pad_until_equal(s1, s2, char):
     elif ls2 < ls1:
         s2 = _pad(s2, char, ls1-ls2)
     return s1, s2
+
 
 def _lpad_until_equal(s1, s2, char):
     # Add char to the beginning of s1 or s2 until they are equal
@@ -692,17 +751,22 @@ def _lpad_until_equal(s1, s2, char):
         s2 = _lpad(s2, char, ls1-ls2)
     return s1, s2
 
+
 def _pad(s, char, n):
     # Append n chars to the end of s.
     return s + char*n
+
 
 def _lpad(s, char, n):
     # Prepend n chars to the beginning of s.
     return char*n + s
 
 _PRECISION = 1000
+
+
 def rint(x, precision=_PRECISION):
     return int(x * precision + 0.5)
+
 
 class identity_match:
     """identity_match([match][, mismatch]) -> match_fn
@@ -715,10 +779,12 @@ class identity_match:
     def __init__(self, match=1, mismatch=0):
         self.match = match
         self.mismatch = mismatch
+
     def __call__(self, charA, charB):
         if charA == charB:
             return self.match
         return self.mismatch
+
 
 class dictionary_match:
     """dictionary_match(score_dict[, symmetric]) -> match_fn
@@ -734,12 +800,14 @@ class dictionary_match:
     def __init__(self, score_dict, symmetric=1):
         self.score_dict = score_dict
         self.symmetric = symmetric
+
     def __call__(self, charA, charB):
-        if self.symmetric and not self.score_dict.has_key((charA, charB)):
+        if self.symmetric and (charA, charB) not in self.score_dict:
             # If the score dictionary is symmetric, then look up the
             # score both ways.
             charB, charA = charA, charB
         return self.score_dict[(charA, charB)]
+
 
 class affine_penalty:
     """affine_penalty(open, extend[, penalize_extend_when_opening]) -> gap_fn
@@ -749,12 +817,14 @@ class affine_penalty:
     """
     def __init__(self, open, extend, penalize_extend_when_opening=0):
         if open > 0 or extend > 0:
-            raise ValueError, "Gap penalties should be non-positive."
+            raise ValueError("Gap penalties should be non-positive.")
         self.open, self.extend = open, extend
         self.penalize_extend_when_opening = penalize_extend_when_opening
+
     def __call__(self, index, length):
         return calc_affine_penalty(
             length, self.open, self.extend, self.penalize_extend_when_opening)
+
 
 def calc_affine_penalty(length, open, extend, penalize_extend_when_opening):
     if length <= 0:
@@ -763,6 +833,7 @@ def calc_affine_penalty(length, open, extend, penalize_extend_when_opening):
     if not penalize_extend_when_opening:
         penalty -= extend
     return penalty
+
 
 def print_matrix(matrix):
     """print_matrix(matrix)
@@ -777,10 +848,10 @@ def print_matrix(matrix):
             matrixT[j].append(len(str(matrix[i][j])))
     ndigits = map(max, matrixT)
     for i in range(len(matrix)):
-        for j in range(len(matrix[i])):
-            n = ndigits[j]
-            print "%*s " % (n, matrix[i][j]),
-        print
+        #Using string formatting trick to add leading spaces,
+        print " ".join("%*s " % (ndigits[j], matrix[i][j])
+                       for j in range(len(matrix[i])))
+
 
 def format_alignment(align1, align2, score, begin, end):
     """format_alignment(align1, align2, score, begin, end) -> string
@@ -799,13 +870,17 @@ def format_alignment(align1, align2, score, begin, end):
 # Try and load C implementations of functions.  If I can't,
 # then just ignore and use the pure python implementations.
 try:
-    import cpairwise2
+    from cpairwise2 import rint, _make_score_matrix_fast
 except ImportError:
     pass
-else:
-    import sys
-    this_module = sys.modules[__name__]
-    for name in cpairwise2.__dict__.keys():
-        if not name.startswith("__"):
-            this_module.__dict__[name] = cpairwise2.__dict__[name]
 
+
+def _test():
+    """Run the module's doctests (PRIVATE)."""
+    print "Running doctests..."
+    import doctest
+    doctest.testmod(optionflags=doctest.IGNORE_EXCEPTION_DETAIL)
+    print "Done"
+
+if __name__ == "__main__":
+    _test()

@@ -82,14 +82,32 @@ class Node:
         self.distRight = distRight
         self.leafSet = leafSet # Store list of subnodes as set in each node
 
+#     def __str__(self):
+#         if self.left and self.right:
+#             if len(self.left.leafSet) > len(self.right.leafSet):
+#                 return "(%s,%s)" % (str(self.left), str(self.right))
+#             else:
+#                 return "(%s,%s)" % (str(self.right), str(self.left))
+#         else:
+#             return str(self.name)
+
     def __str__(self):
         if self.left and self.right:
             if len(self.left.leafSet) > len(self.right.leafSet):
-                return "(%s,%s)" % (str(self.left), str(self.right))
+                return "(%s,%s):%s" % (str(self.left), str(self.right), str(int(self.name)-1)) # <- substracting one is a hack
             else:
-                return "(%s,%s)" % (str(self.right), str(self.left))
+                return "(%s,%s):%s" % (str(self.right), str(self.left), str(int(self.name)-1)) # <- substracting one is a hack
         else:
-            return str(self.name)
+            return str(int(self.name)-1) # <- substracting one is a hack
+
+#     def __str__(self):
+#         if self.left and self.right:
+#             if len(self.left.leafSet) > len(self.right.leafSet):
+#                 return "(%s:%.3f,%s:%.3f)" % (str(self.left), self.distLeft, str(self.right), self.distRight)
+#             else:
+#                 return "(%s:%.3f,%s:%.3f)" % (str(self.right), self.distRight, str(self.left), self.distLeft)
+#         else:
+#             return str(self.name)
 
 def xuniqueCombinations(items, n):
     """

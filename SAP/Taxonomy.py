@@ -202,6 +202,24 @@ class Taxonomy:
     #def populateFromNCBI(self, subspecieslevel=False, minimaltaxonomy=5, dbid=None, allow_unclassified=False):
     def populateFromNCBI(self, minimaltaxonomy=5, dbid=None):
 
+        # TODO: this is anther way to do it the way to do it:
+#         # Retrieve the taxonomy information:
+#         successful = None
+#         for tries in range(5):
+#             try:
+#                 entry = Entrez.efetch(db="taxonomy", id=741158, rettype="xml", retmax=1).read()
+#                 if re.search(r'Service unavailable!', entry):
+#                    raise Exception
+#             except:
+#                 time.sleep(tries * 5)
+#                 continue
+#             else:
+#                 fp.close()
+#                 successful = True
+#                 break
+#         if not successful:
+#            raise NCBIPopulationError("D3")
+
         # Retrieve the taxonomy information:
         url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&report=xml&id=' + dbid
         successful = None
@@ -321,9 +339,8 @@ class Taxonomy:
 #                                 raise NCBIPopulationError("T42")
 #                                 #return None, retrievalStatus.replace(")", "!T42)")
 
-                        # Make and add the taxonomic level if not unclassified
-                        #if not re.search(r'unclassified', taxonName) or allow_unclassified:
-                        if not re.search(r'unclassified', taxonName):
+                        # Make and add the taxonomic level if not unclassified and not a BOLD unidentified specimen:
+                        if not re.search(r'unclassified|BOLD:', taxonName):
                             try:
                                 taxonomyLevel = TaxonomyLevel(taxonName, taxonLevel, dbid=taxonID)
                                 self.add(taxonomyLevel)
@@ -1501,7 +1518,7 @@ class TaxonomySummary:
         return probList
 
 
-    def getLevelProbs(self, level, probList=[], baseProb=1.0):
+    def getLevelProbs(self, level, tupleList=[], baseProb=1.0):
         """
         Returns a list of the posterior probabilities for a give taxonomic level.
         """
@@ -1517,12 +1534,12 @@ class TaxonomySummary:
                 probability = baseProb*float(count)/float(inst.count)
                 if inst.level == level:
                     # This is taxonomic level we want probs for:
-                    probList.append(probability)
+                    tupleList.append((key, probability))
             # Call recursively unless this is a lief level:
             if inst.dict[key] != None:
-                inst.dict[key].getLevelProbs(level, probList, probability)
+                inst.dict[key].getLevelProbs(level, tupleList, probability)
                 
-        return probList
+        return tupleList
 
 
     def assignmentStats(self, level, facitName, resultList=[], baseProb=1.0):

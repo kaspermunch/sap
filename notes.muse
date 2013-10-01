@@ -1,0 +1,166 @@
+
+
+* Main questions
+
+Can we be sure that when sap produces high conf false assignemnts then they are either correct of can be corrected with IMa?
+
+d2 has to be sufficiently larger than d1 to give high conf false assignmnet with sap.
+
+d1 has to be sufficiently smaller than pi to give high conf correct assignment with IMa.
+
+The question then is: 
+
+For reasonable pi values how large does d1 need to be for IMa to work, and is that ratio
+of pi and d1 realistic?
+
+And for such d1 values are the d2 values required to give high conf false assignments realistic?
+
+In other words: If we get a high conf false assignment because d1 is sufficiently smaller
+than d2, is there "room" below d1 so that a reasonable pi can be sufficiently smaller than
+d1?
+
+We can also work out way backwards: Given a reasonable max population size how large does
+d1 need to be for im to work? - and in turn - how large does d2 need to be for sap to
+produce false assignments?
+
+
+So we should find the combinations of d2 and d1 that give high conf false assignments. -
+and then for those combinations identify the subset where im can fix the problem (where
+there is enough "room" under d1)
+
+
+
+
+
+
+How often does sap produce false high confidence assignments and under what circumstances?
+
+ - that would be when (t2+NeA)/(t2+NeA) is high
+
+How many of those false assignments can be corrected with IMa?
+
+
+* Simulation setup
+
+The general setup for simulations and tests is to generate trees (either fixed trees or
+using coasim), generate sequences, and use these as query and database respectively.
+
+For that I would need to modify the pipeline to acomodate all this: 
+
+ - Fixed trees to replace coasim when needed,
+ - Remember to set rho=0 in coasim when used (COI is mitochondrial) generate a database
+ - Identify query and database sequences and write a file for local database with
+   artificial taxonomies e.g. order3, genus1, species2 ...
+ - Run sap with IMa
+ - Compile a key-value file for the pipeline to read.
+
+This would give us a huge table with instances of parameter combinations and resulting assignment statistics
+
+* TODO
+
+
+
+
+
+* Analysis outline
+
+ - All data sets in the study will be generated from the following model: t1, t2, t3 are distances bwtween split times. Ne is extant Ne for all
+   extant populations, NeA are ancestral population sizes.
+
+                           t1
+                     t2  ------ sp1: wrong species assigned to (tax: genus1, species1)
+           t3       ----|
+        ----------|      ------ sp2: query
+       |          |
+    -- |           ------------ sp3: nearest alternative to wrong species (tax: genus1, species2)
+       |
+        ----------------------- sp4: outgroup for rooting taxonomy (tax: genus2, species1)
+
+
+
+Simulate data with varying t2 and NeA, t1=50, Ne=1, m=0 and t3=large and evaluate sap performance as a function
+of (t2+NeA)/(t1+NeA) - relative divergence of query vs. nearest alternative species.
+
+
+
+Choose the lowest value of t2 where sap consistently produce high confidence assignments
+(because these would be the only ones we would analyze further with IMa and real analysis).
+
+Simulate data with varying Ne (scaled with NeA) (and possibly with t1 (scaled with NeA)) and evaluate performance of IMa.
+
+
+              
+
+;  - First identify the type of query + database scenarios where we asssign incorectly with
+;    high confidence. This should be done using fixed trees for simulation to avoid
+;    unwarranted stocasticity. d3 should be large so assignment is always at least to
+;    genus1. Generate results for a matrix of d1 and d2 values and evaluate assignment
+;    performance and outgroup stats. Because we do outgroup assignment too we are not
+;    sensitivity is not sensitive to Ne1 and Ne2. Specificity is though (covered next)
+;  - Identify a worst case scenario of d1w and d2w (w for worst) that makes us falsely assign to sp1.
+; 
+;  - If we assume no ILS the relative contributions of split times and ancestral population
+;    sizes is irelevant ( though not if migration is allowed).
+; 
+;  - Calculate sets of combinations t1, t2, NeA that give expected divergences of d1 and d2.
+
+
+
+ - Generate results for a matrix of      d1:t1, NeA d2: t2, NeA 
+
+important to im: relative size of Ne and t1+NeA
+important to sap: relative size of t1+NeA and t2+NeA
+
+
+First establish sap false assignment dependence of t1, t2, and NeA, using fixed Ne, t3, and m=0.
+
+Identify probematic area of this parameter space and choose representative t1, t2, and NeA values
+
+With fixed t1, t2, and t3, and m=0, simulate with different Ne and NeA.
+
+
+        values and evaluate assignment performance
+   and outgroup stats. Because we do outgroup assignment too we are not sensitivity is not
+   sensitive to Ne1 and Ne2. Specificity is though (covered next)
+
+
+
+ - Simulate with coasim (rho=0) and pipeline with combinations of Ne, NeA (and t1, t2,
+   calculated from NeA and fixed t3 and migration rates) We should avoid combinations of
+   Ne and t that gives ILS...
+ - Do that for m12 = {0, 0.0001, 0.001, 0.01, 0.1, 1}
+
+
+ - Do a similar set of simulations but now sp1 is the correct species so we sample the
+   query from sp1 and do not have a sp2:
+
+                        
+                         d1
+                   ------------ sp1: query + correct species
+           d2     |      | 
+        ----------|      ...... (ghost population)
+       |          |
+    -- |           ------------ sp2: nearest alternative to wrong species (tax: genus1, species2)
+       |
+        ----------------------- sp3: outgroup for rooting taxonomy (tax: genus2, species1)
+              
+
+
+* Possible figures for paper
+
+Example tree showing the problem posed by outgroup assignment.
+
+
+
+Each figure should be plots one with the correct missing and one with the correct is included (and correctly assigned).
+
+Figure with 2D hist (heatmap) of posterior prob to ghost/correct species as a function of
+split time and theta_extant. I could have a couple of these figures for different
+migration rates.
+
+Figure with posterior prob to ghost/correct species as a function of 
+
+
+
+
+

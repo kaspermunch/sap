@@ -6,8 +6,6 @@ except:
    import pickle
 import copy, re, os, sys, warnings, time, warnings, glob
 from SAP.Bio.Nexus import Nexus
-from SAP.Bio.EUtils.Datatypes import DBIds
-from SAP.Bio.EUtils.ThinClient import ThinClient
 
 from SAP import Fasta
 
@@ -94,6 +92,12 @@ class HomolCompiler:
 
     def compileHomologueSet(self, fastaRecord, fastaFileBaseName):
 
+#         ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################
+#         queryGI = re.search(r'^(s\d+)', fastaRecord.title).group(1)
+#         self.options.forceexcludegilist = [queryGI]
+#         print "EXCLUDING SELF:", queryGI
+#         ### THIS IS A HACK FOR TESTING PURPOSES TO REMOVED AGAIN ##########################################                    
+
         # Remove certain special characters from name - clustalw and mrBayes have issues with these:
         newQueryName = safeName(copy.copy(fastaRecord.title))
 
@@ -157,8 +161,8 @@ class HomolCompiler:
             print "\tRetrieval of homologs:"
             print "\t\tEntry status: (c)=cached, (d)=downloaded, (l)=local"
             print "\t\tError types:"
-            print "\t\t              (!M)=Memory error, (!D)=Download error,"
-            print "\t\t              (!T)=Insufficient/inconsistent taxonomic annotation, (!?)=Unknown error"
+            print "\t\t              (!D)=Download error, (!?)=Unknown error"
+            print "\t\t              (!T)=Taxonomic annotation problem"
 
             # Dict of gi lists keyed by species name to keep track of how
             # many representatives of each species we have so far:
@@ -533,7 +537,7 @@ class HomolCompiler:
                         identity = float(alignmentMatches)/len(alignedHomolTrunc)
                         print "\t\t%s %.0f%% identity" % (forceGI, identity * 100),
                         if identity < self.options.forceidentity:
-                            print 'WARNING: identity of match to %s too low - skipping' % queryName
+                            print 'NOTE: identity of match to %s too low - skipping' % queryName
                             continue
                         else:
                             print
@@ -783,14 +787,14 @@ class HomolCompiler:
 
                 # Status on diversity goal:
                 if not diversityGoalsMet:   
-                    print "\tWARNING: Diversity goal not reached."
+                    print "\tNOTE: Diversity goal not reached."
                     if self.options.harddiversity:
                         print "\tHard divsity limit enforced - Rejecting squence."
                         return None
 
                 # Status on data base exhaustion:
                 if not dataBaseExhausted:
-                    print "\tWARNING: Relative bit-score cut-off (%.2f) not reached." % self.options.relbitscore
+                    print "\tNOTE: Relative bit-score cut-off (%.2f) not reached." % self.options.relbitscore
                 else:
                     print "\tRelative bit-score cut-off (%.2f) at level: %s" % (self.options.relbitscore, lowestTaxonomicLevelExhausted)
 
@@ -901,7 +905,7 @@ class HomolCompiler:
             identity = float(alignmentMatches)/len(alignedHomolTrunc)
             print "\t\t%s %.0f%% identity" % (ID, identity * 100),
             if identity < self.options.forceidentity:
-                print 'WARNING: identity of match to %s too low - skipping' % homologyResult.queryName
+                print 'NOTE: identity of match to %s too low - skipping' % homologyResult.queryName
                 continue
             else:
                 print

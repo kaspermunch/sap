@@ -20,11 +20,10 @@ Parameters         Holds information from the parameters.
 """
 # XXX finish printable BLAST output
 
-import string
+from Bio.Align import Generic
 
-from SAP.Bio.Align import Generic
 
-class Header:
+class Header(object):
     """Saves information from a blast header.
 
     Members:
@@ -35,7 +34,7 @@ class Header:
 
     query               Name of query sequence.
     query_letters       Number of letters in the query sequence.  (int)
-    
+
     database            Name of the database.
     database_sequences  Number of sequences in the database.  (int)
     database_letters    Number of letters in the database.  (int)
@@ -54,25 +53,29 @@ class Header:
         self.database_sequences = None
         self.database_letters = None
 
-class Description:
+
+class Description(object):
     """Stores information about one hit in the descriptions section.
 
     Members:
     title           Title of the hit.
     score           Number of bits.  (int)
+    bits            Bit score. (float)
     e               E value.  (float)
     num_alignments  Number of alignments for the same subject.  (int)
-    
     """
     def __init__(self):
         self.title = ''
         self.score = None
+        self.bits = None
         self.e = None
         self.num_alignments = None
+
     def __str__(self):
         return "%-66s %5s  %s" % (self.title, self.score, self.e)
 
-class Alignment:
+
+class Alignment(object):
     """Stores information about one hit in the alignments section.
 
     Members:
@@ -89,17 +92,14 @@ class Alignment:
         self.hit_def = ''
         self.length = None
         self.hsps = []
-    def __str__(self):
-        lines = []
-        titles = string.split(self.title, '\n')
-        for i in range(len(titles)):
-            if i:
-                lines.append("           ")
-            lines.append("%s\n" % titles[i])
-        lines.append("           Length = %s\n" % self.length)
-        return string.join(lines, '')
 
-class HSP:
+    def __str__(self):
+        lines = self.title.split('\n')
+        lines.append("Length = %s\n" % self.length)
+        return '\n           '.join(lines)
+
+
+class HSP(object):
     """Stores information about one hsp in an alignment hit.
 
     Members:
@@ -107,9 +107,15 @@ class HSP:
     bits            Number of bits for that score.  (float)
     expect          Expect value.  (float)
     num_alignments  Number of alignments for same subject.  (int)
-    identities      Number of identities/total aligned.  tuple of (int, int)
-    positives       Number of positives/total aligned.  tuple of (int, int)
-    gaps            Numer of gaps/total aligned.  tuple of (int, int)
+    identities      Number of identities (int) if using the XML parser.
+                    Tuple of numer of identities/total aligned (int, int)
+                    if using the (obsolete) plain text parser.
+    positives       Number of positives (int) if using the XML parser.
+                    Tuple of numer of positives/total aligned (int, int)
+                    if using the (obsolete) plain text parser.
+    gaps            Number of gaps (int) if using the XML parser.
+                    Tuple of numer of gaps/total aligned (int, int) if
+                    using the (obsolete) plain text parser.
     align_length    Length of the alignment. (int)
     strand          Tuple of (query, target) strand.
     frame           Tuple of 1 or 2 frame shifts, depending on the flavor.
@@ -121,7 +127,7 @@ class HSP:
     sbjct           The sbjct sequence.
     sbjct_start     The start residue for the sbjct sequence.  (1-based)
     sbjct_end       The end residue for the sbjct sequence.  (1-based)
-    
+
     Not all flavors of BLAST return values for every attribute:
               score     expect     identities   positives    strand  frame
     BLASTP     X          X            X            X
@@ -151,7 +157,7 @@ class HSP:
         self.align_length = None
         self.strand = (None, None)
         self.frame = ()
-        
+
         self.query = ''
         self.query_start = None
         self.query_end = None
@@ -160,7 +166,36 @@ class HSP:
         self.sbjct_start = None
         self.sbjct_end = None
 
-class MultipleAlignment:
+    def __str__(self):
+        lines = ["Score %i (%i bits), expectation %0.1e, alignment length %i"
+                 % (self.score, self.bits, self.expect, self.align_length)]
+        if self.align_length < 50:
+            lines.append("Query:%s %s %s" % (str(self.query_start).rjust(8),
+                                       str(self.query),
+                                       str(self.query_end)))
+            lines.append("               %s"
+                         % (str(self.match)))
+            lines.append("Sbjct:%s %s %s" % (str(self.sbjct_start).rjust(8),
+                                       str(self.sbjct),
+                                       str(self.sbjct_end)))
+        else:
+            lines.append("Query:%s %s...%s %s"
+                         % (str(self.query_start).rjust(8),
+                            str(self.query)[:45],
+                            str(self.query)[-3:],
+                            str(self.query_end)))
+            lines.append("               %s...%s"
+                         % (str(self.match)[:45],
+                            str(self.match)[-3:]))
+            lines.append("Sbjct:%s %s...%s %s"
+                         % (str(self.sbjct_start).rjust(8),
+                            str(self.sbjct)[:45],
+                            str(self.sbjct)[-3:],
+                            str(self.sbjct_end)))
+        return "\n".join(lines)
+
+
+class MultipleAlignment(object):
     """Holds information about a multiple alignment.
 
     Members:
@@ -185,21 +220,22 @@ class MultipleAlignment:
 
         Thanks to James Casbon for the code.
         """
+        #TODO - Switch to new Bio.Align.MultipleSeqAlignment class?
         seq_parts = []
         seq_names = []
         parse_number = 0
         n = 0
         for name, start, seq, end in self.alignment:
-            if name == 'QUERY': #QUERY is the first in each alignment block
-                parse_number = parse_number + 1
+            if name == 'QUERY':  # QUERY is the first in each alignment block
+                parse_number += 1
                 n = 0
 
-            if parse_number == 1: # create on first_parse, append on all others
+            if parse_number == 1:  # create on first_parse, append on all others
                 seq_parts.append(seq)
                 seq_names.append(name)
             else:
-                seq_parts[n] = seq_parts[n] + seq
-                n = n + 1
+                seq_parts[n] += seq
+                n += 1
 
         generic = Generic.Alignment(alphabet)
         for (name,seq) in zip(seq_names,seq_parts):
@@ -207,7 +243,8 @@ class MultipleAlignment:
 
         return generic
 
-class Round:
+
+class Round(object):
     """Holds information from a PSI-BLAST round.
 
     Members:
@@ -216,7 +253,6 @@ class Round:
     new_seqs     Sequences not found, or below threshold.  List of Description.
     alignments          A list of Alignment objects.
     multiple_alignment  A MultipleAlignment object.
-    
     """
     def __init__(self):
         self.number = None
@@ -225,9 +261,10 @@ class Round:
         self.alignments = []
         self.multiple_alignment = None
 
-class DatabaseReport:
+
+class DatabaseReport(object):
     """Holds information about a database report.
-    
+
     Members:
     database_name              List of database names.  (can have multiple dbs)
     num_letters_in_database    Number of letters in the database.  (int)
@@ -247,7 +284,8 @@ class DatabaseReport:
         self.gapped = 0
         self.ka_params_gap = (None, None, None)
 
-class Parameters:
+
+class Parameters(object):
     """Holds information about the parameters.
 
     Members:
@@ -309,7 +347,9 @@ class Parameters:
         self.gap_x_dropoff_final = (None, None)
         self.gap_trigger = (None, None)
         self.blast_cutoff = (None, None)
-    
+
+
+#TODO - Add a friendly __str__ method to BLAST results
 class Blast(Header, DatabaseReport, Parameters):
     """Saves the results from a blast search.
 
@@ -327,6 +367,7 @@ class Blast(Header, DatabaseReport, Parameters):
         self.descriptions = []
         self.alignments = []
         self.multiple_alignment = None
+
 
 class PSIBlast(Header, DatabaseReport, Parameters):
     """Saves the results from a blastpgp search.
