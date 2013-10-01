@@ -11,8 +11,7 @@ from SAP import Fasta
 
 from SAP.UtilityFunctions import *
 from SAP.FindPlugins import *
-from SAP import NCBIWWW # locally hacked to allow retrieval or more hits
-from SAP import NCBIXML # locally hacked to better parse string info
+from SAP.Bio.Blast import NCBIXML
 from SAP import Taxonomy
 from SAP.XML2Obj import XML2Obj
 
