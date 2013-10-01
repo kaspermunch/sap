@@ -17,7 +17,7 @@ groups represented in an annotated sequence database.
 
 Type 'sap --onlinehelp' to open the online manual in your default browser."""
 
-        self.parser = OptionParser(usage=usage, version="%prog 1.0.12")
+        self.parser = OptionParser(usage=usage, version="%prog 1.1.0")
 
         # General options:
         self.parser.add_option("--onlinehelp",
@@ -34,12 +34,14 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           default = "GenBank",
                           help="Name of database plugin to use. Default is online GenBank. You can also specify the path to a file in FASTA format to serve as database.")
         self.parser.add_option("-S", "--assignment",
-                          type="string",
+                          type="choice",
                           default = "Barcoder",
+                          choices=['Barcoder', 'ConstrainedNJ'],
                           help="Name of sampling plugin to use. Default is Barcoder. The alternative is ConstrainedNJ")
         self.parser.add_option("-A", "--alignment",
-                          type="string",
+                          type="choice",
                           default = "Clustalw2",
+                          choices=['Clustalw2'],
                           help="Name of alignment plugin to use. Default is ClustalW2.")
         self.parser.add_option("--inputformat",
                           type="string",

@@ -14,7 +14,7 @@ if sys.version < '2.4':
 
 guiscript = 'SAP/GUI.py'
 
-version = "1.0.12"
+version = "1.1.0"
 
 if sys.platform == 'darwin':
     # Cross-platform applications generally expect sys.argv to be used for opening files:
@@ -84,9 +84,9 @@ setup(name='SAP',
                              glob.glob('ext/ima/*.c') + glob.glob('ext/ima/ima/src/*.c'),
                              include_dirs=['ext/ima', 'ext/ima/ima', 'ext/ima/ima/src']
                              ),
-                   Extension('SAP.Bio.Nexus.cnexus',
-                             ['SAP/Bio/Nexus/cnexus.c']
-                             ),
+                   #Extension('SAP.Bio.Nexus.cnexus',
+                   #          ['SAP/Bio/Nexus/cnexus.c']
+                   #          ),
                    ],
       **extra_options
       )
