@@ -1497,7 +1497,7 @@ class TaxonomySummary:
         inst = copy.deepcopy(self)
         inst._consolidate()
 
-        assert inst.keys(), str(inst)  # FIXME
+        #assert inst.keys(), str(inst)  # FIXME
         
         for key in inst.dict.keys():
             count = 0
@@ -1513,7 +1513,7 @@ class TaxonomySummary:
             if inst.dict[key] != None:
                 inst.dict[key].getLiefProbs(probList, probability)
 
-        assert probList, str(inst)  # FIXME
+        #assert probList, str(inst)  # FIXME
                 
         return probList
 
