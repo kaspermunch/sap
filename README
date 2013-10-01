@@ -9,28 +9,13 @@ as a confidence in the assignment.
 REQUIREMENTS:
 =========================================================================================
 
-You need the Python interpreter (version 2.4 or later). This is easily downloaded and
-installed from http://www.python.org. A new version 2.6 is available but I recommend
-installing the thoroughly tested 2.5 version. If you do not have the Active state python
-version or the one that comes with OSX Leopard you will need to make sure that the python
-installation includes the header file Python.h. This is the case for the the MacPython
-distribution but not for linux versions. In that case you need to install the python-dev
-package too. By default SAP generates ASCII graphics in the HTML output. If you want
-pretty SVG graphics you will also need the Adobe's SVG plugin for your browser to view
-results. This can be downloaded from http://www.adobe.com/svg/viewer/install/main.html.
-The package relies on gcc and g++ to compile extensions. If you are using Ubuntu g++ is
-not installed by default. You can install it like this: "sudo apt-get install g++", and
-then make sure that gcc and g++ are the same versions like this: "gcc --version" and "g++
---version"
-
-
 You need the Python interpreter (version 2.4 or newer) to run SAP. If you already have
 Python installed you can check the version by typing python in your terminal. Python is
-easlily downloaded and installed from: http://www.activestate.com/products/activepython.
+easlily downloaded and installed from: https://store.continuum.io/cshop/anaconda/.
 
-You also need to have gcc and g++ installed. This is part the the default installation on
-Macintosh and most Linux distributions. For some reason, however, Ubuntu does not include
-g++ by default. You need to install this yourself like this:
+You also need to have gcc and g++ or clang or clang++ installed. This is part the the
+default installation on Macintosh and most Linux distributions. If you are on a Unix/Linux
+system that does not include g++ by default. You need to install this yourself like this:
 
 sudo apt-get install g++
 
@@ -53,67 +38,3 @@ some non-default directory you make or have a directory
 python path. Then you just type:
 
 python setup.py install --prefix=<some_dir>
-
-FIREWALL SETTINGS:
-=========================================================================================
-
-SAP relies on netblast to access genbank. If you are behind a
-firewall you may need to configure your firewass settings. The
-following is copied from the netblast documentation.
-
-The setup for NCBI network clients has been greatly simplified. Users,
-not behind a firewall, can use the program after the extraction
-above. For those users behind a firewall, and already use Sequin or
-Entrez, or if your system administrator has already performed the
-setup, they should also be able to start performing searches after
-installation.
-
-If the above are not the case, users will need to make sure that the
-following IP address/port combinations are open in the firewall
-configuration.
-
-IP Address	Port Number
-130.14.29.112	5861
-130.14.29.112	5862
-130.14.29.112	5863
-
-Note: Please refer to 'firewall.html' included in the netblast package
-for details.
-
-In addition to this, users will need to create an .ncbirc file to
-instruct blastcl3 how to make the connection to NCBI. This file should
-contain the information listed below and be placed in the home
-directory. For PC running Windows, the file is named ncbi.ini which
-should be placed under the windows directory.
-
-[NCBI]
-DATA=/home/johndoe/netblast-#.#.#/data
-[CONN]
-FIREWALL=TRUE
-[NET_SERV]
-SRV_CONN_MODE=SERVICE
-
-Note: Replace the path to data directory with the path specific to
-your installation.
-
-We may encounter problems while using blastcl3. The most common cause
-for this problem is firewall configuration related. A representative
-error message generally would contain "[CONN_Open] Cannot open
-connection", "<<< Re-establishing NETBLAST Service >>>", or something
-in that order.
-
-Adding the following two lines in the .ncbirc (or ncbi.ini) file will
-increase the timeout setting and generate more informative messages
-that are useful in debugging the problem:
-
-TIMEOUT=300
-DEBUG_PRINTOUT=DATA
-
-Search related errors from NCBI BLAST server typically are accompanied
-by RID for the relevant searches. Those RIDs should be saved and sent
-to NCBI blast-help@ncbi.nlm.nih.gov for trouble shooting purposes.
-
-
-
-
-
