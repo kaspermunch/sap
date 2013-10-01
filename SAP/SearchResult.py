@@ -1,7 +1,7 @@
 import os, sys
 
 from SAP import UtilityFunctions as util
-from SAP import NCBIXML # locally hacked to better parse string info
+from SAP.Bio.Blast import NCBIXML
 
 
 def _listOrTuple(x):
