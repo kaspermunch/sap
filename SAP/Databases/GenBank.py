@@ -9,8 +9,7 @@ from SAP.Bio import Entrez
 
 from SAP import Fasta
 from SAP import UtilityFunctions as utils
-# from SAP import NCBIWWW # locally hacked to allow retrieval or more hits
-from SAP import NCBIXML # locally hacked to better parse string info
+from SAP.Bio.Blast import NCBIXML
 from SAP import Taxonomy
 from SAP import XML2Obj
 
