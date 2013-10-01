@@ -451,7 +451,7 @@ class Assignment:
                           'IMa2maxMigration': maxMigration,
                           'IMa2maxSplitTime': maxSplittime}
             pickleFileName = os.path.join(self.options.statsdir, self.name, "%s.%s.pickle" % (queryFastaRecord.title, self.name))
-            with open(pickleFileName) as f:
+            with open(pickleFileName, 'w') as f:
                 pickle.dump(f, resultDict)
 
 #             t = Table.Table().add_row(IMa2candidatePop=candidateAssignmentProb,
