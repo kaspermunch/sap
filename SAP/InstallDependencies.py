@@ -166,38 +166,39 @@ def assertNetblastInstalled(guiParent=None):
     """
     Checks if Netblast is installed.
     """
-
-    ftpURL='ftp.ncbi.nlm.nih.gov'
-    ftpDir = 'blast/executables/release/2.2.19'
-
-    found = False
-    if os.name in ('nt', 'dos'):
-        name = 'blastcl3.exe'        
-    else:
-        name = 'blastcl3'
-
-    msg = "This program depends on %s for searching the GenBank database. If you have an internet connection SAP can\ndownload and install it for you. Do you  want to do this now?" % name
-    if findOnSystem(name):
-        return True
-    else:
-        if guiParent is None:
-            reply = prompt(msg + ' Y/n:')
-            if reply == 'n':
-                sys.exit()
-        else:
-            import wx
-            nResult = wx.MessageBox(msg, "Depency missing from your system!", wx.YES_NO | wx.ICON_QUESTION, guiParent)
-            if nResult == wx.NO:
-                msg ="You can download Netblast yourself from:\nftp://%s/%s" % (ftpURL, ftpDir)
-                dlg = wx.MessageDialog(guiParent, msg, 'Manual installation', wx.OK | wx.ICON_INFORMATION)
-                dlg.ShowModal()
-                dlg.Destroy()
-                sys.exit()
-
-        packageRE = re.compile(r'netblast-[\d.]+-([^.]+)')
-        getPackage('netblast', packageRE, ftpURL, ftpDir, guiParent=guiParent)
-
-        return True
+    return assertBlastInstalled(guiParent=guiParent)
+# 
+#     ftpURL='ftp.ncbi.nlm.nih.gov'
+#     ftpDir = 'blast/executables/release/2.2.19'
+# 
+#     found = False
+#     if os.name in ('nt', 'dos'):
+#         name = 'blastcl3.exe'        
+#     else:
+#         name = 'blastcl3'
+# 
+#     msg = "This program depends on %s for searching the GenBank database. If you have an internet connection SAP can\ndownload and install it for you. Do you  want to do this now?" % name
+#     if findOnSystem(name):
+#         return True
+#     else:
+#         if guiParent is None:
+#             reply = prompt(msg + ' Y/n:')
+#             if reply == 'n':
+#                 sys.exit()
+#         else:
+#             import wx
+#             nResult = wx.MessageBox(msg, "Depency missing from your system!", wx.YES_NO | wx.ICON_QUESTION, guiParent)
+#             if nResult == wx.NO:
+#                 msg ="You can download Netblast yourself from:\nftp://%s/%s" % (ftpURL, ftpDir)
+#                 dlg = wx.MessageDialog(guiParent, msg, 'Manual installation', wx.OK | wx.ICON_INFORMATION)
+#                 dlg.ShowModal()
+#                 dlg.Destroy()
+#                 sys.exit()
+# 
+#         packageRE = re.compile(r'netblast-[\d.]+-([^.]+)')
+#         getPackage('netblast', packageRE, ftpURL, ftpDir, guiParent=guiParent)
+# 
+#         return True
     
 def assertBlastInstalled(guiParent=None):
     """
@@ -208,14 +209,14 @@ def assertBlastInstalled(guiParent=None):
 #     if findOnSystem('blastn') and findOnSystem('xdformat'):
 #         return True
 
-    ftpURL='ftp.ncbi.nlm.nih.gov'
-    ftpDir = 'blast/executables/release/2.2.19'
+    ftpURL='ftp://ftp.ncbi.nlm.nih.gov'
+    ftpDir = '/blast/executables/blast+/LATEST'
 
     found = False
     if os.name in ('nt', 'dos'):
-        name = 'blastall.exe'        
+        name = 'blastn.exe'        
     else:
-        name = 'blastall'
+        name = 'blastn'
 
     msg = "This program depends on %s for searching a local database. If you have an internet connection SAP can download and install it for you.\nDo you  want to do this now?" % name
     if findOnSystem(name):
@@ -236,7 +237,7 @@ def assertBlastInstalled(guiParent=None):
                 sys.exit()
 
         packageRE = re.compile(r'blast-[\d.]+-([^.]+)')
-        getPackage('blast', packageRE, ftpURL, ftpDir, guiParent=guiParent)
+        getPackage('blastn', packageRE, ftpURL, ftpDir, guiParent=guiParent)
 
         return True
 
