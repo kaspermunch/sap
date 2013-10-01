@@ -140,7 +140,7 @@ def assertClustalw2Installed(guiParent=None):
     else:
         name = 'clustalw2'
 
-    msg = "This program depends on %s for aligning homologues. If you have an internet connection SAP can download and install it for you. Do you  want to do this now?" % name
+    msg = "This program depends on %s for aligning homologues. If you have an internet connection SAP\ncan download and install it for you. Do you  want to do this now?" % name
     if findOnSystem(name):
         return True
     else:
@@ -209,7 +209,7 @@ def assertBlastInstalled(guiParent=None):
 #     if findOnSystem('blastn') and findOnSystem('xdformat'):
 #         return True
 
-    ftpURL='ftp://ftp.ncbi.nlm.nih.gov'
+    ftpURL='ftp.ncbi.nlm.nih.gov'
     ftpDir = '/blast/executables/blast+/LATEST'
 
     found = False
@@ -218,7 +218,8 @@ def assertBlastInstalled(guiParent=None):
     else:
         name = 'blastn'
 
-    msg = "This program depends on %s for searching a local database. If you have an internet connection SAP can download and install it for you.\nDo you  want to do this now?" % name
+    msg = "This program depends on %s for searching databases. If you have an\ninternet connection SAP can download and install it for you.\nDo you  want to do this now?" % name
+
     if findOnSystem(name):
         return True
     else:
@@ -236,7 +237,8 @@ def assertBlastInstalled(guiParent=None):
                 dlg.Destroy()
                 sys.exit()
 
-        packageRE = re.compile(r'blast-[\d.]+-([^.]+)')
+        #packageRE = re.compile(r'ncbi-blast-[\d.]+\+-([^.]+)')
+        packageRE = re.compile(r'(ncbi-blast-.+)')
         getPackage('blastn', packageRE, ftpURL, ftpDir, guiParent=guiParent)
 
         return True
@@ -310,10 +312,12 @@ def pickPlatform(platformList, guiParent=None):
 
         msg = "Pick the version that correponds to the platform\nof your computer."
 
-        if 'ia32-win32' in platformList:
+        if ['ia32-win32' in x for x in platformList]:
             msg += '\nChoose ia32-win32 for standard Windows PC'
-        if 'src' in platformList:
+        if ['src.tar.gz' in x for x in platformList]:
             msg += '\nChoose src for Linux/Unix'
+        if ['universal-macosx' in x for x in platformList]:
+            msg += '\nChoose universal-macosx for any Mac'
 
         dlg = wx.SingleChoiceDialog(
                 guiParent, msg, 'download',
@@ -330,11 +334,14 @@ def pickPlatform(platformList, guiParent=None):
         
     else:
         sys.stdout.write('The dependency is available in the following versions:\n')
+
         for i, p in enumerate(platformList):
-            if p == 'ia32-win32':
-                p  += ' (standard windows PC)'
-            if p == 'src':
-                p += ' (Linux/Unix)'
+            if 'ia32-win32' in p:
+                p  += '  <- Choose this on standard windows PC'
+            if 'src.tar.gz' in p:
+                p += '  <- Choose this on standard Linux/Unix'
+            if 'universal-macosx' in p:
+                p += '  <- Choose this on any Mac'
             sys.stdout.write(" %-04d%s\n" % (i+1, p))
 
         reply = ''
@@ -353,7 +360,7 @@ def getPackageDict(name, packageRE, ftpURL, ftpDir):
     """
     sys.stderr.write('Fetching %s package list...' % name)
     sys.stderr.flush()
-
+    
     try:
         ftp = ftplib.FTP(ftpURL)
     except:
@@ -361,7 +368,7 @@ def getPackageDict(name, packageRE, ftpURL, ftpDir):
     ftp.login()
     dirList = ftp.nlst(ftpDir)
     ftp.quit()
-
+    
     packages = {}
     for packagePath in dirList:
         search = packageRE.search(packagePath)
@@ -390,38 +397,38 @@ def install(name, tmpDirName, tmpFileName, guiParent=None):
     
     # Call the approapriate install function
     if os.name in ('posix', 'darwin'):
-        if name == 'netblast':
-            installNetblastOnPosix(tmpDirName, tmpFileName, guiParent=guiParent)
-        if name == 'blast':
+#         if name == 'netblast':
+#             installNetblastOnPosix(tmpDirName, tmpFileName, guiParent=guiParent)
+        if name == 'blastn':
             installBlastOnPosix(tmpDirName, tmpFileName, guiParent=guiParent)
         elif name == 'clustalw2':
             installClustalw2OnPosix(tmpDirName, tmpFileName, guiParent=guiParent)
     elif os.name in ('nt', 'dos'):
-        if name == 'netblast':
-            installNetblastOnWindows(tmpDirName, tmpFileName, guiParent=guiParent)
-        if name == 'blast':
-            installNlastOnWindows(tmpDirName, tmpFileName, guiParent=guiParent)
+#         if name == 'netblast':
+#             installNetblastOnWindows(tmpDirName, tmpFileName, guiParent=guiParent)
+        if name == 'blastn':
+            installBlastOnWindows(tmpDirName, tmpFileName, guiParent=guiParent)
         elif name == 'clustalw2':
             installClustalw2OnWindows(tmpDirName, tmpFileName, guiParent=guiParent)
 
-def installNetblastOnWindows(tmpDirName, tmpFileName, guiParent=None):
-    """
-    Install downloaded package on a widows platform.
-    """
-    z = zipfile.ZipFile(tmpFileName, "r")
-    for fileName in z.namelist():
-        if fileName == 'blastcl3.exe':
-            excecutable = z.read(fileName)
-    z.close()
-    installDir = 'C:\Program Files\Netblast'
-    os.makedirs(installDir)
-
-    fh = open(os.path.join(installDir, 'blastcl3.exe'), 'wb')
-    fh.write(excecutable)
-    fh.close()
-
-    if not findOnSystem('blastcl3.exe'):
-        failiure(guiParent=guiParent, errorNr=4)
+# def installNetblastOnWindows(tmpDirName, tmpFileName, guiParent=None):
+#     """
+#     Install downloaded package on a widows platform.
+#     """
+#     z = zipfile.ZipFile(tmpFileName, "r")
+#     for fileName in z.namelist():
+#         if fileName == 'blastcl3.exe':
+#             excecutable = z.read(fileName)
+#     z.close()
+#     installDir = 'C:\Program Files\Netblast'
+#     os.makedirs(installDir)
+# 
+#     fh = open(os.path.join(installDir, 'blastcl3.exe'), 'wb')
+#     fh.write(excecutable)
+#     fh.close()
+# 
+#     if not findOnSystem('blastcl3.exe'):
+#         failiure(guiParent=guiParent, errorNr=4)
 
 def installBlastOnWindows(tmpDirName, tmpFileName, guiParent=None):
     """
@@ -480,45 +487,45 @@ def installClustalw2OnWindows(tmpDirName, tmpFileName, guiParent=None):
     if not findOnSystem('clustalw2.exe'):
         failiure(guiParent=guiParent, errorNr=6)
 
-def installNetblastOnPosix(tmpDirName, tmpFileName, guiParent=None):
-    """
-    Install downloaded package on a posix platform.
-    """
-
-    # Unpack the tarball:
-    tar = tarfile.open(tmpFileName, 'r:gz')
-
-    for item in tar:
-        tar.extract(item, tmpDirName)
-    tar.close()    
-    os.unlink(tmpFileName)
-
-#     # Get content list:
-#     packageContent = glob.glob(os.path.join(tmpDirName, '*'))
-#     # Decend one dir level if tarball was unpacked to a dir:
-#     if len(packageContent) == 1 and os.path.isdir(packageContent[0]):
-#         packageContent = glob.glob(os.path.join(packageContent[0], '*'))
-    packageContent = glob.glob(os.path.join(tmpDirName, 'netblast-*', '*'))
-
-    installDir = getPossixInstallDir(guiParent=guiParent)
-
-    # Chop off the bin dir from the install path becauce we copy the
-    # bin dir and the data dir over when installing:
-    installDir = os.path.split(installDir)[0]
-
-    try:
-        if not os.access(installDir, os.W_OK):
-            if guiParent is None:                
-                os.system("sudo cp -r %s %s" % (" ".join(packageContent), installDir))
-            else:
-                os.system("echo '%s' | sudo -S cp -r %s %s" % (passwDialog(guiParent), " ".join(packageContent), installDir))
-        else:
-            os.system("cp -r %s %s" % (" ".join(packageContent), installDir))
-    except:
-        pass
-
-    if not findOnSystem('blastcl3'):
-        failiure(guiParent=guiParent, errorNr=7)
+# def installNetblastOnPosix(tmpDirName, tmpFileName, guiParent=None):
+#     """
+#     Install downloaded package on a posix platform.
+#     """
+# 
+#     # Unpack the tarball:
+#     tar = tarfile.open(tmpFileName, 'r:gz')
+# 
+#     for item in tar:
+#         tar.extract(item, tmpDirName)
+#     tar.close()    
+#     os.unlink(tmpFileName)
+# 
+# #     # Get content list:
+# #     packageContent = glob.glob(os.path.join(tmpDirName, '*'))
+# #     # Decend one dir level if tarball was unpacked to a dir:
+# #     if len(packageContent) == 1 and os.path.isdir(packageContent[0]):
+# #         packageContent = glob.glob(os.path.join(packageContent[0], '*'))
+#     packageContent = glob.glob(os.path.join(tmpDirName, 'netblast-*', '*'))
+# 
+#     installDir = getPossixInstallDir(guiParent=guiParent)
+# 
+#     # Chop off the bin dir from the install path becauce we copy the
+#     # bin dir and the data dir over when installing:
+#     installDir = os.path.split(installDir)[0]
+# 
+#     try:
+#         if not os.access(installDir, os.W_OK):
+#             if guiParent is None:                
+#                 os.system("sudo cp -r %s %s" % (" ".join(packageContent), installDir))
+#             else:
+#                 os.system("echo '%s' | sudo -S cp -r %s %s" % (passwDialog(guiParent), " ".join(packageContent), installDir))
+#         else:
+#             os.system("cp -r %s %s" % (" ".join(packageContent), installDir))
+#     except:
+#         pass
+# 
+#     if not findOnSystem('blastcl3'):
+#         failiure(guiParent=guiParent, errorNr=7)
 
 def installBlastOnPosix(tmpDirName, tmpFileName, guiParent=None):
     """
@@ -538,7 +545,7 @@ def installBlastOnPosix(tmpDirName, tmpFileName, guiParent=None):
 #     # Decend one dir level if tarball was unpacked to a dir:
 #     if len(packageContent) == 1 and os.path.isdir(packageContent[0]):
 #         packageContent = glob.glob(os.path.join(packageContent[0], '*'))
-    packageContent = glob.glob(os.path.join(tmpDirName, 'blast-*', '*'))
+    packageContent = glob.glob(os.path.join(tmpDirName, 'ncbi-blast-*', '*'))
 
     installDir = getPossixInstallDir(guiParent=guiParent)
 
@@ -557,7 +564,7 @@ def installBlastOnPosix(tmpDirName, tmpFileName, guiParent=None):
     except:
         pass
 
-    if not findOnSystem('blastcl3'):
+    if not findOnSystem('blastn'):
         failiure(guiParent=guiParent, errorNr=7)
 
 def installClustalw2OnPosix(tmpDirName, tmpFileName, guiParent=None):

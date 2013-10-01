@@ -393,6 +393,9 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
         Post process options
         """
 
+        if self.options.installdependencies:
+            return (self.options, self.args)
+
         if self.options.database == 'GenBank' and not self.options.email:
             self.showMessageAndExit("When acessing GenBank remotely you must specify your email address using the email option.", guiParent=guiParent)
            

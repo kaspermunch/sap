@@ -20,7 +20,7 @@ from SAP.ResultHTML import ResultHTML
 from SAP.Initialize import Initialize        
 from SAP.UtilityFunctions import *
 from SAP.FindPlugins import *
-from SAP.InstallDependencies import assertNetblastInstalled, assertClustalw2Installed, assertBlastInstalled
+from SAP.InstallDependencies import assertClustalw2Installed, assertBlastInstalled
 
 from SAP.PostAnalysis import IMa
 
@@ -45,7 +45,6 @@ def sap():
 
         if options.installdependencies:
             print "Checking that dependencies are installed on your system..."
-            assertNetblastInstalled()
             assertClustalw2Installed()
             assertBlastInstalled()
             sys.exit()
@@ -103,10 +102,8 @@ def sap():
 
             # Check that netblast and clustalw2 are installed:
             print "Locating dependencies"
-            assertNetblastInstalled()
             assertClustalw2Installed()
-            if os.path.exists(options.database):
-                assertBlastInstalled()
+            assertBlastInstalled()
         
             # Make directories and write fixed inputfiles:
             init = Initialize(options)
