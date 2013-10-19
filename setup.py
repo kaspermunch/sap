@@ -18,9 +18,9 @@ ez_setup.use_setuptools()
 import sys, glob
 from setuptools import setup, Extension, find_packages
 
-if sys.version < '2.4':
-    print "This package requires Python version 2.4 or higher. Aborting."
-    print "Visit http://www.python.org/download for a more recent version of Python."
+if sys.version < '2.4' or sys.version >= '3.0':
+    print "This package requires Python version 2.4 or higher and will not run with python 3. Aborting."
+    print "Visit http://www.python.org/download for a suitable version of Python."
     print "Aborting."
     sys.exit()
 
@@ -67,7 +67,7 @@ else:
 
 # This is because EPD is built against the 10.5 SDK to run on all more recent versions of OSX. If you use the 
 if sys.platform=='darwin' and sys.executable != '/usr/bin/python' and 'anaconda' not in sys.executable:
-   EXTRA_LINK_ARGS = ['-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib']
+   EXTRA_LINK_ARGS = []#'-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib']
 else:
    EXTRA_LINK_ARGS = []
 
