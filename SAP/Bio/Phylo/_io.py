@@ -12,8 +12,8 @@ This API follows the same semantics as Biopython's `SeqIO` and `AlignIO`.
 from __future__ import with_statement
 __docformat__ = "restructuredtext en"
 
-from Bio import File
-from Bio.Phylo import BaseTree, NewickIO, NexusIO, PhyloXMLIO
+from SAP.Bio import File
+from SAP.Bio.Phylo import BaseTree, NewickIO, NexusIO, PhyloXMLIO
 
 
 supported_formats = {

@@ -14,11 +14,11 @@ the sequences as SeqRecord objects.
 See also Bio.SeqIO.UniprotIO.py which supports the "uniprot-xml" format.
 """
 
-from Bio import Seq
-from Bio import SeqRecord
-from Bio import Alphabet
-from Bio import SeqFeature
-from Bio import SwissProt
+from SAP.Bio import Seq
+from SAP.Bio import SeqRecord
+from SAP.Bio import Alphabet
+from SAP.Bio import SeqFeature
+from SAP.Bio import SwissProt
 
 
 def _make_position(location_string, offset=0):

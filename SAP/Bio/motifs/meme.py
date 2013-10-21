@@ -4,9 +4,9 @@
 # license.  Please see the LICENSE file that should have been included
 # as part of this package.
 
-from Bio.Alphabet import IUPAC
-from Bio import Seq
-from Bio import motifs
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio import Seq
+from SAP.Bio import motifs
 
 
 def read(handle):
@@ -15,7 +15,7 @@ def read(handle):
     Example:
 
     >>> f = open("meme.output.txt")
-    >>> from Bio.Motif import MEME
+    >>> from SAP.Bio.Motif import MEME
     >>> record = MEME.parse(f)
     >>> for motif in record:
     ...     for instance in motif.instances:
@@ -95,7 +95,7 @@ class Record(list):
     by its name:
 
     >>> f = open("meme.output.txt")
-    >>> from Bio import motifs
+    >>> from SAP.Bio import motifs
     >>> record = motifs.parse(f, 'MEME')
     >>> motif = record[0]
     >>> print motif.name

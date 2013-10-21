@@ -7,7 +7,7 @@ type of crossover.
 import random
 
 # local stuff
-from Bio.GA.Organism import Organism
+from SAP.Bio.GA.Organism import Organism
 
 
 class SafeFitnessCrossover(object):

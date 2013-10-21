@@ -20,7 +20,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 
-from Bio._py3k import _as_string, _as_bytes
+from SAP.Bio._py3k import _as_string, _as_bytes
 
 
 def qblast(program, database, sequence,

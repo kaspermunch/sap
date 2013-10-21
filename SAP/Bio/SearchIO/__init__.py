@@ -38,7 +38,7 @@ that yields one QueryResult object per iteration.
 `parse` takes two arguments: 1) a file handle or a filename of the input file
 (the search output file) and 2) the format name.
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> for qresult in SearchIO.parse('Blast/mirna.xml', 'blast-xml'):
     ...     print qresult.id, qresult.description
     ...
@@ -202,10 +202,10 @@ __docformat__ = 'epytext en'
 import sys
 import warnings
 
-from Bio import BiopythonExperimentalWarning
-from Bio.File import as_handle
-from Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
-from Bio.SearchIO._utils import get_processor
+from SAP.Bio import BiopythonExperimentalWarning
+from SAP.Bio.File import as_handle
+from SAP.Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
+from SAP.Bio.SearchIO._utils import get_processor
 
 
 warnings.warn('Bio.SearchIO is an experimental submodule which may undergo '
@@ -276,7 +276,7 @@ def parse(handle, format=None, **kwargs):
     This function is used to iterate over each query in a given search output
     file:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> qresults = SearchIO.parse('Blast/mirna.xml', 'blast-xml')
     >>> qresults
     <generator object ...>
@@ -292,7 +292,7 @@ def parse(handle, format=None, **kwargs):
     simple example, where the keyword argument enables parsing of a commented
     BLAST tabular output file:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> for qresult in SearchIO.parse('Blast/mirna.tab', 'blast-tab', comments=True):
     ...     print "Search %s has %i hits" % (qresult.id, len(qresult))
     ...
@@ -326,7 +326,7 @@ def read(handle, format=None, **kwargs):
 
     `read` is used for parsing search output files containing exactly one query:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> qresult = SearchIO.read('Blast/xml_2226_blastp_004.xml', 'blast-xml')
     >>> print qresult.id, qresult.description
     ...
@@ -334,7 +334,7 @@ def read(handle, format=None, **kwargs):
 
     If the given handle has no results, an exception will be raised:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> qresult = SearchIO.read('Blast/tab_2226_tblastn_002.txt', 'blast-tab')
     Traceback (most recent call last):
     ...
@@ -343,7 +343,7 @@ def read(handle, format=None, **kwargs):
     Similarly, if the given handle has more than one results, an exception will
     also be raised:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> qresult = SearchIO.read('Blast/tab_2226_tblastn_001.txt', 'blast-tab')
     Traceback (most recent call last):
     ...
@@ -382,7 +382,7 @@ def to_dict(qresults, key_function=lambda rec: rec.id):
     This function enables access of QueryResult objects from a single search
     output file using its identifier.
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> qresults = SearchIO.parse('Blast/wnts.xml', 'blast-xml')
     >>> search_dict = SearchIO.to_dict(qresults)
     >>> sorted(search_dict.keys())
@@ -395,7 +395,7 @@ def to_dict(qresults, key_function=lambda rec: rec.id):
     Here is an example using a function that removes the 'gi|' part in the
     beginning of the QueryResult ID.
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> qresults = SearchIO.parse('Blast/wnts.xml', 'blast-xml')
     >>> key_func = lambda qresult: qresult.id.split('|')[1]
     >>> search_dict = SearchIO.to_dict(qresults, key_func)
@@ -440,7 +440,7 @@ def index(filename, format=None, key_function=None, **kwargs):
     to its start position, parse the whole query, and return it as a
     QueryResult object:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> search_idx = SearchIO.index('Blast/wnts.xml', 'blast-xml')
     >>> search_idx
     SearchIO.index('Blast/wnts.xml', 'blast-xml', key_function=None)
@@ -452,7 +452,7 @@ def index(filename, format=None, key_function=None, **kwargs):
     If the file is BGZF compressed, this is detected automatically. Ordinary
     GZIP files are not supported:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> search_idx = SearchIO.index('Blast/wnts.xml.bgz', 'blast-xml')
     >>> search_idx
     SearchIO.index('Blast/wnts.xml.bgz', 'blast-xml', key_function=None)
@@ -463,7 +463,7 @@ def index(filename, format=None, key_function=None, **kwargs):
     string. This function should accept as its input the QueryResult ID string
     and return a modified version of it.
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> key_func = lambda id: id.split('|')[1]
     >>> search_idx = SearchIO.index('Blast/wnts.xml', 'blast-xml', key_func)
     >>> search_idx
@@ -480,7 +480,7 @@ def index(filename, format=None, key_function=None, **kwargs):
     if not isinstance(filename, basestring):
         raise TypeError("Need a filename (not a handle)")
 
-    from Bio.File import _IndexedSeqFileDict
+    from SAP.Bio.File import _IndexedSeqFileDict
     proxy_class = get_processor(format, _INDEXER_MAP)
     repr = "SearchIO.index(%r, %r, key_function=%r)" \
         % (filename, format, key_function)
@@ -510,7 +510,7 @@ def index_db(index_filename, filenames=None, format=None,
     sessions. This enables access to any queries in the file without any
     indexing overhead, provided it has been indexed at least once.
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> db_idx = SearchIO.index_db(':memory:', 'Blast/mirna.xml', 'blast-xml')
     >>> sorted(db_idx.keys())
     ['33211', '33212', '33213']
@@ -521,7 +521,7 @@ def index_db(index_filename, filenames=None, format=None,
     database, making it easier to group multiple search files and access them
     from a single interface.
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> files = ['Blast/mirna.xml', 'Blast/wnts.xml']
     >>> db_idx = SearchIO.index_db(':memory:', files, 'blast-xml')
     >>> sorted(db_idx.keys())
@@ -547,7 +547,7 @@ def index_db(index_filename, filenames=None, format=None,
     if isinstance(filenames, basestring):
         filenames = [filenames]
 
-    from Bio.File import _SQLiteManySeqFilesDict
+    from SAP.Bio.File import _SQLiteManySeqFilesDict
     repr = "SearchIO.index_db(%r, filenames=%r, format=%r, key_function=%r, ...)" \
                % (index_filename, filenames, format, key_function)
 
@@ -578,7 +578,7 @@ def write(qresults, handle, format=None, **kwargs):
     function will return a tuple of four values: the number of QueryResult, Hit,
     HSP, and HSPFragment objects it writes to the output file::
 
-        from Bio import SearchIO
+        from SAP.Bio import SearchIO
         qresults = SearchIO.parse('Blast/mirna.xml', 'blast-xml')
         SearchIO.write(qresults, 'results.tab', 'blast-tab')
         <stdout> (3, 239, 277, 277)
@@ -587,7 +587,7 @@ def write(qresults, handle, format=None, **kwargs):
     keyword arguments. Here is an example that writes BLAT PSL output file with
     a header::
 
-        from Bio import SearchIO
+        from SAP.Bio import SearchIO
         qresults = SearchIO.parse('Blat/psl_34_001.psl', 'blat-psl')
         SearchIO.write(qresults, 'results.tab', 'blat-psl', header=True)
         <stdout> (2, 13, 22, 26)
@@ -630,7 +630,7 @@ def convert(in_file, in_format, out_file, out_format, in_kwargs=None,
     Here is an example of using `convert` to convert from a BLAST+ XML file
     into a tabular file with comments::
 
-        from Bio import SearchIO
+        from SAP.Bio import SearchIO
         in_file = 'Blast/mirna.xml'
         in_fmt = 'blast-xml'
         out_file = 'results.tab'
@@ -669,5 +669,5 @@ def convert(in_file, in_format, out_file, out_format, in_kwargs=None,
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

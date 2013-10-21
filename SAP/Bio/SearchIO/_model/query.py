@@ -8,9 +8,9 @@
 from copy import deepcopy
 from itertools import chain
 
-from Bio._py3k import OrderedDict
-from Bio._utils import trim_str
-from Bio.SearchIO._utils import partialcascade
+from SAP.Bio._py3k import OrderedDict
+from SAP.Bio._utils import trim_str
+from SAP.Bio.SearchIO._utils import partialcascade
 
 from _base import _BaseSearchObject
 from hit import Hit
@@ -29,7 +29,7 @@ class QueryResult(_BaseSearchObject):
     You can take a quick look at a QueryResult's contents and attributes by
     invoking `print` on it:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> qresult = SearchIO.parse('Blast/mirna.xml', 'blast-xml').next()
     >>> print qresult
     Program: blastn (2.2.27+)
@@ -456,7 +456,7 @@ class QueryResult(_BaseSearchObject):
         Here is an example of using `hit_filter` to select Hits whose
         description begins with the string 'Homo sapiens', case sensitive:
 
-        >>> from Bio import SearchIO
+        >>> from SAP.Bio import SearchIO
         >>> qresult = SearchIO.parse('Blast/mirna.xml', 'blast-xml').next()
         >>> def desc_filter(hit):
         ...     return hit.description.startswith('Homo sapiens')
@@ -504,7 +504,7 @@ class QueryResult(_BaseSearchObject):
         Here is an example of using `hit_map` with a function that discards all
         HSPs in a Hit except for the first one:
 
-        >>> from Bio import SearchIO
+        >>> from SAP.Bio import SearchIO
         >>> qresult = SearchIO.parse('Blast/mirna.xml', 'blast-xml').next()
         >>> print qresult[:8]
         Program: blastn (2.2.27+)
@@ -596,7 +596,7 @@ class QueryResult(_BaseSearchObject):
         QueryResult object. To remove specific Hit objects, you can use its
         integer index or hit key.
 
-        >>> from Bio import SearchIO
+        >>> from SAP.Bio import SearchIO
         >>> qresult = SearchIO.parse('Blast/mirna.xml', 'blast-xml').next()
         >>> len(qresult)
         100
@@ -648,7 +648,7 @@ class QueryResult(_BaseSearchObject):
         This method is useful for finding out the integer index (usually
         correlated with search rank) of a given hit key.
 
-        >>> from Bio import SearchIO
+        >>> from SAP.Bio import SearchIO
         >>> qresult = SearchIO.parse('Blast/mirna.xml', 'blast-xml').next()
         >>> qresult.index('gi|301171259|ref|NR_035850.1|')
         7
@@ -699,5 +699,5 @@ class QueryResult(_BaseSearchObject):
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

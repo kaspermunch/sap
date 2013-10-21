@@ -1,6 +1,6 @@
 import math
 from CodonUsageIndices import SharpEcoliIndex
-from Bio import SeqIO # To parse a FASTA file
+from SAP.Bio import SeqIO # To parse a FASTA file
 
 
 CodonsDict = {'TTT': 0, 'TTC': 0, 'TTA': 0, 'TTG': 0, 'CTT': 0,

@@ -104,7 +104,7 @@ def parse(handle):
 
     Typical usage:
 
-        from Bio import Medline
+        from SAP.Bio import Medline
         handle = open("mymedlinefile")
         records = Medline.parse(handle)
         for record in record:
@@ -159,7 +159,7 @@ def read(handle):
 
     Typical usage:
 
-        from Bio import Medline
+        from SAP.Bio import Medline
         handle = open("mymedlinefile")
         record = Medline.read(handle)
         print record['TI']

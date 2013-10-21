@@ -24,11 +24,11 @@ import os
 import re
 import tempfile
 
-from Bio.SCOP.Raf import to_one_letter_code
+from SAP.Bio.SCOP.Raf import to_one_letter_code
 
-from Bio.PDB.AbstractPropertyMap import AbstractResiduePropertyMap
-from Bio.PDB.PDBExceptions import PDBException
-from Bio.PDB.PDBParser import PDBParser
+from SAP.Bio.PDB.AbstractPropertyMap import AbstractResiduePropertyMap
+from SAP.Bio.PDB.PDBExceptions import PDBException
+from SAP.Bio.PDB.PDBParser import PDBParser
 
 
 # Match C in DSSP

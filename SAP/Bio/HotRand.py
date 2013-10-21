@@ -9,7 +9,7 @@
 """
 
 import urllib
-from Bio import BiopythonDeprecationWarning
+from SAP.Bio import BiopythonDeprecationWarning
 import warnings
 warnings.warn("The HotRand module is deprecated and likely to be removed in a future release of Biopython. Please use an alternative RNG.", BiopythonDeprecationWarning)
 

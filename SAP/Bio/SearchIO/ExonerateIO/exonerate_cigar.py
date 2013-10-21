@@ -7,7 +7,7 @@
 
 import re
 
-from Bio._py3k import _as_bytes, _bytes_to_string
+from SAP.Bio._py3k import _as_bytes, _bytes_to_string
 
 from _base import _BaseExonerateParser, _STRAND_MAP
 from exonerate_vulgar import ExonerateVulgarIndexer
@@ -104,5 +104,5 @@ class ExonerateCigarIndexer(ExonerateVulgarIndexer):
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

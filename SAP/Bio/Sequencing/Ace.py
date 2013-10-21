@@ -16,7 +16,7 @@ There are two ways of reading an ace file:
 
 1) Parse whole ace file at once:
 
-        from Bio.Sequencing import Ace
+        from SAP.Bio.Sequencing import Ace
         acefilerecord=Ace.read(open('my_ace_file.ace'))
 
 This gives you:
@@ -39,7 +39,7 @@ see _RecordConsumer for details.
 
 2) Or you can iterate over the contigs of an ace file one by one in the ususal way:
 
-        from Bio.Sequencing import Ace
+        from SAP.Bio.Sequencing import Ace
         contigs=Ace.parse(open('my_ace_file.ace'))
         for contig in contigs:
             print contig.name

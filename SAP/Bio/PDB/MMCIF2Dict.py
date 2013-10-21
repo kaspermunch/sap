@@ -7,7 +7,7 @@
 
 import os.path
 import warnings
-import Bio.PDB.mmCIF.MMCIFlex as MMCIFlex
+import SAP.Bio.PDB.mmCIF.MMCIFlex as MMCIFlex
 
 
 class MMCIF2Dict(dict):

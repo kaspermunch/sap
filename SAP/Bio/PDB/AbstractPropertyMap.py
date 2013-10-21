@@ -79,7 +79,7 @@ class AbstractPropertyMap(object):
         @type res_id: char
         """
         import warnings
-        from Bio import BiopythonDeprecationWarning
+        from SAP.Bio import BiopythonDeprecationWarning
         warnings.warn("This function is deprecated; use 'id in mapping' instead", BiopythonDeprecationWarning)
         return (id in self)
 

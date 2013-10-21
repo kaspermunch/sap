@@ -17,10 +17,10 @@ originally introduced by SwissProt ("swiss" format in Bio.SeqIO).
 """
 import sys
 
-from Bio import Seq
-from Bio import SeqFeature
-from Bio import Alphabet
-from Bio.SeqRecord import SeqRecord
+from SAP.Bio import Seq
+from SAP.Bio import SeqFeature
+from SAP.Bio import Alphabet
+from SAP.Bio.SeqRecord import SeqRecord
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -65,7 +65,7 @@ def UniprotIterator(handle, alphabet=Alphabet.ProteinAlphabet(), return_raw_comm
             raise Exception('An XML-containing handler or an XML string must be passed')
 
     if ElementTree is None:
-        from Bio import MissingExternalDependencyError
+        from SAP.Bio import MissingExternalDependencyError
         raise MissingExternalDependencyError(
                 "No ElementTree module was found. "
                 "Use Python 2.5+, lxml or elementtree if you "

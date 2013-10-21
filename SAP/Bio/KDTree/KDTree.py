@@ -17,7 +17,7 @@ Otfried Schwarzkopf). Author: Thomas Hamelryck.
 from numpy import sum, sqrt, array
 from numpy.random import random
 
-from Bio.KDTree import _CKDTree
+from SAP.Bio.KDTree import _CKDTree
 
 
 def _dist(p, q):

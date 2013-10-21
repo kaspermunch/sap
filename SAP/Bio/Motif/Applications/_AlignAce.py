@@ -23,7 +23,7 @@ Roth, FR, Hughes, JD, Estep, PE & GM Church, Nature Biotechnology
 1998 Oct;16(10):939-45.
 
 """
-from Bio.Application import AbstractCommandline, _Option, _Argument
+from SAP.Bio.Application import AbstractCommandline, _Option, _Argument
 
 
 class AlignAceCommandline(AbstractCommandline):
@@ -31,7 +31,7 @@ class AlignAceCommandline(AbstractCommandline):
 
     Example:
 
-    >>> from Bio.Motif.Applications import AlignAceCommandline
+    >>> from SAP.Bio.Motif.Applications import AlignAceCommandline
     >>> in_file = "sequences.fasta"
     >>> alignace_cline = AlignAceCommandline(infile=in_file, gcback=0.55)
     >>> print alignace_cline
@@ -92,7 +92,7 @@ class CompareAceCommandline(AbstractCommandline):
 
     Example:
 
-    >>> from Bio.Motif.Applications import CompareAceCommandline
+    >>> from SAP.Bio.Motif.Applications import CompareAceCommandline
     >>> m1_file = "sequences1.fasta"
     >>> m2_file = "sequences2.fasta"
     >>> compareace_cline = CompareAceCommandline(motif1=m1_file, motif2=m2_file)

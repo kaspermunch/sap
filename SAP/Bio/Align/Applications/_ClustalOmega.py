@@ -11,7 +11,7 @@
 """Command line wrapper for the multiple alignment program Clustal Omega.
 """
 
-from Bio.Application import _Option, _Switch, AbstractCommandline
+from SAP.Bio.Application import _Option, _Switch, AbstractCommandline
 
 
 class ClustalOmegaCommandline(AbstractCommandline):
@@ -21,7 +21,7 @@ class ClustalOmegaCommandline(AbstractCommandline):
 
     Example:
 
-    >>> from Bio.Align.Applications import ClustalOmegaCommandline
+    >>> from SAP.Bio.Align.Applications import ClustalOmegaCommandline
     >>> in_file = "unaligned.fasta"
     >>> out_file = "aligned.fasta"
     >>> clustalomega_cline = ClustalOmegaCommandline(infile=in_file, outfile=out_file, verbose=True, auto=True)

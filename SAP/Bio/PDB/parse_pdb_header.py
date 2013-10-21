@@ -27,7 +27,7 @@
 from __future__ import with_statement
 import re
 
-from Bio import File
+from SAP.Bio import File
 
 
 def _get_journal(inl):

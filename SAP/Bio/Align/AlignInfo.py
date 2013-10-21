@@ -14,10 +14,10 @@ import math
 import sys
 
 # biopython modules
-from Bio import Alphabet
-from Bio.Alphabet import IUPAC
-from Bio.Seq import Seq
-from Bio.SubsMat import FreqTable
+from SAP.Bio import Alphabet
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SubsMat import FreqTable
 
 # Expected random distributions for 20-letter protein, and
 # for 4-letter nucleotide alphabets
@@ -685,8 +685,8 @@ def print_info_content(summary_info,fout=None,rep_record=0):
 
 if __name__ == "__main__":
     print "Quick test"
-    from Bio import AlignIO
-    from Bio.Align.Generic import Alignment
+    from SAP.Bio import AlignIO
+    from SAP.Bio.Align.Generic import Alignment
 
     filename = "../../Tests/GFF/multi.fna"
     format = "fasta"

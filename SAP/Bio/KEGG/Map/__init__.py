@@ -18,7 +18,7 @@ where RXXXXX is a five-digit reaction id, and X.X.X.X is the optional
 EC number of the enzyme that catalyze the reaction.
 """
 
-from Bio.Pathway import Reaction
+from SAP.Bio.Pathway import Reaction
 
 
 def parse(handle):

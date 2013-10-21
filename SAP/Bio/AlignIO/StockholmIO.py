@@ -27,7 +27,7 @@ For example, consider a Stockholm alignment file containing the following::
 This is a single multiple sequence alignment, so you would probably load this
 using the Bio.AlignIO.read() function:
 
-    >>> from Bio import AlignIO
+    >>> from SAP.Bio import AlignIO
     >>> align = AlignIO.read("Stockholm/simple.sth", "stockholm")
     >>> print align
     SingleLetterAlphabet() alignment with 2 rows and 104 columns
@@ -43,8 +43,8 @@ This example file is clearly using RNA, so you might want the alignment object
 the default single letter alphabet as shown above.  You can do this with an
 optional argument to the Bio.AlignIO.read() function:
 
-    >>> from Bio import AlignIO
-    >>> from Bio.Alphabet import generic_rna
+    >>> from SAP.Bio import AlignIO
+    >>> from SAP.Bio.Alphabet import generic_rna
     >>> align = AlignIO.read("Stockholm/simple.sth", "stockholm",
     ...                      alphabet=generic_rna)
     >>> print align
@@ -106,8 +106,8 @@ Finally, as an aside, it can sometimes be useful to use Bio.SeqIO.parse() to
 iterate over the alignment rows as SeqRecord objects - rather than working
 with Alignnment objects. Again, if you want to you can specify this is RNA:
 
-    >>> from Bio import SeqIO
-    >>> from Bio.Alphabet import generic_rna
+    >>> from SAP.Bio import SeqIO
+    >>> from SAP.Bio.Alphabet import generic_rna
     >>> for record in SeqIO.parse("Stockholm/simple.sth", "stockholm",
     ...                           alphabet=generic_rna):
     ...     print record.id
@@ -130,9 +130,9 @@ secondary structure string here, are also sliced:
     -------<<<
 """
 __docformat__ = "epytext en"  # not just plaintext
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.Align import MultipleSeqAlignment
 from Interfaces import AlignmentIterator, SequentialAlignmentWriter
 
 
@@ -535,5 +535,5 @@ class StockholmIterator(AlignmentIterator):
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

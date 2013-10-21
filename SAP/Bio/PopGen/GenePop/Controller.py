@@ -12,7 +12,7 @@ import os
 import re
 import shutil
 
-from Bio.Application import AbstractCommandline, _Argument
+from SAP.Bio.Application import AbstractCommandline, _Argument
 
 
 def _gp_float(tok):

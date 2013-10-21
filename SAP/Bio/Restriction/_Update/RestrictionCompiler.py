@@ -43,19 +43,19 @@ import time
 import sys
 import shutil
 
-from Bio.Seq import Seq
+from SAP.Bio.Seq import Seq
 
-import Bio.Restriction.Restriction
-from Bio.Restriction.Restriction import AbstractCut, RestrictionType, NoCut, OneCut
-from Bio.Restriction.Restriction import TwoCuts, Meth_Dep, Meth_Undep, Palindromic
-from Bio.Restriction.Restriction import NonPalindromic, Unknown, Blunt, Ov5, Ov3
-from Bio.Restriction.Restriction import NotDefined, Defined, Ambiguous
-from Bio.Restriction.Restriction import Commercially_available, Not_available
+import SAP.Bio.Restriction.Restriction
+from SAP.Bio.Restriction.Restriction import AbstractCut, RestrictionType, NoCut, OneCut
+from SAP.Bio.Restriction.Restriction import TwoCuts, Meth_Dep, Meth_Undep, Palindromic
+from SAP.Bio.Restriction.Restriction import NonPalindromic, Unknown, Blunt, Ov5, Ov3
+from SAP.Bio.Restriction.Restriction import NotDefined, Defined, Ambiguous
+from SAP.Bio.Restriction.Restriction import Commercially_available, Not_available
 
-import Bio.Restriction.RanaConfig as config
-from Bio.Restriction._Update.Update import RebaseUpdate
-from Bio.Restriction.Restriction import *
-from Bio.Restriction.DNAUtils import antiparallel
+import SAP.Bio.Restriction.RanaConfig as config
+from SAP.Bio.Restriction._Update.Update import RebaseUpdate
+from SAP.Bio.Restriction.Restriction import *
+from SAP.Bio.Restriction.DNAUtils import antiparallel
 
 DNA=Seq
 dna_alphabet = {'A':'A', 'C':'C', 'G':'G', 'T':'T',
@@ -524,7 +524,7 @@ class DictionaryBuilder(object):
         print '\n ' +'*'*78 + ' \n'
         print '\n\t\tInstalling Restriction_Dictionary.py'
         try:
-            import Bio.Restriction.Restriction_Dictionary as rd
+            import SAP.Bio.Restriction.Restriction_Dictionary as rd
         except ImportError:
             print '\
             \n Unable to locate the previous Restriction_Dictionary.py module\
@@ -573,7 +573,7 @@ class DictionaryBuilder(object):
         print '\n ' +'*'*78 + '\n'
         #update = config.updatefolder
         try:
-            import Bio.Restriction.Restriction_Dictionary as rd
+            import SAP.Bio.Restriction.Restriction_Dictionary as rd
         except ImportError:
             print '\
             \n Unable to locate the previous Restriction_Dictionary.py module\

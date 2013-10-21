@@ -19,8 +19,8 @@ import os
 import shutil
 import thread
 from time import sleep
-from Bio.PopGen.Async import Local
-from Bio.PopGen.FDist.Controller import FDistController
+from SAP.Bio.PopGen.Async import Local
+from SAP.Bio.PopGen.FDist.Controller import FDistController
 
 
 class FDistAsync(FDistController):

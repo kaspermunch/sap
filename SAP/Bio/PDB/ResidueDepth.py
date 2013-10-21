@@ -44,9 +44,9 @@ import tempfile
 
 import numpy
 
-from Bio.PDB import Selection
-from Bio.PDB.AbstractPropertyMap import AbstractPropertyMap
-from Bio.PDB.Polypeptide import is_aa
+from SAP.Bio.PDB import Selection
+from SAP.Bio.PDB.AbstractPropertyMap import AbstractPropertyMap
+from SAP.Bio.PDB.Polypeptide import is_aa
 
 
 def _read_vertex_array(filename):
@@ -164,7 +164,7 @@ class ResidueDepth(AbstractPropertyMap):
 if __name__=="__main__":
 
     import sys
-    from Bio.PDB import PDBParser
+    from SAP.Bio.PDB import PDBParser
 
     p=PDBParser()
     s=p.get_structure("X", sys.argv[1])

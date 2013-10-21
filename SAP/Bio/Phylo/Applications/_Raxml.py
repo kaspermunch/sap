@@ -9,7 +9,7 @@ should work for any version 7.X (and probably earlier for most options).
 """
 __docformat__ = "restructuredtext en"
 
-from Bio.Application import _Option, _Switch, AbstractCommandline
+from SAP.Bio.Application import _Option, _Switch, AbstractCommandline
 
 
 class RaxmlCommandline(AbstractCommandline):
@@ -21,7 +21,7 @@ class RaxmlCommandline(AbstractCommandline):
 
     Example:
 
-    >>> from Bio.Phylo.Applications import RaxmlCommandline
+    >>> from SAP.Bio.Phylo.Applications import RaxmlCommandline
     >>> raxml_cline = RaxmlCommandline(sequences="Tests/Phylip/interlaced2.phy",
     ...                                model="PROTCATWAG", name="interlaced2")
     >>> print raxml_cline

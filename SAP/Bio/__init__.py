@@ -42,7 +42,7 @@ class BiopythonWarning(Warning):
     silence all our warning messages should you wish to:
 
         >>> import warnings
-        >>> from Bio import BiopythonWarning
+        >>> from SAP.Bio import BiopythonWarning
         >>> warnings.simplefilter('ignore', BiopythonWarning)
 
     Consult the warnings module documentation for more details.
@@ -58,7 +58,7 @@ class BiopythonParserWarning(BiopythonWarning):
     warning to indicate a potential problem. To silence these warnings, use:
 
         >>> import warnings
-        >>> from Bio import BiopythonParserWarning
+        >>> from SAP.Bio import BiopythonParserWarning
         >>> warnings.simplefilter('ignore', BiopythonParserWarning)
 
     Consult the warnings module documentation for more details.
@@ -75,7 +75,7 @@ class BiopythonDeprecationWarning(BiopythonWarning):
     To silence all our deprecation warning messages, use:
 
         >>> import warnings
-        >>> from Bio import BiopythonDeprecationWarning
+        >>> from SAP.Bio import BiopythonDeprecationWarning
         >>> warnings.simplefilter('ignore', BiopythonDeprecationWarning)
 
     Code marked as deprecated is likely to be removed in a future version

@@ -7,8 +7,8 @@
 
 """Standard nucleotide and protein alphabets defined by IUPAC."""
 
-from Bio import Alphabet
-from Bio.Data import IUPACData
+from SAP.Bio import Alphabet
+from SAP.Bio.Data import IUPACData
 
 ##################### Protein
 

@@ -13,11 +13,11 @@ Usage:
 
     >>> from Rana.fts import fts    #
     >>> from Rana.Vector import *   # Just a way to get a sequence.
-    >>> from Bio.Seq import Seq     # Use your prefer method here.
+    >>> from SAP.Bio.Seq import Seq     # Use your prefer method here.
     >>> pbr = fts(pBR322)           #
     >>> seq = Seq(str(pbr))         #
     >>>
-    >>> from Bio.Restriction import *
+    >>> from SAP.Bio.Restriction import *
     >>> a = Analysis(AllEnzymes, seq, linear=False)
     >>> b = a.blunt()
     >>> a.print_that()              # no argument -> print all the results
@@ -58,7 +58,7 @@ Usage:
     >>>
     """
 
-from Bio.Restriction.Restriction import *
+from SAP.Bio.Restriction.Restriction import *
 #
 #   OK can't put the following code in Bio.Restriction.__init__ unless
 #   I put everything from Restriction in here.
@@ -76,7 +76,7 @@ from Bio.Restriction.Restriction import *
 #           1) a class of type 'RestrictionType'
 #           2) a string of the name of the enzyme (it's repr)
 #               i.e:
-#                   >>> from Bio.Restriction import RestrictionBatch, EcoRI
+#                   >>> from SAP.Bio.Restriction import RestrictionBatch, EcoRI
 #                   >>> MyBatch = RestrictionBatch(EcoRI)
 #                   >>> #!/usr/bin/env python
 #                   >>> EcoRI in MyBatch        # the class EcoRI.
@@ -88,7 +88,7 @@ from Bio.Restriction.Restriction import *
 #   OK, that's how it is suppose to work. And I find it quite useful.
 #
 #   Now if I leave the code here I got:
-#                   >>> from Bio.Restriction import RestrictionBatch, EcoRI
+#                   >>> from SAP.Bio.Restriction import RestrictionBatch, EcoRI
 #                   >>> MyBatch = RestrictionBatch(EcoRI)
 #                   >>> EcoRI in MyBatch # the class EcoRI.
 #                   True
@@ -109,7 +109,7 @@ from Bio.Restriction.Restriction import *
 #
 #   So the following code has been moved back to Bio.Restricion.Restriction
 #   For the user the results is transparent:
-#   from Bio.Restriction import * works as before.
+#   from SAP.Bio.Restriction import * works as before.
 #
 
 ###

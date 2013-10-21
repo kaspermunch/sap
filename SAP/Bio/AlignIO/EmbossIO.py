@@ -13,9 +13,9 @@ This module contains a parser for the EMBOSS pairs/simple file format, for
 example from the alignret, water and needle tools.
 """
 
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.Align import MultipleSeqAlignment
 from Interfaces import AlignmentIterator, SequentialAlignmentWriter
 
 

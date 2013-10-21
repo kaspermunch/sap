@@ -21,11 +21,11 @@ import struct
 
 from os.path import basename
 
-from Bio import Alphabet
-from Bio.Alphabet.IUPAC import ambiguous_dna, unambiguous_dna
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio._py3k import _bytes_to_string, _as_bytes
+from SAP.Bio import Alphabet
+from SAP.Bio.Alphabet.IUPAC import ambiguous_dna, unambiguous_dna
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio._py3k import _bytes_to_string, _as_bytes
 
 # dictionary for determining which tags goes into SeqRecord annotation
 # each key is tag_name + tag_number

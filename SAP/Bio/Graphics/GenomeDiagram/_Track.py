@@ -377,7 +377,7 @@ class Track(object):
 if __name__ == '__main__':
 
     # test code
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
     from _FeatureSet import FeatureSet
     from _GraphSet import GraphSet
     from random import normalvariate

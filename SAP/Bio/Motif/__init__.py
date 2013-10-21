@@ -24,10 +24,10 @@ warnings.warn("The module Bio.Motif is now obsolete, and will be"
               PendingDeprecationWarning)
 
 
-from Bio.Motif._Motif import Motif
-from Bio.Motif.Parsers.AlignAce import read as _AlignAce_read
-from Bio.Motif.Parsers.MEME import read as _MEME_read
-from Bio.Motif.Thresholds import ScoreDistribution
+from SAP.Bio.Motif._Motif import Motif
+from SAP.Bio.Motif.Parsers.AlignAce import read as _AlignAce_read
+from SAP.Bio.Motif.Parsers.MEME import read as _MEME_read
+from SAP.Bio.Motif.Thresholds import ScoreDistribution
 
 _parsers={"AlignAce" : _AlignAce_read,
           "MEME" : _MEME_read,
@@ -59,7 +59,7 @@ def parse(handle,format):
 
     For example:
 
-    >>> from Bio import Motif
+    >>> from SAP.Bio import Motif
     >>> for motif in Motif.parse(open("Motif/alignace.out"),"AlignAce"):
     ...     print motif.consensus()
     TCTACGATTGAG
@@ -100,14 +100,14 @@ def read(handle,format):
     only for files containing exactly one record.  For example,
     reading a pfm file:
 
-    >>> from Bio import Motif
+    >>> from SAP.Bio import Motif
     >>> motif = Motif.read(open("Motif/SRF.pfm"),"jaspar-pfm")
     >>> motif.consensus()
     Seq('GCCCATATATGG', IUPACUnambiguousDNA())
 
     Or a single-motif MEME file,
 
-    >>> from Bio import Motif
+    >>> from SAP.Bio import Motif
     >>> motif =  Motif.read(open("Motif/meme.out"),"MEME")
     >>> motif.consensus()
     Seq('CTCAATCGTA', IUPACUnambiguousDNA())
@@ -115,7 +115,7 @@ def read(handle,format):
     If the handle contains no records, or more than one record,
     an exception is raised:
 
-    >>> from Bio import Motif
+    >>> from SAP.Bio import Motif
     >>> motif = Motif.read(open("Motif/alignace.out"),"AlignAce")
     Traceback (most recent call last):
         ...
@@ -125,7 +125,7 @@ def read(handle,format):
     multiple records this function would raise an exception (as
     shown in the example above).  Instead use:
 
-    >>> from Bio import Motif
+    >>> from SAP.Bio import Motif
     >>> motif = Motif.parse(open("Motif/alignace.out"),"AlignAce").next()
     >>> motif.consensus()
     Seq('TCTACGATTGAG', IUPACUnambiguousDNA())

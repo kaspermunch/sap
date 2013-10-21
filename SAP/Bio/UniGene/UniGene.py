@@ -18,7 +18,7 @@
 # WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import warnings
-from Bio import BiopythonDeprecationWarning
+from SAP.Bio import BiopythonDeprecationWarning
 
 warnings.warn("The module Bio.UniGene.UniGene is now deprecated, "
               "and will be removed in a future release of Biopython."
@@ -29,7 +29,7 @@ warnings.warn("The module Bio.UniGene.UniGene is now deprecated, "
 import string
 import sgmllib
 import UserDict
-import Bio.File
+import SAP.Bio.File
 
 
 class UniGeneParser( sgmllib.SGMLParser ):

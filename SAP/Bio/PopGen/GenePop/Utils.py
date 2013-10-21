@@ -4,7 +4,7 @@
 # as part of this package.
 
 
-from Bio.PopGen import GenePop
+from SAP.Bio.PopGen import GenePop
 
 """
 Utility functions to deal with GenePop files

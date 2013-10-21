@@ -8,7 +8,7 @@ o Qualifier - Qualifiers on a Feature.
 17-MAR-2009: added support for WGS and WGS_SCAFLD lines.  Ying Huang & Iddo Friedberg
 """
 # local stuff
-import Bio.GenBank
+import SAP.Bio.GenBank
 
 
 def _wrapped_genbank(information, indent, wrap_space = 1, split_char = " "):

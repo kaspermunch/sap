@@ -7,8 +7,8 @@ makes it easy to draw graphical figures.
 from reportlab.lib import colors
 
 # local stuff
-from Bio.Graphics.BasicChromosome import ChromosomeSegment
-from Bio.Graphics.BasicChromosome import TelomereSegment
+from SAP.Bio.Graphics.BasicChromosome import ChromosomeSegment
+from SAP.Bio.Graphics.BasicChromosome import TelomereSegment
 
 # --- constants
 # This is a default color scheme based on the light spectrum.

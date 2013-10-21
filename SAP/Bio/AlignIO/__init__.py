@@ -25,7 +25,7 @@ string and optional number of sequences per alignment.  It will return a single
 MultipleSeqAlignment object (or raise an exception if there isn't just one
 alignment):
 
-    >>> from Bio import AlignIO
+    >>> from SAP.Bio import AlignIO
     >>> align = AlignIO.read("Phylip/interlaced.phy", "phylip")
     >>> print align
     SingleLetterAlphabet() alignment with 3 rows and 384 columns
@@ -39,7 +39,7 @@ returns an iterator giving MultipleSeqAlignment objects (typically used in a
 for loop). If you want random access to the alignments by number, turn this
 into a list:
 
-    >>> from Bio import AlignIO
+    >>> from SAP.Bio import AlignIO
     >>> alignments = list(AlignIO.parse("Emboss/needle.txt", "emboss"))
     >>> print alignments[2]
     SingleLetterAlphabet() alignment with 2 rows and 120 columns
@@ -57,13 +57,13 @@ Use the function Bio.AlignIO.write(...), which takes a complete set of
 Alignment objects (either as a list, or an iterator), an output file handle
 (or filename in recent versions of Biopython) and of course the file format::
 
-    from Bio import AlignIO
+    from SAP.Bio import AlignIO
     alignments = ...
     count = SeqIO.write(alignments, "example.faa", "fasta")
 
 If using a handle make sure to close it to flush the data to the disk::
 
-    from Bio import AlignIO
+    from SAP.Bio import AlignIO
     alignments = ...
     handle = open("example.faa", "w")
     count = SeqIO.write(alignments, handle, "fasta")
@@ -139,10 +139,10 @@ __docformat__ = "epytext en"  # not just plaintext
 # - MSF multiple alignment format, aka GCG, aka PileUp format (*.msf)
 #   http://www.bioperl.org/wiki/MSF_multiple_alignment_format
 
-from Bio.Align import MultipleSeqAlignment
-from Bio.Align.Generic import Alignment
-from Bio.Alphabet import Alphabet, AlphabetEncoder, _get_base_alphabet
-from Bio.File import as_handle
+from SAP.Bio.Align import MultipleSeqAlignment
+from SAP.Bio.Align.Generic import Alignment
+from SAP.Bio.Alphabet import Alphabet, AlphabetEncoder, _get_base_alphabet
+from SAP.Bio.File import as_handle
 
 import StockholmIO
 import ClustalIO
@@ -191,7 +191,7 @@ def write(alignments, handle, format):
 
     Returns the number of alignments written (as an integer).
     """
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
 
     #Try and give helpful error messages:
     if not isinstance(format, basestring):
@@ -249,7 +249,7 @@ def _SeqIO_to_alignment_iterator(handle, format, alphabet=None, seq_count=None):
     If count is omitted (default) then all the sequences in the file are
     combined into a single MultipleSeqAlignment.
     """
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
     assert format in SeqIO._FormatToIterator
 
     if seq_count:
@@ -309,7 +309,7 @@ def parse(handle, format, seq_count=None, alphabet=None):
 
     If you have the file name in a string 'filename', use:
 
-    >>> from Bio import AlignIO
+    >>> from SAP.Bio import AlignIO
     >>> filename = "Emboss/needle.txt"
     >>> format = "emboss"
     >>> for alignment in AlignIO.parse(filename, format):
@@ -322,13 +322,13 @@ def parse(handle, format, seq_count=None, alphabet=None):
 
     If you have a string 'data' containing the file contents, use:
 
-    from Bio import AlignIO
+    from SAP.Bio import AlignIO
     from StringIO import StringIO
     my_iterator = AlignIO.parse(StringIO(data), format)
 
     Use the Bio.AlignIO.read() function when you expect a single record only.
     """
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
 
     #Try and give helpful error messages:
     if not isinstance(format, basestring):
@@ -388,7 +388,7 @@ def read(handle, format, seq_count=None, alphabet=None):
     an exception is raised.  For example, using a PFAM/Stockholm file
     containing one alignment:
 
-    >>> from Bio import AlignIO
+    >>> from SAP.Bio import AlignIO
     >>> filename = "Clustalw/protein.aln"
     >>> format = "clustal"
     >>> alignment = AlignIO.read(filename, format)
@@ -398,7 +398,7 @@ def read(handle, format, seq_count=None, alphabet=None):
     If however you want the first alignment from a file containing
     multiple alignments this function would raise an exception.
 
-    >>> from Bio import AlignIO
+    >>> from SAP.Bio import AlignIO
     >>> filename = "Emboss/needle.txt"
     >>> format = "emboss"
     >>> alignment = AlignIO.read(filename, format)
@@ -408,7 +408,7 @@ def read(handle, format, seq_count=None, alphabet=None):
 
     Instead use:
 
-    >>> from Bio import AlignIO
+    >>> from SAP.Bio import AlignIO
     >>> filename = "Emboss/needle.txt"
     >>> format = "emboss"
     >>> alignment = AlignIO.parse(filename, format).next()
@@ -464,5 +464,5 @@ def convert(in_file, in_format, out_file, out_format, alphabet=None):
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

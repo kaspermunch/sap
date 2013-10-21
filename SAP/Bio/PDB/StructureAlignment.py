@@ -7,10 +7,10 @@
 file.
 """
 
-from Bio.SCOP.Raf import to_one_letter_code
+from SAP.Bio.SCOP.Raf import to_one_letter_code
 
-from Bio.PDB import Selection
-from Bio.PDB.Polypeptide import is_aa
+from SAP.Bio.PDB import Selection
+from SAP.Bio.PDB.Polypeptide import is_aa
 
 
 class StructureAlignment(object):
@@ -98,9 +98,9 @@ class StructureAlignment(object):
 
 if __name__=="__main__":
     import sys
-    from Bio.Alphabet import generic_protein
-    from Bio import AlignIO
-    from Bio.PDB import PDBParser
+    from SAP.Bio.Alphabet import generic_protein
+    from SAP.Bio import AlignIO
+    from SAP.Bio.PDB import PDBParser
 
     if len(sys.argv) != 4:
         print "Expects three arguments,"

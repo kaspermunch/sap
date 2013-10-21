@@ -39,7 +39,7 @@ except ImportError:
 from types import MethodType
 import StringIO
 
-from Bio import File
+from SAP.Bio import File
 
 # XML from python 2.0
 try:

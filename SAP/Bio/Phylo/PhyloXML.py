@@ -17,14 +17,14 @@ __docformat__ = "restructuredtext en"
 import re
 import warnings
 
-from Bio import Alphabet
-from Bio.Align import MultipleSeqAlignment
-from Bio.Seq import Seq
-from Bio.SeqFeature import SeqFeature, FeatureLocation
-from Bio.SeqRecord import SeqRecord
-from Bio import BiopythonWarning
+from SAP.Bio import Alphabet
+from SAP.Bio.Align import MultipleSeqAlignment
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqFeature import SeqFeature, FeatureLocation
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio import BiopythonWarning
 
-from Bio.Phylo import BaseTree
+from SAP.Bio.Phylo import BaseTree
 
 
 class PhyloXMLWarning(BiopythonWarning):

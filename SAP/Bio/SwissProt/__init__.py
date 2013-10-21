@@ -21,7 +21,7 @@ parse              Read multiple SwissProt records
 
 """
 
-from Bio._py3k import _as_string
+from SAP.Bio._py3k import _as_string
 
 
 class Record(object):
@@ -471,7 +471,7 @@ def _read_rx(reference, value):
             reference.references.append((cols[0].rstrip(";"), cols[1].rstrip(".")))
     if warn:
         import warnings
-        from Bio import BiopythonParserWarning
+        from SAP.Bio import BiopythonParserWarning
         warnings.warn("Possibly corrupt RX line %r" % value,
                       BiopythonParserWarning)
 

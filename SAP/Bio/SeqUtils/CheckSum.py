@@ -11,7 +11,7 @@
 # crc64 is adapted from BioPerl
 
 from binascii import crc32 as _crc32
-from Bio._py3k import _as_bytes
+from SAP.Bio._py3k import _as_bytes
 
 
 def crc32(seq):

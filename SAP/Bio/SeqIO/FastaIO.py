@@ -11,10 +11,10 @@
 
 You are expected to use this module via the Bio.SeqIO functions."""
 
-from Bio.Alphabet import single_letter_alphabet
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.SeqIO.Interfaces import SequentialSequenceWriter
+from SAP.Bio.Alphabet import single_letter_alphabet
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.SeqIO.Interfaces import SequentialSequenceWriter
 
 
 def SimpleFastaParser(handle):
@@ -202,7 +202,7 @@ if __name__ == "__main__":
     print "Running quick self test"
 
     import os
-    from Bio.Alphabet import generic_protein, generic_nucleotide
+    from SAP.Bio.Alphabet import generic_protein, generic_nucleotide
 
     #Download the files from here:
     #ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Nanoarchaeum_equitans

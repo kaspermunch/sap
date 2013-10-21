@@ -111,7 +111,7 @@ follows the Sanger FASTQ convention (PHRED style qualities with an ASCII
 offet of 33).  This means we can parse this file using Bio.SeqIO using
 "fastq" as the format name:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> for record in SeqIO.parse("Quality/example.fastq", "fastq"):
     ...     print record.id, record.seq
     EAS54_6_R1_2_1_413_324 CCCTTCTTGTCTTCAGCGTTTCTCC
@@ -195,7 +195,7 @@ or to remove a primer sequence), try slicing the SeqRecord objects.  e.g.
 
 If you wanted to, you could read in this FASTQ file, and save it as a QUAL file:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record_iterator = SeqIO.parse("Quality/example.fastq", "fastq")
     >>> out_handle = open("Quality/temp.qual", "w")
     >>> SeqIO.write(record_iterator, out_handle, "qual")
@@ -204,7 +204,7 @@ If you wanted to, you could read in this FASTQ file, and save it as a QUAL file:
 
 You can of course read in a QUAL file, such as the one we just created:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> for record in SeqIO.parse("Quality/temp.qual", "qual"):
     ...     print record.id, record.seq
     EAS54_6_R1_2_1_413_324 ?????????????????????????
@@ -239,7 +239,7 @@ defined in this module that does this for you - PairedFastaQualIterator.
 Alternatively, if you have enough RAM to hold all the records in memory at once,
 then a simple dictionary approach would work:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> reads = SeqIO.to_dict(SeqIO.parse(open("Quality/example.fasta"), "fasta"))
     >>> for rec in SeqIO.parse(open("Quality/example.qual"), "qual"):
     ...     reads[rec.id].letter_annotations["phred_quality"]=rec.letter_annotations["phred_quality"]
@@ -262,9 +262,9 @@ automatically.
 
 To illustrate this problem, let's consider an artifical example:
 
-    >>> from Bio.Seq import Seq
-    >>> from Bio.Alphabet import generic_dna
-    >>> from Bio.SeqRecord import SeqRecord
+    >>> from SAP.Bio.Seq import Seq
+    >>> from SAP.Bio.Alphabet import generic_dna
+    >>> from SAP.Bio.SeqRecord import SeqRecord
     >>> test = SeqRecord(Seq("NACGTACGTA", generic_dna), id="Test",
     ... description="Made up!")
     >>> print test.format("fasta")
@@ -364,13 +364,13 @@ are approximately equal.
 """
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
-from Bio.Alphabet import single_letter_alphabet
-from Bio.Seq import Seq, UnknownSeq
-from Bio.SeqRecord import SeqRecord
-from Bio.SeqIO.Interfaces import SequentialSequenceWriter
+from SAP.Bio.Alphabet import single_letter_alphabet
+from SAP.Bio.Seq import Seq, UnknownSeq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.SeqIO.Interfaces import SequentialSequenceWriter
 from math import log
 import warnings
-from Bio import BiopythonWarning, BiopythonParserWarning
+from SAP.Bio import BiopythonWarning, BiopythonParserWarning
 
 
 # define score offsets. See discussion for differences between Sanger and
@@ -550,8 +550,8 @@ _solexa_to_sanger_quality_str = dict(
 def _get_sanger_quality_str(record):
     """Returns a Sanger FASTQ encoded quality string (PRIVATE).
 
-    >>> from Bio.Seq import Seq
-    >>> from Bio.SeqRecord import SeqRecord
+    >>> from SAP.Bio.Seq import Seq
+    >>> from SAP.Bio.SeqRecord import SeqRecord
     >>> r = SeqRecord(Seq("ACGTAN"), id="Test",
     ...               letter_annotations = {"phred_quality":[50,40,30,20,10,0]})
     >>> _get_sanger_quality_str(r)
@@ -1008,7 +1008,7 @@ def FastqPhredIterator(handle, alphabet=single_letter_alphabet, title2ids=None):
     Typically however, you would call this via Bio.SeqIO instead with "fastq"
     (or "fastq-sanger") as the format:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> handle = open("Quality/example.fastq", "rU")
     >>> for record in SeqIO.parse(handle, "fastq"):
     ...     print record.id, record.seq
@@ -1106,7 +1106,7 @@ def FastqSolexaIterator(handle, alphabet=single_letter_alphabet, title2ids=None)
     Typically however, you would call this via Bio.SeqIO instead with
     "fastq-solexa" as the format:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> handle = open("Quality/solexa_example.fastq", "rU")
     >>> for record in SeqIO.parse(handle, "fastq-solexa"):
     ...     print record.id, record.seq
@@ -1143,7 +1143,7 @@ def FastqSolexaIterator(handle, alphabet=single_letter_alphabet, title2ids=None)
     as shown above.  This example has only as one entry, so instead we can
     use the Bio.SeqIO.read() function:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> handle = open("Quality/solexa_faked.fastq", "rU")
     >>> record = SeqIO.read(handle, "fastq-solexa")
     >>> handle.close()
@@ -1223,7 +1223,7 @@ def FastqIlluminaIterator(handle, alphabet=single_letter_alphabet, title2ids=Non
     For each sequence in Illumina 1.3+ FASTQ files there is a matching string
     encoding PHRED integer qualities using ASCII values with an offset of 64.
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record = SeqIO.read(open("Quality/illumina_faked.fastq"), "fastq-illumina")
     >>> print record.id, record.seq
     Test ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN
@@ -1294,7 +1294,7 @@ def QualPhredIterator(handle, alphabet=single_letter_alphabet, title2ids=None):
     Typically however, you would call this via Bio.SeqIO instead with "qual"
     as the format:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> handle = open("Quality/example.qual", "rU")
     >>> for record in SeqIO.parse(handle, "qual"):
     ...     print record.id, record.seq
@@ -1310,8 +1310,8 @@ def QualPhredIterator(handle, alphabet=single_letter_alphabet, title2ids=None):
 
     By specifying a nucleotide alphabet, "N" is used instead:
 
-    >>> from Bio import SeqIO
-    >>> from Bio.Alphabet import generic_dna
+    >>> from SAP.Bio import SeqIO
+    >>> from SAP.Bio.Alphabet import generic_dna
     >>> handle = open("Quality/example.qual", "rU")
     >>> for record in SeqIO.parse(handle, "qual", alphabet=generic_dna):
     ...     print record.id, record.seq
@@ -1394,7 +1394,7 @@ class FastqPhredWriter(SequentialSequenceWriter):
     Sanger style FASTQ file (using PHRED scores) and re-saves it as another
     Sanger style FASTQ file:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record_iterator = SeqIO.parse(open("Quality/example.fastq"), "fastq")
     >>> out_handle = open("Quality/temp.fastq", "w")
     >>> SeqIO.write(record_iterator, out_handle, "fastq")
@@ -1411,7 +1411,7 @@ class FastqPhredWriter(SequentialSequenceWriter):
     quality scores) is converted into a standard Sanger style FASTQ file using
     PHRED qualities:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record_iterator = SeqIO.parse(open("Quality/solexa_example.fastq"), "fastq-solexa")
     >>> out_handle = open("Quality/temp.fastq", "w")
     >>> SeqIO.write(record_iterator, out_handle, "fastq")
@@ -1469,7 +1469,7 @@ class QualPhredWriter(SequentialSequenceWriter):
     to use the Bio.SeqIO.write() function instead.  For example, this code
     reads in a FASTQ file and saves the quality scores into a QUAL file:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record_iterator = SeqIO.parse(open("Quality/example.fastq"), "fastq")
     >>> out_handle = open("Quality/temp.qual", "w")
     >>> SeqIO.write(record_iterator, out_handle, "qual")
@@ -1589,7 +1589,7 @@ class FastqSolexaWriter(SequentialSequenceWriter):
     to use the Bio.SeqIO.write() function instead.  For example, this code
     reads in a FASTQ file and re-saves it as another FASTQ file:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record_iterator = SeqIO.parse(open("Quality/solexa_example.fastq"), "fastq-solexa")
     >>> out_handle = open("Quality/temp.fastq", "w")
     >>> SeqIO.write(record_iterator, out_handle, "fastq-solexa")
@@ -1665,7 +1665,7 @@ class FastqIlluminaWriter(SequentialSequenceWriter):
     instead. This code is also called if you use the .format("fastq-illumina")
     method of a SeqRecord. For example,
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record = SeqIO.read(open("Quality/sanger_faked.fastq"), "fastq-sanger")
     >>> print record.format("fastq-illumina")
     @Test PHRED qualities from 40 to 0 inclusive
@@ -1758,7 +1758,7 @@ def PairedFastaQualIterator(fasta_handle, qual_handle, alphabet=single_letter_al
     would be simpler and more straight forward.  Note that you can easily use
     this function to convert paired FASTA and QUAL files into FASTQ files:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> rec_iter = PairedFastaQualIterator(open("Quality/example.fasta", "rU"),
     ...                                    open("Quality/example.qual", "rU"))
     >>> out_handle = open("Quality/temp.fastq", "w")
@@ -1771,7 +1771,7 @@ def PairedFastaQualIterator(fasta_handle, qual_handle, alphabet=single_letter_al
     >>> import os
     >>> os.remove("Quality/temp.fastq")
     """
-    from Bio.SeqIO.FastaIO import FastaIterator
+    from SAP.Bio.SeqIO.FastaIO import FastaIterator
     fasta_iter = FastaIterator(fasta_handle, alphabet=alphabet,
                                title2ids=title2ids)
     qual_iter = QualPhredIterator(qual_handle, alphabet=alphabet,
@@ -1809,5 +1809,5 @@ def PairedFastaQualIterator(fasta_handle, qual_handle, alphabet=single_letter_al
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest(verbose=0)

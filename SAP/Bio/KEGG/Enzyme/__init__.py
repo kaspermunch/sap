@@ -14,8 +14,8 @@ Classes:
 Record               -- Holds the information from a KEGG Enzyme record.
 """
 
-from Bio.KEGG import _write_kegg
-from Bio.KEGG import _wrap_kegg
+from SAP.Bio.KEGG import _write_kegg
+from SAP.Bio.KEGG import _wrap_kegg
 
 
 # Set up line wrapping rules (see Bio.KEGG._wrap_kegg)
@@ -309,5 +309,5 @@ def parse(handle):
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

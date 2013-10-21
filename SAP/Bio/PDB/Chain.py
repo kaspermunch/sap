@@ -5,7 +5,7 @@
 
 """Chain class, used in Structure objects."""
 
-from Bio.PDB.Entity import Entity
+from SAP.Bio.PDB.Entity import Entity
 
 
 class Chain(Entity):

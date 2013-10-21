@@ -9,8 +9,8 @@ handle any of the different specific patterns.
 import random
 
 # biopython
-from Bio.Alphabet import _verify_alphabet
-from Bio.Seq import Seq, MutableSeq
+from SAP.Bio.Alphabet import _verify_alphabet
+from SAP.Bio.Seq import Seq, MutableSeq
 
 
 class PatternIO(object):

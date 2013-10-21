@@ -4,9 +4,9 @@
 # as part of this package.
 """Implementation of sequence motifs (PRIVATE).
 """
-from Bio.Seq import Seq
-from Bio.SubsMat import FreqTable
-from Bio.Alphabet import IUPAC
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SubsMat import FreqTable
+from SAP.Bio.Alphabet import IUPAC
 import math,random
 
 class Motif(object):

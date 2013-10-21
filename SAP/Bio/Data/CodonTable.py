@@ -9,9 +9,9 @@ ftp://ftp.ncbi.nih.gov/entrez/misc/data/gc.prt
 Last updated for Version 3.9
 """
 
-from Bio import Alphabet
-from Bio.Alphabet import IUPAC
-from Bio.Data import IUPACData
+from SAP.Bio import Alphabet
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Data import IUPACData
 
 unambiguous_dna_by_name = {}
 unambiguous_dna_by_id = {}
@@ -65,7 +65,7 @@ class CodonTable(object):
         """Returns a simple text representation of the codon table
 
         e.g.
-        >>> import Bio.Data.CodonTable
+        >>> import SAP.Bio.Data.CodonTable
         >>> print Bio.Data.CodonTable.standard_dna_table
         >>> print Bio.Data.CodonTable.generic_by_id[1]
         """

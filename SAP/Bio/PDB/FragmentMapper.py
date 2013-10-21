@@ -32,12 +32,12 @@ The library files can be found in directory 'fragment_data'.
 
 import numpy
 
-from Bio.SVDSuperimposer import SVDSuperimposer
+from SAP.Bio.SVDSuperimposer import SVDSuperimposer
 
-from Bio.PDB import Selection
-from Bio.PDB.PDBExceptions import PDBException
-from Bio.PDB.PDBParser import PDBParser
-from Bio.PDB.Polypeptide import PPBuilder
+from SAP.Bio.PDB import Selection
+from SAP.Bio.PDB.PDBExceptions import PDBException
+from SAP.Bio.PDB.PDBParser import PDBParser
+from SAP.Bio.PDB.Polypeptide import PPBuilder
 
 
 # fragment file (lib_SIZE_z_LENGTH.txt)
@@ -298,7 +298,7 @@ class FragmentMapper(object):
         @type res: L{Residue}
         """
         import warnings
-        from Bio import BiopythonDeprecationWarning
+        from SAP.Bio import BiopythonDeprecationWarning
         warnings.warn("has_key is deprecated; use 'res in object' instead", BiopythonDeprecationWarning)
         return (res in self)
 

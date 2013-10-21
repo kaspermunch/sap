@@ -17,7 +17,7 @@ import commands
 import itertools
 import re
 
-from Bio import Wise
+from SAP.Bio import Wise
 
 _SCORE_MATCH = 4
 _SCORE_MISMATCH = -1

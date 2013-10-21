@@ -17,7 +17,7 @@ import os
 import sys
 import tempfile
 
-from Bio import SeqIO
+from SAP.Bio import SeqIO
 
 
 def _build_align_cmdline(cmdline, pair, output_filename, kbyte=None, force_type=None, quiet=False):

@@ -7,8 +7,8 @@ the case of very diverged sequences, where signatures may pick out
 important conservation that can't be found by motifs (hopefully!).
 """
 # biopython
-from Bio.Alphabet import _verify_alphabet
-from Bio.Seq import Seq
+from SAP.Bio.Alphabet import _verify_alphabet
+from SAP.Bio.Seq import Seq
 
 # local stuff
 from Pattern import PatternRepository

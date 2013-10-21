@@ -31,13 +31,13 @@ http://www.ebi.ac.uk/imgt/hla/docs/manual.html
 
 """
 
-from Bio.Seq import UnknownSeq
-from Bio.GenBank.Scanner import GenBankScanner, EmblScanner, _ImgtScanner
-from Bio import Alphabet
+from SAP.Bio.Seq import UnknownSeq
+from SAP.Bio.GenBank.Scanner import GenBankScanner, EmblScanner, _ImgtScanner
+from SAP.Bio import Alphabet
 from Interfaces import SequentialSequenceWriter
-from Bio import SeqFeature
+from SAP.Bio import SeqFeature
 
-from Bio._py3k import _is_int_or_long
+from SAP.Bio._py3k import _is_int_or_long
 
 # NOTE
 # ====
@@ -397,7 +397,7 @@ class GenBankWriter(_InsdcWriter):
         assert len(tag) < self.HEADER_WIDTH
         if len(text) > self.MAX_WIDTH - self.HEADER_WIDTH:
             import warnings
-            from Bio import BiopythonWarning
+            from SAP.Bio import BiopythonWarning
             warnings.warn("Annotation %r too long for %r line" % (text, tag),
                           BiopythonWarning)
         self.handle.write("%s%s\n" % (tag.ljust(self.HEADER_WIDTH),
@@ -571,7 +571,7 @@ class GenBankWriter(_InsdcWriter):
         assert line[29:40].lstrip() == str(len(record)), \
             'LOCUS line does not contain the length at the expected position:\n' + line
 
-        #Tests copied from Bio.GenBank.Scanner
+        #Tests copied from SAP.Bio.GenBank.Scanner
         assert line[40:44] in [' bp ', ' aa '], \
             'LOCUS line does not contain size units at expected position:\n' + \
             line
@@ -1201,7 +1201,7 @@ if __name__ == "__main__":
         check_genbank_writer(records)
         check_embl_writer(records)
 
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
     for filename in os.listdir("../../Tests/SwissProt"):
         if not filename.startswith("sp"):
             continue

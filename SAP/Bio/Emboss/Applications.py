@@ -12,7 +12,7 @@ These classes follow the AbstractCommandline interfaces for running
 programs.
 """
 
-from Bio.Application import _Option, _Switch, AbstractCommandline
+from SAP.Bio.Application import _Option, _Switch, AbstractCommandline
 
 
 class _EmbossMinimalCommandLine(AbstractCommandline):
@@ -1136,7 +1136,7 @@ class IepCommandline(_EmbossCommandLine):
 
     Example:
 
-    >>> from Bio.Emboss.Applications import IepCommandline
+    >>> from SAP.Bio.Emboss.Applications import IepCommandline
     >>> iep_cline = IepCommandline(sequence="proteins.faa",
     ...                            outfile="proteins.txt")
     >>> print iep_cline

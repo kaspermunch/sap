@@ -7,9 +7,9 @@
 
 import re
 
-from Bio.SearchIO._index import SearchIndexer
-from Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
-from Bio.SeqUtils import seq1
+from SAP.Bio.SearchIO._index import SearchIndexer
+from SAP.Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
+from SAP.Bio.SeqUtils import seq1
 
 
 # strand char-value mapping
@@ -426,5 +426,5 @@ class _BaseExonerateIndexer(SearchIndexer):
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

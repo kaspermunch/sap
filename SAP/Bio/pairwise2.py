@@ -43,7 +43,7 @@ c     A callback function returns the gap penalties.
 All the different alignment functions are contained in an object
 "align".  For example:
 
-    >>> from Bio import pairwise2
+    >>> from SAP.Bio import pairwise2
     >>> alignments = pairwise2.align.globalxx("ACCGT", "ACG")
 
 will return a list of the alignments between the two strings.  The
@@ -113,7 +113,7 @@ Some examples:
 The alignment function can also use known matrices already included in
 Biopython ( Bio.SubsMat -> MatrixInfo ).
 
-    >>> from Bio.SubsMat import MatrixInfo as matlist
+    >>> from SAP.Bio.SubsMat import MatrixInfo as matlist
     >>> matrix = matlist.blosum62
     >>> for a in pairwise2.align.globaldx("KEVLA", "EVL", matrix):
     ...     print format_alignment(*a)

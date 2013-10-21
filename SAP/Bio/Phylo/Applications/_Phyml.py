@@ -5,7 +5,7 @@
 """Command-line wrapper for the tree inference program PhyML."""
 __docformat__ = "restructuredtext en"
 
-from Bio.Application import _Option, _Switch, AbstractCommandline
+from SAP.Bio.Application import _Option, _Switch, AbstractCommandline
 
 
 class PhymlCommandline(AbstractCommandline):

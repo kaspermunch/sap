@@ -1,5 +1,5 @@
 import warnings
-from Bio import BiopythonDeprecationWarning
+from SAP.Bio import BiopythonDeprecationWarning
 warnings.warn("Long obsolete module Bio/Search.py is deprecated.",
               BiopythonDeprecationWarning)
 

@@ -17,10 +17,10 @@ import math
 import random
 import sys
 
-from Bio import File
-from Bio.Alphabet import IUPAC
-from Bio.Data import IUPACData
-from Bio.Seq import Seq
+from SAP.Bio import File
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Data import IUPACData
+from SAP.Bio.Seq import Seq
 
 from Trees import Tree
 

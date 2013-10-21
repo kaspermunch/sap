@@ -15,9 +15,9 @@ Classes:
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
 # biopython
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio import Alphabet
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio import Alphabet
 
 
 class Alignment(object):
@@ -39,7 +39,7 @@ class Alignment(object):
 
         e.g.
 
-        >>> from Bio.Alphabet import IUPAC, Gapped
+        >>> from SAP.Bio.Alphabet import IUPAC, Gapped
         >>> align = Alignment(Gapped(IUPAC.unambiguous_dna, "-"))
         >>> align.add_sequence("Alpha", "ACTGCTAGCTAG")
         >>> align.add_sequence("Beta",  "ACT-CTAGCTAG")
@@ -79,7 +79,7 @@ class Alignment(object):
         are shown, with the record identifiers.  This should fit nicely on a
         single screen.  e.g.
 
-        >>> from Bio.Alphabet import IUPAC, Gapped
+        >>> from SAP.Bio.Alphabet import IUPAC, Gapped
         >>> align = Alignment(Gapped(IUPAC.unambiguous_dna, "-"))
         >>> align.add_sequence("Alpha", "ACTGCTAGCTAG")
         >>> align.add_sequence("Beta",  "ACT-CTAGCTAG")
@@ -136,7 +136,7 @@ class Alignment(object):
 
         e.g.
 
-        >>> from Bio.Alphabet import IUPAC, Gapped
+        >>> from SAP.Bio.Alphabet import IUPAC, Gapped
         >>> align = Alignment(Gapped(IUPAC.unambiguous_dna, "-"))
         >>> align.add_sequence("Alpha", "ACTGCTAGCTAG")
         >>> align.add_sequence("Beta",  "ACT-CTAGCTAG")
@@ -171,7 +171,7 @@ class Alignment(object):
         See also the alignment's format() method."""
         if format_spec:
             from StringIO import StringIO
-            from Bio import AlignIO
+            from SAP.Bio import AlignIO
             handle = StringIO()
             AlignIO.write([self], handle, format_spec)
             return handle.getvalue()
@@ -202,7 +202,7 @@ class Alignment(object):
 
         e.g.
 
-        >>> from Bio.Alphabet import IUPAC, Gapped
+        >>> from SAP.Bio.Alphabet import IUPAC, Gapped
         >>> align = Alignment(Gapped(IUPAC.unambiguous_dna, "-"))
         >>> align.add_sequence("Alpha", "ACTGCTAGCTAG")
         >>> align.add_sequence("Beta",  "ACT-CTAGCTAG")
@@ -256,7 +256,7 @@ class Alignment(object):
         length. This function will go through and find this length
         by finding the maximum length of sequences in the alignment.
 
-        >>> from Bio.Alphabet import IUPAC, Gapped
+        >>> from SAP.Bio.Alphabet import IUPAC, Gapped
         >>> align = Alignment(Gapped(IUPAC.unambiguous_dna, "-"))
         >>> align.add_sequence("Alpha", "ACTGCTAGCTAG")
         >>> align.add_sequence("Beta",  "ACT-CTAGCTAG")
@@ -335,7 +335,7 @@ class Alignment(object):
 
         e.g.
 
-        >>> from Bio.Alphabet import IUPAC, Gapped
+        >>> from SAP.Bio.Alphabet import IUPAC, Gapped
         >>> align = Alignment(Gapped(IUPAC.unambiguous_dna, "-"))
         >>> align.add_sequence("Alpha", "ACTGCTAGCTAG")
         >>> align.add_sequence("Beta",  "ACT-CTAGCTAG")
@@ -357,7 +357,7 @@ class Alignment(object):
 
         We'll use the following example alignment here for illustration:
 
-        >>> from Bio.Alphabet import IUPAC, Gapped
+        >>> from SAP.Bio.Alphabet import IUPAC, Gapped
         >>> align = Alignment(Gapped(IUPAC.unambiguous_dna, "-"))
         >>> align.add_sequence("Alpha",  "ACTGCTAGCTAG")
         >>> align.add_sequence("Beta",   "ACT-CTAGCTAG")

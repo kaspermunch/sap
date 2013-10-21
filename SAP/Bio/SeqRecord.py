@@ -110,9 +110,9 @@ class SeqRecord(object):
     SeqRecord objects.  However, you may want to create your own SeqRecord
     objects directly (see the __init__ method for further details):
 
-    >>> from Bio.Seq import Seq
-    >>> from Bio.SeqRecord import SeqRecord
-    >>> from Bio.Alphabet import IUPAC
+    >>> from SAP.Bio.Seq import Seq
+    >>> from SAP.Bio.SeqRecord import SeqRecord
+    >>> from SAP.Bio.Alphabet import IUPAC
     >>> record = SeqRecord(Seq("MKQHKAMIVALIVICITAVVAALVTRKDLCEVHIRTGQTEVAVF",
     ...                         IUPAC.protein),
     ...                    id="YP_025292.1", name="HokC",
@@ -172,7 +172,7 @@ class SeqRecord(object):
         if you wish to write your sequences to a file.
 
         If you don't have the actual sequence, but you do know its length,
-        then using the UnknownSeq object from Bio.Seq is appropriate.
+        then using the UnknownSeq object from SAP.Bio.Seq is appropriate.
 
         You can create a 'blank' SeqRecord object, and then populate the
         attributes later.
@@ -248,7 +248,7 @@ class SeqRecord(object):
         Consider this example using Bio.SeqIO to read in an example Solexa
         variant FASTQ file as a SeqRecord:
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> handle = open("Quality/solexa_faked.fastq", "rU")
         >>> record = SeqIO.read(handle, "fastq-solexa")
         >>> handle.close()
@@ -332,10 +332,10 @@ class SeqRecord(object):
         plus a simple feature for its histidine self phosphorylation
         site:
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
-        >>> from Bio.SeqFeature import SeqFeature, FeatureLocation
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.SeqFeature import SeqFeature, FeatureLocation
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> rec = SeqRecord(Seq("MAAGVKQLADDRTLLMAGVSHDLRTPLTRIRLAT"
         ...                     "EMMSEQDGYLAESINKDIEECNAIIEQFIDYLR",
         ...                     IUPAC.protein),
@@ -468,7 +468,7 @@ class SeqRecord(object):
 
         For example, using Bio.SeqIO to read in a protein FASTA file:
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> record = SeqIO.read("Fasta/loveliesbleeding.pro", "fasta")
         >>> for amino in record:
         ...     print amino
@@ -497,7 +497,7 @@ class SeqRecord(object):
         python zip function on the record (or its sequence) and the relevant
         per-letter-annotation:
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> rec = SeqIO.read(open("Quality/solexa_faked.fastq", "rU"),
         ...                  "fastq-solexa")
         >>> print rec.id, rec.seq
@@ -523,7 +523,7 @@ class SeqRecord(object):
 
         e.g.
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> record = SeqIO.read("Fasta/sweetpea.nu", "fasta")
         >>> "GAATTC" in record
         False
@@ -539,8 +539,8 @@ class SeqRecord(object):
 
         Note that you can also use Seq objects as the query,
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import generic_dna
         >>> Seq("AAA") in record
         True
         >>> Seq("AAA", generic_dna) in record
@@ -556,9 +556,9 @@ class SeqRecord(object):
         The python built in function str works by calling the object's ___str__
         method.  e.g.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> record = SeqRecord(Seq("MKQHKAMIVALIVICITAVVAALVTRKDLCEVHIRTGQTEVAVF",
         ...                         IUPAC.protein),
         ...                    id="YP_025292.1", name="HokC",
@@ -609,9 +609,9 @@ class SeqRecord(object):
         The python built in function repr works by calling the object's ___repr__
         method.  e.g.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
-        >>> from Bio.Alphabet import generic_protein
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Alphabet import generic_protein
         >>> rec = SeqRecord(Seq("MASRGVNKVILVGNLGQDPEVRYMPNGGAVANITLATSESWRDKAT"
         ...                    +"GEMKEQTEWHRVVLFGKLAEVASEYLRKGSQVYIEGQLRTRKWTDQ"
         ...                    +"SGQDRYTTEVVVNVGGTMQMLGGRQGGGAPAGGNIGGGQPQGGWGQ"
@@ -644,9 +644,9 @@ class SeqRecord(object):
         format by Bio.SeqIO, which is used to turn the SeqRecord into a
         string.  e.g.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> record = SeqRecord(Seq("MKQHKAMIVALIVICITAVVAALVTRKDLCEVHIRTGQTEVAVF",
         ...                         IUPAC.protein),
         ...                    id="YP_025292.1", name="HokC",
@@ -682,7 +682,7 @@ class SeqRecord(object):
         if not format_spec:
             #Follow python convention and default to using __str__
             return str(self)
-        from Bio import SeqIO
+        from SAP.Bio import SeqIO
         if format_spec in SeqIO._BinaryFormats:
             #Return bytes on Python 3
             try:
@@ -704,7 +704,7 @@ class SeqRecord(object):
 
         For example, using Bio.SeqIO to read in a FASTA nucleotide file:
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> record = SeqIO.read("Fasta/sweetpea.nu", "fasta")
         >>> len(record)
         309
@@ -737,7 +737,7 @@ class SeqRecord(object):
         have this appended to the existing data. However, any per letter
         annotation will be lost:
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> handle = open("Quality/solexa_faked.fastq", "rU")
         >>> record = SeqIO.read(handle, "fastq-solexa")
         >>> handle.close()
@@ -756,7 +756,7 @@ class SeqRecord(object):
         ambiguities (e.g. different names) it defaults to omitting that
         annotation.
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> handle = open("GenBank/pBAD30.gb")
         >>> plasmid = SeqIO.read(handle, "gb")
         >>> handle.close()
@@ -845,7 +845,7 @@ class SeqRecord(object):
         or a plain Python string (on the left) to a SeqRecord (on the right).
         See the __add__ method for more details, but for example:
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> handle = open("Quality/solexa_faked.fastq", "rU")
         >>> record = SeqIO.read(handle, "fastq-solexa")
         >>> handle.close()
@@ -878,9 +878,9 @@ class SeqRecord(object):
 
         All the annotation is preserved unchanged. e.g.
 
-        >>> from Bio.Alphabet import generic_dna
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
         >>> record = SeqRecord(Seq("acgtACGT", generic_dna), id="Test",
         ...                    description = "Made up for this example")
         >>> record.letter_annotations["phred_quality"] = [1,2,3,4,5,6,7,8]
@@ -913,7 +913,7 @@ class SeqRecord(object):
 
         All the annotation is preserved unchanged. e.g.
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> record = SeqIO.read("Fasta/aster.pro", "fasta")
         >>> print record.format("fasta")
         >gi|3298468|dbj|BAA31520.1| SAMIPF
@@ -928,7 +928,7 @@ class SeqRecord(object):
 
         To take a more annotation rich example,
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> old = SeqIO.read("EMBL/TRBG361.embl", "embl")
         >>> len(old.features)
         3
@@ -970,7 +970,7 @@ class SeqRecord(object):
         example Solexa variant FASTQ file with a single entry, which we'll
         read in as a SeqRecord:
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> handle = open("Quality/solexa_faked.fastq", "rU")
         >>> record = SeqIO.read(handle, "fastq-solexa")
         >>> handle.close()
@@ -997,7 +997,7 @@ class SeqRecord(object):
         file is probably the easiest way to get an nice example with features
         in it...
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> handle = open("GenBank/pBAD30.gb")
         >>> plasmid = SeqIO.read(handle, "gb")
         >>> handle.close()
@@ -1053,9 +1053,9 @@ class SeqRecord(object):
         Note trying to reverse complement a protein SeqRecord raises an
         exception:
 
-        >>> from Bio.SeqRecord import SeqRecord
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> protein_rec = SeqRecord(Seq("MAIVMGR", IUPAC.protein), id="Test")
         >>> protein_rec.reverse_complement()
         Traceback (most recent call last):
@@ -1064,9 +1064,9 @@ class SeqRecord(object):
 
         Also note you can reverse complement a SeqRecord using a MutableSeq:
 
-        >>> from Bio.SeqRecord import SeqRecord
-        >>> from Bio.Seq import MutableSeq
-        >>> from Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Seq import MutableSeq
+        >>> from SAP.Bio.Alphabet import generic_dna
         >>> rec = SeqRecord(MutableSeq("ACGT", generic_dna), id="Test")
         >>> rec.seq[0] = "T"
         >>> print rec.id, rec.seq
@@ -1075,7 +1075,7 @@ class SeqRecord(object):
         >>> print rc.id, rc.seq
         Test ACGA
         """
-        from Bio.Seq import MutableSeq  # Lazy to avoid circular imports
+        from SAP.Bio.Seq import MutableSeq  # Lazy to avoid circular imports
         if isinstance(self.seq, MutableSeq):
             #Currently the MutableSeq reverse complement is in situ
             answer = SeqRecord(self.seq.toseq().reverse_complement())
@@ -1125,5 +1125,5 @@ class SeqRecord(object):
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

@@ -10,13 +10,13 @@ public interface for this.
 
 The idea here is rather while doing this will work:
 
-from Bio import SeqIO
+from SAP.Bio import SeqIO
 records = SeqIO.parse(in_handle, in_format)
 count = SeqIO.write(records, out_handle, out_format)
 
 it is shorter to write:
 
-from Bio import SeqIO
+from SAP.Bio import SeqIO
 count = SeqIO.convert(in_handle, in_format, out_handle, out_format)
 
 Also, the convert function can take a number of special case optimisations. This
@@ -24,14 +24,14 @@ means that using Bio.SeqIO.convert() may be faster, as well as more convenient.
 All these file format specific optimisations are handled by this (private) module.
 """
 
-from Bio import SeqIO
+from SAP.Bio import SeqIO
 #NOTE - Lots of lazy imports further on...
 
 
 def _genbank_convert_fasta(in_handle, out_handle, alphabet=None):
     """Fast GenBank to FASTA (PRIVATE)."""
     #We don't need to parse the features...
-    from Bio.GenBank.Scanner import GenBankScanner
+    from SAP.Bio.GenBank.Scanner import GenBankScanner
     records = GenBankScanner().parse_records(in_handle, do_features=False)
     #For FASTA output we can ignore the alphabet too
     return SeqIO.write(records, out_handle, "fasta")
@@ -40,7 +40,7 @@ def _genbank_convert_fasta(in_handle, out_handle, alphabet=None):
 def _embl_convert_fasta(in_handle, out_handle, alphabet=None):
     """Fast EMBL to FASTA (PRIVATE)."""
     #We don't need to parse the features...
-    from Bio.GenBank.Scanner import EmblScanner
+    from SAP.Bio.GenBank.Scanner import EmblScanner
     records = EmblScanner().parse_records(in_handle, do_features=False)
     #For FASTA output we can ignore the alphabet too
     return SeqIO.write(records, out_handle, "fasta")
@@ -48,7 +48,7 @@ def _embl_convert_fasta(in_handle, out_handle, alphabet=None):
 
 def _fastq_generic(in_handle, out_handle, mapping):
     """FASTQ helper function where can't have data loss by truncation (PRIVATE)."""
-    from Bio.SeqIO.QualityIO import FastqGeneralIterator
+    from SAP.Bio.SeqIO.QualityIO import FastqGeneralIterator
     #For real speed, don't even make SeqRecord and Seq objects!
     count = 0
     null = chr(0)
@@ -64,7 +64,7 @@ def _fastq_generic(in_handle, out_handle, mapping):
 
 def _fastq_generic2(in_handle, out_handle, mapping, truncate_char, truncate_msg):
     """FASTQ helper function where there could be data loss by truncation (PRIVATE)."""
-    from Bio.SeqIO.QualityIO import FastqGeneralIterator
+    from SAP.Bio.SeqIO.QualityIO import FastqGeneralIterator
     #For real speed, don't even make SeqRecord and Seq objects!
     count = 0
     null = chr(0)
@@ -170,7 +170,7 @@ def _fastq_solexa_convert_fastq_sanger(in_handle, out_handle, alphabet=None):
     conversion.
     """
     #Map unexpected chars to null
-    from Bio.SeqIO.QualityIO import phred_quality_from_solexa
+    from SAP.Bio.SeqIO.QualityIO import phred_quality_from_solexa
     mapping = "".join([chr(0) for ascii in range(0, 59)]
                       + [chr(33 + int(round(phred_quality_from_solexa(q))))
                          for q in range(-5, 62 + 1)]
@@ -187,7 +187,7 @@ def _fastq_sanger_convert_fastq_solexa(in_handle, out_handle, alphabet=None):
     (maximum possible in the Solexa FASTQ format)
     """
     #Map unexpected chars to null
-    from Bio.SeqIO.QualityIO import solexa_quality_from_phred
+    from SAP.Bio.SeqIO.QualityIO import solexa_quality_from_phred
     trunc_char = chr(1)
     mapping = "".join([chr(0) for ascii in range(0, 33)]
                       + [chr(64 + int(round(solexa_quality_from_phred(q))))
@@ -206,7 +206,7 @@ def _fastq_solexa_convert_fastq_illumina(in_handle, out_handle, alphabet=None):
     conversion.
     """
     #Map unexpected chars to null
-    from Bio.SeqIO.QualityIO import phred_quality_from_solexa
+    from SAP.Bio.SeqIO.QualityIO import phred_quality_from_solexa
     mapping = "".join([chr(0) for ascii in range(0, 59)]
                       + [chr(64 + int(round(phred_quality_from_solexa(q))))
                          for q in range(-5, 62 + 1)]
@@ -222,7 +222,7 @@ def _fastq_illumina_convert_fastq_solexa(in_handle, out_handle, alphabet=None):
     conversion.
     """
     #Map unexpected chars to null
-    from Bio.SeqIO.QualityIO import solexa_quality_from_phred
+    from SAP.Bio.SeqIO.QualityIO import solexa_quality_from_phred
     trunc_char = chr(1)
     mapping = "".join([chr(0) for ascii in range(0, 64)]
                       + [chr(64 + int(round(solexa_quality_from_phred(q))))
@@ -241,7 +241,7 @@ def _fastq_convert_fasta(in_handle, out_handle, alphabet=None):
     NOTE - This does NOT check the characters used in the FASTQ quality string
     are valid!
     """
-    from Bio.SeqIO.QualityIO import FastqGeneralIterator
+    from SAP.Bio.SeqIO.QualityIO import FastqGeneralIterator
     #For real speed, don't even make SeqRecord and Seq objects!
     count = 0
     for title, seq, qual in FastqGeneralIterator(in_handle):
@@ -262,7 +262,7 @@ def _fastq_convert_tab(in_handle, out_handle, alphabet=None):
     NOTE - This does NOT check the characters used in the FASTQ quality string
     are valid!
     """
-    from Bio.SeqIO.QualityIO import FastqGeneralIterator
+    from SAP.Bio.SeqIO.QualityIO import FastqGeneralIterator
     #For real speed, don't even make SeqRecord and Seq objects!
     count = 0
     for title, seq, qual in FastqGeneralIterator(in_handle):
@@ -277,7 +277,7 @@ def _fastq_convert_qual(in_handle, out_handle, mapping):
     Mapping should be a dictionary mapping expected ASCII characters from the
     FASTQ quality string to PHRED quality scores (as strings).
     """
-    from Bio.SeqIO.QualityIO import FastqGeneralIterator
+    from SAP.Bio.SeqIO.QualityIO import FastqGeneralIterator
     #For real speed, don't even make SeqRecord and Seq objects!
     count = 0
     for title, seq, qual in FastqGeneralIterator(in_handle):
@@ -314,7 +314,7 @@ def _fastq_sanger_convert_qual(in_handle, out_handle, alphabet=None):
 
 def _fastq_solexa_convert_qual(in_handle, out_handle, alphabet=None):
     """Fast Solexa FASTQ to QUAL conversion (PRIVATE)."""
-    from Bio.SeqIO.QualityIO import phred_quality_from_solexa
+    from SAP.Bio.SeqIO.QualityIO import phred_quality_from_solexa
     mapping = dict((chr(q + 64), str(int(round(phred_quality_from_solexa(q)))))
                    for q in range(-5, 62 + 1))
     return _fastq_convert_qual(in_handle, out_handle, mapping)

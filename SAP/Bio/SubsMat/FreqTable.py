@@ -1,4 +1,4 @@
-from Bio import Alphabet
+from SAP.Bio import Alphabet
 COUNT = 1
 FREQ = 2
 ##################################################################

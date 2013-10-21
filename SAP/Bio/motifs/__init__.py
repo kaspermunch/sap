@@ -35,7 +35,7 @@ def parse(handle, format):
 
     For example:
 
-    >>> from Bio import motifs
+    >>> from SAP.Bio import motifs
     >>> for m in motifs.parse(open("Motif/alignace.out"),"AlignAce"):
     ...     print m.consensus
     TCTACGATTGAG
@@ -57,23 +57,23 @@ def parse(handle, format):
     """
     format = format.lower()
     if format=="alignace":
-        from Bio.motifs import alignace
+        from SAP.Bio.motifs import alignace
         record = alignace.read(handle)
         return record
     elif format=="meme":
-        from Bio.motifs import meme
+        from SAP.Bio.motifs import meme
         record = meme.read(handle)
         return record
     elif format=="mast":
-        from Bio.motifs import mast
+        from SAP.Bio.motifs import mast
         record = mast.read(handle)
         return record
     elif format=="transfac":
-        from Bio.motifs import transfac
+        from SAP.Bio.motifs import transfac
         record = transfac.read(handle)
         return record
     elif format in ('pfm', 'sites'):
-        from Bio.motifs import jaspar
+        from SAP.Bio.motifs import jaspar
         motif = jaspar.read(handle, format)
         motifs = [motif]
         return motifs
@@ -88,14 +88,14 @@ def read(handle, format):
     only for files containing exactly one motif.  For example,
     reading a JASPAR-style pfm file:
 
-    >>> from Bio import motifs
+    >>> from SAP.Bio import motifs
     >>> m = motifs.read(open("motifs/SRF.pfm"), "pfm")
     >>> m.consensus
     Seq('GCCCATATATGG', IUPACUnambiguousDNA())
 
     Or a single-motif MEME file,
 
-    >>> from Bio import motifs
+    >>> from SAP.Bio import motifs
     >>> m = motifs.read(open("motifs/meme.out"),"meme")
     >>> m.consensus
     Seq('CTCAATCGTA', IUPACUnambiguousDNA())
@@ -103,7 +103,7 @@ def read(handle, format):
     If the handle contains no records, or more than one record,
     an exception is raised:
 
-    >>> from Bio import motifs
+    >>> from SAP.Bio import motifs
     >>> motif = motifs.read(open("motifs/alignace.out"),"AlignAce")
     Traceback (most recent call last):
         ...
@@ -113,7 +113,7 @@ def read(handle, format):
     multiple motifs this function would raise an exception (as
     shown in the example above).  Instead use:
 
-    >>> from Bio import motifs
+    >>> from SAP.Bio import motifs
     >>> record = motifs.parse(open("motifs/alignace.out"),"alignace")
     >>> motif = record[0]
     >>> motif.consensus
@@ -137,8 +137,8 @@ class Instances(list):
     A class representing instances of sequence motifs.
     """
     def __init__(self, instances=[], alphabet=None):
-        from Bio.Alphabet import IUPAC
-        from Bio.Seq import Seq
+        from SAP.Bio.Alphabet import IUPAC
+        from SAP.Bio.Seq import Seq
         self.length = None
         for instance in instances:
             if self.length is None:
@@ -205,7 +205,7 @@ class Motif(object):
     """
     def __init__(self, alphabet=None, instances=None, counts=None):
         import matrix
-        from Bio.Alphabet import IUPAC
+        from SAP.Bio.Alphabet import IUPAC
         self.name=""
         if counts is not None and instances is not None:
             raise Exception(ValueError,
@@ -483,10 +483,10 @@ The same rules are used by TRANSFAC."""
         """
 
         if format=="pfm":
-            from Bio.motifs import jaspar
+            from SAP.Bio.motifs import jaspar
             return jaspar.write(self)
         elif format=="transfac":
-            from Bio.motifs import transfac
+            from SAP.Bio.motifs import transfac
             motifs = [self]
             return transfac.write(motifs)
         else:
@@ -504,13 +504,13 @@ def write(motifs, format):
 
     format = format.lower()
     if format=="pfm":
-        from Bio.motifs import jaspar
+        from SAP.Bio.motifs import jaspar
         if len(motifs)!=1:
             raise Exception("Only a single motif can be written in the JASPAR Position Frequency Matrix (pfm) format")
         motif = motifs[0]
         return jaspar.write(motif)
     elif format=="transfac":
-        from Bio.motifs import transfac
+        from SAP.Bio.motifs import transfac
         return transfac.write(motifs)
     else:
         raise ValueError("Unknown format type %s" % format)

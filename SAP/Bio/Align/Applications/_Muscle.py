@@ -7,7 +7,7 @@
 
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
-from Bio.Application import _Option, _Switch, AbstractCommandline
+from SAP.Bio.Application import _Option, _Switch, AbstractCommandline
 
 
 class MuscleCommandline(AbstractCommandline):
@@ -17,7 +17,7 @@ class MuscleCommandline(AbstractCommandline):
 
     Example:
 
-    >>> from Bio.Align.Applications import MuscleCommandline
+    >>> from SAP.Bio.Align.Applications import MuscleCommandline
     >>> muscle_exe = r"C:\Program Files\Aligments\muscle3.8.31_i86win32.exe"
     >>> in_file = r"C:\My Documents\unaligned.fasta"
     >>> out_file = r"C:\My Documents\aligned.fasta"

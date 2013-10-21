@@ -7,10 +7,10 @@
 
 from itertools import chain
 
-from Bio._py3k import _as_bytes, _bytes_to_string
-from Bio.Alphabet import generic_protein
-from Bio.SearchIO._index import SearchIndexer
-from Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
+from SAP.Bio._py3k import _as_bytes, _bytes_to_string
+from SAP.Bio.Alphabet import generic_protein
+from SAP.Bio.SearchIO._index import SearchIndexer
+from SAP.Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
 
 
 __all__ = ['Hmmer3TabParser', 'Hmmer3TabIndexer', 'Hmmer3TabWriter']
@@ -311,5 +311,5 @@ class Hmmer3TabWriter(object):
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

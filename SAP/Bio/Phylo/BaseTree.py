@@ -16,7 +16,7 @@ import itertools
 import random
 import re
 
-from Bio import _utils
+from SAP.Bio import _utils
 
 
 # General tree-traversal algorithms
@@ -317,7 +317,7 @@ class TreeMixin(object):
         Example
         -------
 
-        >>> from Bio.Phylo.IO import PhyloXMIO
+        >>> from SAP.Bio.Phylo.IO import PhyloXMIO
         >>> phx = PhyloXMLIO.read('phyloxml_examples.xml')
         >>> matches = phx.phylogenies[5].find_elements(code='OCTVU')
         >>> matches.next()
@@ -756,7 +756,7 @@ class Tree(TreeElement, TreeMixin):
         This lets you use the additional annotation types PhyloXML defines, and
         save this information when you write this tree as 'phyloxml'.
         """
-        from Bio.Phylo.PhyloXML import Phylogeny
+        from SAP.Bio.Phylo.PhyloXML import Phylogeny
         return Phylogeny.from_tree(self, **kwargs)
 
     # XXX Compatibility: In Python 2.6+, **kwargs can be replaced with the named
@@ -913,7 +913,7 @@ class Tree(TreeElement, TreeMixin):
         """
         if format_spec:
             from StringIO import StringIO
-            from Bio.Phylo import _io
+            from SAP.Bio.Phylo import _io
             handle = StringIO()
             _io.write([self], handle, format_spec)
             return handle.getvalue()

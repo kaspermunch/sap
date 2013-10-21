@@ -14,11 +14,11 @@ as this offers more than just accessing the alignment or its
 sequences as SeqRecord objects.
 """
 
-from Bio.SeqRecord import SeqRecord
-from Bio.Nexus import Nexus
-from Bio.Align import MultipleSeqAlignment
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.Nexus import Nexus
+from SAP.Bio.Align import MultipleSeqAlignment
 from Interfaces import AlignmentWriter
-from Bio import Alphabet
+from SAP.Bio import Alphabet
 
 #You can get a couple of example files here:
 #http://www.molecularevolution.org/resources/fileformats/

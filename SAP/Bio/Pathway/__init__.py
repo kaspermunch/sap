@@ -30,7 +30,7 @@ Note: This module should be regarded as a prototype only. API changes are likely
       Comments and feature requests are most welcome.
 """
 
-from Bio.Pathway.Rep.MultiGraph import *
+from SAP.Bio.Pathway.Rep.MultiGraph import *
 
 
 class Reaction(object):

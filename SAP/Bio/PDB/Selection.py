@@ -7,9 +7,9 @@
 
 import itertools
 
-from Bio.PDB.Atom import Atom
-from Bio.PDB.Entity import Entity
-from Bio.PDB.PDBExceptions import PDBException
+from SAP.Bio.PDB.Atom import Atom
+from SAP.Bio.PDB.Entity import Entity
+from SAP.Bio.PDB.PDBExceptions import PDBException
 
 
 entity_levels = ["A", "R", "C", "M", "S"]

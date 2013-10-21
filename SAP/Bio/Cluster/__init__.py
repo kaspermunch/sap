@@ -1,6 +1,6 @@
 import numpy
 
-from Bio.Cluster.cluster import *
+from SAP.Bio.Cluster.cluster import *
 
 
 def _treesort(order, nodeorder, nodecounts, tree):

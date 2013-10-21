@@ -5,8 +5,8 @@
 
 """Bio.SearchIO base classes for HMMER-related code."""
 
-from Bio._py3k import _as_bytes
-from Bio.SearchIO._index import SearchIndexer
+from SAP.Bio._py3k import _as_bytes
+from SAP.Bio.SearchIO._index import SearchIndexer
 
 
 class _BaseHmmerTextIndexer(SearchIndexer):

@@ -1,11 +1,11 @@
 # Copyright 2008 by Bartek Wilczynski.
-# Adapted from Bio.MEME.Parser by Jason A. Hackney.  All rights reserved.
+# Adapted from SAP.Bio.MEME.Parser by Jason A. Hackney.  All rights reserved.
 # This code is part of the Biopython distribution and governed by its
 # license.  Please see the LICENSE file that should have been included
 # as part of this package.
 
-from Bio.Alphabet import IUPAC
-from Bio.Motif.Parsers.MEME import MEMEMotif
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Motif.Parsers.MEME import MEMEMotif
 
 
 class Record(object):

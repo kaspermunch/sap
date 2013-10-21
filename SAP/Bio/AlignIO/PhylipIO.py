@@ -34,9 +34,9 @@ for reading and writing. Older versions did nothing special with a dot/period.
 """
 import string
 
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.Align import MultipleSeqAlignment
 from Interfaces import AlignmentIterator, SequentialAlignmentWriter
 
 _PHYLIP_ID_WIDTH = 10

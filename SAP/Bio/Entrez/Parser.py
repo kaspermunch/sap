@@ -151,7 +151,7 @@ class DataHandler(object):
     local_dtd_dir = os.path.join(home, '.biopython', 'Bio', 'Entrez', 'DTDs')
     del home
 
-    from Bio import Entrez
+    from SAP.Bio import Entrez
     global_dtd_dir = os.path.join(str(Entrez.__path__[0]), "DTDs")
     del Entrez
 

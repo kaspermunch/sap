@@ -8,8 +8,8 @@ __docformat__ = "restructuredtext en"
 
 from itertools import chain
 
-from Bio.Nexus import Nexus
-from Bio.Phylo import Newick, NewickIO
+from SAP.Bio.Nexus import Nexus
+from SAP.Bio.Phylo import Newick, NewickIO
 
 
 # Structure of a Nexus tree-only file

@@ -11,12 +11,12 @@ class, used in the Bio.AlignIO module.
 """
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio import Alphabet
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio import Alphabet
 
 #We only import this and subclass it for some limited backward compatibility.
-from Bio.Align.Generic import Alignment as _Alignment
+from SAP.Bio.Align.Generic import Alignment as _Alignment
 
 
 class MultipleSeqAlignment(_Alignment):
@@ -30,7 +30,7 @@ class MultipleSeqAlignment(_Alignment):
     You would typically create an MSA by loading an alignment file with the
     AlignIO module:
 
-    >>> from Bio import AlignIO
+    >>> from SAP.Bio import AlignIO
     >>> align = AlignIO.read("Clustalw/opuntia.aln", "clustal")
     >>> print align
     SingleLetterAlphabet() alignment with 7 rows and 156 columns
@@ -123,9 +123,9 @@ class MultipleSeqAlignment(_Alignment):
         You would normally load a MSA from a file using Bio.AlignIO, but you
         can do this from a list of SeqRecord objects too:
 
-        >>> from Bio.Alphabet import generic_dna
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
         >>> a = SeqRecord(Seq("AAAACGT", generic_dna), id="Alpha")
         >>> b = SeqRecord(Seq("AAA-CGT", generic_dna), id="Beta")
         >>> c = SeqRecord(Seq("AAAAGGT", generic_dna), id="Gamma")
@@ -150,7 +150,7 @@ class MultipleSeqAlignment(_Alignment):
                 alphabet = records
                 records = []
                 import warnings
-                from Bio import BiopythonDeprecationWarning
+                from SAP.Bio import BiopythonDeprecationWarning
                 warnings.warn("Invalid records argument: While the old "
                               "Bio.Align.Generic.Alignment class only "
                               "accepted a single argument (the alphabet), the "
@@ -191,10 +191,10 @@ class MultipleSeqAlignment(_Alignment):
         They must all have the same length as the original alignment, and have
         alphabets compatible with the alignment's alphabet. For example,
 
-        >>> from Bio.Alphabet import generic_dna
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
-        >>> from Bio.Align import MultipleSeqAlignment
+        >>> from SAP.Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Align import MultipleSeqAlignment
         >>> a = SeqRecord(Seq("AAAACGT", generic_dna), id="Alpha")
         >>> b = SeqRecord(Seq("AAA-CGT", generic_dna), id="Beta")
         >>> c = SeqRecord(Seq("AAAAGGT", generic_dna), id="Gamma")
@@ -250,7 +250,7 @@ class MultipleSeqAlignment(_Alignment):
         the first record), and have an alphabet compatible with the alignment's
         alphabet.
 
-        >>> from Bio import AlignIO
+        >>> from SAP.Bio import AlignIO
         >>> align = AlignIO.read("Clustalw/opuntia.aln", "clustal")
         >>> print align
         SingleLetterAlphabet() alignment with 7 rows and 156 columns
@@ -266,8 +266,8 @@ class MultipleSeqAlignment(_Alignment):
 
         We'll now construct a dummy record to append as an example:
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
         >>> dummy = SeqRecord(Seq("N"*156), id="dummy")
 
         Now append this to the alignment,
@@ -319,10 +319,10 @@ class MultipleSeqAlignment(_Alignment):
         about adding them - by row or by column. Using the extend method adds by row.
         Using the addition operator adds by column. For example,
 
-        >>> from Bio.Alphabet import generic_dna
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
-        >>> from Bio.Align import MultipleSeqAlignment
+        >>> from SAP.Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Align import MultipleSeqAlignment
         >>> a1 = SeqRecord(Seq("AAAAC", generic_dna), id="Alpha")
         >>> b1 = SeqRecord(Seq("AAA-C", generic_dna), id="Beta")
         >>> c1 = SeqRecord(Seq("AAAAG", generic_dna), id="Gamma")
@@ -415,10 +415,10 @@ class MultipleSeqAlignment(_Alignment):
 
         We'll use the following example alignment here for illustration:
 
-        >>> from Bio.Alphabet import generic_dna
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
-        >>> from Bio.Align import MultipleSeqAlignment
+        >>> from SAP.Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Align import MultipleSeqAlignment
         >>> a = SeqRecord(Seq("AAAACGT", generic_dna), id="Alpha")
         >>> b = SeqRecord(Seq("AAA-CGT", generic_dna), id="Beta")
         >>> c = SeqRecord(Seq("AAAAGGT", generic_dna), id="Gamma")
@@ -538,10 +538,10 @@ class MultipleSeqAlignment(_Alignment):
         This is useful if you want to add two alignments which use the same
         record identifiers, but in a different order. For example,
 
-        >>> from Bio.Alphabet import generic_dna
-        >>> from Bio.Seq import Seq
-        >>> from Bio.SeqRecord import SeqRecord
-        >>> from Bio.Align import MultipleSeqAlignment
+        >>> from SAP.Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.SeqRecord import SeqRecord
+        >>> from SAP.Bio.Align import MultipleSeqAlignment
         >>> align1 = MultipleSeqAlignment([
         ...              SeqRecord(Seq("ACGT", generic_dna), id="Human"),
         ...              SeqRecord(Seq("ACGG", generic_dna), id="Mouse"),
@@ -577,7 +577,7 @@ class MultipleSeqAlignment(_Alignment):
         As an example using a different sort order, you could sort on the
         GC content of each sequence.
 
-        >>> from Bio.SeqUtils import GC
+        >>> from SAP.Bio.SeqUtils import GC
         >>> print align1
         DNAAlphabet() alignment with 3 rows and 4 columns
         ACGC Chicken
@@ -644,5 +644,5 @@ class MultipleSeqAlignment(_Alignment):
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

@@ -86,10 +86,10 @@ N1 - Other functional RNA
 XX - Unknown
 """
 
-from Bio.Alphabet import single_letter_alphabet, generic_protein, \
+from SAP.Bio.Alphabet import single_letter_alphabet, generic_protein, \
     generic_dna, generic_rna
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
 
 _pir_alphabets = {"P1": generic_protein,
                   "F1": generic_protein,

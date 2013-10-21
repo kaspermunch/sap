@@ -20,7 +20,7 @@ __docformat__ = "restructuredtext en"
 
 import sys
 
-from Bio.Phylo import PhyloXML as PX
+from SAP.Bio.Phylo import PhyloXML as PX
 
 #For speed try to use cElementTree rather than ElementTree
 try:

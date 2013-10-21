@@ -25,7 +25,7 @@ def to_networkx(tree):
     try:
         import networkx
     except ImportError:
-        from Bio import MissingPythonDependencyError
+        from SAP.Bio import MissingPythonDependencyError
         raise MissingPythonDependencyError(
                 "Install NetworkX if you want to use to_networkx.")
 
@@ -122,7 +122,7 @@ def draw_graphviz(tree, label_func=str, prog='twopi', args='',
     -------
 
     >>> import pylab
-    >>> from Bio import Phylo
+    >>> from SAP.Bio import Phylo
     >>> tree = Phylo.read('ex/apaf.xml', 'phyloxml')
     >>> Phylo.draw_graphviz(tree)
     >>> pylab.show()
@@ -131,7 +131,7 @@ def draw_graphviz(tree, label_func=str, prog='twopi', args='',
     try:
         import networkx
     except ImportError:
-        from Bio import MissingPythonDependencyError
+        from SAP.Bio import MissingPythonDependencyError
         raise MissingPythonDependencyError(
                 "Install NetworkX if you want to use to_networkx.")
 
@@ -301,7 +301,7 @@ def draw(tree, label_func=str, do_show=True, show_confidence=True,
         try:
             import pylab as plt
         except ImportError:
-            from Bio import MissingPythonDependencyError
+            from SAP.Bio import MissingPythonDependencyError
             raise MissingPythonDependencyError(
                     "Install matplotlib or pylab if you want to use draw.")
 

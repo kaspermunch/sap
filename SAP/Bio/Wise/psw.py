@@ -17,7 +17,7 @@ import os
 import re
 import sys
 
-from Bio import Wise
+from SAP.Bio import Wise
 
 _CMDLINE_PSW = ["psw", "-l", "-F"]
 _OPTION_GAP_START = "-g"

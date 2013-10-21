@@ -55,8 +55,8 @@ import Des
 import Cla
 import Hie
 import Residues
-from Bio import SeqIO
-from Bio.Seq import Seq
+from SAP.Bio import SeqIO
+from SAP.Bio.Seq import Seq
 
 
 nodeCodeDict = { 'cl':'class', 'cf':'fold', 'sf':'superfamily',

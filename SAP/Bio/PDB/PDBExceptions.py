@@ -5,7 +5,7 @@
 
 """Some Bio.PDB-specific exceptions."""
 
-from Bio import BiopythonWarning
+from SAP.Bio import BiopythonWarning
 
 
 # General error

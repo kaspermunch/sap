@@ -271,7 +271,7 @@ class FeatureSet(object):
 ################################################################################
 
 if __name__ == '__main__':
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
 
     genbank_entry = SeqIO.read('/data/Genomes/Bacteria/Nanoarchaeum_equitans/NC_005213.gbk', 'gb')
 

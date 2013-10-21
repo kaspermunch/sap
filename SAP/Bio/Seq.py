@@ -17,10 +17,10 @@ import string  # for maketrans only
 import array
 import sys
 
-from Bio import Alphabet
-from Bio.Alphabet import IUPAC
-from Bio.Data.IUPACData import ambiguous_dna_complement, ambiguous_rna_complement
-from Bio.Data import CodonTable
+from SAP.Bio import Alphabet
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Data.IUPACData import ambiguous_dna_complement, ambiguous_rna_complement
+from SAP.Bio.Data import CodonTable
 
 
 def _maketrans(complement_mapping):
@@ -61,7 +61,7 @@ class Seq(object):
     find, split and strip), which are alphabet aware where appropriate.
 
     In addition to the string like sequence, the Seq object has an alphabet
-    property. This is an instance of an Alphabet class from Bio.Alphabet,
+    property. This is an instance of an Alphabet class from SAP.Bio.Alphabet,
     for example generic DNA, or IUPAC DNA. This describes the type of molecule
     (e.g. RNA, DNA, protein) and may also indicate the expected symbols
     (letters).
@@ -75,7 +75,7 @@ class Seq(object):
 
         Arguments:
          - seq      - Sequence, required (string)
-         - alphabet - Optional argument, an Alphabet object from Bio.Alphabet
+         - alphabet - Optional argument, an Alphabet object from SAP.Bio.Alphabet
 
         You will typically use Bio.SeqIO to read in sequences from files as
         SeqRecord objects, whose sequence will be exposed as a Seq object via
@@ -83,8 +83,8 @@ class Seq(object):
 
         However, will often want to create your own Seq objects directly:
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> my_seq = Seq("MKQHKAMIVALIVICITAVVAALVTRKDLCEVHIRTGQTEVAVF",
         ...              IUPAC.protein)
         >>> my_seq
@@ -188,16 +188,16 @@ class Seq(object):
 
         If adding a string to a Seq, the alphabet is preserved:
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import generic_protein
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import generic_protein
         >>> Seq("MELKI", generic_protein) + "LV"
         Seq('MELKILV', ProteinAlphabet())
 
         When adding two Seq (like) objects, the alphabets are important.
         Consider this example:
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet.IUPAC import unambiguous_dna, ambiguous_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet.IUPAC import unambiguous_dna, ambiguous_dna
         >>> unamb_dna_seq = Seq("ACGT", unambiguous_dna)
         >>> ambig_dna_seq = Seq("ACRGT", ambiguous_dna)
         >>> unamb_dna_seq
@@ -219,7 +219,7 @@ class Seq(object):
 
         You can't add RNA and DNA sequences:
 
-        >>> from Bio.Alphabet import generic_dna, generic_rna
+        >>> from SAP.Bio.Alphabet import generic_dna, generic_rna
         >>> Seq("ACGT", generic_dna) + Seq("ACGU", generic_rna)
         Traceback (most recent call last):
            ...
@@ -227,7 +227,7 @@ class Seq(object):
 
         You can't add nucleotide and protein sequences:
 
-        >>> from Bio.Alphabet import generic_dna, generic_protein
+        >>> from SAP.Bio.Alphabet import generic_dna, generic_protein
         >>> Seq("ACGT", generic_dna) + Seq("MELKI", generic_protein)
         Traceback (most recent call last):
            ...
@@ -245,7 +245,7 @@ class Seq(object):
         elif isinstance(other, basestring):
             #other is a plain string - use the current alphabet
             return self.__class__(str(self) + other, self.alphabet)
-        from Bio.SeqRecord import SeqRecord  # Lazy to avoid circular imports
+        from SAP.Bio.SeqRecord import SeqRecord  # Lazy to avoid circular imports
         if isinstance(other, SeqRecord):
             #Get the SeqRecord's __radd__ to handle this
             return NotImplemented
@@ -257,8 +257,8 @@ class Seq(object):
 
         If adding a string to a Seq, the alphabet is preserved:
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import generic_protein
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import generic_protein
         >>> "LV" + Seq("MELKI", generic_protein)
         Seq('LVMELKI', ProteinAlphabet())
 
@@ -295,8 +295,8 @@ class Seq(object):
     def tomutable(self):   # Needed?  Or use a function?
         """Returns the full sequence as a MutableSeq object.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> my_seq = Seq("MKQHKAMIVALIVICITAVVAAL",
         ...              IUPAC.protein)
         >>> my_seq
@@ -347,7 +347,7 @@ class Seq(object):
 
         e.g.
 
-        >>> from Bio.Seq import Seq
+        >>> from SAP.Bio.Seq import Seq
         >>> my_seq = Seq("AAAATGA")
         >>> print my_seq.count("A")
         5
@@ -378,8 +378,8 @@ class Seq(object):
 
         e.g.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import generic_dna, generic_rna, generic_protein
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import generic_dna, generic_rna, generic_protein
         >>> my_dna = Seq("ATATGAAATTTGAAAA", generic_dna)
         >>> "AAA" in my_dna
         True
@@ -421,7 +421,7 @@ class Seq(object):
 
         e.g. Locating the first typical start codon, AUG, in an RNA sequence:
 
-        >>> from Bio.Seq import Seq
+        >>> from SAP.Bio.Seq import Seq
         >>> my_rna = Seq("GUCAUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAGUUG")
         >>> my_rna.find("AUG")
         3
@@ -447,7 +447,7 @@ class Seq(object):
 
         e.g. Locating the last typical start codon, AUG, in an RNA sequence:
 
-        >>> from Bio.Seq import Seq
+        >>> from SAP.Bio.Seq import Seq
         >>> my_rna = Seq("GUCAUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAGUUG")
         >>> my_rna.rfind("AUG")
         15
@@ -467,7 +467,7 @@ class Seq(object):
         With optional end, stop comparing sequence at that position.
         prefix can also be a tuple of strings to try.  e.g.
 
-        >>> from Bio.Seq import Seq
+        >>> from SAP.Bio.Seq import Seq
         >>> my_rna = Seq("GUCAUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAGUUG")
         >>> my_rna.startswith("GUC")
         True
@@ -498,7 +498,7 @@ class Seq(object):
         With optional end, stop comparing sequence at that position.
         suffix can also be a tuple of strings to try.  e.g.
 
-        >>> from Bio.Seq import Seq
+        >>> from SAP.Bio.Seq import Seq
         >>> my_rna = Seq("GUCAUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAGUUG")
         >>> my_rna.endswith("UUG")
         True
@@ -534,7 +534,7 @@ class Seq(object):
 
         e.g.
 
-        >>> from Bio.Seq import Seq
+        >>> from SAP.Bio.Seq import Seq
         >>> my_rna = Seq("GUCAUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAGUUG")
         >>> my_aa = my_rna.translate()
         >>> my_aa
@@ -624,8 +624,8 @@ class Seq(object):
 
         e.g. Removing a nucleotide sequence's polyadenylation (poly-A tail):
 
-        >>> from Bio.Alphabet import IUPAC
-        >>> from Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
         >>> my_seq = Seq("CGGTACGCTTATGTCACGTAGAAAAAA", IUPAC.unambiguous_dna)
         >>> my_seq
         Seq('CGGTACGCTTATGTCACGTAGAAAAAA', IUPACUnambiguousDNA())
@@ -641,8 +641,8 @@ class Seq(object):
     def upper(self):
         """Returns an upper case copy of the sequence.
 
-        >>> from Bio.Alphabet import HasStopCodon, generic_protein
-        >>> from Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import HasStopCodon, generic_protein
+        >>> from SAP.Bio.Seq import Seq
         >>> my_seq = Seq("VHLTPeeK*", HasStopCodon(generic_protein))
         >>> my_seq
         Seq('VHLTPeeK*', HasStopCodon(ProteinAlphabet(), '*'))
@@ -661,9 +661,9 @@ class Seq(object):
         This will adjust the alphabet if required. Note that the IUPAC alphabets
         are upper case only, and thus a generic alphabet must be substituted.
 
-        >>> from Bio.Alphabet import Gapped, generic_dna
-        >>> from Bio.Alphabet import IUPAC
-        >>> from Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import Gapped, generic_dna
+        >>> from SAP.Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
         >>> my_seq = Seq("CGGTACGCTTATGTCACGTAG*AAAAAA", Gapped(IUPAC.unambiguous_dna, "*"))
         >>> my_seq
         Seq('CGGTACGCTTATGTCACGTAG*AAAAAA', Gapped(IUPACUnambiguousDNA(), '*'))
@@ -677,8 +677,8 @@ class Seq(object):
     def complement(self):
         """Returns the complement sequence. New Seq object.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> my_dna = Seq("CCCCCGATAG", IUPAC.unambiguous_dna)
         >>> my_dna
         Seq('CCCCCGATAG', IUPACUnambiguousDNA())
@@ -687,8 +687,8 @@ class Seq(object):
 
         You can of course used mixed case sequences,
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import generic_dna
         >>> my_dna = Seq("CCCCCgatA-GD", generic_dna)
         >>> my_dna
         Seq('CCCCCgatA-GD', DNAAlphabet())
@@ -728,8 +728,8 @@ class Seq(object):
     def reverse_complement(self):
         """Returns the reverse complement sequence. New Seq object.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> my_dna = Seq("CCCCCGATAGNR", IUPAC.ambiguous_dna)
         >>> my_dna
         Seq('CCCCCGATAGNR', IUPACAmbiguousDNA())
@@ -741,8 +741,8 @@ class Seq(object):
 
         You can of course used mixed case sequences,
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import generic_dna
         >>> my_dna = Seq("CCCCCgatA-G", generic_dna)
         >>> my_dna
         Seq('CCCCCgatA-G', DNAAlphabet())
@@ -763,8 +763,8 @@ class Seq(object):
     def transcribe(self):
         """Returns the RNA sequence from a DNA sequence. New Seq object.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> coding_dna = Seq("ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG",
         ...                  IUPAC.unambiguous_dna)
         >>> coding_dna
@@ -797,8 +797,8 @@ class Seq(object):
     def back_transcribe(self):
         """Returns the DNA sequence from an RNA sequence. New Seq object.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> messenger_rna = Seq("AUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAG",
         ...                     IUPAC.unambiguous_rna)
         >>> messenger_rna
@@ -964,8 +964,8 @@ class Seq(object):
         The gap character can be specified in two ways - either as an explicit
         argument, or via the sequence's alphabet. For example:
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import generic_dna
         >>> my_dna = Seq("-ATA--TGAAAT-TTGAAAA", generic_dna)
         >>> my_dna
         Seq('-ATA--TGAAAT-TTGAAAA', DNAAlphabet())
@@ -976,8 +976,8 @@ class Seq(object):
         the sequence's alphabet (if defined). Notice that the returned sequence's
         alphabet is adjusted since it no longer requires a gapped alphabet:
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import IUPAC, Gapped, HasStopCodon
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC, Gapped, HasStopCodon
         >>> my_pro = Seq("MVVLE=AD*", HasStopCodon(Gapped(IUPAC.protein, "=")))
         >>> my_pro
         Seq('MVVLE=AD*', HasStopCodon(Gapped(IUPACProtein(), '='), '*'))
@@ -986,8 +986,8 @@ class Seq(object):
 
         Or, with a simpler gapped DNA example:
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import IUPAC, Gapped
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC, Gapped
         >>> my_seq = Seq("CGGGTAG=AAAAAA", Gapped(IUPAC.unambiguous_dna, "="))
         >>> my_seq
         Seq('CGGGTAG=AAAAAA', Gapped(IUPACUnambiguousDNA(), '='))
@@ -1015,8 +1015,8 @@ class Seq(object):
         Finally, if a gap character is not supplied, and the alphabet does not
         define one, an exception is raised:
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import generic_dna
         >>> my_dna = Seq("ATA--TGAAAT-TTGAAAA", generic_dna)
         >>> my_dna
         Seq('ATA--TGAAAT-TTGAAAA', DNAAlphabet())
@@ -1137,16 +1137,16 @@ class UnknownSeq(Seq):
         Adding two UnknownSeq objects returns another UnknownSeq object
         provided the character is the same and the alphabets are compatible.
 
-        >>> from Bio.Seq import UnknownSeq
-        >>> from Bio.Alphabet import generic_protein
+        >>> from SAP.Bio.Seq import UnknownSeq
+        >>> from SAP.Bio.Alphabet import generic_protein
         >>> UnknownSeq(10, generic_protein) + UnknownSeq(5, generic_protein)
         UnknownSeq(15, alphabet = ProteinAlphabet(), character = 'X')
 
         If the characters differ, an UnknownSeq object cannot be used, so a
         Seq object is returned:
 
-        >>> from Bio.Seq import UnknownSeq
-        >>> from Bio.Alphabet import generic_protein
+        >>> from SAP.Bio.Seq import UnknownSeq
+        >>> from SAP.Bio.Alphabet import generic_protein
         >>> UnknownSeq(10, generic_protein) + UnknownSeq(5, generic_protein,
         ...                                              character="x")
         Seq('XXXXXXXXXXxxxxx', ProteinAlphabet())
@@ -1154,8 +1154,8 @@ class UnknownSeq(Seq):
         If adding a string to an UnknownSeq, a new Seq is returned with the
         same alphabet:
 
-        >>> from Bio.Seq import UnknownSeq
-        >>> from Bio.Alphabet import generic_protein
+        >>> from SAP.Bio.Seq import UnknownSeq
+        >>> from SAP.Bio.Alphabet import generic_protein
         >>> UnknownSeq(5, generic_protein) + "LV"
         Seq('XXXXXLV', ProteinAlphabet())
         """
@@ -1348,8 +1348,8 @@ class UnknownSeq(Seq):
     def upper(self):
         """Returns an upper case copy of the sequence.
 
-        >>> from Bio.Alphabet import generic_dna
-        >>> from Bio.Seq import UnknownSeq
+        >>> from SAP.Bio.Alphabet import generic_dna
+        >>> from SAP.Bio.Seq import UnknownSeq
         >>> my_seq = UnknownSeq(20, generic_dna, character="n")
         >>> my_seq
         UnknownSeq(20, alphabet = DNAAlphabet(), character = 'n')
@@ -1369,8 +1369,8 @@ class UnknownSeq(Seq):
 
         This will adjust the alphabet if required:
 
-        >>> from Bio.Alphabet import IUPAC
-        >>> from Bio.Seq import UnknownSeq
+        >>> from SAP.Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import UnknownSeq
         >>> my_seq = UnknownSeq(20, IUPAC.extended_protein)
         >>> my_seq
         UnknownSeq(20, alphabet = ExtendedIUPACProtein(), character = 'X')
@@ -1422,8 +1422,8 @@ class UnknownSeq(Seq):
         The gap character can be specified in two ways - either as an explicit
         argument, or via the sequence's alphabet. For example:
 
-        >>> from Bio.Seq import UnknownSeq
-        >>> from Bio.Alphabet import Gapped, generic_dna
+        >>> from SAP.Bio.Seq import UnknownSeq
+        >>> from SAP.Bio.Alphabet import Gapped, generic_dna
         >>> my_dna = UnknownSeq(20, Gapped(generic_dna,"-"))
         >>> my_dna
         UnknownSeq(20, alphabet = Gapped(DNAAlphabet(), '-'), character = 'N')
@@ -1461,8 +1461,8 @@ class MutableSeq(object):
     which are immuatable, the MutableSeq lets you edit the sequence in place.
     However, this means you cannot use a MutableSeq object as a dictionary key.
 
-    >>> from Bio.Seq import MutableSeq
-    >>> from Bio.Alphabet import generic_dna
+    >>> from SAP.Bio.Seq import MutableSeq
+    >>> from SAP.Bio.Alphabet import generic_dna
     >>> my_seq = MutableSeq("ACTCGTCGTCG", generic_dna)
     >>> my_seq
     MutableSeq('ACTCGTCGTCG', DNAAlphabet())
@@ -1686,7 +1686,7 @@ class MutableSeq(object):
 
         e.g.
 
-        >>> from Bio.Seq import MutableSeq
+        >>> from SAP.Bio.Seq import MutableSeq
         >>> my_mseq = MutableSeq("AAAATGA")
         >>> print my_mseq.count("A")
         5
@@ -1808,8 +1808,8 @@ class MutableSeq(object):
     def toseq(self):
         """Returns the full sequence as a new immutable Seq object.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import IUPAC
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import IUPAC
         >>> my_mseq = MutableSeq("MKQHKAMIVALIVICITAVVAAL",
         ...                      IUPAC.protein)
         >>> my_mseq
@@ -1895,7 +1895,7 @@ def _translate_str(sequence, table, stop_symbol="*", to_stop=False,
 
     e.g.
 
-    >>> from Bio.Data import CodonTable
+    >>> from SAP.Bio.Data import CodonTable
     >>> table = CodonTable.ambiguous_dna_by_id[1]
     >>> _translate_str("AAA", table)
     'K'

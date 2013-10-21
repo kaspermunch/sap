@@ -20,7 +20,7 @@ from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.barcharts import BarChartProperties
 from reportlab.graphics.widgetbase import TypedPropertyCollection
 
-from Bio.Graphics import _write
+from SAP.Bio.Graphics import _write
 
 
 class DistributionPage(object):

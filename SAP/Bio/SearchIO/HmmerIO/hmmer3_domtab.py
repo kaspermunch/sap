@@ -7,8 +7,8 @@
 
 from itertools import chain
 
-from Bio.Alphabet import generic_protein
-from Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
+from SAP.Bio.Alphabet import generic_protein
+from SAP.Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
 
 from hmmer3_tab import Hmmer3TabParser, Hmmer3TabIndexer
 
@@ -318,5 +318,5 @@ class Hmmer3DomtabHmmqueryWriter(Hmmer3DomtabHmmhitWriter):
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

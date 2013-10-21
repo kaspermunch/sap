@@ -11,10 +11,10 @@ See also the Bio.Sequencing.Ace module which offers more than just accessing
 the contig consensus sequences in an ACE file as SeqRecord objects.
 """
 
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import generic_nucleotide, generic_dna, generic_rna, Gapped
-from Bio.Sequencing import Ace
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.Alphabet import generic_nucleotide, generic_dna, generic_rna, Gapped
+from SAP.Bio.Sequencing import Ace
 
 
 def AceIterator(handle):
@@ -29,7 +29,7 @@ def AceIterator(handle):
     using PHRED scores using Bio.SeqIO, these are stored in the SeqRecord's
     letter_annotations dictionary under the "phred_quality" key.
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> handle = open("Ace/consed_sample.ace", "rU")
     >>> for record in SeqIO.parse(handle, "ace"):
     ...     print record.id, record.seq[:10]+"...", len(record)
@@ -44,7 +44,7 @@ def AceIterator(handle):
     Biopython therefore used None instead, but this complicated usage, and
     prevented output of the gapped sequence as FASTQ format.
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> handle = open("Ace/contig1.ace", "rU")
     >>> for record in SeqIO.parse(handle, "ace"):
     ...     print record.id, "..." + record.seq[85:95]+"..."
@@ -111,5 +111,5 @@ def AceIterator(handle):
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

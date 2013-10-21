@@ -10,7 +10,7 @@ Bio.DocSQL: easy access to DB API databases.
 
 >>> import os
 >>> import MySQLdb
->>> from Bio import DocSQL
+>>> from SAP.Bio import DocSQL
 >>> db=MySQLdb.connect(passwd='', db='test')
 >>> class CreatePeople(DocSQL.Create):
 ...     '''
@@ -29,7 +29,7 @@ __version__ = "$Revision: 1.13 $"
 
 import sys
 
-from Bio import MissingPythonDependencyError
+from SAP.Bio import MissingPythonDependencyError
 
 try:
     import MySQLdb

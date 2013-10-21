@@ -27,7 +27,7 @@ import re
 
 from subprocess import CalledProcessError as _ProcessCalledError
 
-from Bio import File
+from SAP.Bio import File
 
 #Use this regular expression to test the property names are going to
 #be valid as Python properties or arguments
@@ -98,7 +98,7 @@ class AbstractCommandline(object):
     options when creating the wrapper object using keyword arguments - or
     later using their corresponding properties:
 
-    >>> from Bio.Emboss.Applications import WaterCommandline
+    >>> from SAP.Bio.Emboss.Applications import WaterCommandline
     >>> cline = WaterCommandline(gapopen=10, gapextend=0.5)
     >>> cline
     WaterCommandline(cmd='water', gapopen=10, gapextend=0.5)
@@ -129,7 +129,7 @@ class AbstractCommandline(object):
     In this case the wrapper knows certain arguments are required to construct
     a valid command line for the tool.  For a complete example,
 
-    >>> from Bio.Emboss.Applications import WaterCommandline
+    >>> from SAP.Bio.Emboss.Applications import WaterCommandline
     >>> water_cmd = WaterCommandline(gapopen=10, gapextend=0.5)
     >>> water_cmd.asequence = "asis:ACCCGGGCGCGGT"
     >>> water_cmd.bsequence = "asis:ACCCGAGCGCGGT"
@@ -235,7 +235,7 @@ class AbstractCommandline(object):
         """Make the commandline string with the currently set options.
 
         e.g.
-        >>> from Bio.Emboss.Applications import WaterCommandline
+        >>> from SAP.Bio.Emboss.Applications import WaterCommandline
         >>> cline = WaterCommandline(gapopen=10, gapextend=0.5)
         >>> cline.asequence = "asis:ACCCGGGCGCGGT"
         >>> cline.bsequence = "asis:ACCCGAGCGCGGT"
@@ -257,7 +257,7 @@ class AbstractCommandline(object):
         """Return a representation of the command line object for debugging.
 
         e.g.
-        >>> from Bio.Emboss.Applications import WaterCommandline
+        >>> from SAP.Bio.Emboss.Applications import WaterCommandline
         >>> cline = WaterCommandline(gapopen=10, gapextend=0.5)
         >>> cline.asequence = "asis:ACCCGGGCGCGGT"
         >>> cline.bsequence = "asis:ACCCGAGCGCGGT"
@@ -348,7 +348,7 @@ class AbstractCommandline(object):
         of the user assuming that parameters for the application are set,
         when they are not.
 
-        >>> from Bio.Emboss.Applications import WaterCommandline
+        >>> from SAP.Bio.Emboss.Applications import WaterCommandline
         >>> cline = WaterCommandline(gapopen=10, gapextend=0.5, stdout=True)
         >>> cline.asequence = "a.fasta"
         >>> cline.bsequence = "b.fasta"
@@ -396,7 +396,7 @@ class AbstractCommandline(object):
 
         Default example usage:
 
-        from Bio.Emboss.Applications import WaterCommandline
+        from SAP.Bio.Emboss.Applications import WaterCommandline
         water_cmd = WaterCommandline(gapopen=10, gapextend=0.5,
                                      stdout=True, auto=True,
                                      asequence="a.fasta", bsequence="b.fasta")

@@ -6,7 +6,7 @@
 import re
 import warnings
 
-from Bio.PDB.PDBIO import PDBIO
+from SAP.Bio.PDB.PDBIO import PDBIO
 
 
 _hydrogen=re.compile("[123 ]*H.*")
@@ -69,7 +69,7 @@ def extract(structure, chain_id, start, end, filename):
 
 if __name__=="__main__":
 
-    from Bio.PDB.PDBParser import PDBParser
+    from SAP.Bio.PDB.PDBParser import PDBParser
 
     import sys
 

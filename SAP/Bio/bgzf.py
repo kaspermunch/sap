@@ -92,7 +92,7 @@ it pollutes the namespace. This is a real issue with Bio.bgzf (and the
 standard Python library gzip) because they contain a function called open
 i.e. Suppose you do this:
 
->>> from Bio.bgzf import *
+>>> from SAP.Bio.bgzf import *
 >>> print open.__module__
 Bio.bgzf
 
@@ -109,7 +109,7 @@ need to by importing the built-in open function:
 
 However, what we recommend instead is to use the explicit namespace, e.g.
 
->>> from Bio import bgzf
+>>> from SAP.Bio import bgzf
 >>> print bgzf.open.__module__
 Bio.bgzf
 
@@ -212,7 +212,7 @@ Of course you can parse this file with Bio.SeqIO using BgzfReader,
 although there isn't any benefit over using gzip.open(...), unless
 you want to index BGZF compressed sequence files:
 
->>> from Bio import SeqIO
+>>> from SAP.Bio import SeqIO
 >>> handle = BgzfReader("GenBank/NC_000932.gb.bgz")
 >>> record = SeqIO.read(handle, "genbank")
 >>> handle.close()
@@ -225,7 +225,7 @@ import zlib
 import struct
 import __builtin__  # to access the usual open function
 
-from Bio._py3k import _as_bytes, _as_string
+from SAP.Bio._py3k import _as_bytes, _as_string
 
 #For Python 2 can just use: _bgzf_magic = '\x1f\x8b\x08\x04'
 #but need to use bytes on Python 3

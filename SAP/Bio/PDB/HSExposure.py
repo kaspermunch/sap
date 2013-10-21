@@ -8,10 +8,10 @@
 import warnings
 from math import pi
 
-from Bio.PDB.AbstractPropertyMap import AbstractPropertyMap
-from Bio.PDB.PDBParser import PDBParser
-from Bio.PDB.Polypeptide import CaPPBuilder, is_aa
-from Bio.PDB.Vector import rotaxis
+from SAP.Bio.PDB.AbstractPropertyMap import AbstractPropertyMap
+from SAP.Bio.PDB.PDBParser import PDBParser
+from SAP.Bio.PDB.Polypeptide import CaPPBuilder, is_aa
+from SAP.Bio.PDB.Vector import rotaxis
 
 
 class _AbstractHSExposure(AbstractPropertyMap):

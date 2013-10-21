@@ -25,7 +25,7 @@ Bio.utils.reduce_sequence is used to take a Protein alphabet, and reduce it usin
 the tables here, or a user-defined table.
 """
 
-from Bio import Alphabet
+from SAP.Bio import Alphabet
 
 
 murphy_15_tab = {"L": "L",

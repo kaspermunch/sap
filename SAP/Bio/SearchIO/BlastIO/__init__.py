@@ -171,7 +171,7 @@ flag). Commented BLAST tabular files may be parsed, indexed, or written using
 the keyword argument 'comments' set to True:
 
     # blast-tab defaults to parsing uncommented files
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> uncommented = 'Blast/tab_2226_tblastn_004.txt'
     >>> qresult = SearchIO.read(uncommented, 'blast-tab')
     >>> qresult
@@ -402,5 +402,5 @@ from blast_text import *
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

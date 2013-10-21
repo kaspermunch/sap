@@ -16,7 +16,7 @@ import sys
 import time
 from urllib import FancyURLopener
 
-from Bio.Restriction.RanaConfig import *
+from SAP.Bio.Restriction.RanaConfig import *
 
 
 class RebaseUpdate(FancyURLopener):

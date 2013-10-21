@@ -11,9 +11,9 @@
 
 You are expected to use this module via the Bio.SeqIO functions."""
 
-from Bio.Alphabet import single_letter_alphabet
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
+from SAP.Bio.Alphabet import single_letter_alphabet
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
 
 
 def IgIterator(handle, alphabet=single_letter_alphabet):

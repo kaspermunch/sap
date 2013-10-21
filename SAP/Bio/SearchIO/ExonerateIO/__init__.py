@@ -163,7 +163,7 @@ Note that you can also use the default HSP or HSPFragment properties. For
 example, to check the intron coordinates of your result you can use the
 `query_inter_ranges` or `hit_inter_ranges` properties:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> fname = 'Exonerate/exn_22_m_genome2genome.exn'
     >>> all_qresult = list(SearchIO.parse(fname, 'exonerate-text'))
     >>> hsp = all_qresult[-1][-1][-1]   # last qresult, last hit, last hsp
@@ -191,7 +191,7 @@ that the third tuple contains (208677, 386123), a gap of about 177k bases.
 Another example is to use the `hit_frame_all` and `query_frame_all` to see if
 there are any frameshifts in your alignment:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> fname = 'Exonerate/exn_22_m_coding2coding_fshifts.exn'
     >>> qresult = SearchIO.parse(fname, 'exonerate-text').next()
     >>> hsp = qresult[0][0]      # first hit, first hsp
@@ -247,5 +247,5 @@ from exonerate_cigar import *
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

@@ -7,7 +7,7 @@
 """Command line wrapper for the motif finding program XXmotif."""
 
 import os
-from Bio.Application import AbstractCommandline, _Option, _Switch, _Argument
+from SAP.Bio.Application import AbstractCommandline, _Option, _Switch, _Argument
 
 
 class XXmotifCommandline(AbstractCommandline):
@@ -17,7 +17,7 @@ class XXmotifCommandline(AbstractCommandline):
 
     Example:
 
-    >>> from Bio.Motif.Applications import XXmotifCommandline
+    >>> from SAP.Bio.Motif.Applications import XXmotifCommandline
     >>> out_dir = "results"
     >>> in_file = "sequences.fasta"
     >>> xxmotif_cline = XXmotifCommandline(outdir=out_dir, seqfile=in_file, revcomp=True)

@@ -17,10 +17,10 @@ from xml.sax.xmlreader import AttributesImpl
 from xml.dom import pulldom
 from xml.sax import SAXParseException
 
-from Bio import Alphabet
-from Bio.Seq import Seq
-from Bio.Seq import UnknownSeq
-from Bio.SeqRecord import SeqRecord
+from SAP.Bio import Alphabet
+from SAP.Bio.Seq import Seq
+from SAP.Bio.Seq import UnknownSeq
+from SAP.Bio.SeqRecord import SeqRecord
 from Interfaces import SequentialSequenceWriter
 
 
@@ -402,7 +402,7 @@ class SeqXmlWriter(SequentialSequenceWriter):
 if __name__ == "__main__":
     print "Running quick self test"
 
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
     import sys
 
     fileHandle = open("Tests/SeqXML/protein_example.xml", "r")

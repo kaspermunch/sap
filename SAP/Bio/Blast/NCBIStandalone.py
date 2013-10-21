@@ -52,16 +52,16 @@ are likely to be deprecated and then removed in future releases.
 import warnings
 warnings.warn("The plain text parser in this module still works at the time of writing, but is considered obsolete and updating it to cope with the latest versions of BLAST is not a priority for us.", PendingDeprecationWarning)
 
-from Bio import BiopythonDeprecationWarning
+from SAP.Bio import BiopythonDeprecationWarning
 
 import os
 import re
 import StringIO
 
-from Bio import File
-from Bio.ParserSupport import *
-from Bio.Blast import Record
-from Bio.Application import _escape_filename
+from SAP.Bio import File
+from SAP.Bio.ParserSupport import *
+from SAP.Bio.Blast import Record
+from SAP.Bio.Application import _escape_filename
 
 
 class LowQualityBlastError(Exception):
@@ -2105,7 +2105,7 @@ def _safe_float(str):
 def _invoke_blast(cline):
     """Start BLAST and returns handles for stdout and stderr (PRIVATE).
 
-    Expects a command line wrapper object from Bio.Blast.Applications
+    Expects a command line wrapper object from SAP.Bio.Blast.Applications
     """
     import subprocess
     import sys

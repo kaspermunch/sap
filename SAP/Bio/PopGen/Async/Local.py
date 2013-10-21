@@ -9,7 +9,7 @@ Asynchronous local execution.
 Supports multicore architectures.
 '''
 
-from Bio.PopGen.Async import Async
+from SAP.Bio.PopGen.Async import Async
 
 import thread
 

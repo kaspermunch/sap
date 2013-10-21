@@ -9,9 +9,9 @@ Unless you are writing a new parser or writer for Bio.SeqIO, you should not
 use this module.  It provides base classes to try and simplify things.
 """
 
-from Bio.Alphabet import generic_alphabet
-from Bio.Seq import Seq, MutableSeq
-from Bio.SeqRecord import SeqRecord
+from SAP.Bio.Alphabet import generic_alphabet
+from SAP.Bio.Seq import Seq, MutableSeq
+from SAP.Bio.SeqRecord import SeqRecord
 
 
 class SequenceIterator(object):

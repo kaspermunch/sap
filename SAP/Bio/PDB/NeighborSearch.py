@@ -7,10 +7,10 @@
 
 import numpy
 
-from Bio.KDTree import KDTree
+from SAP.Bio.KDTree import KDTree
 
-from Bio.PDB.PDBExceptions import PDBException
-from Bio.PDB.Selection import unfold_entities, entity_levels, uniqueify
+from SAP.Bio.PDB.PDBExceptions import PDBException
+from SAP.Bio.PDB.Selection import unfold_entities, entity_levels, uniqueify
 
 
 class NeighborSearch(object):

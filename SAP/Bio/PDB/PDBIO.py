@@ -5,7 +5,7 @@
 
 """Output of PDB files."""
 
-from Bio.Data.IUPACData import atom_weights # Allowed Elements
+from SAP.Bio.Data.IUPACData import atom_weights # Allowed Elements
 
 _ATOM_FORMAT_STRING="%s%5i %-4s%c%3s %c%4i%c   %8.3f%8.3f%8.3f%6.2f%6.2f      %4s%2s%2s\n"
 
@@ -167,7 +167,7 @@ class PDBIO(object):
 
 if __name__=="__main__":
 
-    from Bio.PDB.PDBParser import PDBParser
+    from SAP.Bio.PDB.PDBParser import PDBParser
 
     import sys
 

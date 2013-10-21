@@ -28,7 +28,7 @@ to_one_letter_code -- A mapping from the 3-letter amino acid codes found
 
 from copy import copy
 
-from Bio.SCOP.Residues import Residues
+from SAP.Bio.SCOP.Residues import Residues
 
 from three_to_one_dict import to_one_letter_code
 

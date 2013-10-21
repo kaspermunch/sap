@@ -7,8 +7,8 @@ and position-specific scoring matrices.
 """
 
 import math
-from Bio.Seq import Seq
-from Bio.Alphabet import IUPAC
+from SAP.Bio.Seq import Seq
+from SAP.Bio.Alphabet import IUPAC
 
 
 class GenericPositionMatrix(dict):

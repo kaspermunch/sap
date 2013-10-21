@@ -6,8 +6,8 @@
 """Parsing TRANSFAC files
 """
 
-from Bio import motifs
-from Bio.Alphabet import IUPAC
+from SAP.Bio import motifs
+from SAP.Bio.Alphabet import IUPAC
 
 
 class Motif(motifs.Motif, dict):

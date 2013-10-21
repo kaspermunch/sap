@@ -20,11 +20,11 @@ Bio.SeqIO both use the Bio.SeqIO.FastaIO module to deal with these files,
 which can also be used to store a multiple sequence alignments.
 """
 
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment
-from Bio.Alphabet import single_letter_alphabet, generic_dna, generic_protein
-from Bio.Alphabet import Gapped
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.Align import MultipleSeqAlignment
+from SAP.Bio.Alphabet import single_letter_alphabet, generic_dna, generic_protein
+from SAP.Bio.Alphabet import Gapped
 
 
 def _extract_alignment_region(alignment_seq_with_flanking, annotation):
@@ -73,7 +73,7 @@ def FastaM10Iterator(handle, alphabet=single_letter_alphabet):
     This class is intended to be used via the Bio.AlignIO.parse() function
     by specifying the format as "fasta-m10" as shown in the following code:
 
-        from Bio import AlignIO
+        from SAP.Bio import AlignIO
         handle = ...
         for a in AlignIO.parse(handle, "fasta-m10"):
             assert len(a) == 2, "Should be pairwise!"

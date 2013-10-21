@@ -7,8 +7,8 @@
 
 import os
 import tempfile
-from Bio.PDB.PDBIO import PDBIO
-from Bio.PDB.AbstractPropertyMap import AbstractResiduePropertyMap, AbstractAtomPropertyMap
+from SAP.Bio.PDB.PDBIO import PDBIO
+from SAP.Bio.PDB.AbstractPropertyMap import AbstractResiduePropertyMap, AbstractAtomPropertyMap
 
 """Interface for the program NACCESS.
 
@@ -177,7 +177,7 @@ class NACCESS_atomic(AbstractAtomPropertyMap):
 
 if __name__=="__main__":
     import sys
-    from Bio.PDB import PDBParser
+    from SAP.Bio.PDB import PDBParser
 
     p=PDBParser()
     s=p.get_structure('X', sys.argv[1])

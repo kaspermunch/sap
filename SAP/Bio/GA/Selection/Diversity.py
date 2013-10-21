@@ -8,7 +8,7 @@ import random
 import math
 
 # biopython
-from Bio.Seq import MutableSeq
+from SAP.Bio.Seq import MutableSeq
 
 # local modules
 from Abstract import AbstractSelection

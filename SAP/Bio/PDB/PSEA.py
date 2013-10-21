@@ -16,7 +16,7 @@ ftp://ftp.lmcp.jussieu.fr/pub/sincris/software/protein/p-sea/
 
 import os
 
-from Bio.PDB.Polypeptide import is_aa
+from SAP.Bio.PDB.Polypeptide import is_aa
 
 
 def run_psea(fname):
@@ -103,7 +103,7 @@ class PSEA(object):
 if __name__=="__main__":
 
     import sys
-    from Bio.PDB import PDBParser
+    from SAP.Bio.PDB import PDBParser
 
     # Parse PDB file
     p=PDBParser()

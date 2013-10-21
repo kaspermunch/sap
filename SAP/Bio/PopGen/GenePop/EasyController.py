@@ -11,7 +11,7 @@ This interface is less efficient than the standard GenePopControler
 """
 
 from Controller import GenePopController
-from Bio.PopGen import GenePop
+from SAP.Bio.PopGen import GenePop
 
 
 class EasyController(object):

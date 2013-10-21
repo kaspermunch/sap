@@ -8,14 +8,14 @@
 import warnings
 from operator import ge, le
 
-from Bio import BiopythonWarning
-from Bio.Align import MultipleSeqAlignment
-from Bio.Alphabet import single_letter_alphabet
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
+from SAP.Bio import BiopythonWarning
+from SAP.Bio.Align import MultipleSeqAlignment
+from SAP.Bio.Alphabet import single_letter_alphabet
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
 
-from Bio._utils import getattr_str, trim_str
-from Bio.SearchIO._utils import singleitem, allitems, fullcascade, \
+from SAP.Bio._utils import getattr_str, trim_str
+from SAP.Bio.SearchIO._utils import singleitem, allitems, fullcascade, \
         fragcascade
 
 from _base import _BaseHSP
@@ -40,7 +40,7 @@ class HSP(_BaseHSP):
     Here are examples from each type of HSP. The first one comes from a BLAST
     search:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> blast_qresult = SearchIO.parse('Blast/mirna.xml', 'blast-xml').next()
     >>> blast_hsp = blast_qresult[1][0]     # the first HSP from the second hit
     >>> blast_hsp
@@ -606,7 +606,7 @@ class HSPFragment(_BaseHSP):
     sequences that produces the search hits. These sequences are stored as
     SeqRecord objects (see SeqRecord):
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> qresult = SearchIO.parse('Blast/mirna.xml', 'blast-xml').next()
     >>> fragment = qresult[0][0][0]   # first hit, first hsp, first fragment
     >>> print fragment
@@ -1044,5 +1044,5 @@ class HSPFragment(_BaseHSP):
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

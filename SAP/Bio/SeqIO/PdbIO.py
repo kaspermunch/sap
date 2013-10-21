@@ -7,9 +7,9 @@ from __future__ import with_statement
 import collections
 import warnings
 
-from Bio.Alphabet import generic_protein
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
+from SAP.Bio.Alphabet import generic_protein
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
 
 
 def PdbSeqresIterator(handle):
@@ -24,7 +24,7 @@ def PdbSeqresIterator(handle):
     """
     # Late-binding import to avoid circular dependency on SeqIO in Bio.SCOP
     # TODO - swap in Bow's SeqUtils.seq1 once that's merged
-    from Bio.SCOP.three_to_one_dict import to_one_letter_code
+    from SAP.Bio.SCOP.three_to_one_dict import to_one_letter_code
 
     chains = collections.defaultdict(list)
     metadata = collections.defaultdict(list)
@@ -123,8 +123,8 @@ def PdbAtomIterator(handle):
     done in parse_pdb_header, not this module.
     """
     # Only import PDB when needed, to avoid/delay NumPy dependency in SeqIO
-    from Bio.PDB import PDBParser
-    from Bio.SCOP.three_to_one_dict import to_one_letter_code
+    from SAP.Bio.PDB import PDBParser
+    from SAP.Bio.SCOP.three_to_one_dict import to_one_letter_code
 
     def restype(residue):
         """Return a residue's type as a one-letter code.
@@ -135,7 +135,7 @@ def PdbAtomIterator(handle):
 
     # Deduce the PDB ID from the PDB header
     # ENH: or filename?
-    from Bio.File import UndoHandle
+    from SAP.Bio.File import UndoHandle
     undo_handle = UndoHandle(handle)
     firstline = undo_handle.peekline()
     if firstline.startswith("HEADER"):
@@ -209,7 +209,7 @@ def PdbAtomIterator(handle):
 if __name__ == '__main__':
     # Test
     import sys
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
     for fname in sys.argv[1:]:
         for parser in (PdbSeqresIterator, PdbAtomIterator):
             with open(fname) as handle:

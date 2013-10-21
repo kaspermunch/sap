@@ -40,7 +40,7 @@ from _LinearDrawer import LinearDrawer
 from _CircularDrawer import CircularDrawer
 from _Track import Track
 
-from Bio.Graphics import _write
+from SAP.Bio.Graphics import _write
 
 #------------------------------------------------------------------------------
 # CLASSES

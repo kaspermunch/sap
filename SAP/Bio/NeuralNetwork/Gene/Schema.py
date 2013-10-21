@@ -15,20 +15,20 @@ import random
 import re
 
 # biopython
-from Bio import Alphabet
-from Bio.Seq import MutableSeq
+from SAP.Bio import Alphabet
+from SAP.Bio.Seq import MutableSeq
 
 # neural network libraries
 from Pattern import PatternRepository
 
 # genetic algorithm libraries
-from Bio.GA import Organism
-from Bio.GA.Evolver import GenerationEvolver
-from Bio.GA.Mutation.Simple import SinglePositionMutation
-from Bio.GA.Crossover.Point import SinglePointCrossover
-from Bio.GA.Repair.Stabilizing import AmbiguousRepair
-from Bio.GA.Selection.Tournament import TournamentSelection
-from Bio.GA.Selection.Diversity import DiversitySelection
+from SAP.Bio.GA import Organism
+from SAP.Bio.GA.Evolver import GenerationEvolver
+from SAP.Bio.GA.Mutation.Simple import SinglePositionMutation
+from SAP.Bio.GA.Crossover.Point import SinglePointCrossover
+from SAP.Bio.GA.Repair.Stabilizing import AmbiguousRepair
+from SAP.Bio.GA.Selection.Tournament import TournamentSelection
+from SAP.Bio.GA.Selection.Diversity import DiversitySelection
 
 
 class Schema(object):

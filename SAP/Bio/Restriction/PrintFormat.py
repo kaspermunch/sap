@@ -9,7 +9,7 @@
 #
 
 import re
-from Bio.Restriction import RanaConfig as RanaConf
+from SAP.Bio.Restriction import RanaConfig as RanaConf
 
 """
 Usage:
@@ -20,10 +20,10 @@ Usage:
 
     the easiest way to use it is:
 
-    >>> from Bio.Restriction.PrintFormat import PrintFormat
-    >>> from Bio.Restriction.Restriction import AllEnzymes
-    >>> from Bio import Entrez
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio.Restriction.PrintFormat import PrintFormat
+    >>> from SAP.Bio.Restriction.Restriction import AllEnzymes
+    >>> from SAP.Bio import Entrez
+    >>> from SAP.Bio import SeqIO
     >>> handle = Entrez.efetch(db="nucleotide", rettype="fasta", id="SYNPBR322")
     >>> pBR322 = SeqIO.read(handle, "fasta")
     >>> handle.close()

@@ -11,14 +11,14 @@ This is used by the PDBParser and MMCIFparser classes.
 import warnings
 
 # SMCRA hierarchy
-from Bio.PDB.Structure import Structure
-from Bio.PDB.Model import Model
-from Bio.PDB.Chain import Chain
-from Bio.PDB.Residue import Residue, DisorderedResidue
-from Bio.PDB.Atom import Atom, DisorderedAtom
+from SAP.Bio.PDB.Structure import Structure
+from SAP.Bio.PDB.Model import Model
+from SAP.Bio.PDB.Chain import Chain
+from SAP.Bio.PDB.Residue import Residue, DisorderedResidue
+from SAP.Bio.PDB.Atom import Atom, DisorderedAtom
 
-from Bio.PDB.PDBExceptions import PDBConstructionException
-from Bio.PDB.PDBExceptions import PDBConstructionWarning
+from SAP.Bio.PDB.PDBExceptions import PDBConstructionException
+from SAP.Bio.PDB.PDBExceptions import PDBConstructionWarning
 
 
 class StructureBuilder(object):

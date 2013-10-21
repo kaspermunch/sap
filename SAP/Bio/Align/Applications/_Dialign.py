@@ -7,7 +7,7 @@
 
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
-from Bio.Application import _Option, _Argument, _Switch, AbstractCommandline
+from SAP.Bio.Application import _Option, _Argument, _Switch, AbstractCommandline
 
 
 class DialignCommandline(AbstractCommandline):
@@ -20,7 +20,7 @@ class DialignCommandline(AbstractCommandline):
     To align a FASTA file (unaligned.fasta) with the output files names
     aligned.* including a FASTA output file (aligned.fa), use:
 
-    >>> from Bio.Align.Applications import DialignCommandline
+    >>> from SAP.Bio.Align.Applications import DialignCommandline
     >>> dialign_cline = DialignCommandline(input="unaligned.fasta",
     ...                                    fn="aligned", fa=True)
     >>> print dialign_cline

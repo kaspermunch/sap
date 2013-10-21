@@ -6,7 +6,7 @@
 from os import sep
 import re
 
-from Bio.PopGen.SimCoal import builtin_tpl_dir
+from SAP.Bio.PopGen.SimCoal import builtin_tpl_dir
 
 
 def exec_template(template):

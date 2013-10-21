@@ -16,8 +16,8 @@ Alternatively, using Bio.SeqIO with the "phd" format will call this module
 internally.  This will give SeqRecord objects for each contig sequence.
 """
 
-from Bio import Seq
-from Bio.Alphabet import generic_dna
+from SAP.Bio import Seq
+from SAP.Bio.Alphabet import generic_dna
 
 CKEYWORDS = ['CHROMAT_FILE', 'ABI_THUMBPRINT', 'PHRED_VERSION', 'CALL_METHOD',
         'QUALITY_LEVELS', 'TIME', 'TRACE_ARRAY_MIN_INDEX', 'TRACE_ARRAY_MAX_INDEX',

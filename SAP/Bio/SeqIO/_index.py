@@ -26,12 +26,12 @@ temp lookup file might be one idea (e.g. using SQLite or an OBDA style index).
 import re
 from StringIO import StringIO
 
-from Bio._py3k import _bytes_to_string, _as_bytes
+from SAP.Bio._py3k import _bytes_to_string, _as_bytes
 
-from Bio import SeqIO
-from Bio import Alphabet
-from Bio import bgzf
-from Bio.File import _IndexedSeqFileProxy, _open_for_random_access
+from SAP.Bio import SeqIO
+from SAP.Bio import Alphabet
+from SAP.Bio import bgzf
+from SAP.Bio.File import _IndexedSeqFileProxy, _open_for_random_access
 
 
 class SeqFileRandomAccess(_IndexedSeqFileProxy):

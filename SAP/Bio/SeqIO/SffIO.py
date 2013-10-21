@@ -14,7 +14,7 @@ the format name "sff" (or "sff-trim" as described below).
 
 For example, to iterate over the records in an SFF file,
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> for record in SeqIO.parse("Roche/E3MFGYR02_random_10_reads.sff", "sff"):
     ...     print record.id, len(record), record.seq[:20]+"..."
     E3MFGYR02JWQ7T 265 tcagGGTCTACATGTTGGTT...
@@ -94,7 +94,7 @@ As a convenience method, you can read the file with SeqIO format name "sff-trim"
 instead of "sff" to get just the trimmed sequences (without any annotation
 except for the PHRED quality scores and anything encoded in the read names):
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> for record in SeqIO.parse("Roche/E3MFGYR02_random_10_reads.sff", "sff-trim"):
     ...     print record.id, len(record), record.seq[:20]+"..."
     E3MFGYR02JWQ7T 260 GGTCTACATGTTGGTTAACC...
@@ -129,7 +129,7 @@ example above:
 You might use the Bio.SeqIO.convert() function to convert the (trimmed) SFF
 reads into a FASTQ file (or a FASTA file and a QUAL file), e.g.
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> from StringIO import StringIO
     >>> out_handle = StringIO()
     >>> count = SeqIO.convert("Roche/E3MFGYR02_random_10_reads.sff", "sff",
@@ -149,7 +149,7 @@ be read in making this very fast. If the index is missing (or in a format not
 yet supported in Biopython) the file is indexed by scanning all the reads -
 which is a little slower. For example,
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> reads = SeqIO.index("Roche/E3MFGYR02_random_10_reads.sff", "sff")
     >>> record = reads["E3MFGYR02JHD4H"]
     >>> print record.id, len(record), record.seq[:20]+"..."
@@ -157,7 +157,7 @@ which is a little slower. For example,
 
 Or, using the trimmed reads:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> reads = SeqIO.index("Roche/E3MFGYR02_random_10_reads.sff", "sff-trim")
     >>> record = reads["E3MFGYR02JHD4H"]
     >>> print record.id, len(record), record.seq[:20]+"..."
@@ -174,7 +174,7 @@ produce a sub-file containing all those reads whose post-quality clipping
 region (i.e. the sequence after trimming) starts with AAAGA exactly (the non-
 degenerate bit of this pretend primer):
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> records = (record for record in
     ...            SeqIO.parse("Roche/E3MFGYR02_random_10_reads.sff","sff")
     ...            if record.seq[record.annotations["clip_qual_left"]:].startswith("AAAGA"))
@@ -187,7 +187,7 @@ If you want FASTA or FASTQ output, you could just slice the SeqRecord. However,
 if you want SFF output we have to preserve all the flow information - the trick
 is just to adjust the left clip position!
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> def filter_and_trim(records, primer):
     ...     for record in records:
     ...         if record.seq[record.annotations["clip_qual_left"]:].startswith(primer):
@@ -217,15 +217,15 @@ For a description of the file format, please see the Roche manuals and:
 http://www.ncbi.nlm.nih.gov/Traces/trace.cgi?cmd=show&f=formats&m=doc&s=formats
 
 """
-from Bio.SeqIO.Interfaces import SequenceWriter
-from Bio import Alphabet
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
+from SAP.Bio.SeqIO.Interfaces import SequenceWriter
+from SAP.Bio import Alphabet
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
 import struct
 import sys
 import re
 
-from Bio._py3k import _bytes_to_string, _as_bytes
+from SAP.Bio._py3k import _bytes_to_string, _as_bytes
 _null = _as_bytes("\0")
 _sff = _as_bytes(".sff")
 _hsh = _as_bytes(".hsh")
@@ -767,7 +767,7 @@ def SffIterator(handle, alphabet=Alphabet.generic_dna, trim=False):
 
     This function is used internally via the Bio.SeqIO functions:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> handle = open("Roche/E3MFGYR02_random_10_reads.sff", "rb")
     >>> for record in SeqIO.parse(handle, "sff"):
     ...     print record.id, len(record)
@@ -978,7 +978,7 @@ class SffWriter(SequenceWriter):
         if self._xml is not None:
             xml = _as_bytes(self._xml)
         else:
-            from Bio import __version__
+            from SAP.Bio import __version__
             xml = "<!-- This file was output with Biopython %s -->\n" % __version__
             xml += "<!-- This XML and index block attempts to mimic Roche SFF files -->\n"
             xml += "<!-- This file may be a combination of multiple SFF files etc -->\n"
@@ -1243,7 +1243,7 @@ if __name__ == "__main__":
 
     print ReadRocheXmlManifest(open(filename, "rb"))
 
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
     filename = "../../Tests/Roche/E3MFGYR02_random_10_reads_no_trim.fasta"
     fasta_no_trim = list(SeqIO.parse(open(filename, "rU"), "fasta"))
     filename = "../../Tests/Roche/E3MFGYR02_random_10_reads_no_trim.qual"

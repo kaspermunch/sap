@@ -41,7 +41,7 @@ LocationParserError   Exception indiciating a problem with the spark based
 import re
 
 # other Biopython stuff
-from Bio import SeqFeature
+from SAP.Bio import SeqFeature
 
 # other Bio.GenBank stuff
 from utils import FeatureValueCleaner
@@ -598,7 +598,7 @@ class _FeatureConsumer(_BaseGenBankConsumer):
     cleaning-up of feature values.
     """
     def __init__(self, use_fuzziness, feature_cleaner = None):
-        from Bio.SeqRecord import SeqRecord
+        from SAP.Bio.SeqRecord import SeqRecord
         _BaseGenBankConsumer.__init__(self)
         self.data = SeqRecord(None, id = None)
         self.data.id = None
@@ -886,7 +886,7 @@ class _FeatureConsumer(_BaseGenBankConsumer):
     def title(self, content):
         if self._cur_reference is None:
             import warnings
-            from Bio import BiopythonParserWarning
+            from SAP.Bio import BiopythonParserWarning
             warnings.warn("GenBank TITLE line without REFERENCE line.",
                           BiopythonParserWarning)
         elif self._cur_reference.title:
@@ -1059,7 +1059,7 @@ class _FeatureConsumer(_BaseGenBankConsumer):
         #This used to be an error....
         cur_feature.location = None
         import warnings
-        from Bio import BiopythonParserWarning
+        from SAP.Bio import BiopythonParserWarning
         warnings.warn(BiopythonParserWarning("Couldn't parse feature location: %r"
                                              % (location_line)))
 
@@ -1134,9 +1134,9 @@ class _FeatureConsumer(_BaseGenBankConsumer):
     def record_end(self, content):
         """Clean up when we've finished the record.
         """
-        from Bio import Alphabet
-        from Bio.Alphabet import IUPAC
-        from Bio.Seq import Seq, UnknownSeq
+        from SAP.Bio import Alphabet
+        from SAP.Bio.Alphabet import IUPAC
+        from SAP.Bio.Seq import Seq, UnknownSeq
 
         #Try and append the version number to the accession for the full id
         if not self.data.id:
@@ -1162,7 +1162,7 @@ class _FeatureConsumer(_BaseGenBankConsumer):
         and len(sequence) != 0 \
         and self._expected_size != len(sequence):
             import warnings
-            from Bio import BiopythonParserWarning
+            from SAP.Bio import BiopythonParserWarning
             warnings.warn("Expected sequence length %i, found %i (%s)."
                           % (self._expected_size, len(sequence), self.data.id),
                           BiopythonParserWarning)
@@ -1225,7 +1225,7 @@ class _RecordConsumer(_BaseGenBankConsumer):
         # Be lenient about parsing, but technically lowercase residue types are malformed.
         if 'dna' in content or 'rna' in content:
             import warnings
-            from Bio import BiopythonParserWarning
+            from SAP.Bio import BiopythonParserWarning
             warnings.warn("Invalid seq_type (%s): DNA/RNA should be uppercase." % content,
                           BiopythonParserWarning)
         self.data.residue_type = content
@@ -1303,7 +1303,7 @@ class _RecordConsumer(_BaseGenBankConsumer):
     def title(self, content):
         if self._cur_reference is None:
             import warnings
-            from Bio import BiopythonParserWarning
+            from SAP.Bio import BiopythonParserWarning
             warnings.warn("GenBank TITLE line without REFERENCE line.",
                           BiopythonParserWarning)
             return
@@ -1443,7 +1443,7 @@ class _RecordConsumer(_BaseGenBankConsumer):
 def parse(handle):
     """Iterate over GenBank formatted entries as Record objects.
 
-    >>> from Bio import GenBank
+    >>> from SAP.Bio import GenBank
     >>> handle = open("GenBank/NC_000932.gb")
     >>> for record in GenBank.parse(handle):
     ...     print record.accession
@@ -1459,7 +1459,7 @@ def parse(handle):
 def read(handle):
     """Read a handle containing a single GenBank entry as a Record object.
 
-    >>> from Bio import GenBank
+    >>> from SAP.Bio import GenBank
     >>> handle = open("GenBank/NC_000932.gb")
     >>> record = GenBank.read(handle)
     >>> print record.accession

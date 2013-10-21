@@ -29,7 +29,7 @@ formats, with or without header. To parse, index, or write PSLX files, use the
 'pslx' keyword argument and set it to True.
 
     # blat-psl defaults to PSL files
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> psl = 'Blat/psl_34_004.psl'
     >>> qresult = SearchIO.read(psl, 'blat-psl')
     >>> qresult
@@ -46,7 +46,7 @@ header or not. For writing, if you want to write a header, you can set the
 'header' keyword argument to True. This will write a 'psLayout version 3' header
 to your output file.
 
-    from Bio import SearchIO
+    from SAP.Bio import SearchIO
     qresult = SearchIO.read(psl, 'blat-psl')
     SearchIO.write(qresult, 'header.psl', header=True)
     <stdout> (1, 10, 19, 23)
@@ -181,10 +181,10 @@ HSP and HSPFragment documentation for more details on these properties.
 import re
 from math import log
 
-from Bio._py3k import _as_bytes, _bytes_to_string
-from Bio.Alphabet import generic_dna
-from Bio.SearchIO._index import SearchIndexer
-from Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
+from SAP.Bio._py3k import _as_bytes, _bytes_to_string
+from SAP.Bio.Alphabet import generic_dna
+from SAP.Bio.SearchIO._index import SearchIndexer
+from SAP.Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
 
 
 __all__ = ['BlatPslParser', 'BlatPslIndexer', 'BlatPslWriter']
@@ -693,5 +693,5 @@ class BlatPslWriter(object):
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

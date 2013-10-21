@@ -15,7 +15,7 @@ from reportlab.graphics.shapes import Drawing, String, Group
 from reportlab.graphics import renderPDF, renderPS
 from reportlab.graphics.charts.markers import *
 
-from Bio.Graphics import _write
+from SAP.Bio.Graphics import _write
 
 
 class ComparativeScatterPlot(object):

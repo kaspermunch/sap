@@ -7,7 +7,7 @@
 
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
-from Bio.Application import _Option, _Switch, AbstractCommandline
+from SAP.Bio.Application import _Option, _Switch, AbstractCommandline
 
 
 class TCoffeeCommandline(AbstractCommandline):
@@ -24,7 +24,7 @@ class TCoffeeCommandline(AbstractCommandline):
     To align a FASTA file (unaligned.fasta) with the output in ClustalW
     format (file aligned.aln), and otherwise default settings, use:
 
-    >>> from Bio.Align.Applications import TCoffeeCommandline
+    >>> from SAP.Bio.Align.Applications import TCoffeeCommandline
     >>> tcoffee_cline = TCoffeeCommandline(infile="unaligned.fasta",
     ...                                    output="clustalw",
     ...                                    outfile="aligned.aln")

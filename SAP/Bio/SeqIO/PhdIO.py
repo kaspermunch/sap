@@ -15,7 +15,7 @@ format name "phd". See also the underlying Bio.Sequencing.Phd module.
 For example, using Bio.SeqIO we can read in one of the example PHRED files
 from the Biopython unit tests:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> for record in SeqIO.parse(open("Phd/phd1"), "phd"):
     ...     print record.id
     ...     print record.seq[:10], "..."
@@ -52,10 +52,10 @@ Or,
 Note these examples only show the first 50 bases to keep the output short.
 """
 
-from Bio.SeqRecord import SeqRecord
-from Bio.Sequencing import Phd
-from Bio.SeqIO.Interfaces import SequentialSequenceWriter
-from Bio.SeqIO import QualityIO
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.Sequencing import Phd
+from SAP.Bio.SeqIO.Interfaces import SequentialSequenceWriter
+from SAP.Bio.SeqIO import QualityIO
 
 
 def PhdIterator(handle):
@@ -148,5 +148,5 @@ class PhdWriter(SequentialSequenceWriter):
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

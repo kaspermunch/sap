@@ -8,7 +8,7 @@
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
 import os
-from Bio.Application import _Option, _Switch, AbstractCommandline
+from SAP.Bio.Application import _Option, _Switch, AbstractCommandline
 
 
 class ClustalwCommandline(AbstractCommandline):
@@ -18,7 +18,7 @@ class ClustalwCommandline(AbstractCommandline):
 
     Example:
 
-    >>> from Bio.Align.Applications import ClustalwCommandline
+    >>> from SAP.Bio.Align.Applications import ClustalwCommandline
     >>> in_file = "unaligned.fasta"
     >>> clustalw_cline = ClustalwCommandline("clustalw2", infile=in_file)
     >>> print clustalw_cline

@@ -32,9 +32,9 @@ Camacho et al. BLAST+: architecture and applications
 BMC Bioinformatics 2009, 10:421
 doi:10.1186/1471-2105-10-421
 """
-from Bio import BiopythonDeprecationWarning
+from SAP.Bio import BiopythonDeprecationWarning
 
-from Bio.Application import _Option, AbstractCommandline, _Switch
+from SAP.Bio.Application import _Option, AbstractCommandline, _Switch
 
 
 class FastacmdCommandline(AbstractCommandline):
@@ -201,7 +201,7 @@ class BlastallCommandline(_BlastAllOrPgpCommandLine):
     Like blastall, this wrapper is now obsolete, and will be deprecated and
     removed in a future release of Biopython.
 
-    >>> from Bio.Blast.Applications import BlastallCommandline
+    >>> from SAP.Bio.Blast.Applications import BlastallCommandline
     >>> cline = BlastallCommandline(program="blastx", infile="m_cold.fasta",
     ...                             database="nr", expectation=0.001)
     >>> cline
@@ -306,7 +306,7 @@ class BlastpgpCommandline(_BlastAllOrPgpCommandLine):
     Like blastpgp (and blastall), this wrapper is now obsolete, and will be
     deprecated and removed in a future release of Biopython.
 
-    >>> from Bio.Blast.Applications import BlastpgpCommandline
+    >>> from SAP.Bio.Blast.Applications import BlastpgpCommandline
     >>> cline = BlastpgpCommandline(help=True)
     >>> cline
     BlastpgpCommandline(cmd='blastpgp', help=True)
@@ -385,7 +385,7 @@ class RpsBlastCommandline(_BlastCommandLine):
     Like the old rpsblast (and blastall), this wrapper is now obsolete, and will
     be deprecated and removed in a future release of Biopython.
 
-    >>> from Bio.Blast.Applications import RpsBlastCommandline
+    >>> from SAP.Bio.Blast.Applications import RpsBlastCommandline
     >>> cline = RpsBlastCommandline(help=True)
     >>> cline
     RpsBlastCommandline(cmd='rpsblast', help=True)
@@ -752,7 +752,7 @@ class NcbiblastpCommandline(_NcbiblastMain2SeqCommandline):
     replaced the old blastall tool with separate tools for each of the searches.
     This wrapper therefore replaces BlastallCommandline with option -p blastp.
 
-    >>> from Bio.Blast.Applications import NcbiblastpCommandline
+    >>> from SAP.Bio.Blast.Applications import NcbiblastpCommandline
     >>> cline = NcbiblastpCommandline(query="rosemary.pro", db="nr",
     ...                               evalue=0.001, remote=True, ungapped=True)
     >>> cline
@@ -815,7 +815,7 @@ class NcbiblastnCommandline(_NcbiblastMain2SeqCommandline):
     FASTA nucleotide file "m_code.fasta" as the query, with an expectation value
     cut off of 0.001, saving the output to a file in XML format:
 
-    >>> from Bio.Blast.Applications import NcbiblastnCommandline
+    >>> from SAP.Bio.Blast.Applications import NcbiblastnCommandline
     >>> cline = NcbiblastnCommandline(query="m_cold.fasta", db="nt", strand="plus",
     ...                               evalue=0.001, out="m_cold.xml", outfmt=5)
     >>> cline
@@ -933,7 +933,7 @@ class NcbiblastxCommandline(_NcbiblastMain2SeqCommandline):
     replaced the old blastall tool with separate tools for each of the searches.
     This wrapper therefore replaces BlastallCommandline with option -p blastx.
 
-    >>> from Bio.Blast.Applications import NcbiblastxCommandline
+    >>> from SAP.Bio.Blast.Applications import NcbiblastxCommandline
     >>> cline = NcbiblastxCommandline(query="m_cold.fasta", db="nr", evalue=0.001)
     >>> cline
     NcbiblastxCommandline(cmd='blastx', query='m_cold.fasta', db='nr', evalue=0.001)
@@ -1013,7 +1013,7 @@ class NcbitblastnCommandline(_NcbiblastMain2SeqCommandline):
     replaced the old blastall tool with separate tools for each of the searches.
     This wrapper therefore replaces BlastallCommandline with option -p tblastn.
 
-    >>> from Bio.Blast.Applications import NcbitblastnCommandline
+    >>> from SAP.Bio.Blast.Applications import NcbitblastnCommandline
     >>> cline = NcbitblastnCommandline(help=True)
     >>> cline
     NcbitblastnCommandline(cmd='tblastn', help=True)
@@ -1093,7 +1093,7 @@ class NcbitblastxCommandline(_NcbiblastMain2SeqCommandline):
     replaced the old blastall tool with separate tools for each of the searches.
     This wrapper therefore replaces BlastallCommandline with option -p tblastx.
 
-    >>> from Bio.Blast.Applications import NcbitblastxCommandline
+    >>> from SAP.Bio.Blast.Applications import NcbitblastxCommandline
     >>> cline = NcbitblastxCommandline(help=True)
     >>> cline
     NcbitblastxCommandline(cmd='tblastx', help=True)
@@ -1156,7 +1156,7 @@ class NcbipsiblastCommandline(_Ncbiblast2SeqCommandline):
     replaced the old blastpgp tool with a similar tool psiblast. This wrapper
     therefore replaces BlastpgpCommandline, the wrapper for blastpgp.
 
-    >>> from Bio.Blast.Applications import NcbipsiblastCommandline
+    >>> from SAP.Bio.Blast.Applications import NcbipsiblastCommandline
     >>> cline = NcbipsiblastCommandline(help=True)
     >>> cline
     NcbipsiblastCommandline(cmd='psiblast', help=True)
@@ -1282,7 +1282,7 @@ class NcbirpsblastCommandline(_NcbiblastCommandline):
     replaced the old rpsblast tool with a similar tool of the same name. This
     wrapper replaces RpsBlastCommandline, the wrapper for the old rpsblast.
 
-    >>> from Bio.Blast.Applications import NcbirpsblastCommandline
+    >>> from SAP.Bio.Blast.Applications import NcbirpsblastCommandline
     >>> cline = NcbirpsblastCommandline(help=True)
     >>> cline
     NcbirpsblastCommandline(cmd='rpsblast', help=True)
@@ -1341,7 +1341,7 @@ class NcbirpstblastnCommandline(_NcbiblastCommandline):
     replaced the old rpsblast tool with a similar tool of the same name, and a
     separate tool rpstblastn for Translated Reverse Position Specific BLAST.
 
-    >>> from Bio.Blast.Applications import NcbirpstblastnCommandline
+    >>> from SAP.Bio.Blast.Applications import NcbirpstblastnCommandline
     >>> cline = NcbirpstblastnCommandline(help=True)
     >>> cline
     NcbirpstblastnCommandline(cmd='rpstblastn', help=True)
@@ -1392,7 +1392,7 @@ class NcbiblastformatterCommandline(_NcbibaseblastCommandline):
     The blast_formatter command allows you to convert the ASN.1 output into
     the other output formats (XML, tabular, plain text, HTML).
 
-    >>> from Bio.Blast.Applications import NcbiblastformatterCommandline
+    >>> from SAP.Bio.Blast.Applications import NcbiblastformatterCommandline
     >>> cline = NcbiblastformatterCommandline(archive="example.asn", outfmt=5, out="example.xml")
     >>> cline
     NcbiblastformatterCommandline(cmd='blast_formatter', out='example.xml', outfmt=5, archive='example.asn')

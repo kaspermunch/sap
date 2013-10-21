@@ -81,15 +81,15 @@
 import re
 import itertools
 
-from Bio.Seq import Seq, MutableSeq
-from Bio.Alphabet import IUPAC
+from SAP.Bio.Seq import Seq, MutableSeq
+from SAP.Bio.Alphabet import IUPAC
 
-from Bio.Restriction.Restriction_Dictionary import rest_dict as enzymedict
-from Bio.Restriction.Restriction_Dictionary import typedict
-from Bio.Restriction.Restriction_Dictionary import suppliers as suppliers_dict
+from SAP.Bio.Restriction.Restriction_Dictionary import rest_dict as enzymedict
+from SAP.Bio.Restriction.Restriction_Dictionary import typedict
+from SAP.Bio.Restriction.Restriction_Dictionary import suppliers as suppliers_dict
 # TODO: Consider removing this wildcard import.
-from Bio.Restriction.RanaConfig import *
-from Bio.Restriction.PrintFormat import PrintFormat
+from SAP.Bio.Restriction.RanaConfig import *
+from SAP.Bio.Restriction.PrintFormat import PrintFormat
 
 
 #Used to use Bio.Restriction.DNAUtils.check_bases (and expose it under this

@@ -12,8 +12,8 @@ mult_align: returns a Biopython alignment object
 """
 import re
 import fssp_rec
-from Bio.Align import Generic
-from Bio import Alphabet
+from SAP.Bio.Align import Generic
+from SAP.Bio import Alphabet
 fff_rec = fssp_rec.fff_rec
 header_records = {
     'database': re.compile('^DATABASE'),

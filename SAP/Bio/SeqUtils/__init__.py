@@ -12,9 +12,9 @@
 import re
 from math import pi, sin, cos
 
-from Bio.Seq import Seq
-from Bio.Alphabet import IUPAC
-from Bio.Data import IUPACData
+from SAP.Bio.Seq import Seq
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Data import IUPACData
 
 
 ######################################
@@ -30,7 +30,7 @@ def GC(seq):
     when counting the G and C content.  The percentage is calculated against
     the full length, e.g.:
 
-    >>> from Bio.SeqUtils import GC
+    >>> from SAP.Bio.SeqUtils import GC
     >>> GC("ACTGN")
     40.0
 
@@ -49,7 +49,7 @@ def GC123(seq):
     Returns a tuple of four floats (percentages between 0 and 100) for the
     entire sequence, and the three codon positions.  e.g.
 
-    >>> from Bio.SeqUtils import GC123
+    >>> from SAP.Bio.SeqUtils import GC123
     >>> GC123("ACTGTN")
     (40.0, 50.0, 50.0, 0.0)
 
@@ -232,7 +232,7 @@ def seq3(seq, custom_map={'*': 'Ter'}, undef_code='Xaa'):
 
     e.g.
 
-    >>> from Bio.SeqUtils import seq3
+    >>> from SAP.Bio.SeqUtils import seq3
     >>> seq3("MAIVMGRWKGAR*")
     'MetAlaIleValMetGlyArgTrpLysGlyAlaArgTer'
 
@@ -278,13 +278,13 @@ def seq1(seq, custom_map={'Ter': '*'}, undef_code='X'):
 
     e.g.
 
-    >>> from Bio.SeqUtils import seq3
+    >>> from SAP.Bio.SeqUtils import seq3
     >>> seq1("MetAlaIleValMetGlyArgTrpLysGlyAlaArgTer")
     'MAIVMGRWKGAR*'
 
     The input is case insensitive, e.g.
 
-    >>> from Bio.SeqUtils import seq3
+    >>> from SAP.Bio.SeqUtils import seq3
     >>> seq1("METalaIlEValMetGLYArgtRplysGlyAlaARGTer")
     'MAIVMGRWKGAR*'
 
@@ -328,7 +328,7 @@ def six_frame_translations(seq, genetic_code=1):
     nice looking 6 frame translation with GC content - code from xbbtools
     similar to DNA Striders six-frame translation
 
-    >>> from Bio.SeqUtils import six_frame_translations
+    >>> from SAP.Bio.SeqUtils import six_frame_translations
     >>> print six_frame_translations("AUGGCCAUUGUAAUGGGCCGCUGA")
     GC_Frame: a:5 t:0 g:8 c:5 
     Sequence: auggccauug ... gggccgcuga, 24 nt, 54.17 %GC
@@ -347,7 +347,7 @@ def six_frame_translations(seq, genetic_code=1):
     <BLANKLINE>
 
     """
-    from Bio.Seq import reverse_complement, translate
+    from SAP.Bio.Seq import reverse_complement, translate
     anti = reverse_complement(seq)
     comp = anti[::-1]
     length = len(seq)
@@ -425,7 +425,7 @@ def quick_FASTA_reader(file):
     """
     handle = open(file)
     entries = []
-    from Bio.SeqIO.FastaIO import SimpleFastaParser
+    from SAP.Bio.SeqIO.FastaIO import SimpleFastaParser
     for title, sequence in SimpleFastaParser(handle):
         entries.append((title, sequence))
     handle.close()

@@ -6,9 +6,9 @@
 """Parsing AlignACE files: AlignAceParser
 """
 
-from Bio.Motif import Motif
-from Bio.Alphabet import IUPAC
-from Bio.Seq import Seq
+from SAP.Bio.Motif import Motif
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Seq import Seq
 
 
 class Record(object):

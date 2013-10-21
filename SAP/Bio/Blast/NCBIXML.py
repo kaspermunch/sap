@@ -21,7 +21,7 @@ parse               Incremental parser, this is an iterator that returns
                     Blast records.  It uses the BlastParser internally.
 read                Returns a single Blast record. Uses the BlastParser internally.
 """
-from Bio.Blast import Record
+from SAP.Bio.Blast import Record
 import xml.sax
 from xml.sax.handler import ContentHandler
 

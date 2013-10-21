@@ -436,7 +436,7 @@ class _SQLiteManySeqFilesDict(_IndexedSeqFileDict):
         #(no need to turn it into a list)
         if not _sqlite:
             # Hack for Jython (of if Python is compiled without it)
-            from Bio import MissingPythonDependencyError
+            from SAP.Bio import MissingPythonDependencyError
             raise MissingPythonDependencyError("Requires sqlite3, which is "
                                                "included Python 2.5+")
         if filenames is not None:

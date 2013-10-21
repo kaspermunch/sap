@@ -31,10 +31,10 @@ Similarly, when writing to this format, Biopython will ONLY record the record's
 example above.
 """
 
-from Bio.Alphabet import single_letter_alphabet
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.SeqIO.Interfaces import SequentialSequenceWriter
+from SAP.Bio.Alphabet import single_letter_alphabet
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.SeqIO.Interfaces import SequentialSequenceWriter
 
 
 def TabIterator(handle, alphabet=single_letter_alphabet):

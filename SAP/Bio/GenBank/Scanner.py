@@ -28,10 +28,10 @@ ftp://ftp.ncbi.nih.gov/genbank/docs/
 
 import warnings
 import re
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import generic_protein
-from Bio import BiopythonParserWarning
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.Alphabet import generic_protein
+from SAP.Bio import BiopythonParserWarning
 
 
 class InsdcScanner(object):
@@ -432,8 +432,8 @@ class InsdcScanner(object):
 
         See also the method parse_records() for use on multi-record files.
         """
-        from Bio.GenBank import _FeatureConsumer
-        from Bio.GenBank.utils import FeatureValueCleaner
+        from SAP.Bio.GenBank import _FeatureConsumer
+        from SAP.Bio.GenBank.utils import FeatureValueCleaner
 
         consumer = _FeatureConsumer(use_fuzziness=1,
                                     feature_cleaner=FeatureValueCleaner())

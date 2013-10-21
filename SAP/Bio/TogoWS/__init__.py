@@ -33,7 +33,7 @@ http://soapy.sourceforge.net/
 import urllib
 import urllib2
 import time
-from Bio._py3k import _binary_to_string_handle, _as_bytes
+from SAP.Bio._py3k import _binary_to_string_handle, _as_bytes
 
 #Constant
 _BASE_URL = "http://togows.dbcls.jp"

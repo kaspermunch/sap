@@ -276,7 +276,7 @@ def _consensus_base_alphabet(alphabets):
 def _consensus_alphabet(alphabets):
     """Returns a common but often generic alphabet object (PRIVATE).
 
-    >>> from Bio.Alphabet import IUPAC
+    >>> from SAP.Bio.Alphabet import IUPAC
     >>> _consensus_alphabet([IUPAC.extended_protein, IUPAC.protein])
     ExtendedIUPACProtein()
     >>> _consensus_alphabet([generic_protein, IUPAC.protein])
@@ -298,7 +298,7 @@ def _consensus_alphabet(alphabets):
     other AlphabetEncoders.  This WILL raise an exception if more than
     one gap character or stop symbol is present.
 
-    >>> from Bio.Alphabet import IUPAC
+    >>> from SAP.Bio.Alphabet import IUPAC
     >>> _consensus_alphabet([Gapped(IUPAC.extended_protein), HasStopCodon(IUPAC.protein)])
     HasStopCodon(Gapped(ExtendedIUPACProtein(), '-'), '*')
     >>> _consensus_alphabet([Gapped(IUPAC.protein, "-"), Gapped(IUPAC.protein, "=")])
@@ -391,8 +391,8 @@ def _check_type_compatible(alphabets):
 def _verify_alphabet(sequence):
     """Check all letters in sequence are in the alphabet (PRIVATE).
 
-    >>> from Bio.Seq import Seq
-    >>> from Bio.Alphabet import IUPAC
+    >>> from SAP.Bio.Seq import Seq
+    >>> from SAP.Bio.Alphabet import IUPAC
     >>> my_seq = Seq("MKQHKAMIVALIVICITAVVAALVTRKDLCEVHIRTGQTEVAVF",
     ...              IUPAC.protein)
     >>> _verify_alphabet(my_seq)

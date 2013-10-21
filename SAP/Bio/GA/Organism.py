@@ -6,7 +6,7 @@ import random
 import array
 
 # Sequence objects from Biopython
-from Bio.Seq import MutableSeq
+from SAP.Bio.Seq import MutableSeq
 
 
 def function_population(new_genome, num_organisms, fitness_calculator):

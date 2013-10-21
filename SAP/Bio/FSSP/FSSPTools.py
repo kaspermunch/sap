@@ -1,7 +1,7 @@
-from Bio import FSSP
+from SAP.Bio import FSSP
 import copy
-from Bio.Align import Generic
-from Bio import Alphabet
+from SAP.Bio.Align import Generic
+from SAP.Bio import Alphabet
 
 
 class FSSPAlign(Generic.Alignment):

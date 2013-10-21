@@ -8,7 +8,7 @@
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
 import os
-from Bio.Application import _Option, _Switch, _Argument, AbstractCommandline
+from SAP.Bio.Application import _Option, _Switch, _Argument, AbstractCommandline
 
 
 class MafftCommandline(AbstractCommandline):
@@ -18,7 +18,7 @@ class MafftCommandline(AbstractCommandline):
 
     Example:
 
-    >>> from Bio.Align.Applications import MafftCommandline
+    >>> from SAP.Bio.Align.Applications import MafftCommandline
     >>> mafft_exe = "/opt/local/mafft"
     >>> in_file = "../Doc/examples/opuntia.fasta"
     >>> mafft_cline = MafftCommandline(mafft_exe, input=in_file)
@@ -28,7 +28,7 @@ class MafftCommandline(AbstractCommandline):
     If the mafft binary is on the path (typically the case on a Unix style
     operating system) then you don't need to supply the executable location:
 
-    >>> from Bio.Align.Applications import MafftCommandline
+    >>> from SAP.Bio.Align.Applications import MafftCommandline
     >>> in_file = "../Doc/examples/opuntia.fasta"
     >>> mafft_cline = MafftCommandline(input=in_file)
     >>> print mafft_cline
@@ -43,7 +43,7 @@ class MafftCommandline(AbstractCommandline):
     handle = open("aligned.fasta", "w")
     handle.write(stdout)
     handle.close()
-    from Bio import AlignIO
+    from SAP.Bio import AlignIO
     align = AlignIO.read("aligned.fasta", "fasta")
 
     Alternatively, to parse the output with AlignIO directly you can
@@ -51,7 +51,7 @@ class MafftCommandline(AbstractCommandline):
 
     stdout, stderr = mafft_cline()
     from StringIO import StringIO
-    from Bio import AlignIO
+    from SAP.Bio import AlignIO
     align = AlignIO.read(StringIO(stdout), "fasta")
 
     Citations:
@@ -349,5 +349,5 @@ class MafftCommandline(AbstractCommandline):
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

@@ -7,8 +7,8 @@
 
 Simple example with multiple chains,
 
-    >>> from Bio.PDB.PDBParser import PDBParser
-    >>> from Bio.PDB.Polypeptide import PPBuilder
+    >>> from SAP.Bio.PDB.PDBParser import PDBParser
+    >>> from SAP.Bio.PDB.Polypeptide import PPBuilder
     >>> structure = PDBParser().get_structure('2BEG', 'PDB/2BEG.pdb')
     >>> ppb=PPBuilder()
     >>> for pp in ppb.build_peptides(structure):
@@ -22,8 +22,8 @@ Simple example with multiple chains,
 Example with non-standard amino acids using HETATM lines in the PDB file,
 in this case selenomethionine (MSE):
 
-    >>> from Bio.PDB.PDBParser import PDBParser
-    >>> from Bio.PDB.Polypeptide import PPBuilder
+    >>> from SAP.Bio.PDB.PDBParser import PDBParser
+    >>> from SAP.Bio.PDB.Polypeptide import PPBuilder
     >>> structure = PDBParser().get_structure('1A8O', 'PDB/1A8O.pdb')
     >>> ppb=PPBuilder()
     >>> for pp in ppb.build_peptides(structure):
@@ -50,11 +50,11 @@ last residues) have been shown as M (methionine) by the get_sequence method.
 
 import warnings
 
-from Bio.Alphabet import generic_protein
-from Bio.Seq import Seq
-from Bio.SCOP.Raf import to_one_letter_code
-from Bio.PDB.PDBExceptions import PDBException
-from Bio.PDB.Vector import calc_dihedral, calc_angle
+from SAP.Bio.Alphabet import generic_protein
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SCOP.Raf import to_one_letter_code
+from SAP.Bio.PDB.PDBExceptions import PDBException
+from SAP.Bio.PDB.Vector import calc_dihedral, calc_angle
 
 
 standard_aa_names=["ALA", "CYS", "ASP", "GLU", "PHE", "GLY", "HIS", "ILE", "LYS",
@@ -452,7 +452,7 @@ class PPBuilder(_PPBuilder):
 
 if __name__=="__main__":
     import sys
-    from Bio.PDB.PDBParser import PDBParser
+    from SAP.Bio.PDB.PDBParser import PDBParser
 
     p=PDBParser(PERMISSIVE=True)
 

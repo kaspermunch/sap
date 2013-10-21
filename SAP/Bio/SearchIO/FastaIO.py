@@ -1,4 +1,4 @@
-# Adapted from Bio.AlignIO.FastaIO copyright 2008-2011 by Peter Cock.
+# Adapted from SAP.Bio.AlignIO.FastaIO copyright 2008-2011 by Peter Cock.
 # Copyright 2012 by Wibowo Arindrarto.
 # All rights reserved.
 # This code is part of the Biopython distribution and governed by its
@@ -106,11 +106,11 @@ The following object attributes are provided:
 
 import re
 
-from Bio._py3k import _as_bytes, _bytes_to_string
-from Bio.Alphabet import generic_dna, generic_protein
-from Bio.File import UndoHandle
-from Bio.SearchIO._index import SearchIndexer
-from Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
+from SAP.Bio._py3k import _as_bytes, _bytes_to_string
+from SAP.Bio.Alphabet import generic_dna, generic_protein
+from SAP.Bio.File import UndoHandle
+from SAP.Bio.SearchIO._index import SearchIndexer
+from SAP.Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
 
 
 __all__ = ['FastaM10Parser', 'FastaM10Indexer']
@@ -551,5 +551,5 @@ class FastaM10Indexer(SearchIndexer):
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

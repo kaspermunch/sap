@@ -20,7 +20,7 @@ Parameters         Holds information from the parameters.
 """
 # XXX finish printable BLAST output
 
-from Bio.Align import Generic
+from SAP.Bio.Align import Generic
 
 
 class Header(object):

@@ -4,8 +4,8 @@
 # as part of this package.
 
 
-from Bio.PopGen.GenePop import FileParser
-import Bio.PopGen.FDist
+from SAP.Bio.PopGen.GenePop import FileParser
+import SAP.Bio.PopGen.FDist
 
 # Quite a few utility functions could be done (like remove pop,
 # add locus, etc...). The recommended strategy is convert back

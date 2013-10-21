@@ -9,7 +9,7 @@ import random
 #from collections import defaultdict
 
 # biopython
-from Bio.Seq import MutableSeq
+from SAP.Bio.Seq import MutableSeq
 
 
 def _gen_random_array(n):

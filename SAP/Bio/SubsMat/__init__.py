@@ -117,8 +117,8 @@ import warnings
 
 # BioPython imports
 import Bio
-from Bio import Alphabet
-from Bio.SubsMat import FreqTable
+from SAP.Bio import Alphabet
+from SAP.Bio.SubsMat import FreqTable
 
 log = math.log
 # Matrix types

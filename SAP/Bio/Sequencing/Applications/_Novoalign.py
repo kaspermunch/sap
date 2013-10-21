@@ -5,7 +5,7 @@
 # as part of this package.
 """Command line wrapper for the short read aligner Novoalign by Novocraft."""
 import types
-from Bio.Application import _Option, AbstractCommandline
+from SAP.Bio.Application import _Option, AbstractCommandline
 
 
 class NovoalignCommandline(AbstractCommandline):
@@ -15,7 +15,7 @@ class NovoalignCommandline(AbstractCommandline):
 
     Example:
 
-    >>> from Bio.Sequencing.Applications import NovoalignCommandline
+    >>> from SAP.Bio.Sequencing.Applications import NovoalignCommandline
     >>> novoalign_cline = NovoalignCommandline(database='some_db',
     ...                                        readfile='some_seq.txt')
     >>> print novoalign_cline

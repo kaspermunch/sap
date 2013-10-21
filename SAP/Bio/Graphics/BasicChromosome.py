@@ -38,8 +38,8 @@ from reportlab.graphics.shapes import Drawing, String, Line, Rect, Wedge, ArcPat
 from reportlab.graphics import renderPDF, renderPS
 from reportlab.graphics.widgetbase import Widget
 
-from Bio.Graphics import _write
-from Bio.Graphics.GenomeDiagram._Colors import ColorTranslator as _ColorTranslator
+from SAP.Bio.Graphics import _write
+from SAP.Bio.Graphics.GenomeDiagram._Colors import ColorTranslator as _ColorTranslator
 
 _color_trans = _ColorTranslator()
 
@@ -511,7 +511,7 @@ def _spring_layout(desired, minimum, maximum, gap=0):
 
     if equal_step < gap:
         import warnings
-        from Bio import BiopythonWarning
+        from SAP.Bio import BiopythonWarning
         warnings.warn("Too many labels to avoid overlap", BiopythonWarning)
         #Crudest solution
         return [minimum+i*equal_step for i in range(count)]

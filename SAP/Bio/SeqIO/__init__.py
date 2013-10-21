@@ -19,7 +19,7 @@ The main function is Bio.SeqIO.parse(...) which takes an input file handle
 (or in recent versions of Biopython alternatively a filename as a string),
 and format string.  This returns an iterator giving SeqRecord objects:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> for record in SeqIO.parse("Fasta/f002", "fasta"):
     ...     print record.id, len(record)
     gi|1348912|gb|G26680|G26680 633
@@ -36,7 +36,7 @@ If you expect your file to contain one-and-only-one record, then we provide
 the following 'helper' function which will return a single SeqRecord, or
 raise an exception if there are no records or more than one record:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record = SeqIO.read("Fasta/f001", "fasta")
     >>> print record.id, len(record)
     gi|3318709|pdb|1A91| 79
@@ -50,7 +50,7 @@ record from the internet.
 However, if you just want the first record from a file containing multiple
 record, use the iterator's next() method:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record = SeqIO.parse("Fasta/f002", "fasta").next()
     >>> print record.id, len(record)
     gi|1348912|gb|G26680|G26680 633
@@ -69,7 +69,7 @@ formats).  However, an iterator only lets you access the records one by one.
 
 If you want random access to the records by number, turn this into a list:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> records = list(SeqIO.parse("Fasta/f002", "fasta"))
     >>> len(records)
     3
@@ -79,7 +79,7 @@ If you want random access to the records by number, turn this into a list:
 If you want random access to the records by a key such as the record id,
 turn the iterator into a dictionary:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record_dict = SeqIO.to_dict(SeqIO.parse("Fasta/f002", "fasta"))
     >>> len(record_dict)
     3
@@ -91,7 +91,7 @@ into memory at once, and therefore is not possible on very large files.
 Instead, for *some* file formats Bio.SeqIO provides an indexing approach
 providing dictionary like access to any record. For example,
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record_dict = SeqIO.index("Fasta/f002", "fasta")
     >>> len(record_dict)
     3
@@ -108,7 +108,7 @@ a sub-set of records from a file where SeqIO cannot output the file format
 (e.g. the plain text SwissProt format, "swiss") or where it is important to
 keep the output 100% identical to the input). For example,
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record_dict = SeqIO.index("Fasta/f002", "fasta")
     >>> len(record_dict)
     3
@@ -144,7 +144,7 @@ You can read in alignment files as alignment objects using Bio.AlignIO.
 Alternatively, reading in an alignment file format via Bio.SeqIO will give
 you a SeqRecord for each row of each alignment:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> for record in SeqIO.parse("Clustalw/hedgehog.aln", "clustal"):
     ...     print record.id, len(record)
     gi|167877390|gb|EDS40773.1| 447
@@ -160,13 +160,13 @@ SeqRecord objects (either as a list, or an iterator), an output file handle
 (or in recent versions of Biopython an output filename as a string) and of
 course the file format::
 
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
     records = ...
     SeqIO.write(records, "example.faa", "fasta")
 
 Or, using a handle::
 
-    from Bio import SeqIO
+    from SAP.Bio import SeqIO
     records = ...
     handle = open("example.faa", "w")
     SeqIO.write(records, handle, "fasta")
@@ -309,10 +309,10 @@ See also http://biopython.org/wiki/SeqIO_dev
 """
 
 
-from Bio.File import as_handle
-from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment
-from Bio.Alphabet import Alphabet, AlphabetEncoder, _get_base_alphabet
+from SAP.Bio.File import as_handle
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.Align import MultipleSeqAlignment
+from SAP.Bio.Alphabet import Alphabet, AlphabetEncoder, _get_base_alphabet
 
 import AbiIO
 import AceIO
@@ -400,7 +400,7 @@ def write(sequences, handle, format):
 
     Returns the number of records written (as an integer).
     """
-    from Bio import AlignIO
+    from SAP.Bio import AlignIO
 
     #Try and give helpful error messages:
     if not isinstance(format, basestring):
@@ -459,7 +459,7 @@ def parse(handle, format, alphabet=None):
 
     Typical usage, opening a file to read in, and looping over the record(s):
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> filename = "Fasta/sweetpea.nu"
     >>> for record in SeqIO.parse(filename, "fasta"):
     ...    print "ID", record.id
@@ -472,8 +472,8 @@ def parse(handle, format, alphabet=None):
     For file formats like FASTA where the alphabet cannot be determined, it
     may be useful to specify the alphabet explicitly:
 
-    >>> from Bio import SeqIO
-    >>> from Bio.Alphabet import generic_dna
+    >>> from SAP.Bio import SeqIO
+    >>> from SAP.Bio.Alphabet import generic_dna
     >>> filename = "Fasta/sweetpea.nu"
     >>> for record in SeqIO.parse(filename, "fasta", generic_dna):
     ...    print "ID", record.id
@@ -487,7 +487,7 @@ def parse(handle, format, alphabet=None):
     first turn this into a handle in order to parse it:
 
     >>> data = ">Alpha\nACCGGATGTA\n>Beta\nAGGCTCGGTTA\n"
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> from StringIO import StringIO
     >>> for record in SeqIO.parse(StringIO(data), "fasta"):
     ...     print record.id, record.seq
@@ -500,7 +500,7 @@ def parse(handle, format, alphabet=None):
     #NOTE - The above docstring has some raw \n characters needed
     #for the StringIO example, hense the whole docstring is in raw
     #string mode (see the leading r before the opening quote).
-    from Bio import AlignIO
+    from SAP.Bio import AlignIO
 
     #Hack for SFF, will need to make this more general in future
     if format in _BinaryFormats:
@@ -570,7 +570,7 @@ def read(handle, format, alphabet=None):
     This function is for use parsing sequence files containing
     exactly one record.  For example, reading a GenBank file:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record = SeqIO.read("GenBank/arab1.gb", "genbank")
     >>> print "ID", record.id
     ID AC007323.5
@@ -582,7 +582,7 @@ def read(handle, format, alphabet=None):
     If the handle contains no records, or more than one record,
     an exception is raised.  For example:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record = SeqIO.read("GenBank/cor6_6.gb", "genbank")
     Traceback (most recent call last):
         ...
@@ -592,7 +592,7 @@ def read(handle, format, alphabet=None):
     multiple records this function would raise an exception (as
     shown in the example above).  Instead use:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> record = SeqIO.parse("GenBank/cor6_6.gb", "genbank").next()
     >>> print "First record's ID", record.id
     First record's ID X55053.1
@@ -634,7 +634,7 @@ def to_dict(sequences, key_function=None):
 
     Example usage, defaulting to using the record.id as key:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> filename = "GenBank/cor6_6.gb"
     >>> format = "genbank"
     >>> id_dict = SeqIO.to_dict(SeqIO.parse(filename, format))
@@ -646,8 +646,8 @@ def to_dict(sequences, key_function=None):
     A more complex example, using the key_function argument in order to
     use a sequence checksum as the dictionary key:
 
-    >>> from Bio import SeqIO
-    >>> from Bio.SeqUtils.CheckSum import seguid
+    >>> from SAP.Bio import SeqIO
+    >>> from SAP.Bio.SeqUtils.CheckSum import seguid
     >>> filename = "GenBank/cor6_6.gb"
     >>> format = "genbank"
     >>> seguid_dict = SeqIO.to_dict(SeqIO.parse(filename, format),
@@ -692,7 +692,7 @@ def index(filename, format, alphabet=None, key_function=None):
     This indexing function will return a dictionary like object, giving the
     SeqRecord objects as values:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> records = SeqIO.index("Quality/example.fastq", "fastq")
     >>> len(records)
     3
@@ -710,7 +710,7 @@ def index(filename, format, alphabet=None, key_function=None):
     If the file is BGZF compressed, this is detected automatically. Ordinary
     GZIP files are not supported:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> records = SeqIO.index("Quality/example.fastq.bgz", "fastq")
     >>> len(records)
     3
@@ -734,7 +734,7 @@ def index(filename, format, alphabet=None, key_function=None):
     For small files, it may be more efficient to use an in memory Python
     dictionary, e.g.
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> records = SeqIO.to_dict(SeqIO.parse(open("Quality/example.fastq"), "fastq"))
     >>> len(records)
     3
@@ -749,7 +749,7 @@ def index(filename, format, alphabet=None, key_function=None):
     is used as the key. You can specify a callback function to transform
     this (the record identifier string) into your preferred key. For example:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> def make_tuple(identifier):
     ...     parts = identifier.split("_")
     ...     return int(parts[-2]), int(parts[-1])
@@ -797,7 +797,7 @@ def index(filename, format, alphabet=None, key_function=None):
 
     #Map the file format to a sequence iterator:
     from _index import _FormatToRandomAccess # Lazy import
-    from Bio.File import _IndexedSeqFileDict
+    from SAP.Bio.File import _IndexedSeqFileDict
     try:
         proxy_class = _FormatToRandomAccess[format]
     except KeyError:
@@ -831,8 +831,8 @@ def index_db(index_filename, filenames=None, format=None, alphabet=None,
     This indexing function will return a dictionary like object, giving the
     SeqRecord objects as values:
 
-    >>> from Bio.Alphabet import generic_protein
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio.Alphabet import generic_protein
+    >>> from SAP.Bio import SeqIO
     >>> files = ["GenBank/NC_000932.faa", "GenBank/NC_005816.faa"]
     >>> def get_gi(name):
     ...     parts = name.split("|")
@@ -875,7 +875,7 @@ def index_db(index_filename, filenames=None, format=None, alphabet=None,
 
     #Map the file format to a sequence iterator:
     from _index import _FormatToRandomAccess  # Lazy import
-    from Bio.File import _SQLiteManySeqFilesDict
+    from SAP.Bio.File import _SQLiteManySeqFilesDict
     repr = "SeqIO.index_db(%r, filenames=%r, format=%r, alphabet=%r, key_function=%r)" \
                % (index_filename, filenames, format, alphabet, key_function)
 
@@ -906,7 +906,7 @@ def convert(in_file, in_format, out_file, out_format, alphabet=None):
 
     For example, going from a filename to a handle:
 
-    >>> from Bio import SeqIO
+    >>> from SAP.Bio import SeqIO
     >>> from StringIO import StringIO
     >>> handle = StringIO("")
     >>> SeqIO.convert("Quality/example.fastq", "fastq", handle, "fasta")
@@ -944,5 +944,5 @@ def convert(in_file, in_format, out_file, out_format, alphabet=None):
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

@@ -9,10 +9,10 @@ import numpy
 import warnings
 import copy
 
-from Bio.PDB.Entity import DisorderedEntityWrapper
-from Bio.PDB.PDBExceptions import PDBConstructionWarning
-from Bio.PDB.Vector import Vector
-from Bio.Data import IUPACData
+from SAP.Bio.PDB.Entity import DisorderedEntityWrapper
+from SAP.Bio.PDB.PDBExceptions import PDBConstructionWarning
+from SAP.Bio.PDB.Vector import Vector
+from SAP.Bio.Data import IUPACData
 
 
 class Atom(object):

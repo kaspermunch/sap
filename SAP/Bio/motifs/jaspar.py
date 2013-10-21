@@ -1,6 +1,6 @@
-from Bio.motifs import Motif, Instances
-from Bio.Alphabet import IUPAC
-from Bio.Seq import Seq
+from SAP.Bio.motifs import Motif, Instances
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Seq import Seq
 
 
 def read(handle, format):

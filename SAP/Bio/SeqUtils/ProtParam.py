@@ -20,9 +20,9 @@ print X.protein_scale(ProtParamData.kd, 9, 0.4)
 import sys
 import ProtParamData  # Local
 import IsoelectricPoint  # Local
-from Bio.Seq import Seq
-from Bio.Alphabet import IUPAC
-from Bio.Data import IUPACData
+from SAP.Bio.Seq import Seq
+from SAP.Bio.Alphabet import IUPAC
+from SAP.Bio.Data import IUPACData
 
 
 class ProteinAnalysis(object):

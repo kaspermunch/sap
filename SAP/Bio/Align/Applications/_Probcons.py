@@ -7,7 +7,7 @@
 
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
-from Bio.Application import _Option, _Switch, _Argument, AbstractCommandline
+from SAP.Bio.Application import _Option, _Switch, _Argument, AbstractCommandline
 
 
 class ProbconsCommandline(AbstractCommandline):
@@ -20,7 +20,7 @@ class ProbconsCommandline(AbstractCommandline):
     To align a FASTA file (unaligned.fasta) with the output in ClustalW
     format, and otherwise default settings, use:
 
-    >>> from Bio.Align.Applications import ProbconsCommandline
+    >>> from SAP.Bio.Align.Applications import ProbconsCommandline
     >>> probcons_cline = ProbconsCommandline(input="unaligned.fasta",
     ...                                      clustalw=True)
     >>> print probcons_cline
@@ -35,7 +35,7 @@ class ProbconsCommandline(AbstractCommandline):
         handle = open("aligned.aln", "w")
         handle.write(stdout)
         handle.close()
-        from Bio import AlignIO
+        from SAP.Bio import AlignIO
         align = AlignIO.read("aligned.fasta", "clustalw")
 
     Alternatively, to parse the output with AlignIO directly you can
@@ -43,7 +43,7 @@ class ProbconsCommandline(AbstractCommandline):
 
         stdout, stderr = probcons_cline()
         from StringIO import StringIO
-        from Bio import AlignIO
+        from SAP.Bio import AlignIO
         align = AlignIO.read(StringIO(stdout), "clustalw")
 
     Citations:

@@ -28,8 +28,8 @@ def Tm_staluc(s, dnac=50, saltc=50, rna=0):
 
     You can also use a Seq object instead of a string,
 
-    >>> from Bio.Seq import Seq
-    >>> from Bio.Alphabet import generic_nucleotide
+    >>> from SAP.Bio.Seq import Seq
+    >>> from SAP.Bio.Alphabet import generic_nucleotide
     >>> s = Seq('CAGTCAGTACGTACGTGTACTGCCGTA', generic_nucleotide)
     >>> print "%0.2f" % Tm_staluc(s)
     59.87

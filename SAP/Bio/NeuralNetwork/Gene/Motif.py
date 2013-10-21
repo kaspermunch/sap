@@ -8,8 +8,8 @@ then be used for creating the neural networks, with occurances of motifs
 going into the network instead of raw sequence data.
 """
 # biopython
-from Bio.Alphabet import _verify_alphabet
-from Bio.Seq import Seq
+from SAP.Bio.Alphabet import _verify_alphabet
+from SAP.Bio.Seq import Seq
 
 # local modules
 from Pattern import PatternRepository

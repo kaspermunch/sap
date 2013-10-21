@@ -13,9 +13,9 @@ __docformat__ = "restructuredtext en"
 
 from cStringIO import StringIO
 
-from Bio.Phylo import Newick
+from SAP.Bio.Phylo import Newick
 
-# Definitions retrieved from Bio.Nexus.Trees
+# Definitions retrieved from SAP.Bio.Nexus.Trees
 NODECOMMENT_START = '[&'
 NODECOMMENT_END = ']'
 

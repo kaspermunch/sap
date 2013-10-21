@@ -7,7 +7,7 @@
 
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
-from Bio.Application import _Option, _Switch, AbstractCommandline
+from SAP.Bio.Application import _Option, _Switch, AbstractCommandline
 
 
 class PrankCommandline(AbstractCommandline):
@@ -22,7 +22,7 @@ class PrankCommandline(AbstractCommandline):
     can't pick the filename explicitly), no tree output and no XML output,
     use:
 
-    >>> from Bio.Align.Applications import PrankCommandline
+    >>> from SAP.Bio.Align.Applications import PrankCommandline
     >>> prank_cline = PrankCommandline(d="unaligned.fasta",
     ...                                o="aligned", #prefix only!
     ...                                f=8, #FASTA output

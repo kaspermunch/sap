@@ -7,8 +7,8 @@
 
 from itertools import chain
 
-from Bio._utils import getattr_str, trim_str
-from Bio.SearchIO._utils import allitems, optionalcascade
+from SAP.Bio._utils import getattr_str, trim_str
+from SAP.Bio.SearchIO._utils import allitems, optionalcascade
 
 from _base import _BaseSearchObject
 from hsp import HSP
@@ -25,7 +25,7 @@ class Hit(_BaseSearchObject):
 
     To have a quick look at a Hit and its contents, invoke `print` on it:
 
-    >>> from Bio import SearchIO
+    >>> from SAP.Bio import SearchIO
     >>> qresult = SearchIO.parse('Blast/mirna.xml', 'blast-xml').next()
     >>> hit = qresult[3]
     >>> print hit
@@ -281,7 +281,7 @@ class Hit(_BaseSearchObject):
         example of using `filter` to select for HSPs having bitscores bigger
         than 60:
 
-        >>> from Bio import SearchIO
+        >>> from SAP.Bio import SearchIO
         >>> qresult = SearchIO.parse('Blast/mirna.xml', 'blast-xml').next()
         >>> hit = qresult[3]
         >>> evalue_filter = lambda hsp: hsp.bitscore > 60
@@ -371,5 +371,5 @@ class Hit(_BaseSearchObject):
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()

@@ -48,7 +48,7 @@ o OneOfPosition - Specify a position where the location can be multiple position
 o UnknownPosition - Represents missing information like '?' in UniProt.
 """
 
-from Bio.Seq import MutableSeq, reverse_complement
+from SAP.Bio.Seq import MutableSeq, reverse_complement
 
 
 class SeqFeature(object):
@@ -103,7 +103,7 @@ class SeqFeature(object):
 
         e.g. With no strand, on the forward strand, and on the reverse strand:
 
-        >>> from Bio.SeqFeature import SeqFeature, FeatureLocation
+        >>> from SAP.Bio.SeqFeature import SeqFeature, FeatureLocation
         >>> f1 = SeqFeature(FeatureLocation(5, 10), type="domain")
         >>> f1.strand == f1.location.strand == None
         True
@@ -273,9 +273,9 @@ class SeqFeature(object):
         also covers features on protein sequences (e.g. domains), although
         here reverse strand features are not permitted.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import generic_protein
-        >>> from Bio.SeqFeature import SeqFeature, FeatureLocation
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import generic_protein
+        >>> from SAP.Bio.SeqFeature import SeqFeature, FeatureLocation
         >>> seq = Seq("MKQHKAMIVALIVICITAVVAAL", generic_protein)
         >>> f = SeqFeature(FeatureLocation(8,15), type="domain")
         >>> f.extract(seq)
@@ -326,9 +326,9 @@ class SeqFeature(object):
     def __len__(self):
         """Returns the length of the region described by a feature.
 
-        >>> from Bio.Seq import Seq
-        >>> from Bio.Alphabet import generic_protein
-        >>> from Bio.SeqFeature import SeqFeature, FeatureLocation
+        >>> from SAP.Bio.Seq import Seq
+        >>> from SAP.Bio.Alphabet import generic_protein
+        >>> from SAP.Bio.SeqFeature import SeqFeature, FeatureLocation
         >>> seq = Seq("MKQHKAMIVALIVICITAVVAAL", generic_protein)
         >>> f = SeqFeature(FeatureLocation(8,15), type="domain")
         >>> len(f)
@@ -356,7 +356,7 @@ class SeqFeature(object):
         The iteration order is strand aware, and can be thought of as moving
         along the feature using the parent sequence coordinates:
 
-        >>> from Bio.SeqFeature import SeqFeature, FeatureLocation
+        >>> from SAP.Bio.SeqFeature import SeqFeature, FeatureLocation
         >>> f = SeqFeature(FeatureLocation(5,10), type="domain", strand=-1)
         >>> len(f)
         5
@@ -385,7 +385,7 @@ class SeqFeature(object):
     def __contains__(self, value):
         """Check if an integer position is within the feature.
 
-        >>> from Bio.SeqFeature import SeqFeature, FeatureLocation
+        >>> from SAP.Bio.SeqFeature import SeqFeature, FeatureLocation
         >>> f = SeqFeature(FeatureLocation(5,10), type="domain", strand=-1)
         >>> len(f)
         5
@@ -395,7 +395,7 @@ class SeqFeature(object):
         For example, to see which features include a SNP position, you could
         use this:
 
-        >>> from Bio import SeqIO
+        >>> from SAP.Bio import SeqIO
         >>> record = SeqIO.read("GenBank/NC_000932.gb", "gb")
         >>> for f in record.features:
         ...     if 1750 in f:
@@ -419,8 +419,8 @@ class SeqFeature(object):
         Note that additional care may be required with fuzzy locations, for
         example just before a BeforePosition:
 
-        >>> from Bio.SeqFeature import SeqFeature, FeatureLocation
-        >>> from Bio.SeqFeature import BeforePosition
+        >>> from SAP.Bio.SeqFeature import SeqFeature, FeatureLocation
+        >>> from SAP.Bio.SeqFeature import BeforePosition
         >>> f = SeqFeature(FeatureLocation(BeforePosition(3),8), type="domain")
         >>> len(f)
         5
@@ -505,7 +505,7 @@ class FeatureLocation(object):
     thus a GenBank entry of 123..150 (one based counting) becomes a location
     of [122:150] (zero based counting).
 
-    >>> from Bio.SeqFeature import FeatureLocation
+    >>> from SAP.Bio.SeqFeature import FeatureLocation
     >>> f = FeatureLocation(122, 150)
     >>> print f
     [122:150]
@@ -519,7 +519,7 @@ class FeatureLocation(object):
     Note the strand defaults to None. If you are working with nucleotide
     sequences you'd want to be explicit if it is the forward strand:
 
-    >>> from Bio.SeqFeature import FeatureLocation
+    >>> from SAP.Bio.SeqFeature import FeatureLocation
     >>> f = FeatureLocation(122, 150, strand=+1)
     >>> print f
     [122:150](+)
@@ -532,7 +532,7 @@ class FeatureLocation(object):
     sequence, we expect the 'start' coordinate to be less than the
     'end' coordinate.
 
-    >>> from Bio.SeqFeature import FeatureLocation
+    >>> from SAP.Bio.SeqFeature import FeatureLocation
     >>> r = FeatureLocation(122, 150, strand=-1)
     >>> print r
     [122:150](-)
@@ -565,22 +565,22 @@ class FeatureLocation(object):
 
         i.e. Short form:
 
-        >>> from Bio.SeqFeature import FeatureLocation
+        >>> from SAP.Bio.SeqFeature import FeatureLocation
         >>> loc = FeatureLocation(5, 10, strand=-1)
         >>> print loc
         [5:10](-)
 
         Explicit form:
 
-        >>> from Bio.SeqFeature import FeatureLocation, ExactPosition
+        >>> from SAP.Bio.SeqFeature import FeatureLocation, ExactPosition
         >>> loc = FeatureLocation(ExactPosition(5), ExactPosition(10), strand=-1)
         >>> print loc
         [5:10](-)
 
         Other fuzzy positions are used similarly,
 
-        >>> from Bio.SeqFeature import FeatureLocation
-        >>> from Bio.SeqFeature import BeforePosition, AfterPosition
+        >>> from SAP.Bio.SeqFeature import FeatureLocation
+        >>> from SAP.Bio.SeqFeature import BeforePosition, AfterPosition
         >>> loc2 = FeatureLocation(BeforePosition(5), AfterPosition(10), strand=-1)
         >>> print loc2
         [<5:>10](-)
@@ -691,8 +691,8 @@ class FeatureLocation(object):
 
         Note that extra care may be needed for fuzzy locations, e.g.
 
-        >>> from Bio.SeqFeature import FeatureLocation
-        >>> from Bio.SeqFeature import BeforePosition, AfterPosition
+        >>> from SAP.Bio.SeqFeature import FeatureLocation
+        >>> from SAP.Bio.SeqFeature import BeforePosition, AfterPosition
         >>> loc = FeatureLocation(BeforePosition(5),AfterPosition(10))
         >>> len(loc)
         5
@@ -704,8 +704,8 @@ class FeatureLocation(object):
 
         Note that extra care may be needed for fuzzy locations, e.g.
 
-        >>> from Bio.SeqFeature import FeatureLocation
-        >>> from Bio.SeqFeature import BeforePosition, AfterPosition
+        >>> from SAP.Bio.SeqFeature import FeatureLocation
+        >>> from SAP.Bio.SeqFeature import BeforePosition, AfterPosition
         >>> loc = FeatureLocation(BeforePosition(5),AfterPosition(10))
         >>> len(loc)
         5
@@ -723,8 +723,8 @@ class FeatureLocation(object):
     def __iter__(self):
         """Iterate over the parent positions within the FeatureLocation.
 
-        >>> from Bio.SeqFeature import FeatureLocation
-        >>> from Bio.SeqFeature import BeforePosition, AfterPosition
+        >>> from SAP.Bio.SeqFeature import FeatureLocation
+        >>> from SAP.Bio.SeqFeature import BeforePosition, AfterPosition
         >>> loc = FeatureLocation(BeforePosition(5),AfterPosition(10))
         >>> len(loc)
         5
@@ -1410,5 +1410,5 @@ class PositionGap(object):
 
 
 if __name__ == "__main__":
-    from Bio._utils import run_doctest
+    from SAP.Bio._utils import run_doctest
     run_doctest()
