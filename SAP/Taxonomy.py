@@ -195,7 +195,10 @@ class Taxonomy:
         """
         taxonomyLevelList  = []
         for pair in re.split(r'\s*%s\s*' % fieldsep, str):
-            taxonLevel, taxonName = re.split('\s*%s\s*' % subfieldsep , pair)
+            try:
+                taxonLevel, taxonName = re.split('\s*%s\s*' % subfieldsep , pair)
+            except ValueError:
+                raise InputError(pair, "Each taxonomic level should be specified as a levels and a name, e.g. 'species: sapiens'")
             taxonomyLevelList.append(TaxonomyLevel(taxonName, taxonLevel))
         self.add(taxonomyLevelList)
 

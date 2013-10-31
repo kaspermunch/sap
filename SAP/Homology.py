@@ -17,6 +17,28 @@ from SAP.XML2Obj import XML2Obj
 
 from SAP.Exceptions import AnalysisTerminated
 
+class Error(Exception):
+    """
+    Base class for exceptions in this module.
+    """
+    pass
+    
+
+class InputError(Error):
+    """
+    Exception raised for errors in the input.
+
+    Attributes:
+        expression -- input expression in which
+                      the error occurred
+        message -- explanation of the error
+    """
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+        print self.expression, ": ", self.message
+
+
 class HomologySet:
     """
     Container class for information related to the homologue set.
@@ -105,6 +127,10 @@ class HomolCompiler:
 
         # Add file name as a prefix:
         queryName = fastaFileBaseName + "_" + newQueryName
+
+        if len(queryName) > 150:
+           # clustalw2 truncates titles to 150 characters
+           raise InputError(queryName, 'length of query file name plus length of query sequence title must not exceed 149 characters')
 
         # Update the Fasta title:
         fastaRecord.title = queryName
@@ -273,7 +299,8 @@ class HomolCompiler:
                         strandMatch = 1
                         leftFlank = 2 * search_hit.query_start
                         rightFlank = 2 * (queryLength - search_hit.query_length - search_hit.query_start)
-                        if search_hit.query_strand == -1:
+#                        if search_hit.query_strand == -1:
+                        if search_hit.query_strand != search_hit.subject_strand:
                            strandMatch = -1
                            leftFlank, rightFlank = rightFlank, leftFlank
 
