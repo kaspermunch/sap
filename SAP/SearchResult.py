@@ -48,31 +48,58 @@ class BlastSearchResult(object):
 
          searchEntry.id = blastRecord.alignments[i].title.strip()
 
-         hspCoords = []
-         queryCoords = []
+
+
+#          hspCoords = []
+#          queryCoords = []
+# 
+#          searchEntry.score = 0
+#          hsp = blastRecord.alignments[i].hsps[0]
+#          searchEntry.score += hsp.bits
+#          hspCoords += [hsp.sbjct_start, hsp.sbjct_end]
+#          queryCoords.append([hsp.query_start, hsp.query_end])
+# 
+#          hspCoords.sort()
+#          searchEntry.subject_start = hspCoords[0] - 1 # Coords are 1-based
+#          searchEntry.subject_length = hspCoords[-1] - hspCoords[0] + 1
+# 
+#          newQueryCoords = []
+#          for x in _flatten(queryCoords):
+#             newQueryCoords.append(x)
+#          queryCoords = newQueryCoords
+#          queryCoords.sort()
+#          searchEntry.query_start = queryCoords[0] - 1 # Coords are 1-based
+#          searchEntry.query_length = queryCoords[-1] - queryCoords[0] + 1
+# 
+#          if blastRecord.alignments[i].hsps[0].query_start > blastRecord.alignments[i].hsps[0].query_end:
+#             searchEntry.query_strand = -1
+#          else:
+#             searchEntry.query_strand = 1
 
          searchEntry.score = 0
          hsp = blastRecord.alignments[i].hsps[0]
-         searchEntry.score += hsp.bits
-         hspCoords += [hsp.sbjct_start, hsp.sbjct_end]
-         queryCoords.append([hsp.query_start, hsp.query_end])
+         searchEntry.score = hsp.bits
 
-         hspCoords.sort()
-         searchEntry.subject_start = hspCoords[0] - 1 # Coords are 1-based
-         searchEntry.subject_length = hspCoords[-1] - hspCoords[0] + 1
-
-         newQueryCoords = []
-         for x in _flatten(queryCoords):
-            newQueryCoords.append(x)
-         queryCoords = newQueryCoords
-         queryCoords.sort()
-         searchEntry.query_start = queryCoords[0] - 1 # Coords are 1-based
-         searchEntry.query_length = queryCoords[-1] - queryCoords[0] + 1
-
-         if blastRecord.alignments[i].hsps[0].query_start > blastRecord.alignments[i].hsps[0].query_end:
+         if hsp.query_start > hsp.query_end:
+            searchEntry.query_start = hsp.query_end - 1 # Coords are 1-based
+            searchEntry.query_length = hsp.query_start - hsp.query_end + 1
             searchEntry.query_strand = -1
          else:
+            searchEntry.query_start = hsp.query_start - 1 # Coords are 1-based
+            searchEntry.query_length = hsp.query_end - hsp.query_start + 1
             searchEntry.query_strand = 1
+
+         if hsp.sbjct_start > hsp.sbjct_end:
+            searchEntry.subject_start = hsp.sbjct_end - 1 # Coords are 1-based
+            searchEntry.subject_length = hsp.sbjct_start - hsp.sbjct_end + 1
+            searchEntry.subject_strand = -1
+         else:
+            searchEntry.subject_start = hsp.sbjct_start - 1 # Coords are 1-based
+            searchEntry.subject_length = hsp.sbjct_end - hsp.sbjct_start + 1
+            searchEntry.subject_strand = 1
+
+
+
 
          searchEntry.significance = blastRecord.descriptions[i].e
 

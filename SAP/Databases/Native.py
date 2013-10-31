@@ -43,9 +43,6 @@ class DB(object):
         Opens a premade local data base and builds an index of taxon names.
         """
 
-        self.got_wublast = False
-        #self.got_wublast = findOnSystem('blastn') and findOnSystem('xdformat')
-
         self.options = options
         self.fastaFileName = fastaFileName
 
@@ -312,10 +309,7 @@ a:hover {
 
         # Format the blast database:
         blastSequenceFile.close()
-        if self.got_wublast:
-            cmd = "xdformat -n -o %s %s" % (self.blastDB, self.blastSequenceFileName)
-        else:
-            cmd = "formatdb -p F -t %s -i %s" % (self.blastDB, self.blastSequenceFileName)
+        cmd = "makeblastdb -dbtype nucl -title %s -in %s" % (self.blastDB, self.blastSequenceFileName)
 
         cmd = self.escape(cmd)
 
@@ -372,29 +366,41 @@ a:hover {
                     excludeIDs.extend(self.index[taxon])
                 includeIDs = set(self.db.keys()).difference(excludeIDs)
 
+                if not includeIDs:
+                    print "done (database exhausted)\n\t\t\t",
+                    sys.stdout.flush()       
+                    return SearchResult(None)
+                
                 blastDBfileName = "tmpBlastDB.fasta"
                 tmpFastaFile = open(blastDBfileName, 'w')
                 for key in includeIDs:
                     tmpFastaFile.write(str(self.db[str(key)]['fastaRecord']))
                 tmpFastaFile.close()
-                cmd = "xdformat -n -o %s %s" % (blastDBfileName, blastDBfileName)
+                cmd = "makeblastdb -dbtype nucl -title %s -in %s" % (blastDBfileName, blastDBfileName)
+                #cmd = "xdformat -n -o %s %s" % (blastDBfileName, blastDBfileName)
                 cmd = self.escape(cmd)
                 systemCall(cmd, stdout='IGNORE', stderr='IGNORE')
             else:
-                blastDBfileName = self.blastDB
+                blastDBfileName = self.blastSequenceFileName
+                #blastDBfileName = self.blastDB
             
             # Blast:
             if self.options.blastwordsize:
-                wordSize = '-W %s' % self.options.blastwordsize
+                wordSize = '-word_size %s' % self.options.blastwordsize
             else:
                 wordSize = ''
-                
-            if self.got_wublast:
-                cmd = "blastn %s -E %s %s -mformat 7" % (wordSize, self.options.minsignificance, blastDBfileName, tmpQueryFileName)
-            else:
-                cmd = "blastall %s -e %f -p blastn -d %s.fasta -i %s -m 7" % (wordSize, self.options.minsignificance, blastDBfileName, tmpQueryFileName)
-            cmd = self.escape(cmd)
 
+            if self.options.nolowcomplexfilter:
+                filterOption = '-dust no'
+            else:
+                filterOption = '-dust yes' # FIXME: Check that this is an ok default... It is not the defalut in blastn
+
+            cmd = 'blastn -db %s -outfmt 5 %s %s -evalue %s -max_target_seqs %s -query %s' \
+                       % (blastDBfileName, wordSize, filterOption, self.options.minsignificance, self.options.maxblasthits,
+                          tmpQueryFileName)
+               
+#            cmd = "blastn %s -e %f -p blastn -d %s.fasta -i %s -m 7" % (wordSize, self.options.minsignificance, blastDBfileName, tmpQueryFileName)
+            cmd = self.escape(cmd)
 
             STARTUPINFO = None
             if os.name == 'nt':
@@ -417,18 +423,17 @@ a:hover {
 #             stderr.close()
 
             # This is a hack to remove an xml tag that just confuses things with blastn:
-            if not self.got_wublast:
-                blastContent = re.sub(r'<Hit_id>.*?</Hit_id>', '', blastContent)
+            blastContent = re.sub(r'<Hit_id>.*?</Hit_id>', '', blastContent)
 
             writeFile(blastFileName, blastContent)
 
-            blastFile = StringIO.StringIO(blastContent)
-
-        blastParser = NCBIXML.BlastParser()
+            #blastFile = StringIO.StringIO(blastContent)
+            blastFile = open(blastFileName, 'r')
+            
         try:
-            blastRecord = blastParser.parse(blastFile) 
+            blastRecord = NCBIXML.read(blastFile)
         except:
-            blastRecord = None        
+            blastRecord = None
 
         blastFile.close()
 
