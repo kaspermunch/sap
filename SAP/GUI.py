@@ -647,6 +647,10 @@ class MyFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.onDirBrowseButton, b2)
         wx.CallAfter(t2.SetInsertionPoint, 0)
 
+        self.l3 = l3 = wx.StaticText(panel, -1, "Email:")
+        self.t3 = t3 = wx.TextCtrl(panel, -1, "", size=(350, -1))
+
+
         self.runB = runB = wx.Button(panel, -1, "Run")        
         runB.SetDefault()
         self.Bind(wx.EVT_BUTTON, self.onRunButton, runB)
@@ -658,12 +662,21 @@ class MyFrame(wx.Frame):
         self.optionsB = optionsB = wx.Button(panel, -1, "Options")        
         self.Bind(wx.EVT_BUTTON, self.onOptionsButton, optionsB)
 
+
         topGridSizer.AddMany([ l1, t1, b1,
                                l2, t2, b2,
+                               l3, t3, (0,0),
                                (0,0), (0,0,), (0,0,),
                                optionsB, (0,0,), runB,
                                (0,0,), (0,0,), abortB
                                ])
+
+#         topGridSizer.AddMany([ l1, t1, b1,
+#                                l2, t2, b2,
+#                                (0,0), (0,0,), (0,0,),
+#                                optionsB, (0,0,), runB,
+#                                (0,0,), (0,0,), abortB
+#                                ])
 
         panel.SetSizer(tabSizer)
         panel.SetAutoLayout(True)
@@ -671,7 +684,8 @@ class MyFrame(wx.Frame):
 
         # Frame sizer:
         frameSizer = wx.BoxSizer(wx.VERTICAL)    
-        frameSizer.SetMinSize((595, 260))
+        frameSizer.SetMinSize((600, 290))
+        #frameSizer.SetMinSize((595, 260))
         # Add the note book to the frame sizer:
         frameSizer.Add(panel, 1, wx.EXPAND|wx.ALL, 10)
         # Set the frame sizer:
@@ -944,6 +958,8 @@ with *.sap file in the project folder and the sequence input file used.
         inputFiles = re.split(r'\s+', self.t1.GetValue().strip())
 
         optionParser.options.project = self.t2.GetValue()
+
+        optionParser.options.email =  self.t3.GetValue()
 
         if not inputFiles or not optionParser.options.project:
             dlg = wx.MessageDialog(self, 'You need to specify an input sequence file and a project folder before you can start the analysis',
