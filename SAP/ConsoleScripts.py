@@ -50,7 +50,7 @@ def sap():
             sys.exit()
             
         if options.onlinehelp:
-            webbrowser.open('http://ib.berkeley.edu/labs/slatkin/munch/StatisticalAssignmentPackage.html', new=2, autoraise=1)
+            webbrowser.open('http://kaspermunch.wordpress.com/statistical-assignment-package-sap/', new=2, autoraise=1)
             sys.exit()
 
         # Make a string of all options except of the ones with a '_'
