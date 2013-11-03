@@ -44,14 +44,16 @@ def sap():
             sys.exit()
 
         if options.installdependencies:
-            print "Checking that dependencies are installed on your system..."
-            assertClustalw2Installed()
-            assertBlastInstalled()
-            sys.exit()
+            print "Checking that dependencies are installed on your system."
+            if assertClustalw2Installed() and  assertBlastInstalled():
+                print "All dependencies are installed"
+            #sys.exit()
+            return None
             
         if options.onlinehelp:
             webbrowser.open('http://kaspermunch.wordpress.com/statistical-assignment-package-sap/', new=2, autoraise=1)
-            sys.exit()
+            #sys.exit()
+            return None
 
         # Make a string of all options except of the ones with a '_'
         # prefix which are for internal use only:
@@ -108,7 +110,7 @@ def sap():
             # Make directories and write fixed inputfiles:
             init = Initialize(options)
             init.createDirs()
-    
+
             # Fix the format of input files and copy them to the project directory:
             args, seqCount, sequenceNameMap = init.fixAndMoveInput(args)
             if not args or not seqCount:

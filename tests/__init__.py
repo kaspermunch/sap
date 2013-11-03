@@ -1,4 +1,4 @@
-import unittest, sys
+import unittest, sys, shutil
 
 from SAP import ConsoleScripts
 from SAP import Options
@@ -9,33 +9,31 @@ class TestSAP(unittest.TestCase):
         """
         make a temp dir for test files. write a query and a database file.
         """
-        self.projectDir = ""
-        self.databaseFileName = ""
-        self.args = ["--project", self.projectDir]
-        pass
+        self.queryFileName = 'tests/query.fasta'
+        self.projectDir = "testproject"
+        self.databaseFileName = "tests/nativedb.fasta"
 
-    def test_Default(self):
+    def test_1_dependencies(self):
+        sys.argv = ['', '--installdependencies']
         ConsoleScripts.sap()
-        pass
 
-    def test_NativeDB(self):
-#         sys.argv = self.args + ["--database", self.databaseFileName, queryFileName]
-#         ConsoleScripts.sap()
-        pass
+    def test_2_native_with_barcoder(self):
+        sys.argv = ['', "-d", self.projectDir, "--email", "test@test.com", "-S", "Barcoder", "--database", self.databaseFileName, self.queryFileName]
+        ConsoleScripts.sap()
+
+    def test_3_genbank_with_cnj(self):
+        sys.argv = ['', "--project", self.projectDir, "--email", "test@test.com", "-S", "ConstrainedNJ", "--database", "GenBank", self.queryFileName]
+        ConsoleScripts.sap()
     
-    def test_ConstrainedNJ(self):
-#         sys.argv = self.args + ["--assignmnet", "ConstrainedNJ"]
-        pass
-
-    def test_IMa2(self):
-#         sys.argv = self.args + ["--ghostpopulation"]
-        pass
+#     def test_4_ima2(self):
+# #         sys.argv = self.args + ['', "--ghostpopulation"]
+#         pass
 
     def tearDown(self):
         """
         delete any test files.
         """
-        pass
+#        shutil.rmtree(self.projectDir)
 
 if __name__ == '__main__':
     unittest.main()
