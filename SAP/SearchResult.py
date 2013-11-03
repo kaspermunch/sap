@@ -46,7 +46,7 @@ class BlastSearchResult(object):
 
          searchEntry = ResultEntry()
 
-         searchEntry.id = blastRecord.alignments[i].title.strip()
+         searchEntry.id = blastRecord.alignments[i].title.split()[0]
 
 
 

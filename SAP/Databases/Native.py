@@ -121,13 +121,13 @@ class DB(object):
                 taxonomy = Taxonomy.Taxonomy()                        
                 try:
                     identifier, taxonomyString, organismName = re.split(r'\s*;\s*', fastaRecord.title.strip())
-                except ValueError:
+                    fastaRecord.title = identifier        
+                    taxonomy.populateFromString(taxonomyString)
+                    taxonomy.organism = organismName
+                except (ValueError, Taxonomy.ParsingError) as exc:
                     raise WrongFormatError(fastaRecord.title)
                 if not (identifier and taxonomyString and organismName):
                     raise WrongFormatError(fastaRecord.title)
-                fastaRecord.title = identifier        
-                taxonomy.populateFromString(taxonomyString)
-                taxonomy.organism = organismName
 
             except WrongFormatError, exe:
 
@@ -153,7 +153,8 @@ class DB(object):
 
                 # If the fasta file was downloaded form GenBank the header lines will look like this: 'gi|187481301|gb|EU154882.1| Turdus pilar...
                 genBankGiMatch = re.match(r'gi\|(\d+)\|', fastaRecord.title)
-                idMatch = re.match(r'([\d\w.]+)', fastaRecord.title)
+                #idMatch = re.match(r'([\d\w.]+)', fastaRecord.title)
+                idMatch = re.match(r'(\d+)', fastaRecord.title)
                 if genBankGiMatch:
                     dbid = genBankGiMatch.group(1)
                 elif idMatch:

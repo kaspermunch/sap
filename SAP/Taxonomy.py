@@ -42,6 +42,20 @@ class InputError(Error):
         self.message = message
         print self.expression, ": ", self.message
 
+class ParsingError(Error):
+    """
+    Exception raised for errors in the input.
+
+    Attributes:
+        expression -- input expression in which
+                      the error occurred
+        message -- explanation of the error
+    """
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+        print self.expression, ": ", self.message
+
 class AlignmentError(Error):
     """
     Exception raised for errors in alignment of taxonomic levels.
@@ -198,7 +212,7 @@ class Taxonomy:
             try:
                 taxonLevel, taxonName = re.split('\s*%s\s*' % subfieldsep , pair)
             except ValueError:
-                raise InputError(pair, "Each taxonomic level should be specified as a levels and a name, e.g. 'species: sapiens'")
+                raise ParsingError(pair, "Each taxonomic level should be specified as a levels and a name, e.g. 'species: sapiens'")
             taxonomyLevelList.append(TaxonomyLevel(taxonName, taxonLevel))
         self.add(taxonomyLevelList)
 
