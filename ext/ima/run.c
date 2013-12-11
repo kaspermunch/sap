@@ -10,6 +10,8 @@
 #include <io.h>
 #endif
 
+extern void initwrapIMa (void); /* should be init + name of module as given in setup.py */
+
 int run_main(int argc, char **argv);
 
 int runprogram (int argc, char **argv, char *outputBaseName) {

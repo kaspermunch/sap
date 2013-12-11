@@ -14,6 +14,8 @@
 
 using namespace std;
 
+extern "C" void initwrapBarcoder (void); /* should be init + name of module as given in setup.py */
+
 extern "C" int runprogram (int argc, char **argv, char *outputBaseName);
 
 int runprogram (int argc, char **argv, char *outputBaseName) {
