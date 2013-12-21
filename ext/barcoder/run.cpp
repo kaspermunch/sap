@@ -17,9 +17,9 @@ using namespace std;
 
 extern "C" DLL_PUBLIC void initwrapBarcoder (void); /* should be init + name of module as given in setup.py */
 
-extern "C" DLL_PUBLIC int runprogram (int argc, char **argv, char *outputBaseName);
+// extern "C" DLL_PUBLIC int runprogram (int argc, char **argv, char *outputBaseName);
 
-int runprogram (int argc, char **argv, char *outputBaseName) {
+extern "C" DLL_PUBLIC int runprogram (int argc, char **argv, char *outputBaseName) {
 
 
         /* Redirect cout and cerr to files: ************/
