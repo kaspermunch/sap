@@ -10,7 +10,10 @@
 #include <io.h>
 #endif
 
-extern void initwrapIMa (void); /* should be init + name of module as given in setup.py */
+
+extern void initwrapIMa (void) { /* should be init + name of module as given in setup.py */
+  char *dummy = NULL; // dummy body
+}
 
 int run_main(int argc, char **argv);
 
