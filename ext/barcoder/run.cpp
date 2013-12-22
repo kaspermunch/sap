@@ -7,7 +7,7 @@
 #include "mcmc.h"
 #include "model.h"
 #include "parm_tree.h"
-#include "crossplatform.h"
+// #include "crossplatform.h"
 
 #include <cstdio>
 #include <cstdlib> 
@@ -15,11 +15,13 @@
 
 using namespace std;
 
-extern "C" DLL_PUBLIC void initwrapBarcoder (void); /* should be init + name of module as given in setup.py */
+extern "C" void initwrapBarcoder (void) { /* should be init + name of module as given in setup.py */
+  char *dummy = NULL; // dummy body
+}
 
 // extern "C" DLL_PUBLIC int runprogram (int argc, char **argv, char *outputBaseName);
 
-extern "C" DLL_PUBLIC int runprogram (int argc, char **argv, char *outputBaseName) {
+extern "C" int runprogram (int argc, char **argv, char *outputBaseName) {
 
 
         /* Redirect cout and cerr to files: ************/
