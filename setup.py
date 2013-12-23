@@ -62,8 +62,21 @@ elif sys.platform == 'win32':
                              )
     except ImportError:
         extra_options = {}
+
+    import fnmatch
+    import os
+    rootPath = '/'
+    pattern = '(Microsoft.VC90.CRT.manifest)|(msvcm90.dll)|(msvcp90.dll)|(msvcr90.dll)'
+    for root, dirs, files in os.walk(rootPath):
+        for filename in fnmatch.filter(files, pattern):
+            data_file_list.append(os.path.join(root, filename))
+    #data_files = [("Microsoft.VC90.CRT", glob('Microsoft.VC90.CRT/*.*'))]
+    assert len(data_file_list) == 4
+    print data_file_list
+    data_files = [("Microsoft.VC90.CRT", tuple(data_file_list))]
 else:
     extra_options = {}
+    data_files = []
 
 # This is because EPD is built against the 10.5 SDK to run on all more recent versions of OSX. If you use the 
 if sys.platform=='darwin' and sys.executable != '/usr/bin/python' and 'anaconda' not in sys.executable:
@@ -83,7 +96,7 @@ setup(name='SAP',
       url='http://www.binf.ku.dk/~kasper/wiki/SAP.html',
       packages = find_packages(),
       package_dir = {'SAP': 'SAP'},
-      include_package_data = True,
+      include_package_data = True,      
       entry_points = { 'console_scripts': [ 'sap = SAP.ConsoleScripts:sap', ],
                        #'gui_scripts': [ 'sap_gui = SAP.GUI:start_gui', ],
                        'sap.database': [ 'Native = SAP.Databases.Native',
@@ -122,5 +135,6 @@ setup(name='SAP',
                    #          ['SAP/Bio/Nexus/cnexus.c']
                    #          ),
                    ],
+      data_files = data_files,
       **extra_options
       )
