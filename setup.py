@@ -70,7 +70,7 @@ elif sys.platform == 'win32':
 #     for root, dirs, files in os.walk(rootPath):
 #         for filename in fnmatch.filter(files, pattern):
 #             data_file_list.append(os.path.join(root, filename))
-    data_files = [("Microsoft.VC90.CRT", glob('Microsoft.VC90.CRT/*.*'))]
+    data_files = [("Microsoft.VC90.CRT", glob.glob('Microsoft.VC90.CRT/*'))]
 #     assert len(data_file_list) == 4
 #     print data_file_list
 #     data_files = [("Microsoft.VC90.CRT", tuple(data_file_list))]
