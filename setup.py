@@ -63,17 +63,17 @@ elif sys.platform == 'win32':
     except ImportError:
         extra_options = {}
 
-    import fnmatch
-    import os
-    rootPath = '/'
-    pattern = '(Microsoft.VC90.CRT.manifest)|(msvcm90.dll)|(msvcp90.dll)|(msvcr90.dll)'
-    for root, dirs, files in os.walk(rootPath):
-        for filename in fnmatch.filter(files, pattern):
-            data_file_list.append(os.path.join(root, filename))
-    #data_files = [("Microsoft.VC90.CRT", glob('Microsoft.VC90.CRT/*.*'))]
-    assert len(data_file_list) == 4
-    print data_file_list
-    data_files = [("Microsoft.VC90.CRT", tuple(data_file_list))]
+#     import fnmatch
+#     import os
+#     rootPath = '/'
+#     pattern = '(Microsoft.VC90.CRT.manifest)|(msvcm90.dll)|(msvcp90.dll)|(msvcr90.dll)'
+#     for root, dirs, files in os.walk(rootPath):
+#         for filename in fnmatch.filter(files, pattern):
+#             data_file_list.append(os.path.join(root, filename))
+    data_files = [("Microsoft.VC90.CRT", glob('Microsoft.VC90.CRT/*.*'))]
+#     assert len(data_file_list) == 4
+#     print data_file_list
+#     data_files = [("Microsoft.VC90.CRT", tuple(data_file_list))]
 else:
     extra_options = {}
     data_files = []
