@@ -22,7 +22,7 @@ class BootstrapError(Error):
 class Barcoder(object):
 
     def __init__(self):
-        libpath = os.path.join(os.path.dirname(__file__), "_Barcoder.so")
+        libpath = os.path.join(os.path.dirname(__file__), "wrapBarcoder.so")
         self.barcoder = ctypes.CDLL(libpath)
         self.barcoder.runprogram.restype = ctypes.c_int
         self.barcoder.runprogram.argTypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p]

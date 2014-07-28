@@ -45,9 +45,28 @@ def sap():
 
         if options.installdependencies:
             print "Checking that dependencies are installed on your system."
-            if assertClustalw2Installed() and  assertBlastInstalled():
-                print "All dependencies are installed"
-            #sys.exit()
+
+            from UtilityFunctions import findOnSystem
+            missing = False
+            if os.name in ('nt', 'dos'):
+                name = 'blastn.exe'        
+            else:
+                name = 'blastn'
+            if not findOnSystem(name):
+                print "\nThis program depends on %s for searching databases. Automatic installation is not longer supported. You need to install this yourself from:\nftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST\n\n" % name
+                missing = True
+            if os.name in ('nt', 'dos'):
+                name = 'clustalw2.exe'        
+            else:
+                name = 'clustalw2'
+            if not findOnSystem(name):
+                print "\nThis program depends on %s for aligning homologues. Automatic installation is not longer supported. You need to install this yourself from:\nftp.ebi.ac.uk/pub/software/clustalw2/2.0.8\n\n" % name
+                missing = True
+            if not missing:
+                print "You should be good to go."
+#             if assertClustalw2Installed() and  assertBlastInstalled():
+#                 print "All dependencies are installed"
+#             #sys.exit()
             return None
             
         if options.onlinehelp:
@@ -103,9 +122,28 @@ def sap():
         else:
 
             # Check that netblast and clustalw2 are installed:
-            print "Locating dependencies"
-            assertClustalw2Installed()
-            assertBlastInstalled()
+            from UtilityFunctions import findOnSystem
+            missing = False
+            if os.name in ('nt', 'dos'):
+                name = 'blastn.exe'        
+            else:
+                name = 'blastn'
+            if not findOnSystem(name):
+                print "\nThis program depends on %s for searching databases. Automatic installation is not longer supported. You need to install this yourself from:\nftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST\n\n" % name
+                missing = True
+            if os.name in ('nt', 'dos'):
+                name = 'clustalw2.exe'        
+            else:
+                name = 'clustalw2'
+            if not findOnSystem(name):
+                print "\nThis program depends on %s for aligning homologues. Automatic installation is not longer supported. You need to install this yourself from:\nftp.ebi.ac.uk/pub/software/clustalw2/2.0.8\n\n" % name
+                missing = True
+            if missing:
+                return None
+# 
+#             print "Locating dependencies"
+#             assertClustalw2Installed()
+#             assertBlastInstalled()
         
             # Make directories and write fixed inputfiles:
             init = Initialize(options)

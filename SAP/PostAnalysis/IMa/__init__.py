@@ -17,7 +17,7 @@ from SAP.Databases import Native
 
 from SAP.Assignment.ConstrainedNJ import ConstrainedNJ
 
-import IMa
+from IMa import IMa
 from SAP.UtilityFunctions import *
 
 class Error(Exception):
@@ -434,6 +434,10 @@ class Assignment:
             print cmd
             print outputPrefix
             arguments = cmd.split(' ')            
+
+#            int runprogram (int argc, char **argv, char *outputBaseName) {
+
+
             retval = IMa.runprogram(arguments, outputPrefix)
             print retval
             
