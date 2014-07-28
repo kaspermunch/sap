@@ -21,6 +21,12 @@
 #include "utils.h"
 #include "interface.h"
 
+
+extern "C" void initcConstrainedNJlib (void) { /* should be init + name of module as given in setup.py */
+  char *dummy = NULL; // dummy body
+}
+
+
 /** Global variables: ******************************************************************************/
 
 // Maximal number of allowed sequences:
