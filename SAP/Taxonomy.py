@@ -2,6 +2,7 @@
 import re, copy, time, urllib
 from types import IntType, SliceType
 from XML2Obj import XML2Obj
+from Bio import Entrez
 
 levelList = ['superkingdom', 'kingdom', 'subkingdom',
              'superphylum', 'phylum', 'subphylum',
@@ -217,67 +218,69 @@ class Taxonomy:
         self.add(taxonomyLevelList)
 
     #def populateFromNCBI(self, subspecieslevel=False, minimaltaxonomy=5, dbid=None, allow_unclassified=False):
-    def populateFromNCBI(self, minimaltaxonomy=5, dbid=None):
+    def populateFromNCBI(self, minimaltaxonomy=5, dbid=None, xml=None):
 
-        # TODO: this is anther way to do it the way to do it:
-#         # Retrieve the taxonomy information:
-#         successful = None
-#         for tries in range(5):
-#             try:
-#                 entry = Entrez.efetch(db="taxonomy", id=741158, rettype="xml", retmax=1).read()
-#                 if re.search(r'Service unavailable!', entry):
-#                    raise Exception
-#             except:
-#                 time.sleep(tries * 5)
-#                 continue
-#             else:
-#                 fp.close()
-#                 successful = True
-#                 break
-#         if not successful:
-#            raise NCBIPopulationError("D3")
+        assert dbid is None != xml is None
 
-        # Retrieve the taxonomy information:
-        url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&report=xml&id=' + dbid
-        successful = None
-        for tries in range(5):
-            try:
-                fp = urllib.urlopen(url)
-                entry = fp.read()
-                if re.search(r'Service unavailable!', entry):
-                   raise Exception
-            except:
-                time.sleep(tries * 5)
-                continue
-            else:
-                fp.close()
-                successful = True
-                break
-        if not successful:
-           raise NCBIPopulationError("D3")
-           #return None, retrievalStatus.replace(")", "D3)")
+        if dbid is not None:
+            # Retrieve the taxonomy xml form NCBI:
+            successful = None
+            for tries in range(5):
+                try:
+                    xml = Entrez.efetch(db="taxonomy", id=dbid, rettype="xml", retmax=1).read()
+                    if re.search(r'Service unavailable!', xml):
+                       raise Exception
+                except:
+                    time.sleep(tries * 5)
+                    continue
+                else:
+                    fp.close()
+                    successful = True
+                    break
+            if not successful:
+               raise NCBIPopulationError("D3")
+
+# this is the old way to do it the way to do it:
+        # # Retrieve the taxonomy information:
+        # url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&report=xml&id=' + dbid
+        # successful = None
+        # for tries in range(5):
+        #     try:
+        #         fp = urllib.urlopen(url)
+        #         xml = fp.read()
+        #         if re.search(r'Service unavailable!', xml):
+        #            raise Exception
+        #     except:
+        #         time.sleep(tries * 5)
+        #         continue
+        #     else:
+        #         fp.close()
+        #         successful = True
+        #         break
+        # if not successful:
+        #    raise NCBIPopulationError("D3")
+        #    #return None, retrievalStatus.replace(")", "D3)")
 
         # The input needs a bit of tweekign because it is html:
-        entry = re.sub(r'(?i)&lt;', '<', entry)
-        entry = re.sub(r'(?i)&gt;', '>', entry)
+        xml = re.sub(r'(?i)&lt;', '<', xml)
+        xml = re.sub(r'(?i)&gt;', '>', xml)
         # Get rid of other predefined character entities:
-        entry = re.sub(r'(?i)&apos;', '', entry) # Apostrophe
-        entry = re.sub(r'(?i)&\W+;', '', entry)  # The rest...
+        xml = re.sub(r'(?i)&apos;', '', xml) # Apostrophe
+        xml = re.sub(r'(?i)&\W+;', '', xml)  # The rest...
         # Remove pre tags, heander, and footer:
-        entry = re.sub(r'(?i)<Pre>', '', entry)
-        entry = re.sub(r'(?i)<Html><Title>PmFetch response</Title><Body>', '', entry)
+        xml = re.sub(r'(?i)<Pre>', '', xml)
+        xml = re.sub(r'(?i)<Html><Title>PmFetch response</Title><Body>', '', xml)
         # We do this again slightly diffently to accomodate other cases:
-        entry = re.sub(r'(?i)<Html><Head><Title>PmFetch response</Title></Head><Body>', '', entry) 
-        entry = re.sub(r'(?i)</Pre></Body></Html>', '', entry) 
-        entry = re.sub(r'(?i)<\?xml.*?>', '', entry)
-        entry = re.sub(r'(?i)<!DOCTYPE.*?>', '', entry)
+        xml = re.sub(r'(?i)<Html><Head><Title>PmFetch response</Title></Head><Body>', '', xml)
+        xml = re.sub(r'(?i)</Pre></Body></Html>', '', xml)
+        xml = re.sub(r'(?i)<\?xml.*?>', '', xml)
+        xml = re.sub(r'(?i)<!DOCTYPE.*?>', '', xml)
 
         parser = XML2Obj()
         try:
-            taxaSet = parser.Parse(entry)
+            taxaSet = parser.Parse(xml)
         except:
             raise AnalysisTerminated(1, "There seems to be a problem at the NCBI server. The retrieved annotation is not valid XML. Try again later")
-            #raise NCBIPopulationError("T0")
 
         if taxaSet.name != 'TaxaSet':
             raise AnalysisTerminated(1, "There seems to be a problem at the NCBI server. Top level XML label is \"%s\". Try again later" % taxaSet.name)
@@ -299,8 +302,6 @@ class Taxonomy:
             if topElement.name == 'Rank':
                 if topElement.cdata.strip() != 'no rank':
                     organismRank = topElement.cdata.strip()                
-#                 if organismRank == 'varietas':
-#                     organismRank = 'subspecies'
             if topElement.name == 'ScientificName':
                 organismName = topElement.cdata.strip()
 
@@ -334,27 +335,6 @@ class Taxonomy:
                     assert taxonLevel                
                     # Record all canonocal taxonomic levels:
                     if not re.search('no rank', taxonLevel):                        
-#                         # Make sure that we only get the species
-#                         # qualifier if both genus and species names
-#                         # are used to specify the species or
-#                         # subspecies level:
-#                         nameList = re.split(r'\s+', taxonName.strip())
-#                         if taxonLevel == 'species' and not self.name('species'):
-#                             if len(nameList) == 2 and self.level(nameList[0]) == 'genus':
-#                                 taxonName = " ".join(nameList[:2])
-#                             else:
-#                                 raise NCBIPopulationError("T41")
-#                                 #return None, retrievalStatus.replace(")", "!T41)")
-#                         elif taxonLevel == 'subspecies' and not self.name('subspecies'):                   
-#                             if len(nameList) >= 3 and self.level(" ".join(nameList[:2])) == 'species':
-#                                 if nameList[2] == 'subsp.' and len(nameList) > 3:
-#                                     del nameList[2]
-#                                 taxonName = " ".join(nameList[:3]).strip()
-#                             elif len(nameList) == 2 and self.name('genus') and self.level(" ".join(self.name('genus'), nameList[0])) == 'species':
-#                                 taxonName = " ".join(self.name(genus) + nameList[:2])
-#                             else:
-#                                 raise NCBIPopulationError("T42")
-#                                 #return None, retrievalStatus.replace(")", "!T42)")
 
                         # Make and add the taxonomic level if not unclassified and not a BOLD unidentified specimen:
                         if not re.search(r'unclassified|BOLD:', taxonName):
@@ -373,44 +353,8 @@ class Taxonomy:
 
 
         # Make sure we have a minimal taxonomy:
-        #if len(self) < self.options.minimalTaxonomy:
-        #if len(self) < minimaltaxonomy:
-        #if len(self) < minimaltaxonomy and not allow_unclassified:
         if len(self) < minimaltaxonomy:
             raise NCBIPopulationError("T3")
-            #return None, retrievalStatus.replace(")", "!T3)")
-
-#         # See if the organism name can specify some species or
-#         # subspecies information nat contained in the taxonomy
-#         # already:
-#         orgNameList = re.split(r'\s+', organismName.strip())
-#         #if not self.name('species') and not allow_unclassified:
-#         if not self.name('species'):
-#             if not len(orgNameList) > 1:
-#                 raise NCBIPopulationError("T43")
-#                 #return None, retrievalStatus.replace(")", "!T43)")
-#             else:
-#                 if self.level(orgNameList[0]) == 'genus':
-#                    speciesLevel = TaxonomyLevel(" ".join(orgNameList[:2]), 'species')
-#                 else:
-#                     raise NCBIPopulationError("T44")
-#                     #return None, retrievalStatus.replace(")", "!T44)")
-#             try:
-#                 # Add the organism info to the taxonomy:
-#                 self.add(speciesLevel)
-#             except InputError, X:
-#                 print X.expression, ": ", X.message
-# 
-#         #if not self.name('subspecies') and not allow_unclassified:
-#         if not self.name('subspecies'):
-#             if len(orgNameList) == 3:
-#                 if self.level(" ".join(orgNameList[:2])) == 'species' and re.match(r'[a-z]+', orgNameList[2]):
-#                     subSpeciesLevel = TaxonomyLevel(" ".join(orgNameList[:3]), 'subspecies')
-#                     try:
-#                         # Add the organism info to the taxonomy:
-#                         self.add(subSpeciesLevel)
-#                     except InputError, X:
-#                         print X.expression, ": ", X.message
 
         # Substiture all non-word characterrs with a space. This is to
         # make sure they don't mess up the Nexus format later:
@@ -509,7 +453,7 @@ class TaxonomySummary:
             otherKeys = other.dict.keys()
             if selfKeys and otherKeys and self.dict[selfKeys[0]].level is not None \
                    and other.dict[otherKeys[0]].level is not None:
-                assert self.dict[selfKeys[0]].level == other.dict[otherKeys[0]].level, self.dict[selfKeys[0]].level +' '+ other.dict[otheKeys[0]].level
+                assert self.dict[selfKeys[0]].level == other.dict[otherKeys[0]].level, self.dict[selfKeys[0]].level +' '+ other.dict[otherKeys[0]].level
 
             # Add other to self:
             for name in other.dict.keys():
