@@ -43,6 +43,14 @@ def sap():
                     print "The spcified project folder does not exist."
             sys.exit()
 
+        if options.compile:
+
+            from CompileDatabase import compileDatabase
+            output_file_name = args.pop(0)
+            assert not args
+            compileDatabase(options.compile, options.email, output_file_name)
+            sys.exit()
+
         if options.installdependencies:
             print "Checking that dependencies are installed on your system."
 

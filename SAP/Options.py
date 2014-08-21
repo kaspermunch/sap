@@ -15,7 +15,19 @@ class Options:
 The program does statistical assignment of DNA sequences to taxonomic
 groups represented in an annotated sequence database.
 
-Type 'sap --onlinehelp' to open the online manual in your default browser."""
+Type 'sap --onlinehelp' to open the online manual in your default browser.
+
+Example usages:
+
+Default: Running against Genbank
+    sap --project myproject query.fasta
+
+Compiling a local database specified by a query for Genbank nucleotide db:
+    sap --compile '(COI[Gene Name]) AND barcode[Keyword]' coi_barcode_db.fasta
+
+Running against a local database:
+    sap --project myproject --database coi_barcode_db.fasta query.fasta
+"""
 
         self.parser = OptionParser(usage=usage, version="%prog 1.9.1")
 
@@ -24,6 +36,10 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           action="store_true",
                           default=False,
                           help="Open online manual in default browser.")
+        self.parser.add_option("--compile",
+                          type="string",
+                          default = None,
+                          help="Query for Genbank nucleotide database defining database content. E.g. '(COI[Gene Name]) AND barcode[Keyword]'")
         self.parser.add_option("-d", "--project",
                           type="string",
                           default = os.path.abspath(time.strftime('project-%H.%M-%m.%d.%y')),
