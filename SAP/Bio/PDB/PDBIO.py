@@ -5,9 +5,12 @@
 
 """Output of PDB files."""
 
+from SAP.Bio._py3k import basestring
+
+from SAP.Bio.PDB.StructureBuilder import StructureBuilder # To allow saving of chains, residues, etc..
 from SAP.Bio.Data.IUPACData import atom_weights # Allowed Elements
 
-_ATOM_FORMAT_STRING="%s%5i %-4s%c%3s %c%4i%c   %8.3f%8.3f%8.3f%6.2f%6.2f      %4s%2s%2s\n"
+_ATOM_FORMAT_STRING="%s%5i %-4s%c%3s %c%4i%c   %8.3f%8.3f%8.3f%s%6.2f      %4s%2s%2s\n"
 
 
 class Select(object):
@@ -84,17 +87,66 @@ class PDBIO(object):
         x, y, z=atom.get_coord()
         bfactor=atom.get_bfactor()
         occupancy=atom.get_occupancy()
+        try:
+            occupancy_str = "%6.2f" % occupancy
+        except TypeError:
+            if occupancy is None:
+                occupancy_str = " " * 6
+                import warnings
+                from SAP.Bio import BiopythonWarning
+                warnings.warn("Missing occupancy in atom %s written as blank" %
+                              repr(atom.get_full_id()), BiopythonWarning)
+            else:
+                raise TypeError("Invalid occupancy %r in atom %r"
+                                % (occupancy, atom.get_full_id()))
+            pass
         args=(record_type, atom_number, name, altloc, resname, chain_id,
-            resseq, icode, x, y, z, occupancy, bfactor, segid,
+            resseq, icode, x, y, z, occupancy_str, bfactor, segid,
             element, charge)
         return _ATOM_FORMAT_STRING % args
 
     # Public methods
 
-    def set_structure(self, structure):
+    def set_structure(self, pdb_object):
+        # Check what the user is providing and build a structure appropriately
+        if pdb_object.level == "S":
+            structure = pdb_object
+        else:
+            sb = StructureBuilder()
+            sb.init_structure('pdb')
+            sb.init_seg(' ')
+            # Build parts as necessary
+            if pdb_object.level == "M":
+                sb.structure.add(pdb_object)
+                self.structure = sb.structure
+            else:
+                sb.init_model(0)
+                if pdb_object.level == "C":
+                    sb.structure[0].add(pdb_object)
+                else:
+                    sb.init_chain('A')
+                    if pdb_object.level == "R":
+                        try:
+                            parent_id = pdb_object.parent.id
+                            sb.structure[0]['A'].id = parent_id
+                        except Exception:
+                            pass
+                        sb.structure[0]['A'].add(pdb_object)
+                    else:
+                        # Atom
+                        sb.init_residue('DUM', ' ', 1, ' ')
+                        try:
+                            parent_id = pdb_object.parent.parent.id
+                            sb.structure[0]['A'].id = parent_id
+                        except Exception:
+                            pass
+                        sb.structure[0]['A'].child_list[0].add(pdb_object)
+
+            # Return structure
+            structure = sb.structure
         self.structure=structure
 
-    def save(self, file, select=Select(), write_end=0):
+    def save(self, file, select=Select(), write_end=True):
         """
         @param file: output file
         @type file: string or filehandle
@@ -179,12 +231,11 @@ if __name__=="__main__":
     io.set_structure(s)
     io.save("out1.pdb")
 
-    fp=open("out2.pdb", "w")
-    s1=p.get_structure("test1", sys.argv[1])
-    s2=p.get_structure("test2", sys.argv[2])
-    io=PDBIO(1)
-    io.set_structure(s1)
-    io.save(fp)
-    io.set_structure(s2)
-    io.save(fp, write_end=1)
-    fp.close()
+    with open("out2.pdb", "w") as fp:
+        s1=p.get_structure("test1", sys.argv[1])
+        s2=p.get_structure("test2", sys.argv[2])
+        io=PDBIO(1)
+        io.set_structure(s1)
+        io.save(fp)
+        io.set_structure(s2)
+        io.save(fp, write_end=1)

@@ -818,7 +818,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 alignment = Nexus.Nexus(alignmentFileName)
                 text += "<table style=\"font-size:10px;\">"
 
-                querySeq = alignment.matrix[name].tostring()
+                querySeq = str(alignment.matrix[name])
                 score = 1.0
 
                 nameForAlignment = self.mapBackQueryName(name, sequenceNameMap)
@@ -829,7 +829,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 del alignment.matrix[name]
                 scoreKeyAndSeqList = []
                 for key in alignment.matrix.keys():
-                    sequence = alignment.matrix[key].tostring()
+                    sequence = str(alignment.matrix[key])
                     score = similarityScore(querySeq, sequence)
                     scoreKeyAndSeqList.append([score, sequence, key])
                 scoreKeyAndSeqList.sort(lambda x, y: cmp(y[0], x[0]) or cmp(y[1], x[1]))

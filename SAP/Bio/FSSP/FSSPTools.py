@@ -1,10 +1,17 @@
+# This code is part of the Biopython distribution and governed by its
+# license.  Please see the LICENSE file that should have been included
+# as part of this package.
+#
+
 from SAP.Bio import FSSP
 import copy
-from SAP.Bio.Align import Generic
+from SAP.Bio.Align import MultipleSeqAlignment
 from SAP.Bio import Alphabet
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
 
 
-class FSSPAlign(Generic.Alignment):
+class FSSPAlign(MultipleSeqAlignment):
     def _add_numbering_table(self, new_record):
         new_record.annotations['abs2pdb'] = {}
         new_record.annotations['pdb2abs'] = {}
@@ -18,7 +25,7 @@ class FSSPMultAlign(dict):
 
 
 def mult_align(sum_dict, align_dict):
-    """Returns a biopython multiple alignment instance (Bio.Align.Generic)"""
+    """Returns a biopython multiple alignment instance (MultipleSeqAlignment)"""
     mult_align_dict = {}
     for j in align_dict.abs(1).pos_align_dict:
         mult_align_dict[j] = ''
@@ -28,14 +35,11 @@ def mult_align(sum_dict, align_dict):
         for j in align_dict.abs(i).pos_align_dict:
             # loop within a position
             mult_align_dict[j] += align_dict.abs(i).pos_align_dict[j].aa
-    seq_order = mult_align_dict.keys()
-    seq_order.sort()
-    fssp_align = Generic.Alignment(Alphabet.Gapped(
-                                   Alphabet.IUPAC.extended_protein))
-    for i in seq_order:
-        fssp_align.add_sequence(sum_dict[i].pdb2+sum_dict[i].chain2,
-                                mult_align_dict[i])
-#        fssp_align._add_numbering_table()
+    alpha = Alphabet.Gapped(Alphabet.IUPAC.extended_protein)
+    fssp_align = MultipleSeqAlignment([], alphabet=alpha)
+    for i in sorted(mult_align_dict):
+        fssp_align.append(SeqRecord(Seq(mult_align_dict[i], alpha),
+                                    sum_dict[i].pdb2+sum_dict[i].chain2))
     return fssp_align
 
 
@@ -65,8 +69,7 @@ def filter(sum_dict, align_dict, filter_attribute, low_bound, high_bound):
         attr_value = getattr(sum_dict[prot_num], filter_attribute)
         if attr_value >= low_bound and attr_value <= high_bound:
             new_sum_dict[prot_num] = sum_dict[prot_num]
-    prot_numbers = new_sum_dict.keys()
-    prot_numbers.sort()
+    prot_numbers = sorted(new_sum_dict)
     for pos_num in new_align_dict.abs_res_dict:
         new_align_dict.abs(pos_num).pos_align_dict = {}
         for prot_num in prot_numbers:
@@ -84,8 +87,7 @@ def name_filter(sum_dict, align_dict, name_list):
         for prot_num in sum_dict:
             if sum_dict[prot_num].pdb2+sum_dict[prot_num].chain2 == cur_pdb_name:
                 new_sum_dict[prot_num] = sum_dict[prot_num]
-    prot_numbers = new_sum_dict.keys()
-    prot_numbers.sort()
+    prot_numbers = sorted(new_sum_dict)
     for pos_num in new_align_dict.abs_res_dict:
         new_align_dict.abs(pos_num).pos_align_dict = {}
         for prot_num in prot_numbers:

@@ -256,7 +256,7 @@ def sap():
                         print "\t\tClustalW2 alignment"
                         cmd += "%s %s --_align %s ; " \
                               % ('sap', optionStr, os.path.join(options.homologcache, homologyResult.homologuesFileName))
-    
+
     
                         print "\t\tTree sampling using", options.assignment
                         cmd += "%s %s --_sample %s ; " % ('sap', optionStr, os.path.join(options.alignmentcache, homologyResult.alignmentFileName))

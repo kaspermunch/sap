@@ -134,7 +134,7 @@ For 'exonerate-text', ExonerateIO provides the following object attributes:
 |                 | query_split_codons      | list of split codon coordinates  |
 |                 |                         | in the query sequence            |
 +-----------------+-------------------------+----------------------------------+
-| HSPFragment     | aln_annotation          | alignment homology string, hit   |
+| HSPFragment     | aln_annotation          | alignment similarity string, hit |
 |                 |                         | sequence annotation, and/or      |
 |                 |                         | query sequence annotation        |
 |                 +-------------------------+----------------------------------+
@@ -193,7 +193,7 @@ there are any frameshifts in your alignment:
 
     >>> from SAP.Bio import SearchIO
     >>> fname = 'Exonerate/exn_22_m_coding2coding_fshifts.exn'
-    >>> qresult = SearchIO.parse(fname, 'exonerate-text').next()
+    >>> qresult = next(SearchIO.parse(fname, 'exonerate-text'))
     >>> hsp = qresult[0][0]      # first hit, first hsp
     >>> hsp
     HSP(...)
@@ -240,9 +240,9 @@ and fragments compared to 'exonerate-vulgar' or 'exonerate-text'.
 # - Cigar and vulgar parsing results will most likely be different, due to the
 #   different type of data stored by both formats
 
-from exonerate_text import *
-from exonerate_vulgar import *
-from exonerate_cigar import *
+from .exonerate_text import ExonerateTextParser, ExonerateTextIndexer
+from .exonerate_vulgar import ExonerateVulgarParser, ExonerateVulgarIndexer
+from .exonerate_cigar import ExonerateCigarParser, ExonerateCigarIndexer
 
 
 # if not used as a module, run the doctest

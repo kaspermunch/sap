@@ -6,13 +6,18 @@
 """Bio.SearchIO parser for BLAST+ plain text output formats.
 
 At the moment this is a wrapper around Biopython's NCBIStandalone text
-parser.
+parser (which is now deprecated).
 
 """
 
 from SAP.Bio.Alphabet import generic_dna, generic_protein
-from SAP.Bio.Blast import NCBIStandalone
 from SAP.Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
+
+import warnings
+from SAP.Bio import BiopythonDeprecationWarning
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore', BiopythonDeprecationWarning)
+    from SAP.Bio.Blast import NCBIStandalone
 
 
 __all__ = ['BlastTextParser']
@@ -39,7 +44,7 @@ class BlastTextParser(object):
                 qid, qdesc = rec.query, ''
             qdesc = qdesc.replace('\n', '').replace('\r', '')
 
-            qresult = QueryResult(qid)
+            qresult = QueryResult(id=qid)
             qresult.program = rec.application.lower()
             qresult.target = rec.database
             qresult.seq_len = rec.query_letters
@@ -101,13 +106,13 @@ class BlastTextParser(object):
                     for seqtrio in zip(bhsp.query, bhsp.sbjct, bhsp.match):
                         qchar, hchar, mchar = seqtrio
                         if qchar == ' ' or hchar == ' ':
-                            assert all([' ' == x for x in seqtrio])
+                            assert all(' ' == x for x in seqtrio)
                         else:
                             qseq += qchar
                             hseq += hchar
                             midline += mchar
                     frag.query, frag.hit = qseq, hseq
-                    frag.aln_annotation['homology'] = midline
+                    frag.aln_annotation['similarity'] = midline
 
                     # create HSP object with the fragment
                     hsp = HSP([frag])

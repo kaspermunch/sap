@@ -57,7 +57,7 @@ parse        Parses the XML results returned by those of the above functions
              >>> records = Entrez.parse(handle)
              >>> for record in records:
              ...     # each record is a Python dictionary or list.
-             ...     print record['MedlineCitation']['Article']['ArticleTitle']
+             ...     print(record['MedlineCitation']['Article']['ArticleTitle'])
              Biopython: freely available Python tools for computational molecular biology and bioinformatics.
              PDB file parser and structure class implemented in Python.
              >>> handle.close()
@@ -68,13 +68,18 @@ parse        Parses the XML results returned by those of the above functions
 _open        Internally used function.
 
 """
-import urllib
-import urllib2
+from __future__ import print_function
+
 import time
 import warnings
 import os.path
 
-from SAP.Bio._py3k import _binary_to_string_handle
+#Importing these functions with leading underscore as not intended for reuse
+from SAP.Bio._py3k import urlopen as _urlopen
+from SAP.Bio._py3k import urlencode as _urlencode
+from SAP.Bio._py3k import HTTPError as _HTTPError
+
+from SAP.Bio._py3k import _binary_to_string_handle, _as_bytes
 
 email = None
 tool = "biopython"
@@ -100,7 +105,7 @@ def epost(db, **keywds):
     return _open(cgi, variables, post=True)
 
 
-def efetch(db, **keywds):
+def efetch(db, **keywords):
     """Fetches Entrez results which are returned as a handle.
 
     EFetch retrieves records in the requested format from a list of one or
@@ -118,7 +123,7 @@ def efetch(db, **keywds):
     >>> from SAP.Bio import Entrez
     >>> Entrez.email = "Your.Name.Here@example.org"
     >>> handle = Entrez.efetch(db="nucleotide", id="57240072", rettype="gb", retmode="text")
-    >>> print handle.readline().strip()
+    >>> print(handle.readline().strip())
     LOCUS       AY851612                 892 bp    DNA     linear   PLN 10-APR-2007
     >>> handle.close()
 
@@ -127,16 +132,21 @@ def efetch(db, **keywds):
     """
     cgi = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi'
     variables = {'db': db}
-    keywords = keywds
-    if "id" in keywds and isinstance(keywds["id"], list):
-        #Fix for NCBI change (probably part of EFetch 2,0, Feb 2012) where
-        #a list of ID strings now gives HTTP Error 500: Internal server error
-        #This was turned into ...&id=22307645&id=22303114&... which used to work
-        #while now the NCBI appear to insist on ...&id=22301129,22299544,...
-        keywords = keywds.copy()  # Don't alter input dict!
-        keywords["id"] = ",".join(keywds["id"])
     variables.update(keywords)
-    return _open(cgi, variables)
+    post = False
+    try:
+        ids = variables["id"]
+    except KeyError:
+        pass
+    else:
+        if isinstance(ids, list):
+            ids = ",".join(ids)
+            variables["id"] = ids
+        if ids.count(",") >= 200:
+            # NCBI prefers an HTTP POST instead of an HTTP GET if there are
+            # more than about 200 IDs
+            post = True
+    return _open(cgi, variables, post)
 
 
 def esearch(db, term, **keywds):
@@ -200,7 +210,7 @@ def elink(**keywds):
     >>> handle = Entrez.elink(dbfrom="pubmed", id=pmid, linkname="pubmed_pubmed")
     >>> record = Entrez.read(handle)
     >>> handle.close()
-    >>> print record[0]["LinkSetDb"][0]["LinkName"]
+    >>> print(record[0]["LinkSetDb"][0]["LinkName"])
     pubmed_pubmed
     >>> linked = [link["Id"] for link in record[0]["LinkSetDb"][0]["Link"]]
     >>> "17121776" in linked
@@ -262,9 +272,9 @@ def esummary(**keywds):
     >>> handle = Entrez.esummary(db="journals", id="30367")
     >>> record = Entrez.read(handle)
     >>> handle.close()
-    >>> print record[0]["Id"]
+    >>> print(record[0]["Id"])
     30367
-    >>> print record[0]["Title"]
+    >>> print(record[0]["Title"])
     Computational biology and chemistry
 
     """
@@ -298,7 +308,7 @@ def egquery(**keywds):
     >>> handle.close()
     >>> for row in record["eGQueryResult"]:
     ...     if "pmc" in row["DbName"]:
-    ...         print row["Count"] > 60
+    ...         print(row["Count"] > 60)
     True
 
     """
@@ -325,9 +335,9 @@ def espell(**keywds):
     >>> from SAP.Bio import Entrez
     >>> Entrez.email = "Your.Name.Here@example.org"
     >>> record = Entrez.read(Entrez.espell(term="biopythooon"))
-    >>> print record["Query"]
+    >>> print(record["Query"])
     biopythooon
-    >>> print record["CorrectedQuery"]
+    >>> print(record["CorrectedQuery"])
     biopython
 
     """
@@ -357,7 +367,7 @@ def read(handle, validate=True):
     (if any) of each element in a dictionary my_element.attributes, and
     the tag name in my_element.tag.
     """
-    from Parser import DataHandler
+    from .Parser import DataHandler
     handler = DataHandler(validate)
     record = handler.read(handle)
     return record
@@ -389,7 +399,7 @@ def parse(handle, validate=True):
     (if any) of each element in a dictionary my_element.attributes, and
     the tag name in my_element.tag.
     """
-    from Parser import DataHandler
+    from .Parser import DataHandler
     handler = DataHandler(validate)
     records = handler.parse(handle)
     return records
@@ -416,7 +426,7 @@ def _open(cgi, params={}, post=False):
     else:
         _open.previous = current
     # Remove None values from the parameters
-    for key, value in params.items():
+    for key, value in list(params.items()):
         if value is None:
             del params[key]
     # Tell Entrez that we are using Biopython (or whatever the user has
@@ -431,27 +441,26 @@ def _open(cgi, params={}, post=False):
             warnings.warn("""
 Email address is not specified.
 
-To make use of NCBI's E-utilities, NCBI strongly recommends you to specify
-your email address with each request. From June 1, 2010, this will be
-mandatory. As an example, if your email address is A.N.Other@example.com, you
-can specify it as follows:
+To make use of NCBI's E-utilities, NCBI requires you to specify your
+email address with each request.  As an example, if your email address
+is A.N.Other@example.com, you can specify it as follows:
    from SAP.Bio import Entrez
    Entrez.email = 'A.N.Other@example.com'
 In case of excessive usage of the E-utilities, NCBI will attempt to contact
 a user at the email address provided before blocking access to the
 E-utilities.""", UserWarning)
     # Open a handle to Entrez.
-    options = urllib.urlencode(params, doseq=True)
+    options = _urlencode(params, doseq=True)
     #print cgi + "?" + options
     try:
         if post:
             #HTTP POST
-            handle = urllib2.urlopen(cgi, data=options)
+            handle = _urlopen(cgi, data=_as_bytes(options))
         else:
             #HTTP GET
             cgi += "?" + options
-            handle = urllib2.urlopen(cgi)
-    except urllib2.HTTPError, exception:
+            handle = _urlopen(cgi)
+    except _HTTPError as exception:
         raise exception
 
     return _binary_to_string_handle(handle)
@@ -461,10 +470,10 @@ _open.previous = 0
 
 def _test():
     """Run the module's doctests (PRIVATE)."""
-    print "Running doctests..."
+    print("Running doctests...")
     import doctest
     doctest.testmod()
-    print "Done"
+    print("Done")
 
 if __name__ == "__main__":
     _test()

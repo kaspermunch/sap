@@ -15,7 +15,7 @@ The DOM files for older releases can be found
 "elsewhere at SCOP.":http://scop.mrc-lmb.cam.ac.uk/scop/parse/
 """
 
-from Residues import Residues
+from .Residues import Residues
 
 
 class Record(object):
@@ -53,12 +53,12 @@ class Record(object):
             raise ValueError("I don't understand the format of %s" % line)
         self.sid, pdbid, res, self.hierarchy = columns
         self.residues = Residues(res)
-        self.residues.pdbid =pdbid
+        self.residues.pdbid = pdbid
 
     def __str__(self):
         s = []
         s.append(self.sid)
-        s.append(str(self.residues).replace(" ","\t") )
+        s.append(str(self.residues).replace(" ", "\t") )
         s.append(self.hierarchy)
         return "\t".join(s) + "\n"
 

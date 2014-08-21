@@ -7,13 +7,6 @@
 # as part of this package.
 """Definitions for interacting with BLAST related applications.
 
-Obsolete wrappers for the old/classic NCBI BLAST tools (written in C):
-
-- FastacmdCommandline
-- BlastallCommandline
-- BlastpgpCommandline
-- RpsBlastCommandline
-
 Wrappers for the new NCBI BLAST+ tools (written in C++):
 
 - NcbiblastpCommandline - Protein-Protein BLAST
@@ -24,6 +17,7 @@ Wrappers for the new NCBI BLAST+ tools (written in C++):
 - NcbipsiblastCommandline - Position-Specific Initiated BLAST
 - NcbirpsblastCommandline - Reverse Position Specific BLAST
 - NcbirpstblastnCommandline - Translated Reverse Position Specific BLAST
+- NcbideltablastCommandline - Protein-Protein domain enhanced lookup time accelerated blast
 - NcbiblastformatterCommandline - Convert ASN.1 to other BLAST output formats
 
 For further details, see:
@@ -32,398 +26,9 @@ Camacho et al. BLAST+: architecture and applications
 BMC Bioinformatics 2009, 10:421
 doi:10.1186/1471-2105-10-421
 """
-from SAP.Bio import BiopythonDeprecationWarning
+from __future__ import print_function
 
 from SAP.Bio.Application import _Option, AbstractCommandline, _Switch
-
-
-class FastacmdCommandline(AbstractCommandline):
-    """Create a commandline for the fasta program from NCBI (OBSOLETE).
-
-    """
-    def __init__(self, cmd="fastacmd", **kwargs):
-        self.parameters = [
-           _Option(["-d", "database"],
-                   "The database to retrieve from.",
-                   is_required=True,
-                   equate=False),
-           _Option(["-s", "search_string"],
-                   "The id to search for.",
-                   is_required=True,
-                   equate=False)
-          ]
-        AbstractCommandline.__init__(self, cmd, **kwargs)
-
-
-class _BlastCommandLine(AbstractCommandline):
-    """Base Commandline object for (classic) NCBI BLAST wrappers (PRIVATE).
-
-    This is provided for subclassing, it deals with shared options
-    common to all the BLAST tools (blastall, rpsblast, blastpgp).
-    """
-    def __init__(self, cmd=None, **kwargs):
-        assert cmd is not None
-        extra_parameters = [
-           _Switch(["--help", "help"],
-                    "Print USAGE, DESCRIPTION and ARGUMENTS description;  ignore other arguments."),
-           _Option(["-d", "database"],
-                   "The database to BLAST against.",
-                   is_required=True,
-                   equate=False),
-           _Option(["-i", "infile"],
-                   "The sequence to search with.",
-                   filename=True,
-                   is_required=True,
-                   equate=False),
-           _Option(["-e", "expectation"],
-                   "Expectation value cutoff.",
-                   equate=False),
-           _Option(["-m", "align_view"],
-                   "Alignment view.  Integer 0-11.  Use 7 for XML output.",
-                   equate=False),
-           _Option(["-o", "align_outfile", "outfile"],
-                   "Output file for alignment.",
-                   filename=True,
-                   equate=False),
-           _Option(["-y", "xdrop_extension"],
-                   "Dropoff for blast extensions.",
-                   equate=False),
-           _Option(["-F", "filter"],
-                   "Filter query sequence with SEG?  T/F",
-                   equate=False),
-           _Option(["-X", "xdrop"],
-                   "Dropoff value (bits) for gapped alignments.",
-                   equate=False),
-           _Option(["-I", "show_gi"],
-                   "Show GI's in deflines?  T/F",
-                   equate=False),
-           _Option(["-J", "believe_query"],
-                   "Believe the query defline?  T/F",
-                   equate=False),
-           _Option(["-Z", "xdrop_final"],
-                   "X dropoff for final gapped alignment.",
-                   equate=False),
-           _Option(["-z", "db_length"],
-                   "Effective database length.",
-                   equate=False),
-           _Option(["-O", "seqalign_file"],
-                   "seqalign file to output.",
-                   filename=True,
-                   equate=False),
-           _Option(["-v", "descriptions"],
-                   "Number of one-line descriptions.",
-                   equate=False),
-           _Option(["-b", "alignments"],
-                   "Number of alignments.",
-                   equate=False),
-           _Option(["-Y", "search_length"],
-                   "Effective length of search space (use zero for the "
-                   "real size).",
-                   equate=False),
-           _Option(["-T", "html"],
-                   "Produce HTML output?  T/F",
-                   equate=False),
-           _Option(["-U", "case_filter"],
-                   "Use lower case filtering of FASTA sequence? T/F",
-                   equate=False),
-           _Option(["-a", "nprocessors"],
-                   "Number of processors to use.",
-                   equate=False),
-           _Option(["-g", "gapped"],
-                   "Whether to do a gapped alignment.  T/F",
-                   equate=False),
-        ]
-        try:
-            #Insert extra parameters - at the start just in case there
-            #are any arguments which must come last:
-            self.parameters = extra_parameters + self.parameters
-        except AttributeError:
-            #Should we raise an error?  The subclass should have set this up!
-            self.parameters = extra_parameters
-        AbstractCommandline.__init__(self, cmd, **kwargs)
-
-    def _validate(self):
-        if self.help:
-            #Don't want to check the normally mandatory arguments like db
-            return
-        AbstractCommandline._validate(self)
-
-
-class _BlastAllOrPgpCommandLine(_BlastCommandLine):
-    """Base Commandline object for NCBI BLAST wrappers (PRIVATE).
-
-    This is provided for subclassing, it deals with shared options
-    common to all the blastall and blastpgp tools (but not rpsblast).
-    """
-    def __init__(self, cmd=None, **kwargs):
-        assert cmd is not None
-        extra_parameters = [
-           _Option(["-G", "gap_open"],
-                   "Gap open penalty",
-                   equate=False),
-           _Option(["-E", "gap_extend"],
-                    "Gap extension penalty",
-                   equate=False),
-           _Option(["-A", "window_size"],
-                    "Multiple hits window size",
-                   equate=False),
-           _Option(["-f", "hit_extend"],
-                   "Threshold for extending hits.",
-                   equate=False),
-           _Option(["-K", "keep_hits"],
-                   " Number of best hits from a region to keep.",
-                   equate=False),
-           _Option(["-W", "wordsize"],
-                   "Word size",
-                   equate=False),
-           _Option(["-P", "passes"],
-                   "Hits/passes.  Integer 0-2. 0 for multiple hit, "
-                   "1 for single hit (does not apply to blastn)",
-                   equate=False),
-        ]
-        try:
-            #Insert extra parameters - at the start just in case there
-            #are any arguments which must come last:
-            self.parameters = extra_parameters + self.parameters
-        except AttributeError:
-            #Should we raise an error?  The subclass should have set this up!
-            self.parameters = extra_parameters
-        _BlastCommandLine.__init__(self, cmd, **kwargs)
-
-
-class BlastallCommandline(_BlastAllOrPgpCommandLine):
-    """Create a commandline for the blastall program from NCBI (OBSOLETE).
-
-    With the release of BLAST+ (BLAST rewritten in C++ instead of C), the NCBI
-    are replacing blastall with separate tools blastn, blastp, blastx, tblastn
-    and tblastx.
-
-    Like blastall, this wrapper is now obsolete, and will be deprecated and
-    removed in a future release of Biopython.
-
-    >>> from SAP.Bio.Blast.Applications import BlastallCommandline
-    >>> cline = BlastallCommandline(program="blastx", infile="m_cold.fasta",
-    ...                             database="nr", expectation=0.001)
-    >>> cline
-    BlastallCommandline(cmd='blastall', database='nr', infile='m_cold.fasta', expectation=0.001, program='blastx')
-    >>> print cline
-    blastall -d nr -i m_cold.fasta -e 0.001 -p blastx
-
-    You would typically run the command line with cline() or via the Python
-    subprocess module, as described in the Biopython tutorial.
-    """
-    #TODO - This could use more checking for valid parameters to the program.
-    def __init__(self, cmd="blastall",**kwargs):
-        import warnings
-        warnings.warn("Like blastall, this wrapper is now deprecated and will be removed in a future release of Biopython.", BiopythonDeprecationWarning)
-        self.parameters = [
-            #Sorted in the same order as the output from blastall --help
-            #which should make it easier to keep them up to date in future.
-            #Note that some arguments are defined in the base classes (above).
-           _Option(["-p", "program"],
-                   "The blast program to use (e.g. blastp, blastn).",
-                   is_required=True,
-                   equate=False),
-           _Option(["-q", "nuc_mismatch"],
-                   "Penalty for a nucleotide mismatch (blastn only).",
-                   equate=False),
-           _Option(["-r", "nuc_match"],
-                   "Reward for a nucleotide match (blastn only).",
-                   equate=False),
-           _Option(["-Q", "query_genetic_code"],
-                   "Query Genetic code to use.",
-                   equate=False),
-           _Option(["-D", "db_genetic_code"],
-                   "DB Genetic code (for tblast[nx] only).",
-                   equate=False),
-           _Option(["-M", "matrix"],
-                   "Matrix to use",
-                   equate=False),
-           _Option(["-S", "strands"],
-                   "Query strands to search against database (for blast[nx], "
-                   "and tblastx). 3 is both, 1 is top, 2 is bottom.",
-                   equate=False),
-           _Option(["-l", "restrict_gi"],
-                   "Restrict search of database to list of GI's.",
-                   equate=False),
-           _Option(["-R", "checkpoint"],
-                   "PSI-TBLASTN checkpoint input file.",
-                   filename=True,
-                   equate=False),
-           _Option(["-n", "megablast"],
-                   "MegaBlast search T/F.",
-                   equate=False),
-           #The old name "region_length" is for consistency with our
-           #old blastall function wrapper:
-           _Option(["-L", "region_length", "range_restriction"],
-                   """Location on query sequence (string format start,end).
-
-                   In older versions of BLAST, -L set the length of region
-                   used to judge hits (see -K parameter).""",
-                   equate=False),
-           _Option(["-w", "frame_shift_penalty"],
-                   "Frame shift penalty (OOF algorithm for blastx).",
-                   equate=False),
-           _Option(["-t", "largest_intron"],
-                   "Length of the largest intron allowed in a translated "
-                   "nucleotide sequence when linking multiple distinct "
-                   "alignments. (0 invokes default behavior; a negative value "
-                   "disables linking.)",
-                   equate=False),
-           _Option(["-B", "num_concatenated_queries"],
-                   "Number of concatenated queries, for blastn and tblastn.",
-                   equate=False),
-           _Option(["-V", "oldengine"],
-                   "Force use of the legacy BLAST engine.",
-                   equate=False),
-           _Option(["-C", "composition_based"],
-                   """Use composition-based statistics for tblastn:
-                   D or d: default (equivalent to F)
-                   0 or F or f: no composition-based statistics
-                   1 or T or t: Composition-based statistics as in NAR 29:2994-3005, 2001
-                   2: Composition-based score adjustment as in Bioinformatics
-                       21:902-911, 2005, conditioned on sequence properties
-                   3: Composition-based score adjustment as in Bioinformatics
-                       21:902-911, 2005, unconditionally
-                   For programs other than tblastn, must either be absent or be
-                   D, F or 0.""",
-                   equate=False),
-           _Option(["-s", "smith_waterman"],
-                   "Compute locally optimal Smith-Waterman alignments (This "
-                   "option is only available for gapped tblastn.) T/F",
-                   equate=False),
-        ]
-        _BlastAllOrPgpCommandLine.__init__(self, cmd, **kwargs)
-
-
-class BlastpgpCommandline(_BlastAllOrPgpCommandLine):
-    """Create a commandline for the blastpgp program from NCBI (OBSOLETE).
-
-    With the release of BLAST+ (BLAST rewritten in C++ instead of C), the NCBI
-    are replacing blastpgp with a renamed tool psiblast. This module provides
-    NcbipsiblastCommandline as a wrapper for the new tool psiblast.
-
-    Like blastpgp (and blastall), this wrapper is now obsolete, and will be
-    deprecated and removed in a future release of Biopython.
-
-    >>> from SAP.Bio.Blast.Applications import BlastpgpCommandline
-    >>> cline = BlastpgpCommandline(help=True)
-    >>> cline
-    BlastpgpCommandline(cmd='blastpgp', help=True)
-    >>> print cline
-    blastpgp --help
-
-    You would typically run the command line with cline() or via the Python
-    subprocess module, as described in the Biopython tutorial.
-    """
-    def __init__(self, cmd="blastpgp",**kwargs):
-        import warnings
-        warnings.warn("Like blastpgp (and blastall), this wrapper is now deprecated and will be removed in a future release of Biopython.", BiopythonDeprecationWarning)
-        self.parameters = [
-           _Option(["-C", "checkpoint_outfile"],
-                   "Output file for PSI-BLAST checkpointing.",
-                   filename=True,
-                   equate=False),
-           _Option(["-R", "restart_infile"],
-                   "Input file for PSI-BLAST restart.",
-                   filename=True,
-                   equate=False),
-           _Option(["-k", "hit_infile"],
-                   "Hit file for PHI-BLAST.",
-                   filename=True,
-                   equate=False),
-           _Option(["-Q", "matrix_outfile"],
-                   "Output file for PSI-BLAST matrix in ASCII.",
-                   filename=True,
-                   equate=False),
-           _Option(["-B", "align_infile"],
-                   "Input alignment file for PSI-BLAST restart.",
-                   filename=True,
-                   equate=False),
-           _Option(["-S", "required_start"],
-                   "Start of required region in query.",
-                   equate=False),
-           _Option(["-H", "required_end"],
-                   "End of required region in query.",
-                   equate=False),
-           _Option(["-j", "npasses"],
-                   "Number of passes",
-                   equate=False),
-           _Option(["-N", "nbits_gapping"],
-                   "Number of bits to trigger gapping.",
-                   equate=False),
-           _Option(["-c", "pseudocounts"],
-                   "Pseudocounts constants for multiple passes.",
-                   equate=False),
-           _Option(["-h", "model_threshold"],
-                   "E-value threshold to include in multipass model.",
-                   equate=False),
-           #Does the old name "region_length" for -L make sense?
-           _Option(["-L", "region_length"],
-                   "Cost to decline alignment (disabled when zero).",
-                   equate=False),
-           _Option(["-M", "matrix"],
-                   "Matrix (string, default BLOSUM62).",
-                   equate=False),
-           _Option(["-p", "program"],
-                   "The blast program to use (e.g blastpgp, patseedp or seedp).",
-                   is_required=True,
-                   equate=False),
-        ]
-        _BlastAllOrPgpCommandLine.__init__(self, cmd, **kwargs)
-
-
-class RpsBlastCommandline(_BlastCommandLine):
-    """Create a commandline for the classic rpsblast program from NCBI (OBSOLETE).
-
-    With the release of BLAST+ (BLAST rewritten in C++ instead of C), the NCBI
-    are replacing the old rpsblast with a new version of the same name plus a
-    second tool rpstblastn, both taking different command line arguments. This
-    module provides NcbirpsblastCommandline and NcbirpsblasntCommandline as
-    wrappers for the new tools.
-
-    Like the old rpsblast (and blastall), this wrapper is now obsolete, and will
-    be deprecated and removed in a future release of Biopython.
-
-    >>> from SAP.Bio.Blast.Applications import RpsBlastCommandline
-    >>> cline = RpsBlastCommandline(help=True)
-    >>> cline
-    RpsBlastCommandline(cmd='rpsblast', help=True)
-    >>> print cline
-    rpsblast --help
-
-    You would typically run the command line with cline() or via the Python
-    subprocess module, as described in the Biopython tutorial.
-    """
-    def __init__(self, cmd="rpsblast",**kwargs):
-        import warnings
-        warnings.warn("Like the old rpsblast (and blastall), this wrapper is now deprecated and will be removed in a future release of Biopython.", BiopythonDeprecationWarning)
-        self.parameters = [
-           #Note -N is also in blastpgp, but not blastall
-           _Option(["-N", "nbits_gapping"],
-                   "Number of bits to trigger gapping.",
-                   equate=False),
-           #Note blastall and blastpgp wrappers have -P with name "passes".
-           #If this is the same thing, we should be consistent!
-           _Option(["-P", "multihit"],
-                   "0 for multiple hit, 1 for single hit",
-                   equate=False),
-           _Option(["-l", "logfile"],
-                   "Logfile name.",
-                   filename=True,
-                   equate=False),
-           _Option(["-p", "protein"],
-                   "Query sequence is protein. T/F",
-                   equate=False),
-           _Option(["-L", "range_restriction"],
-                   "Location on query sequence (string format start,end).",
-                   equate=False),
-        ]
-        _BlastCommandLine.__init__(self, cmd, **kwargs)
-
-##############################################################################
-# Legacy BLAST wrappers above, (new) BLAST+ wrappers below
-##############################################################################
 
 
 class _NcbibaseblastCommandline(AbstractCommandline):
@@ -455,15 +60,15 @@ class _NcbibaseblastCommandline(AbstractCommandline):
                     "(differs from classic BLAST which used 7 for XML).",
                     equate=False),
                     #TODO - Document and test the column options
-            _Switch(["-show_gis","show_gis"],
+            _Switch(["-show_gis", "show_gis"],
                     "Show NCBI GIs in deflines?"),
-            _Option(["-num_descriptions","num_descriptions"],
+            _Option(["-num_descriptions", "num_descriptions"],
                     """Number of database sequences to show one-line descriptions for.
 
                     Integer argument (at least zero). Default is 500.
                     See also num_alignments.""",
                     equate=False),
-            _Option(["-num_alignments","num_alignments"],
+            _Option(["-num_alignments", "num_alignments"],
                     """Number of database sequences to show num_alignments for.
 
                     Integer argument (at least zero). Default is 200.
@@ -491,7 +96,7 @@ class _NcbibaseblastCommandline(AbstractCommandline):
                 for b in incompatibles[a]:
                     if self._get_parameter(b):
                         raise ValueError("Options %s and %s are incompatible."
-                                         % (a,b))
+                                         % (a, b))
 
 
 class _NcbiblastCommandline(_NcbibaseblastCommandline):
@@ -518,7 +123,7 @@ class _NcbiblastCommandline(_NcbibaseblastCommandline):
             _Option(["-evalue", "evalue"],
                     "Expectation value cutoff.",
                     equate=False),
-            _Option(["-word_size","word_size"],
+            _Option(["-word_size", "word_size"],
                     """Word size for wordfinder algorithm.
 
                     Integer. Minimum 2.""",
@@ -556,32 +161,35 @@ class _NcbiblastCommandline(_NcbibaseblastCommandline):
                     "Restrict search with the given Entrez query (requires remote).",
                     equate=False),
             _Option(["-max_target_seqs", "max_target_seqs"],
-                    """Maximum number of aligned sequences to keep.
-
-                    Integer argument (at least one).""",
+                    "Maximum number of aligned sequences to keep (integer, at least one).",
                     equate=False),
             #Statistical options
             _Option(["-dbsize", "dbsize"],
-                    "Effective length of the database (integer)",
+                    "Effective length of the database (integer).",
                     equate=False),
             _Option(["-searchsp", "searchsp"],
-                    "Effective length of the search space (integer)",
+                    "Effective length of the search space (integer).",
                     equate=False),
             _Option(["-max_hsps_per_subject", "max_hsps_per_subject"],
-                    "Override maximum number of HSPs per subject to save for ungapped searches (integer)",
+                    "Override maximum number of HSPs per subject to save for ungapped searches (integer).",
                     equate=False),
+            _Option(["-max_hsps", "max_hsps"],
+                    "Set maximum number of HSPs per subject sequence to save (default 0 means no limit).",
+                    equate=False),
+            _Switch(["-sum_statistics", "sum_statistics"],
+                    "Use sum statistics."),
             #Extension options
             _Option(["-xdrop_ungap", "xdrop_ungap"],
-                    "X-dropoff value (in bits) for ungapped extensions. Float.",
+                    "X-dropoff value (in bits) for ungapped extensions (float).",
                     equate=False),
             _Option(["-xdrop_gap", "xdrop_gap"],
-                    "X-dropoff value (in bits) for preliminary gapped extensions. Float.",
+                    "X-dropoff value (in bits) for preliminary gapped extensions (float).",
                     equate=False),
             _Option(["-xdrop_gap_final", "xdrop_gap_final"],
-                    "X-dropoff value (in bits) for final gapped alignment. Float.",
+                    "X-dropoff value (in bits) for final gapped alignment (float).",
                     equate=False),
             _Option(["-window_size", "window_size"],
-                    "Multiple hits window size, use 0 to specify 1-hit algorithm. Integer.",
+                    "Multiple hits window size, use 0 to specify 1-hit algorithm (integer).",
                     equate=False),
             # Search strategy options
             _Option(["-import_search_strategy", "import_search_strategy"],
@@ -598,9 +206,9 @@ class _NcbiblastCommandline(_NcbibaseblastCommandline):
                     equate=False),
             #Miscellaneous options
             _Option(["-num_threads", "num_threads"],
-                    """Number of threads to use in the BLAST search.
+                    """Number of threads to use in the BLAST search (integer, at least one).
 
-                    Integer of at least one. Default is one.
+                    Default is one.
                     Incompatible with: remote""",
                     equate=False),
             _Switch(["-remote", "remote"],
@@ -654,7 +262,7 @@ class _Ncbiblast2SeqCommandline(_NcbiblastCommandline):
                     filename=True,
                     equate=False),
             _Option(["-subject_loc", "subject_loc"],
-                    """Location on the subject sequence (Format: start-stop)
+                    """Location on the subject sequence (Format: start-stop).
 
                     Incompatible with: db, gilist, seqidlist, negative_gilist,
                     db_soft_mask, db_hard_mask, remote.
@@ -672,14 +280,14 @@ class _Ncbiblast2SeqCommandline(_NcbiblastCommandline):
                     """,
                     equate=False),
             _Option(["-best_hit_overhang", "best_hit_overhang"],
-                    """Best Hit algorithm overhang value (recommended value: 0.1)
+                    """Best Hit algorithm overhang value (float, recommended value: 0.1)
 
                     Float between 0.0 and 0.5 inclusive.
 
                     Incompatible with: culling_limit.""",
                     equate=False),
             _Option(["-best_hit_score_edge", "best_hit_score_edge"],
-                    """Best Hit algorithm score edge value (recommended value: 0.1)
+                    """Best Hit algorithm score edge value (float, recommended value: 0.1)
 
                     Float between 0.0 and 0.5 inclusive.
 
@@ -697,7 +305,7 @@ class _Ncbiblast2SeqCommandline(_NcbiblastCommandline):
 
     def _validate(self):
         incompatibles = {"subject_loc":["db", "gilist", "negative_gilist", "seqidlist", "remote"],
-                         "culling_limit":["best_hit_overhang","best_hit_score_edge"],
+                         "culling_limit":["best_hit_overhang", "best_hit_score_edge"],
                          "subject":["db", "gilist", "negative_gilist", "seqidlist"]}
         self._validate_incompatibilities(incompatibles)
         _NcbiblastCommandline._validate(self)
@@ -757,7 +365,7 @@ class NcbiblastpCommandline(_NcbiblastMain2SeqCommandline):
     ...                               evalue=0.001, remote=True, ungapped=True)
     >>> cline
     NcbiblastpCommandline(cmd='blastp', query='rosemary.pro', db='nr', evalue=0.001, remote=True, ungapped=True)
-    >>> print cline
+    >>> print(cline)
     blastp -query rosemary.pro -db nr -evalue 0.001 -remote -ungapped
 
     You would typically run the command line with cline() or via the Python
@@ -774,8 +382,7 @@ class NcbiblastpCommandline(_NcbiblastMain2SeqCommandline):
             _Option(["-matrix", "matrix"],
                     "Scoring matrix name (default BLOSUM62)."),
             _Option(["-threshold", "threshold"],
-                    "Minimum word score such that the word is added to the "
-                    "BLAST lookup table (float)",
+                    "Minimum score for words to be added to the BLAST lookup table (float).",
                     equate=False),
             _Option(["-comp_based_stats", "comp_based_stats"],
                     """Use composition-based statistics (string, default 2, i.e. True).
@@ -820,7 +427,7 @@ class NcbiblastnCommandline(_NcbiblastMain2SeqCommandline):
     ...                               evalue=0.001, out="m_cold.xml", outfmt=5)
     >>> cline
     NcbiblastnCommandline(cmd='blastn', out='m_cold.xml', outfmt=5, query='m_cold.fasta', db='nt', evalue=0.001, strand='plus')
-    >>> print cline
+    >>> print(cline)
     blastn -out m_cold.xml -outfmt 5 -query m_cold.fasta -db nt -evalue 0.001 -strand plus
 
     You would typically run the command line with cline() or via the Python
@@ -889,7 +496,7 @@ class NcbiblastnCommandline(_NcbiblastMain2SeqCommandline):
 
                     Allowed values: 'coding', 'coding_and_optimal' or 'optimal'
                     Requires: template_length.""",
-                    checker_function=lambda value : value in ['coding', 'coding_and_optimal','optimal'],
+                    checker_function=lambda value : value in ['coding', 'coding_and_optimal', 'optimal'],
                     equate=False),
             _Option(["-template_length", "template_length"],
                     """Discontiguous MegaBLAST template length (integer).
@@ -897,7 +504,7 @@ class NcbiblastnCommandline(_NcbiblastMain2SeqCommandline):
                     Allowed values: 16, 18, 21
 
                     Requires: template_type.""",
-                    checker_function=lambda value : value in [16,18,21,'16','18','21'],
+                    checker_function=lambda value : value in [16, 18, 21, '16', '18', '21'],
                     equate=False),
             #Extension options:
             _Switch(["-no_greedy", "no_greedy"],
@@ -937,7 +544,7 @@ class NcbiblastxCommandline(_NcbiblastMain2SeqCommandline):
     >>> cline = NcbiblastxCommandline(query="m_cold.fasta", db="nr", evalue=0.001)
     >>> cline
     NcbiblastxCommandline(cmd='blastx', query='m_cold.fasta', db='nr', evalue=0.001)
-    >>> print cline
+    >>> print(cline)
     blastx -query m_cold.fasta -db nr -evalue 0.001
 
     You would typically run the command line with cline() or via the Python
@@ -954,9 +561,7 @@ class NcbiblastxCommandline(_NcbiblastMain2SeqCommandline):
                     equate=False),
             #Input query options:
             _Option(["-query_gencode", "query_gencode"],
-                    """Genetic code to use to translate query
-
-                    Integer. Default is one.""",
+                    "Genetic code to use to translate query (integer, default 1).",
                     equate=False),
             #General search options:
             _Option(["-frame_shift_penalty", "frame_shift_penalty"],
@@ -975,19 +580,19 @@ class NcbiblastxCommandline(_NcbiblastMain2SeqCommandline):
                     "Scoring matrix name (default BLOSUM62).",
                     equate=False),
             _Option(["-threshold", "threshold"],
-                    "Minimum word score such that the word is added to the "
-                    "BLAST lookup table (float)",
+                    "Minimum score for words to be added to the BLAST lookup table (float).",
                     equate=False),
             _Option(["-comp_based_stats", "comp_based_stats"],
                     """Use composition-based statistics for blastp, blastx, or tblastn:
-                        D or d: default (equivalent to 2 )
-                        0 or F or f: no composition-based statistics
-                        1: Composition-based statistics as in NAR 29:2994-3005, 2001
-                        2 or T or t : Composition-based score adjustment as in Bioinformatics 21:902-911, 2005, conditioned on sequence properties
-                        3: Composition-based score adjustment as in Bioinformatics 21:902-911, 2005, unconditionally
 
-                        For programs other than tblastn, must either be absent or be D, F or 0
-                        Default = `2'
+                    D or d: default (equivalent to 2 )
+                    0 or F or f: no composition-based statistics
+                    1: Composition-based statistics as in NAR 29:2994-3005, 2001
+                    2 or T or t : Composition-based score adjustment as in Bioinformatics 21:902-911, 2005, conditioned on sequence properties
+                    3: Composition-based score adjustment as in Bioinformatics 21:902-911, 2005, unconditionally
+
+                    For programs other than tblastn, must either be absent or be D, F or 0
+                    Default = `2'
                     """,
                     equate=False),
             #Query filtering options:
@@ -1017,7 +622,7 @@ class NcbitblastnCommandline(_NcbiblastMain2SeqCommandline):
     >>> cline = NcbitblastnCommandline(help=True)
     >>> cline
     NcbitblastnCommandline(cmd='tblastn', help=True)
-    >>> print cline
+    >>> print(cline)
     tblastn -help
 
     You would typically run the command line with cline() or via the Python
@@ -1027,9 +632,7 @@ class NcbitblastnCommandline(_NcbiblastMain2SeqCommandline):
         self.parameters = [
             #General search options:
             _Option(["-db_gencode", "db_gencode"],
-                    """Genetic code to use to translate query
-
-                    Integer. Default is one.""",
+                    "Genetic code to use to translate query (integer, default 1).",
                     equate=False),
             _Option(["-frame_shift_penalty", "frame_shift_penalty"],
                     """Frame shift penalty (integer, at least 1, default ignored) (OBSOLETE).
@@ -1047,7 +650,7 @@ class NcbitblastnCommandline(_NcbiblastMain2SeqCommandline):
                     "Scoring matrix name (default BLOSUM62).",
                     equate=False),
             _Option(["-threshold", "threshold"],
-                    "Minimum word score such that the word is added to the BLAST lookup table (float)",
+                    "Minimum score for words to be added to the BLAST lookup table (float).",
                     equate=False),
             _Option(["-comp_based_stats", "comp_based_stats"],
                     """Use composition-based statistics (string, default 2, i.e. True).
@@ -1097,7 +700,7 @@ class NcbitblastxCommandline(_NcbiblastMain2SeqCommandline):
     >>> cline = NcbitblastxCommandline(help=True)
     >>> cline
     NcbitblastxCommandline(cmd='tblastx', help=True)
-    >>> print cline
+    >>> print(cline)
     tblastx -help
 
     You would typically run the command line with cline() or via the Python
@@ -1114,15 +717,11 @@ class NcbitblastxCommandline(_NcbiblastMain2SeqCommandline):
                     equate=False),
             #Input query options:
             _Option(["-query_gencode", "query_gencode"],
-                    """Genetic code to use to translate query
-
-                    Integer. Default is one.""",
+                    "Genetic code to use to translate query (integer, default 1).",
                     equate=False),
             #General search options:
             _Option(["-db_gencode", "db_gencode"],
-                    """Genetic code to use to translate query
-
-                    Integer. Default is one.""",
+                    "Genetic code to use to translate query (integer, default 1).",
                     equate=False),
             _Option(["-max_intron_length", "max_intron_length"],
                     """Maximum intron length (integer).
@@ -1135,8 +734,7 @@ class NcbitblastxCommandline(_NcbiblastMain2SeqCommandline):
                     "Scoring matrix name (default BLOSUM62).",
                     equate=False),
             _Option(["-threshold", "threshold"],
-                    "Minimum word score such that the word is added to the "
-                    "BLAST lookup table (float)",
+                    "Minimum score for words to be added to the BLAST lookup table (float).",
                     equate=False),
             #Query filtering options:
             _Option(["-seg", "seg"],
@@ -1160,7 +758,7 @@ class NcbipsiblastCommandline(_Ncbiblast2SeqCommandline):
     >>> cline = NcbipsiblastCommandline(help=True)
     >>> cline
     NcbipsiblastCommandline(cmd='psiblast', help=True)
-    >>> print cline
+    >>> print(cline)
     psiblast -help
 
     You would typically run the command line with cline() or via the Python
@@ -1173,8 +771,7 @@ class NcbipsiblastCommandline(_Ncbiblast2SeqCommandline):
                     "Scoring matrix name (default BLOSUM62).",
                     equate=False),
             _Option(["-threshold", "threshold"],
-                    "Minimum word score such that the word is added to the "
-                    "BLAST lookup table (float)",
+                    "Minimum score for words to be added to the BLAST lookup table (float).",
                     equate=False),
             _Option(["-comp_based_stats", "comp_based_stats"],
                     """Use composition-based statistics (string, default 2, i.e. True).
@@ -1196,29 +793,28 @@ class NcbipsiblastCommandline(_Ncbiblast2SeqCommandline):
                     equate=False),
             #Extension options:
             _Option(["-gap_trigger", "gap_trigger"],
-                    "Number of bits to trigger gapping (float, default 22)",
+                    "Number of bits to trigger gapping (float, default 22).",
                     equate=False),
             #Miscellaneous options:
             _Switch(["-use_sw_tback", "use_sw_tback"],
                     "Compute locally optimal Smith-Waterman alignments?"),
             #PSI-BLAST options:
             _Option(["-num_iterations", "num_iterations"],
-                    """Number of iterations to perform, integer
+                    """Number of iterations to perform (integer, at least one).
 
-                    Integer of at least one. Default is one.
+                    Default is one.
                     Incompatible with: remote""",
                     equate=False),
             _Option(["-out_pssm", "out_pssm"],
-                    "File name to store checkpoint file",
+                    "File name to store checkpoint file.",
                     filename=True,
                     equate=False),
             _Option(["-out_ascii_pssm", "out_ascii_pssm"],
-                    "File name to store ASCII version of PSSM",
+                    "File name to store ASCII version of PSSM.",
                     filename=True,
                     equate=False),
             _Option(["-in_msa", "in_msa"],
-                    """File name of multiple sequence alignment to restart
-                    PSI-BLAST
+                    """File name of multiple sequence alignment to restart PSI-BLAST.
 
                     Incompatible with: in_pssm, query""",
                     filename=True,
@@ -1231,32 +827,29 @@ class NcbipsiblastCommandline(_Ncbiblast2SeqCommandline):
                     sequence is used.""",
                     equate=False),
             _Option(["-in_pssm", "in_pssm"],
-                    """PSI-BLAST checkpoint file
+                    """PSI-BLAST checkpoint file.
 
                     Incompatible with: in_msa, query, phi_pattern""",
                     filename=True,
                     equate=False),
             #PSSM engine options:
             _Option(["-pseudocount", "pseudocount"],
-                    """Pseudo-count value used when constructing PSSM
+                    """Pseudo-count value used when constructing PSSM.
 
                     Integer. Default is zero.""",
                     equate=False),
             _Option(["-inclusion_ethresh", "inclusion_ethresh"],
-                    """E-value inclusion threshold for pairwise alignments
-
-                    Float. Default is 0.002.""",
+                    "E-value inclusion threshold for pairwise alignments (float, default 0.002).",
                     equate=False),
             _Switch(["-ignore_msa_master", "ignore_msa_master"],
                     """Ignore the master sequence when creating PSSM
 
-                    * Requires:  in_msa
-                    * Incompatible with:  msa_master_idx, in_pssm, query,
-                    query_loc, phi_pattern
+                    Requires: in_msa
+                    Incompatible with: msa_master_idx, in_pssm, query, query_loc, phi_pattern
                     """),
             #PHI-BLAST options:
             _Option(["-phi_pattern", "phi_pattern"],
-                    """File name containing pattern to search
+                    """File name containing pattern to search.
 
                     Incompatible with: in_pssm""",
                     filename=True,
@@ -1265,10 +858,10 @@ class NcbipsiblastCommandline(_Ncbiblast2SeqCommandline):
         _Ncbiblast2SeqCommandline.__init__(self, cmd, **kwargs)
 
     def _validate(self):
-        incompatibles = {"num_iterations":["remote"],
-                         "in_msa":["in_pssm", "query"],
-                         "in_pssm":["in_msa","query","phi_pattern"],
-                         "ignore_msa_master":["msa_master_idx", "in_pssm",
+        incompatibles = {"num_iterations": ["remote"],
+                         "in_msa": ["in_pssm", "query"],
+                         "in_pssm": ["in_msa", "query", "phi_pattern"],
+                         "ignore_msa_master": ["msa_master_idx", "in_pssm",
                                  "query", "query_loc", "phi_pattern"],
                          }
         self._validate_incompatibilities(incompatibles)
@@ -1286,7 +879,7 @@ class NcbirpsblastCommandline(_NcbiblastCommandline):
     >>> cline = NcbirpsblastCommandline(help=True)
     >>> cline
     NcbirpsblastCommandline(cmd='rpsblast', help=True)
-    >>> print cline
+    >>> print(cline)
     rpsblast -help
 
     You would typically run the command line with cline() or via the Python
@@ -1325,11 +918,27 @@ class NcbirpsblastCommandline(_NcbiblastCommandline):
 
                     Incompatible with: culling_limit.""",
                     equate=False),
+            #General search options:
+            _Option(["-comp_based_stats", "comp_based_stats"],
+                    """Use composition-based statistics.
+
+                    D or d: default (equivalent to 0 )
+                    0 or F or f: Simplified Composition-based statistics as in
+                                 Bioinformatics 15:1000-1011, 1999
+                    1 or T or t: Composition-based statistics as in NAR 29:2994-3005, 2001
+
+                    Default = `0'
+                    """,
+                    checker_function=lambda value : value in "Dd0Ff1Tt",
+                    equate=False),
+            #Misc options:
+            _Switch(["-use_sw_tback", "use_sw_tback"],
+                    "Compute locally optimal Smith-Waterman alignments?"),
             ]
         _NcbiblastCommandline.__init__(self, cmd, **kwargs)
 
     def _validate(self):
-        incompatibles = {"culling_limit":["best_hit_overhang","best_hit_score_edge"]}
+        incompatibles = {"culling_limit":["best_hit_overhang", "best_hit_score_edge"]}
         self._validate_incompatibilities(incompatibles)
         _NcbiblastCommandline._validate(self)
 
@@ -1345,7 +954,7 @@ class NcbirpstblastnCommandline(_NcbiblastCommandline):
     >>> cline = NcbirpstblastnCommandline(help=True)
     >>> cline
     NcbirpstblastnCommandline(cmd='rpstblastn', help=True)
-    >>> print cline
+    >>> print(cline)
     rpstblastn -help
 
     You would typically run the command line with cline() or via the Python
@@ -1364,9 +973,7 @@ class NcbirpstblastnCommandline(_NcbiblastCommandline):
                     equate=False),
             #Input query options:
             _Option(["-query_gencode", "query_gencode"],
-                    """Genetic code to use to translate query
-
-                    Integer. Default is one.""",
+                    "Genetic code to use to translate query (integer, default 1).",
                     equate=False),
             #Query filtering options:
             _Option(["-seg", "seg"],
@@ -1396,7 +1003,7 @@ class NcbiblastformatterCommandline(_NcbibaseblastCommandline):
     >>> cline = NcbiblastformatterCommandline(archive="example.asn", outfmt=5, out="example.xml")
     >>> cline
     NcbiblastformatterCommandline(cmd='blast_formatter', out='example.xml', outfmt=5, archive='example.asn')
-    >>> print cline
+    >>> print(cline)
     blast_formatter -out example.xml -outfmt 5 -archive example.asn
 
     You would typically run the command line with cline() or via the Python
@@ -1433,6 +1040,93 @@ class NcbiblastformatterCommandline(_NcbibaseblastCommandline):
         _NcbibaseblastCommandline._validate(self)
 
 
+class NcbideltablastCommandline(_Ncbiblast2SeqCommandline):
+    """Create a commandline for the NCBI BLAST+ program deltablast (for proteins).
+
+    This is a wrapper for the deltablast command line command included in
+    the NCBI BLAST+ software (not present in the original BLAST).
+
+    >>> from SAP.Bio.Blast.Applications import NcbideltablastCommandline
+    >>> cline = NcbideltablastCommandline(query="rosemary.pro", db="nr",
+    ...                               evalue=0.001, remote=True)
+    >>> cline
+    NcbideltablastCommandline(cmd='deltablast', query='rosemary.pro', db='nr', evalue=0.001, remote=True)
+    >>> print(cline)
+    deltablast -query rosemary.pro -db nr -evalue 0.001 -remote
+
+    You would typically run the command line with cline() or via the Python
+    subprocess module, as described in the Biopython tutorial.
+    """
+    def __init__(self, cmd="deltablast", **kwargs):
+        self.parameters = [
+            #General search options:
+            _Option(["-matrix", "matrix"],
+                    "Scoring matrix name (default BLOSUM62)."),
+            _Option(["-threshold", "threshold"],
+                    "Minimum score for words to be added to the BLAST lookup table (float).",
+                    equate=False),
+            _Option(["-comp_based_stats", "comp_based_stats"],
+                    """Use composition-based statistics (string, default 2, i.e. True).
+
+                    0, F or f: no composition-based statistics.
+                    2, T or t, D or d : Composition-based score adjustment as in
+                    Bioinformatics 21:902-911, 2005, conditioned on sequence properties
+
+                    Note that tblastn also supports values of 1 and 3.""",
+                    checker_function=lambda value : value in "0Ft2TtDd",
+                    equate=False),
+            #Query filtering options:
+            _Option(["-seg", "seg"],
+                    """Filter query sequence with SEG (string).
+
+                    Format: "yes", "window locut hicut", or "no" to disable.
+                    Default is "12 2.2 2.5""",
+                    equate=False),
+            #Extension options:
+            _Option(["-gap_trigger", "gap_trigger"],
+                    "Number of bits to trigger gapping Default = 22",
+                    equate=False),
+            #Miscellaneous options:
+            _Switch(["-use_sw_tback", "use_sw_tback"],
+                    "Compute locally optimal Smith-Waterman alignments?"),
+            #PSI-BLAST options
+            _Option(["-num_iterations", "num_iterations"],
+                    """Number of iterations to perform. (integer >=1, Default is 1)
+
+                    Incompatible with: remote""",
+                    equate=False),
+            _Option(["-out_pssm", "out_pssm"],
+                    "File name to store checkpoint file.",
+                    filename=True,
+                    equate=False),
+            _Option(["-out_ascii_pssm", "out_ascii_pssm"],
+                    "File name to store ASCII version of PSSM.",
+                    filename=True,
+                    equate=False),
+            #PSSM engine options
+            _Option(["-pseudocount", "pseudocount"],
+                    "Pseudo-count value used when constructing PSSM (integer, default 0).",
+                    equate=False),
+            _Option(["-domain_inclusion_ethresh", "domain_inclusion_ethresh"],
+                    """E-value inclusion threshold for alignments with conserved domains.
+
+                    (float, Default is 0.05)""",
+                    equate=False),
+            _Option(["-inclusion_ethresh", "inclusion_ethresh"],
+                    "E-value inclusion threshold for pairwise alignments (float, Default is 0.002).",
+                    equate=False),
+            #DELTA-BLAST options
+            _Option(["-rpsdb", "rpsdb"],
+                    "BLAST domain database name (dtring, Default = 'cdd_delta').",
+                    equate=False),
+            _Switch(["-show_domain_hits", "show_domain_hits"],
+                    """Show domain hits?
+
+                    Incompatible with:  remote, subject""")
+            ]
+        _Ncbiblast2SeqCommandline.__init__(self, cmd, **kwargs)
+
+
 def _test():
     """Run the Bio.Blast.Applications module's doctests."""
     import doctest
@@ -1441,3 +1135,4 @@ def _test():
 if __name__ == "__main__":
     #Run the doctests
     _test()
+

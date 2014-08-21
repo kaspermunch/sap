@@ -229,8 +229,8 @@ class Assignment:
         alignment = pairwiseClustalw2(n1, s1.sequence, n2, s2.sequence)
 
         # extract aligned sequences and calculate distance:
-        s1Aligned = alignment.matrix[n1].tostring()
-        s2Aligned = alignment.matrix[n2].tostring()
+        s1Aligned = str(alignment.matrix[n1])
+        s2Aligned = str(alignment.matrix[n2])
         pi = 1 - similarityScore(s1Aligned, s2Aligned)
 
         return pi
@@ -297,12 +297,12 @@ class Assignment:
         # sort the sequences according to the species list:
         for species in speciesList:
             for gi in [x.title for x in sequenceLists[species]]:              
-                alignmentString += "%-9s %s\n" % (gi[:9], alignment.matrix[gi].tostring())
-                alignmentLength = len(alignment.matrix[gi].tostring())
+                alignmentString += "%-9s %s\n" % (gi[:9], str(alignment.matrix[gi]))
+                alignmentLength = len(str(alignment.matrix[gi]))
 
         # add the query sequence to the end:
         title = queryFastaRecord.title
-        alignmentString += "%-9s %s\n" % (title[:9], alignment.matrix[queryFastaRecord.title[:9]].tostring())
+        alignmentString += "%-9s %s\n" % (title[:9], str(alignment.matrix[queryFastaRecord.title[:9]]))
 
         generaList = [x.split(' ')[0] for x in speciesList]
         genera = "_".join(generaList)

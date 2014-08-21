@@ -315,7 +315,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           help="Where to put the fixed input files.")
         self.parser.add_option("-e", "--email",
                           type="string",
-                          default='',
+                          default='kaspermunch@birc.au.dk',
                           help="When using GenBank remotely like sap does NCBI strongly recommends you to specify your email along with the requests. In case of excessive usage of the E-utilities, NCBI will attempt to contact a user at the email address provided before blocking access to the E-utilities.")
 
         self.parser.add_option("--_align",

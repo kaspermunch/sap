@@ -8,6 +8,8 @@
 import re
 
 from SAP.Bio._py3k import _as_bytes, _bytes_to_string
+from SAP.Bio._py3k import basestring
+
 from SAP.Bio.SearchIO._index import SearchIndexer
 from SAP.Bio.SearchIO._model import QueryResult, Hit, HSP, HSPFragment
 
@@ -52,8 +54,23 @@ _LONG_SHORT_MAP = {
     'subject gi': 'sgi',
     'subject gis': 'sallgi',
     'BTOP': 'btop',
+    'subject accs.': 'sallacc',
+    'subject tax ids': 'staxids',
+    'subject sci names': 'sscinames',
+    'subject com names': 'scomnames',
+    'subject blast names': 'sblastnames',
+    'subject super kingdoms': 'sskingdoms',
+    'subject title': 'stitle',
+    'subject titles': 'salltitles',
+    'subject strand': 'sstrand',
+    '% subject coverage': 'qcovs',
+    '% hsp coverage': 'qcovhsp',
 }
 
+# function to create a list from semicolon-delimited string
+# used in BlastTabParser._parse_result_row
+_list_semicol = lambda x: x.split(';')
+_list_diamond = lambda x: x.split('<>')
 # column to class attribute map
 _COLUMN_QRESULT = {
     'qseqid': ('id', str),
@@ -64,12 +81,23 @@ _COLUMN_QRESULT = {
 }
 _COLUMN_HIT = {
     'sseqid': ('id', str),
-    'sallseqid': ('id_all', str),
+    'sallseqid': ('id_all', _list_semicol),
     'sacc': ('accession', str),
     'saccver': ('accession_version', str),
+    'sallacc': ('accession_all', _list_semicol),
     'sgi': ('gi', str),
     'sallgi': ('gi_all', str),
     'slen': ('seq_len', int),
+    'staxids': ('tax_ids', _list_semicol),
+    'sscinames': ('sci_names', _list_semicol),
+    'scomnames': ('com_names', _list_semicol),
+    'sblastnames': ('blast_names', _list_semicol),
+    'sskingdoms': ('super_kingdoms', _list_semicol),
+    'stitle': ('title', str),
+    'salltitles': ('title_all', _list_diamond),
+    # set strand as HSP property?
+    'sstrand': ('strand', str),
+    'qcovs': ('query_coverage', float),
 }
 _COLUMN_HSP = {
     'bitscore': ('bitscore', float),
@@ -83,6 +111,7 @@ _COLUMN_HSP = {
     'gaps': ('gap_num', int),
     'gapopen': ('gapopen_num', int),
     'btop': ('btop', str),
+    'qcovhsp': ('query_coverage', float),
 }
 _COLUMN_FRAG = {
     'length': ('aln_span', int),
@@ -96,8 +125,8 @@ _COLUMN_FRAG = {
     'qseq': ('query', str),
     'sseq': ('hit', str),
 }
-_SUPPORTED_FIELDS = set(_COLUMN_QRESULT.keys() + _COLUMN_HIT.keys() +
-        _COLUMN_HSP.keys() + _COLUMN_FRAG.keys())
+_SUPPORTED_FIELDS = set(list(_COLUMN_QRESULT) + list(_COLUMN_HIT) +
+                        list(_COLUMN_HSP) + list(_COLUMN_FRAG))
 
 # column order in the non-commented tabular output variant
 # values must be keys inside the column-attribute maps above
@@ -224,7 +253,7 @@ class BlastTabParser(object):
                     assert 'fields' not in comments
                     # create an iterator returning one empty qresult
                     # if the query has no results
-                    qres_iter = iter([QueryResult('')])
+                    qres_iter = iter([QueryResult()])
 
                 for qresult in qres_iter:
                     for key, value in comments.items():
@@ -421,7 +450,7 @@ class BlastTabParser(object):
                     hsp_list = []
                 # create qresult and yield if we're at a new qresult or EOF
                 if qres_state == state_QRES_NEW or file_state == state_EOF:
-                    qresult = QueryResult(prev_qid, hits=hit_list)
+                    qresult = QueryResult(hit_list, prev_qid)
                     for attr, value in prev['qresult'].items():
                         setattr(qresult, attr, value)
                     yield qresult
@@ -645,8 +674,8 @@ class BlastTabWriter(object):
                 if not self.has_comments:
                     qresult_counter += 1
                 hit_counter += len(qresult)
-                hsp_counter += sum([len(hit) for hit in qresult])
-                frag_counter += sum([len(hit.fragments) for hit in qresult])
+                hsp_counter += sum(len(hit) for hit in qresult)
+                frag_counter += sum(len(hit.fragments) for hit in qresult)
             # if it's commented and there are no hits in the qresult, we still
             # increment the counter
             if self.has_comments:
@@ -727,10 +756,13 @@ class BlastTabWriter(object):
 
     def _adjust_output(self, field, value):
         """Adjusts formatting of the given field and value to mimic native tab output."""
+        # qseq and sseq are stored as SeqRecord, but here we only need the str
+        if field in ('qseq', 'sseq'):
+            value = str(value.seq)
 
         # evalue formatting, adapted from BLAST+ source:
         # src/objtools/align_format/align_format_util.cpp#L668
-        if field == 'evalue':
+        elif field == 'evalue':
             if value < 1.0e-180:
                 value = '0.0'
             elif value < 1.0e-99:
@@ -760,6 +792,20 @@ class BlastTabWriter(object):
             else:
                 value = '%4.1f' % value
 
+        # coverages have no comma (using floats still ~ a more proper
+        # representation)
+        elif field in ('qcovhsp', 'qcovs'):
+            value = '%.0f' % value
+
+        # list into '<>'-delimited string
+        elif field == 'salltitles':
+            value = '<>'.join(value)
+
+        # list into ';'-delimited string
+        elif field in ('sallseqid', 'sallacc', 'staxids', 'sscinames',
+                'scomnames', 'sblastnames', 'sskingdoms'):
+            value = ';'.join(value)
+
         # everything else
         else:
             value = str(value)
@@ -771,8 +817,7 @@ class BlastTabWriter(object):
         comments = []
         # inverse mapping of the long-short name map, required
         # for writing comments
-        inv_field_map = dict((value, key) for key, value in
-                _LONG_SHORT_MAP.items())
+        inv_field_map = dict((v, k) for k, v in _LONG_SHORT_MAP.items())
 
         # try to anticipate qress without version
         if not hasattr(qres, 'version'):
@@ -780,11 +825,11 @@ class BlastTabWriter(object):
         else:
             program_line = '# %s %s' % (qres.program.upper(), qres.version)
         comments.append(program_line)
-        # description may or may not be present, so we'll do a try here
-        try:
-            comments.append('# Query: %s %s' % (qres.id, qres.description))
-        except AttributeError:
+        # description may or may not be None
+        if qres.description is None:
             comments.append('# Query: %s' % qres.id)
+        else:
+            comments.append('# Query: %s %s' % (qres.id, qres.description))
         # try appending RID line, if present
         try:
             comments.append('# RID: %s' % qres.rid)
@@ -794,7 +839,7 @@ class BlastTabWriter(object):
         # qresults without hits don't show the Fields comment
         if qres:
             comments.append('# Fields: %s' %
-                    ', '.join([inv_field_map[field] for field in self.fields]))
+                            ', '.join(inv_field_map[field] for field in self.fields))
         comments.append('# %i hits found' % len(qres))
 
         return '\n'.join(comments) + '\n'

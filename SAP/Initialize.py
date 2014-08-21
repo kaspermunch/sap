@@ -71,7 +71,7 @@ class Initialize:
                nex = Nexus.Nexus(inputFileName)
                fileContent = ''
                for name, seq in nex.matrix.items():
-                  fileContent += ">%s\n%s\n" % (name, seq.tostring())
+                  fileContent += ">%s\n%s\n" % (name, str(seq))
             elif self.options.inputformat == 'fasta':
                fileContent = readFile(inputFileName)               
             else:
