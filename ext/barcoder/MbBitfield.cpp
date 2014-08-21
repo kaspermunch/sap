@@ -34,6 +34,7 @@
 
 #include "MbBitfield.h"
 #include <iostream>
+#include <climits>
 
 /*!
  * Null constructor. Creates a 0-length (NULL) bitfield.

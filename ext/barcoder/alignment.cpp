@@ -4,6 +4,7 @@
 #include <istream>
 #include <sstream>
 #include <fstream>
+#include <cstdlib>
 #include "crossplatform.h"
 
 
