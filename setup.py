@@ -49,7 +49,7 @@ if sys.platform == 'darwin':
                                         )
                          )
 
-    
+    data_files = []
 elif sys.platform == 'win32':
     try:
         import py2exe
