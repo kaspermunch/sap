@@ -277,7 +277,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           type="string",
                           #default=None,
                           default='dbcache',
-                          help="Where to put cached GenBank files.")
+                          help="Where to put cached sequence and taxonomy information.")
         self.parser.add_option("--homologcache",
                           type="string",
                           #default=None,
