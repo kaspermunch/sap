@@ -183,6 +183,7 @@ class ConstrainedNJ(object):
         tmpFile, tmpFileName = tempfile.mkstemp()
         self.dumpBootstrapTreesNexus(iterations, tmpFileName)
         bootstrapTrees = Nexus.Nexus(tmpFileName)
+        tmpFile.close()
         os.remove(tmpFileName)        
         consensusTree = NexusTrees.consensus(bootstrapTrees.trees)
 
