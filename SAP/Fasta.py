@@ -9,7 +9,7 @@ class Record(object):
 
         self.title = title
         self.sequence = sequence
-        self.lineLength = 1000
+        self.lineLength = 100
         
     def __str__(self):
         length = len(self.sequence)
