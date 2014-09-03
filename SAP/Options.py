@@ -38,7 +38,7 @@ Running against a local database:
                           help="Open online manual in default browser.")
         self.parser.add_option("--compile",
                           type="string",
-                          default = None,
+                          default = False,
                           help="Query for Genbank nucleotide database defining database content. E.g. '(COI[Gene Name]) AND barcode[Keyword]'")
         self.parser.add_option("-d", "--project",
                           type="string",
@@ -447,6 +447,9 @@ Running against a local database:
 
         if self.options.nofillin and self.options.fillinall:
             self.showMessageAndExit("Don't use the options fillinall and nofillin at the same time.", guiParent=guiParent)
+
+        if self.options.compile and not self.options.database:
+            self.showMessageAndExit("You must specify a name for your database using --database", guiParent=guiParent)
 
         # Make sure alignment options are unique and nonoverlapping:
         alignmentoption = []

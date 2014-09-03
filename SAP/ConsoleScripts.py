@@ -44,11 +44,11 @@ def sap():
             sys.exit()
 
         if options.compile:
-
+            if os.path.exists(options.database):
+                print "Database already exists. Delete old database or use other name."
+                sys.exit()
             from CompileDatabase import compileDatabase
-            output_file_name = args.pop(0)
-            assert not args
-            compileDatabase(options.compile, options.email, output_file_name)
+            compileDatabase(options.compile, options.email, options.database)
             sys.exit()
 
         if options.installdependencies:
