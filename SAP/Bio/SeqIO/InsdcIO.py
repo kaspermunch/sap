@@ -31,13 +31,16 @@ http://www.ebi.ac.uk/imgt/hla/docs/manual.html
 
 """
 
+from __future__ import print_function
+
 from SAP.Bio.Seq import UnknownSeq
 from SAP.Bio.GenBank.Scanner import GenBankScanner, EmblScanner, _ImgtScanner
 from SAP.Bio import Alphabet
-from Interfaces import SequentialSequenceWriter
+from .Interfaces import SequentialSequenceWriter
 from SAP.Bio import SeqFeature
 
 from SAP.Bio._py3k import _is_int_or_long
+from SAP.Bio._py3k import basestring
 
 # NOTE
 # ====
@@ -124,8 +127,8 @@ def _insdc_feature_position_string(pos, offset=0):
         return ">%i" % (pos.position + offset)
     elif isinstance(pos, SeqFeature.OneOfPosition):
         return "one-of(%s)" \
-               % ",".join([_insdc_feature_position_string(p, offset)
-                           for p in pos.position_choices])
+               % ",".join(_insdc_feature_position_string(p, offset)
+                          for p in pos.position_choices)
     elif isinstance(pos, SeqFeature.AbstractPosition):
         raise NotImplementedError("Please report this as a bug in Biopython.")
     else:
@@ -186,8 +189,38 @@ def _insdc_location_string_ignoring_strand_and_subfeatures(location, rec_length)
             _insdc_feature_position_string(location.end)
 
 
+def _insdc_location_string(location, rec_length):
+    """Build a GenBank/EMBL location from a (Compound) FeatureLocation (PRIVATE).
+
+    There is a choice of how to show joins on the reverse complement strand,
+    GenBank used "complement(join(1,10),(20,100))" while EMBL used to use
+    "join(complement(20,100),complement(1,10))" instead (but appears to have
+    now adopted the GenBank convention). Notice that the order of the entries
+    is reversed! This function therefore uses the first form. In this situation
+    we expect the CompoundFeatureLocation and its parts to all be marked as
+    strand == -1, and to be in the order 19:100 then 0:10.
+    """
+    try:
+        parts = location.parts
+        #CompoundFeatureLocation
+        if location.strand == -1:
+            #Special case, put complement outside the join/order/... and reverse order
+            return "complement(%s(%s))" % (location.operator,
+                   ",".join(_insdc_location_string_ignoring_strand_and_subfeatures(p, rec_length) \
+                            for p in parts[::-1]))
+        else:
+            return "%s(%s)" % (location.operator,
+                   ",".join(_insdc_location_string(p, rec_length) for p in parts))
+    except AttributeError:
+        #Simple FeatureLocation
+        loc = _insdc_location_string_ignoring_strand_and_subfeatures(location, rec_length)
+        if location.strand == -1:
+            return "complement(%s)" % loc
+        else:
+            return loc
+
 def _insdc_feature_location_string(feature, rec_length):
-    """Build a GenBank/EMBL location string from a SeqFeature (PRIVATE).
+    """Build a GenBank/EMBL location string from a SeqFeature (PRIVATE, OBSOLETE).
 
     There is a choice of how to show joins on the reverse complement strand,
     GenBank used "complement(join(1,10),(20,100))" while EMBL used to use
@@ -203,12 +236,12 @@ def _insdc_feature_location_string(feature, rec_length):
     which is further complicated by a splice:
     join(complement(69611..69724),139856..140087,140625..140650)
 
-    For mixed this mixed strand feature, the parent SeqFeature should have
+    For this mixed strand feature, the parent SeqFeature should have
     no strand (either 0 or None) while the child features should have either
     strand +1 or -1 as appropriate, and be listed in the order given here.
     """
-
-    if not feature.sub_features:
+    #Using private variable to avoid deprecation warning
+    if not feature._sub_features:
         #Non-recursive.
         #assert feature.location_operator == "", \
         #       "%s has no subfeatures but location_operator %s" \
@@ -220,22 +253,22 @@ def _insdc_feature_location_string(feature, rec_length):
         return location
     # As noted above, treat reverse complement strand features carefully:
     if feature.strand == -1:
-        for f in feature.sub_features:
+        for f in feature._sub_features:
             if f.strand != -1:
                 raise ValueError("Inconsistent strands: %r for parent, %r for child"
                                  % (feature.strand, f.strand))
         return "complement(%s(%s))" \
                % (feature.location_operator,
                   ",".join(_insdc_location_string_ignoring_strand_and_subfeatures(f.location, rec_length)
-                           for f in feature.sub_features))
+                           for f in feature._sub_features))
     #if feature.strand == +1:
     #    for f in feature.sub_features:
     #        assert f.strand == +1
     #This covers typical forward strand features, and also an evil mixed strand:
     assert feature.location_operator != ""
-    return  "%s(%s)" % (feature.location_operator,
-                        ",".join([_insdc_feature_location_string(f, rec_length)
-                                  for f in feature.sub_features]))
+    return "%s(%s)" % (feature.location_operator,
+                       ",".join(_insdc_feature_location_string(f, rec_length)
+                                for f in feature._sub_features))
 
 
 class _InsdcWriter(SequentialSequenceWriter):
@@ -303,13 +336,13 @@ class _InsdcWriter(SequentialSequenceWriter):
     def _write_feature(self, feature, record_length):
         """Write a single SeqFeature object to features table."""
         assert feature.type, feature
-        location = _insdc_feature_location_string(feature, record_length)
+        location = _insdc_location_string(feature.location, record_length)
         f_type = feature.type.replace(" ", "_")
         line = (self.QUALIFIER_INDENT_TMP % f_type)[:self.QUALIFIER_INDENT] \
-            + self._wrap_location(location) + "\n"
+               + self._wrap_location(location) + "\n"
         self.handle.write(line)
         #Now the qualifiers...
-        for key, values in feature.qualifiers.iteritems():
+        for key, values in feature.qualifiers.items():
             if isinstance(values, list) or isinstance(values, tuple):
                 for value in values:
                     self._write_feature_qualifier(key, value)
@@ -965,6 +998,15 @@ class EmblWriter(_InsdcWriter):
         assert len(division) == 3
         return division
 
+    def _write_keywords(self, record):
+        #Put the keywords right after DE line.
+        #Each 'keyword' can have multiple words and spaces, but we
+        #must not split any 'keyword' between lines.
+        #TODO - Combine short keywords onto one line
+        for keyword in record.annotations["keywords"]:
+            self._write_single_line("KW", keyword)
+        self.handle.write("XX\n")
+
     def _write_references(self, record):
         #The order should be RN, RC, RP, RX, RG, RA, RT, RL
         number = 0
@@ -1038,6 +1080,9 @@ class EmblWriter(_InsdcWriter):
         self._write_multi_line("DE", descr)
         handle.write("XX\n")
 
+        if "keywords" in record.annotations:
+            self._write_keywords(record)
+
         #Should this be "source" or "organism"?
         self._write_multi_line(
             "OS", self._get_annotation_str(record, "organism"))
@@ -1072,9 +1117,9 @@ class ImgtWriter(EmblWriter):
     FEATURE_HEADER = "FH   Key                 Location/Qualifiers\n"
 
 if __name__ == "__main__":
-    print "Quick self test"
+    print("Quick self test")
     import os
-    from StringIO import StringIO
+    from SAP.Bio._py3k import StringIO
 
     def compare_record(old, new):
         if old.id != new.id and old.name != new.name:
@@ -1169,8 +1214,8 @@ if __name__ == "__main__":
         handle = StringIO()
         try:
             EmblWriter(handle).write_file(records)
-        except ValueError, err:
-            print err
+        except ValueError as err:
+            print(err)
             return
         handle.seek(0)
 
@@ -1180,11 +1225,10 @@ if __name__ == "__main__":
     for filename in os.listdir("../../Tests/GenBank"):
         if not filename.endswith(".gbk") and not filename.endswith(".gb"):
             continue
-        print filename
+        print(filename)
 
-        handle = open("../../Tests/GenBank/%s" % filename)
-        records = list(GenBankIterator(handle))
-        handle.close()
+        with open("../../Tests/GenBank/%s" % filename) as handle:
+            records = list(GenBankIterator(handle))
 
         check_genbank_writer(records)
         check_embl_writer(records)
@@ -1192,11 +1236,10 @@ if __name__ == "__main__":
     for filename in os.listdir("../../Tests/EMBL"):
         if not filename.endswith(".embl"):
             continue
-        print filename
+        print(filename)
 
-        handle = open("../../Tests/EMBL/%s" % filename)
-        records = list(EmblIterator(handle))
-        handle.close()
+        with open("../../Tests/EMBL/%s" % filename) as handle:
+            records = list(EmblIterator(handle))
 
         check_genbank_writer(records)
         check_embl_writer(records)
@@ -1205,10 +1248,9 @@ if __name__ == "__main__":
     for filename in os.listdir("../../Tests/SwissProt"):
         if not filename.startswith("sp"):
             continue
-        print filename
+        print(filename)
 
-        handle = open("../../Tests/SwissProt/%s" % filename)
-        records = list(SeqIO.parse(handle, "swiss"))
-        handle.close()
+        with open("../../Tests/SwissProt/%s" % filename) as handle:
+            records = list(SeqIO.parse(handle, "swiss"))
 
         check_genbank_writer(records)

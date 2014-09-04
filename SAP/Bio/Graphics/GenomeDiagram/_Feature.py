@@ -27,7 +27,7 @@
 from reportlab.lib import colors
 
 # GenomeDiagram imports
-from _Colors import ColorTranslator
+from ._Colors import ColorTranslator
 
 
 class Feature(object):
@@ -90,7 +90,15 @@ class Feature(object):
                     feature label in degrees (default = 45, linear only)
 
         o label_position    String, 'start', 'end' or 'middle' denoting where
-                    to place the feature label (linear only)
+                    to place the feature label. Leave as None for the default
+                    which is 'start' for linear diagrams, and at the bottom of
+                    the feature as drawn on circular diagrams.
+
+        o label_strand  Integer -1 or +1 to explicitly place the label on the
+                    forward or reverse strand. Default (None) follows th
+                    feature's strand. Use -1 to put labels under (linear) or
+                    inside (circular) the track, +1 to put them above (linear)
+                    or outside (circular) the track.
 
         o locations     List of tuples of (start, end) ints describing where the
                     feature and any subfeatures start and end
@@ -145,7 +153,8 @@ class Feature(object):
         self.label_size = 6
         self.label_color = colors.black
         self.label_angle = 45
-        self.label_position = 'start'
+        self.label_position = None #Expect 'start', 'middle', or 'end' (plus aliases)
+        self.label_strand = None #Expect +1 or -1 if overriding this
 
         if feature is not None:
             self.set_feature(feature)
@@ -168,21 +177,14 @@ class Feature(object):
         """
         self.locations = []
         bounds = []
-        if self._feature.sub_features == []:
-            start = self._feature.location.nofuzzy_start
-            end = self._feature.location.nofuzzy_end
+        #This will be a list of length one for simple FeatureLocation:
+        for location in self._feature.location.parts:
+            start = location.nofuzzy_start
+            end = location.nofuzzy_end
             #if start > end and self.strand == -1:
             #    start, end = end, start
             self.locations.append((start, end))
             bounds += [start, end]
-        else:
-            for subfeature in self._feature.sub_features:
-                start = subfeature.location.nofuzzy_start
-                end = subfeature.location.nofuzzy_end
-                #if start > end and self.strand == -1:
-                #    start, end = end, start
-                self.locations.append((start, end))
-                bounds += [start, end]
         self.type = str(self._feature.type)                     # Feature type
         #TODO - Strand can vary with subfeatures (e.g. mixed strand tRNA)
         if self._feature.strand is None:

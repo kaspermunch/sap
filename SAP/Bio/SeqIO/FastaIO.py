@@ -11,6 +11,8 @@
 
 You are expected to use this module via the Bio.SeqIO functions."""
 
+from __future__ import print_function
+
 from SAP.Bio.Alphabet import single_letter_alphabet
 from SAP.Bio.Seq import Seq
 from SAP.Bio.SeqRecord import SeqRecord
@@ -18,15 +20,17 @@ from SAP.Bio.SeqIO.Interfaces import SequentialSequenceWriter
 
 
 def SimpleFastaParser(handle):
-    """Generator function to iterator over Fasta records (as string tuples).
+    """Generator function to iterate over Fasta records (as string tuples).
 
     For each record a tuple of two strings is returned, the FASTA title
     line (without the leading '>' character), and the sequence (with any
     whitespace removed). The title line is not divided up into an
     identifier (the first word) and comment or description.
 
-    >>> for values in SimpleFastaParser(open("Fasta/dups.fasta")):
-    ...     print values
+    >>> with open("Fasta/dups.fasta") as handle:
+    ...     for values in SimpleFastaParser(handle):
+    ...         print(values)
+    ...
     ('alpha', 'ACGTA')
     ('beta', 'CGTC')
     ('gamma', 'CCGCC')
@@ -83,8 +87,10 @@ def FastaIterator(handle, alphabet=single_letter_alphabet, title2ids=None):
     By default this will act like calling Bio.SeqIO.parse(handle, "fasta")
     with no custom handling of the title lines:
 
-    >>> for record in FastaIterator(open("Fasta/dups.fasta")):
-    ...     print record.id
+    >>> with open("Fasta/dups.fasta") as handle:
+    ...     for record in FastaIterator(handle):
+    ...         print(record.id)
+    ...
     alpha
     beta
     gamma
@@ -94,9 +100,11 @@ def FastaIterator(handle, alphabet=single_letter_alphabet, title2ids=None):
     However, you can supply a title2ids function to alter this:
 
     >>> def take_upper(title):
-    ...     return title.split(None,1)[0].upper(), "", title
-    >>> for record in FastaIterator(open("Fasta/dups.fasta"), title2ids=take_upper):
-    ...     print record.id
+    ...     return title.split(None, 1)[0].upper(), "", title
+    >>> with open("Fasta/dups.fasta") as handle:
+    ...     for record in FastaIterator(handle, title2ids=take_upper):
+    ...         print(record.id)
+    ...
     ALPHA
     BETA
     GAMMA
@@ -133,25 +141,29 @@ class FastaWriter(SequentialSequenceWriter):
                  Use zero (or None) for no wrapping, giving a single
                  long line for the sequence.
         record2title - Optional function to return the text to be
-                 used for the title line of each record.  By default the
+                 used for the title line of each record.  By default
                  a combination of the record.id and record.description
                  is used.  If the record.description starts with the
                  record.id, then just the record.description is used.
 
-        You can either use:
+        You can either use::
 
-        myWriter = FastaWriter(open(filename,"w"))
-        writer.write_file(myRecords)
+            handle = open(filename, "w")
+            myWriter = FastaWriter(handle)
+            writer.write_file(myRecords)
+            handle.close()
 
         Or, follow the sequential file writer system, for example:
 
-        myWriter = FastaWriter(open(filename,"w"))
-        writer.write_header() # does nothing for Fasta files
-        ...
-        Multiple calls to writer.write_record() and/or writer.write_records()
-        ...
-        writer.write_footer() # does nothing for Fasta files
-        writer.close()
+            handle = open(filename, "w")
+            myWriter = FastaWriter(handle)
+            writer.write_header() # does nothing for Fasta files
+            ...
+            Multiple calls to writer.write_record() and/or writer.write_records()
+            ...
+            writer.write_footer() # does nothing for Fasta files
+            handle.close()
+
         """
         SequentialSequenceWriter.__init__(self, handle)
         #self.handle = handle
@@ -199,7 +211,7 @@ class FastaWriter(SequentialSequenceWriter):
             self.handle.write(data + "\n")
 
 if __name__ == "__main__":
-    print "Running quick self test"
+    print("Running quick self test")
 
     import os
     from SAP.Bio.Alphabet import generic_protein, generic_nucleotide
@@ -218,43 +230,45 @@ if __name__ == "__main__":
     def print_record(record):
         #See also bug 2057
         #http://bugzilla.open-bio.org/show_bug.cgi?id=2057
-        print "ID:" + record.id
-        print "Name:" + record.name
-        print "Descr:" + record.description
-        print record.seq
+        print("ID:" + record.id)
+        print("Name:" + record.name)
+        print("Descr:" + record.description)
+        print(record.seq)
         for feature in record.annotations:
-            print '/%s=%s' % (feature, record.annotations[feature])
+            print('/%s=%s' % (feature, record.annotations[feature]))
         if record.dbxrefs:
-            print "Database cross references:"
+            print("Database cross references:")
             for x in record.dbxrefs:
-                print " - %s" % x
+                print(" - %s" % x)
 
     if os.path.isfile(fna_filename):
-        print "--------"
-        print "FastaIterator (single sequence)"
-        iterator = FastaIterator(open(fna_filename, "r"), alphabet=generic_nucleotide, title2ids=genbank_name_function)
+        print("--------")
+        print("FastaIterator (single sequence)")
+        with open(fna_filename, "r") as h:
+            iterator = FastaIterator(h, alphabet=generic_nucleotide, title2ids=genbank_name_function)
         count = 0
         for record in iterator:
             count += 1
             print_record(record)
         assert count == 1
-        print str(record.__class__)
+        print(str(record.__class__))
 
     if os.path.isfile(faa_filename):
-        print "--------"
-        print "FastaIterator (multiple sequences)"
-        iterator = FastaIterator(open(faa_filename, "r"), alphabet=generic_protein, title2ids=genbank_name_function)
+        print("--------")
+        print("FastaIterator (multiple sequences)")
+        with open(faa_filename, "r") as h:
+            iterator = FastaIterator(h, alphabet=generic_protein, title2ids=genbank_name_function)
         count = 0
         for record in iterator:
             count += 1
             print_record(record)
             break
         assert count > 0
-        print str(record.__class__)
+        print(str(record.__class__))
 
-    from cStringIO import StringIO
-    print "--------"
-    print "FastaIterator (empty input file)"
+    from SAP.Bio._py3k import StringIO
+    print("--------")
+    print("FastaIterator (empty input file)")
     #Just to make sure no errors happen
     iterator = FastaIterator(StringIO(""))
     count = 0
@@ -262,4 +276,5 @@ if __name__ == "__main__":
         count += 1
     assert count == 0
 
-    print "Done"
+    print("Done")
+

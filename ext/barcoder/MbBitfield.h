@@ -35,6 +35,8 @@
 
 #include <iostream>
 #include <limits.h>
+#include <climits>
+
 /*!
  * This is a class for bitfields. It stores the bits
  * in unsigned long ints.

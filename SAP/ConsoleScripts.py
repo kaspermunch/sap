@@ -43,6 +43,14 @@ def sap():
                     print "The spcified project folder does not exist."
             sys.exit()
 
+        if options.compile:
+            if os.path.exists(options.database):
+                print "Database already exists. Delete old database or use other name."
+                sys.exit()
+            from CompileDatabase import compileDatabase
+            compileDatabase(options.compile, options.email, options.database)
+            sys.exit()
+
         if options.installdependencies:
             print "Checking that dependencies are installed on your system."
 
@@ -256,7 +264,7 @@ def sap():
                         print "\t\tClustalW2 alignment"
                         cmd += "%s %s --_align %s ; " \
                               % ('sap', optionStr, os.path.join(options.homologcache, homologyResult.homologuesFileName))
-    
+
     
                         print "\t\tTree sampling using", options.assignment
                         cmd += "%s %s --_sample %s ; " % ('sap', optionStr, os.path.join(options.alignmentcache, homologyResult.alignmentFileName))

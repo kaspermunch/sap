@@ -8,8 +8,11 @@
 
 import sys
 import re
+import warnings
 from itertools import chain
 from xml.sax.saxutils import XMLGenerator, escape
+
+from SAP.Bio import BiopythonParserWarning
 
 
 #For speed try to use cElementTree rather than ElementTree
@@ -24,7 +27,7 @@ except ImportError:
     from xml.etree import ElementTree as ElementTree
 
 
-from SAP.Bio._py3k import _as_bytes, _bytes_to_string
+from SAP.Bio._py3k import _as_bytes, _bytes_to_string, unicode
 _empty_bytes_string = _as_bytes("")
 
 from SAP.Bio.Alphabet import generic_dna, generic_protein
@@ -290,6 +293,11 @@ class BlastXmlParser(object):
                     if hit:
                         # need to keep track of hit IDs, since there could be duplicates,
                         if hit.id in key_list:
+                            warnings.warn("Adding hit with BLAST-generated ID "
+                                    "%r since hit ID %r is already present "
+                                    "in query %r. Your BLAST database may contain "
+                                    "duplicate entries." %
+                                    (hit._blast_id, hit.id, query_id), BiopythonParserWarning)
                             # fallback to Blast-generated IDs, if the ID is already present
                             # and restore the desc, too
                             hit.description = '%s %s' % (hit.id, hit.description)
@@ -303,7 +311,7 @@ class BlastXmlParser(object):
                         hit_list.append(hit)
 
                 # create qresult and assign its attributes
-                qresult = QueryResult(query_id, hits=hit_list)
+                qresult = QueryResult(hit_list, query_id)
                 qresult.description = query_desc
                 qresult.seq_len = int(query_len)
                 qresult._blast_id = blast_query_id
@@ -454,8 +462,8 @@ class BlastXmlParser(object):
                         value = caster(value)
                     setattr(frag, val_info[0], value)
 
-            # set the homology characters into aln_annotation dict
-            frag.aln_annotation['homology'] = \
+            # set the similarity characters into aln_annotation dict
+            frag.aln_annotation['similarity'] = \
                     hsp_frag_elem.findtext('Hsp_midline')
 
             # process coordinates
@@ -568,7 +576,7 @@ class BlastXmlIndexer(SearchIndexer):
         generator = self._parser(handle, **self._kwargs)
         generator._meta = self._meta
         generator._fallback = self._fallback
-        return iter(generator).next()
+        return next(iter(generator))
 
     def get_raw(self, offset):
         qend_mark = self.qend_mark
@@ -609,7 +617,7 @@ class _BlastXmlGenerator(XMLGenerator):
 
     def startDocument(self):
         """Starts the XML document."""
-        self.write('<?xml version="1.0"?>\n'
+        self.write(u'<?xml version="1.0"?>\n'
                 '<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" '
                 '"http://www.ncbi.nlm.nih.gov/dtd/NCBI_BlastOutput.dtd">\n')
 
@@ -628,7 +636,7 @@ class _BlastXmlGenerator(XMLGenerator):
     def endElement(self, name):
         """Ends and XML element of the given name."""
         XMLGenerator.endElement(self, name)
-        self.write('\n')
+        self.write(u'\n')
 
     def startParent(self, name, attrs={}):
         """Starts an XML element which has children.
@@ -640,7 +648,7 @@ class _BlastXmlGenerator(XMLGenerator):
         """
         self.startElement(name, attrs, children=True)
         self._level += self._increment
-        self.write('\n')
+        self.write(u'\n')
         # append the element name, so we can end it later
         self._parent_stack.append(name)
 
@@ -670,9 +678,8 @@ class _BlastXmlGenerator(XMLGenerator):
         self.endElement(name)
 
     def characters(self, content):
-        # apply sax's filter first, then ours
-        content = escape(content)
-        for a, b in (('"', '&quot;'), ("'", '&apos;')):
+        content = escape(unicode(content))
+        for a, b in ((u'"', u'&quot;'), (u"'", u'&apos;')):
             content = content.replace(a, b)
         self.write(content)
 
@@ -690,7 +697,7 @@ class BlastXmlWriter(object):
             self.frag_counter = 0, 0, 0, 0
 
         # get the first qresult, since the preamble requires its attr values
-        first_qresult = qresults.next()
+        first_qresult = next(qresults)
         # start the XML document, set the root element, and create the preamble
         xml.startDocument()
         xml.startParent('BlastOutput')
@@ -844,7 +851,7 @@ class BlastXmlWriter(object):
         """Adjusts output to mimic native BLAST+ XML as much as possible."""
 
         # adjust coordinates
-        if attr in ('query_start' ,'query_end' ,'hit_start', 'hit_end',
+        if attr in ('query_start', 'query_end', 'hit_start', 'hit_end',
                 'pattern_start', 'pattern_end'):
             content = getattr(hsp, attr) + 1
             if '_start' in attr:
@@ -865,7 +872,7 @@ class BlastXmlWriter(object):
         elif elem in ('Hsp_hseq', 'Hsp_qseq'):
             content = str(getattr(hsp, attr).seq)
         elif elem == 'Hsp_midline':
-            content = hsp.aln_annotation['homology']
+            content = hsp.aln_annotation['similarity']
         elif elem in ('Hsp_evalue', 'Hsp_bit-score'):
             # adapted from src/algo/blast/format/blastxml_format.cpp#L138-140
             content = '%.*g' % (6, getattr(hsp, attr))

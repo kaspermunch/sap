@@ -107,7 +107,7 @@ class NeighbourJoin:
         self.translation = {}
         for i, key in enumerate(self.keyList):
             self.translation[key] = str(i+1)
-            self.alignment.append({'name':str(i+1), 'seq':alignment.matrix[key].tostring()})
+            self.alignment.append({'name':str(i+1), 'seq':str(alignment.matrix[key])})
         self.alignmentLength = len(self.alignment[0]['seq'])
         self.indexList = range(self.alignmentLength)
 
@@ -116,7 +116,7 @@ class NeighbourJoin:
         if constraintTree is not None and queryName is not None:
             # Find bounds of query seq and make corresponding index lists:
             self.queryName = queryName
-            querySeq = alignment.matrix[self.queryName].tostring()
+            querySeq = str(alignment.matrix[self.queryName])
             leftBound = len(re.search("^(-*)", querySeq).groups()[0])
             rightBound = len(querySeq) - len(re.search("(-*)$", querySeq).groups()[0])
             self.queryIndexList = range(leftBound, rightBound)

@@ -20,7 +20,9 @@ Parameters         Holds information from the parameters.
 """
 # XXX finish printable BLAST output
 
-from SAP.Bio.Align import Generic
+from SAP.Bio.Seq import Seq
+from SAP.Bio.SeqRecord import SeqRecord
+from SAP.Bio.Align import MultipleSeqAlignment
 
 
 class Header(object):
@@ -211,12 +213,12 @@ class MultipleAlignment(object):
     def to_generic(self, alphabet):
         """Retrieve generic alignment object for the given alignment.
 
-        Instead of the tuples, this returns an Alignment object from
-        Bio.Align.Generic, through which you can manipulate and query
+        Instead of the tuples, this returns a MultipleSeqAlignment object
+        from SAP.Bio.Align, through which you can manipulate and query
         the object.
 
         alphabet is the specified alphabet for the sequences in the code (for
-        example IUPAC.IUPACProtein.
+        example IUPAC.IUPACProtein).
 
         Thanks to James Casbon for the code.
         """
@@ -237,9 +239,9 @@ class MultipleAlignment(object):
                 seq_parts[n] += seq
                 n += 1
 
-        generic = Generic.Alignment(alphabet)
-        for (name,seq) in zip(seq_names,seq_parts):
-            generic.add_sequence(name, seq)
+        generic = MultipleSeqAlignment([], alphabet)
+        for (name, seq) in zip(seq_names, seq_parts):
+            generic.append(SeqRecord(Seq(seq, alphabet), name))
 
         return generic
 

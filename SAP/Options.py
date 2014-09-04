@@ -15,15 +15,31 @@ class Options:
 The program does statistical assignment of DNA sequences to taxonomic
 groups represented in an annotated sequence database.
 
-Type 'sap --onlinehelp' to open the online manual in your default browser."""
+Type 'sap --onlinehelp' to open the online manual in your default browser.
 
-        self.parser = OptionParser(usage=usage, version="%prog 1.9.1")
+Example usages:
+
+Default: Running against Genbank
+    sap --project myproject query.fasta
+
+Compiling a local database specified by a query for Genbank nucleotide db:
+    sap --compile '(COI[Gene Name]) AND barcode[Keyword]' coi_barcode_db.fasta
+
+Running against a local database:
+    sap --project myproject --database coi_barcode_db.fasta query.fasta
+"""
+
+        self.parser = OptionParser(usage=usage, version="%prog 1.9.3")
 
         # General options:
         self.parser.add_option("--onlinehelp",
                           action="store_true",
                           default=False,
                           help="Open online manual in default browser.")
+        self.parser.add_option("--compile",
+                          type="string",
+                          default = False,
+                          help="Query for Genbank nucleotide database defining database content. E.g. '(COI[Gene Name]) AND barcode[Keyword]'")
         self.parser.add_option("-d", "--project",
                           type="string",
                           default = os.path.abspath(time.strftime('project-%H.%M-%m.%d.%y')),
@@ -277,7 +293,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           type="string",
                           #default=None,
                           default='dbcache',
-                          help="Where to put cached GenBank files.")
+                          help="Where to put cached sequence and taxonomy information.")
         self.parser.add_option("--homologcache",
                           type="string",
                           #default=None,
@@ -315,7 +331,7 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
                           help="Where to put the fixed input files.")
         self.parser.add_option("-e", "--email",
                           type="string",
-                          default='',
+                          default='kaspermunch@birc.au.dk',
                           help="When using GenBank remotely like sap does NCBI strongly recommends you to specify your email along with the requests. In case of excessive usage of the E-utilities, NCBI will attempt to contact a user at the email address provided before blocking access to the E-utilities.")
 
         self.parser.add_option("--_align",
@@ -431,6 +447,9 @@ Type 'sap --onlinehelp' to open the online manual in your default browser."""
 
         if self.options.nofillin and self.options.fillinall:
             self.showMessageAndExit("Don't use the options fillinall and nofillin at the same time.", guiParent=guiParent)
+
+        if self.options.compile and not self.options.database:
+            self.showMessageAndExit("You must specify a name for your database using --database", guiParent=guiParent)
 
         # Make sure alignment options are unique and nonoverlapping:
         alignmentoption = []

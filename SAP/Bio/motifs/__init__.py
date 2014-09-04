@@ -13,6 +13,12 @@ and MAST programs, as well as files in the TRANSFAC format.
 Bio.motifs is replacing the older and now obsolete Bio.Motif module.
 """
 
+from __future__ import print_function
+
+from SAP.Bio._py3k import range
+
+import math
+
 
 def create(instances, alphabet=None):
     instances = Instances(instances, alphabet)
@@ -28,6 +34,7 @@ def parse(handle, format):
      - MAST:          MAST output file motif
      - TRANSFAC:      TRANSFAC database file format
      - pfm:           JASPAR-style position-frequency matrix
+     - jaspar:        JASPAR-style multiple PFM format
      - sites:         JASPAR-style sites file
     As files in the pfm and sites formats contain only a single motif,
     it is easier to use Bio.motifs.read() instead of Bio.motifs.parse()
@@ -36,8 +43,10 @@ def parse(handle, format):
     For example:
 
     >>> from SAP.Bio import motifs
-    >>> for m in motifs.parse(open("Motif/alignace.out"),"AlignAce"):
-    ...     print m.consensus
+    >>> with open("Motif/alignace.out") as handle:
+    ...     for m in motifs.parse(handle, "AlignAce"):
+    ...         print(m.consensus)
+    ...
     TCTACGATTGAG
     CTGCAGCTAGCTACGAGTGAG
     GTGCTCTAAGCATAGTAGGCG
@@ -72,11 +81,10 @@ def parse(handle, format):
         from SAP.Bio.motifs import transfac
         record = transfac.read(handle)
         return record
-    elif format in ('pfm', 'sites'):
+    elif format in ('pfm', 'sites', 'jaspar'):
         from SAP.Bio.motifs import jaspar
-        motif = jaspar.read(handle, format)
-        motifs = [motif]
-        return motifs
+        record = jaspar.read(handle, format)
+        return record
     else:
         raise ValueError("Unknown format %s" % format)
 
@@ -89,14 +97,16 @@ def read(handle, format):
     reading a JASPAR-style pfm file:
 
     >>> from SAP.Bio import motifs
-    >>> m = motifs.read(open("motifs/SRF.pfm"), "pfm")
+    >>> with open("motifs/SRF.pfm") as handle:
+    ...     m = motifs.read(handle, "pfm")
     >>> m.consensus
     Seq('GCCCATATATGG', IUPACUnambiguousDNA())
 
     Or a single-motif MEME file,
 
     >>> from SAP.Bio import motifs
-    >>> m = motifs.read(open("motifs/meme.out"),"meme")
+    >>> with open("motifs/meme.out") as handle:
+    ...     m = motifs.read(handle, "meme")
     >>> m.consensus
     Seq('CTCAATCGTA', IUPACUnambiguousDNA())
 
@@ -104,7 +114,8 @@ def read(handle, format):
     an exception is raised:
 
     >>> from SAP.Bio import motifs
-    >>> motif = motifs.read(open("motifs/alignace.out"),"AlignAce")
+    >>> with open("motifs/alignace.out") as handle:
+    ...     motif = motifs.read(handle, "AlignAce")
     Traceback (most recent call last):
         ...
     ValueError: More than one motif found in handle
@@ -114,7 +125,8 @@ def read(handle, format):
     shown in the example above).  Instead use:
 
     >>> from SAP.Bio import motifs
-    >>> record = motifs.parse(open("motifs/alignace.out"),"alignace")
+    >>> with open("motifs/alignace.out") as handle:
+    ...     record = motifs.parse(handle, "alignace")
     >>> motif = record[0]
     >>> motif.consensus
     Seq('TCTACGATTGAG', IUPACUnambiguousDNA())
@@ -185,10 +197,10 @@ class Instances(list):
         """
         a generator function, returning found positions of motif instances in a given sequence
         """
-        for pos in xrange(0,len(sequence)-self.length+1):
+        for pos in range(0, len(sequence)-self.length+1):
             for instance in self:
                 if str(instance) == str(sequence[pos:pos+self.length]):
-                    yield(pos,instance)
+                    yield(pos, instance)
                     break # no other instance will fit (we don't want to return multiple hits)
     def reverse_complement(self):
         instances = Instances(alphabet=self.alphabet)
@@ -204,7 +216,7 @@ class Motif(object):
     A class representing sequence motifs.
     """
     def __init__(self, alphabet=None, instances=None, counts=None):
-        import matrix
+        from . import matrix
         from SAP.Bio.Alphabet import IUPAC
         self.name=""
         if counts is not None and instances is not None:
@@ -315,7 +327,7 @@ class Motif(object):
             text += str(self.instances)
 
         if masked:
-            for i in xrange(self.length):
+            for i in range(self.length):
                 if self.__mask[i]:
                     text += "*"
                 else:
@@ -408,6 +420,7 @@ The same rules are used by TRANSFAC."""
             'yaxis_tic_interval' : '1.0',
             'show_ends' : True,
             'show_fineprint' : True,
+            'color_scheme': 'color_auto',
             'symbols0': '',
             'symbols1': '',
             'symbols2': '',
@@ -420,34 +433,35 @@ The same rules are used by TRANSFAC."""
             'color4': '',
 
         """
-        import urllib
-        import urllib2
+        from SAP.Bio._py3k import urlopen, urlencode, Request
+
         frequencies = self.format('transfac')
         url = 'http://weblogo.threeplusone.com/create.cgi'
-        values = {'sequences' : frequencies,
-                  'format' : format.lower(),
-                  'stack_width' : 'medium',
-                  'stack_per_line' : '40',
-                  'alphabet' : 'alphabet_dna',
-                  'ignore_lower_case' : True,
-                  'unit_name' : "bits",
-                  'first_index' : '1',
-                  'logo_start' : '1',
+        values = {'sequences': frequencies,
+                  'format': format.lower(),
+                  'stack_width': 'medium',
+                  'stack_per_line': '40',
+                  'alphabet': 'alphabet_dna',
+                  'ignore_lower_case': True,
+                  'unit_name': "bits",
+                  'first_index': '1',
+                  'logo_start': '1',
                   'logo_end': str(self.length),
-                  'composition' : "comp_auto",
-                  'percentCG' : '',
-                  'scale_width' : True,
-                  'show_errorbars' : True,
-                  'logo_title' : '',
-                  'logo_label' : '',
+                  'composition': "comp_auto",
+                  'percentCG': '',
+                  'scale_width': True,
+                  'show_errorbars': True,
+                  'logo_title': '',
+                  'logo_label': '',
                   'show_xaxis': True,
                   'xaxis_label': '',
                   'show_yaxis': True,
                   'yaxis_label': '',
                   'yaxis_scale': 'auto',
-                  'yaxis_tic_interval' : '1.0',
-                  'show_ends' : True,
-                  'show_fineprint' : True,
+                  'yaxis_tic_interval': '1.0',
+                  'show_ends': True,
+                  'show_fineprint': True,
+                  'color_scheme': 'color_auto',
                   'symbols0': '',
                   'symbols1': '',
                   'symbols2': '',
@@ -459,32 +473,32 @@ The same rules are used by TRANSFAC."""
                   'color3': '',
                   'color4': '',
                   }
-        for k,v in kwds.iteritems():
-            if type(values[k])==bool:
+        for k, v in kwds.items():
+            if isinstance(values[k], bool):
                 if not v:
                     v = ""
             values[k]=str(v)
 
-        data = urllib.urlencode(values)
-        req = urllib2.Request(url, data)
-        response = urllib2.urlopen(req)
-        f = open(fname,"w")
-        im = response.read()
-
-        f.write(im)
-        f.close()
+        data = urlencode(values)
+        req = Request(url, data)
+        response = urlopen(req)
+        with open(fname,"w") as f:
+            im = response.read()
+            f.write(im)
 
     def format(self, format):
         """Returns a string representation of the Motif in a given format
 
         Currently supported fromats:
-         - pfm : JASPAR Position Frequency Matrix
+         - pfm : JASPAR single Position Frequency Matrix
+         - jaspar : JASPAR multiple Position Frequency Matrix
          - transfac : TRANSFAC like files
         """
 
-        if format=="pfm":
+        if format in ('pfm', 'jaspar'):
             from SAP.Bio.motifs import jaspar
-            return jaspar.write(self)
+            motifs = [self]
+            return jaspar.write(motifs, format)
         elif format=="transfac":
             from SAP.Bio.motifs import transfac
             motifs = [self]
@@ -496,21 +510,23 @@ The same rules are used by TRANSFAC."""
 def write(motifs, format):
     """Returns a string representation of motifs in a given format
 
-    Currently supported fromats (case is ignored):
-     - pfm : JASPAR Position Frequency Matrix
-             [only if len(motifs)==1]
+    Currently supported formats (case is ignored):
+     - pfm : JASPAR simple single Position Frequency Matrix
+     - jaspar : JASPAR multiple PFM format
      - transfac : TRANSFAC like files
     """
 
     format = format.lower()
-    if format=="pfm":
+    if format in ("pfm", "jaspar"):
         from SAP.Bio.motifs import jaspar
-        if len(motifs)!=1:
-            raise Exception("Only a single motif can be written in the JASPAR Position Frequency Matrix (pfm) format")
-        motif = motifs[0]
-        return jaspar.write(motif)
+        return jaspar.write(motifs, format)
     elif format=="transfac":
         from SAP.Bio.motifs import transfac
         return transfac.write(motifs)
     else:
         raise ValueError("Unknown format type %s" % format)
+
+
+if __name__ == "__main__":
+    from SAP.Bio._utils import run_doctest
+    run_doctest(verbose=0)

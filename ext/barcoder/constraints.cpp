@@ -6,6 +6,7 @@
 #include <istream>
 #include <sstream>
 #include <fstream>
+#include <cstdlib>
 #include "MbBitfield.h"
 #include "crossplatform.h"
 

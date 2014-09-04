@@ -1,3 +1,4 @@
+from collections import defaultdict
 
 try:
    import cPickle as pickle
@@ -8,6 +9,8 @@ from math import floor
 from UtilityFunctions import *
 from SAP.Bio.Nexus import Nexus
 from Assignment.ConstrainedNJ import ConstrainedNJ
+
+levelsSummaried = ['phylum', 'class', 'order', 'family', 'genus', 'species']
 
 class ResultHTML:
 
@@ -62,7 +65,133 @@ class ResultHTML:
                           '</html>'])
 
 
-    def createMainPage(self, mainSummary, sequenceNameMap):
+    def createTableMainPage(self, mainSummary, sequenceNameMap):
+        """Create front page containing tables of identified names"""
+
+        print "Creating main table page...",
+        sys.stdout.flush()
+
+        assignmentTaxonomies = self.compileAssignmentTable(mainSummary, sequenceNameMap)
+        with open(os.path.join(self.options.project, 'assignments.csv'), 'w') as f:
+            for r in assignmentTaxonomies:
+                print >>f, ",".join(map(str, r))
+
+        levelProbabilities = self.compileProbabilityTable(mainSummary, sequenceNameMap)
+        with open(os.path.join(self.options.project, 'taxon_probabilities.csv'), 'w') as f:
+            for r in levelProbabilities:
+                print >>f, ",".join(map(str, r))
+
+        html = """
+                    <h1>Assignments</h1>
+        <p>Click the sequence name to get details on the
+    assignment. Clicking a taxonomic name takes you to a description of the taxon in the Encyclopedia of Life.
+
+    <p>If you want to look at a assignments that did not pass any specified threshold you can find it
+    in the list of input sequences by following the link at the top of
+    this page.</p>
+    """
+
+        html += '''
+            <p>
+            A note of caution: If the database used is not large or diverse enough it may not be possible to
+            compile a data set of homologues that allows an assignment to only a subset of the represented taxa.
+            In such cases there are no homologues in the alignment that are never part of a defining clade.
+            I these cases additional information is supplied in the last three columns to assess the severity of this problem:
+            min. freq. homologue: The proportion of sampled trees that includes the homologue most rarely included.
+            min. prob. taxon: The smallest posterior probability at the lowest taxonomic level with any support.
+            nr. homolgues: Number of significant homologues if this number is below five.
+            </p>'''
+
+        header=['file', 'cutoff', 'detail', 'id']+levelsSummaried+['nr. homolgues', 'min. freq. homologue', 'min. prob. taxon']
+        html += '<tr><th align="left">' + '</th><th align="left">'.join(map(str, header)) + '</th></tr>\n'
+        for row in assignmentTaxonomies:
+            row[2] = '<a href="clones/%s.html">%s</a>' % (row[2], row[3])
+            for i in range(4, 10):
+                row[i] = '<a href="http://www.eol.org/search?q=%s&search_image=">%s</a>' \
+                                   % (row[i].replace(" ", "+"), row[i])
+            html += '<tr><td>' + '</td><td>'.join(map(str, row)) + '</td></tr>\n'
+        html = '<table>' + html + '</table>'
+
+        htmlContents = self.createHtml("Assignments", html, header=True)
+        writeFile(self.options.resultdir + '/index.html', htmlContents)
+
+        print "done"
+
+
+    def compileAssignmentTable(self, mainSummary, sequenceNameMap):
+
+        experiments = mainSummary.keys()
+        experiments.sort()
+        table = list()
+        for experiment in experiments:
+            summary = mainSummary[experiment]
+
+            # TODO: use summary["doubleToAnalyzedDict"] to add doubles...
+
+            results = defaultdict(dict)
+
+            # Make a table for each significance cut-off:
+            for significanceLevel, significantRanks in summary['significantRanks']:
+                significanceLevel = float(significanceLevel[:-1]) / 100
+                for rank, taxa in significantRanks["ranks"].items():
+                    for taxon, query_seqs  in taxa.items():
+                        for query in query_seqs:
+                            results[query['name']][rank] = taxon
+                for query in results:
+                    for rank in levelsSummaried:
+                        if rank not in results[query]:
+                            results[query][rank] = "NA"
+
+                for double, analyzed in summary['doubleToAnalyzedDict'].items():
+                    results[double] = results[analyzed]
+
+                for query in results:
+                    nrSignificantHomologues = summary['nrSignificantHomologues'][query]
+                    lowestHomolProb, lowestTaxonProb = 'NA', 'NA'
+                    if summary['dbExhausted'][query]:
+                        if summary['lowestHomolProb'][query] > 0.0001:
+                            lowestHomolProb = summary['lowestHomolProb'][query]
+                        if summary['lowestTaxonProb'][query] > 0.0001:
+                            lowestTaxonProb = summary['lowestTaxonProb'][query]
+
+                    table.append([experiment, significanceLevel, query, self.mapBackQueryName(query, sequenceNameMap)] \
+                                         + [results[query][x] for x in levelsSummaried] + [nrSignificantHomologues, lowestHomolProb, lowestTaxonProb])
+
+        return table
+
+
+
+
+
+    def compileProbabilityTable(self, mainSummary, sequenceNameMap):
+
+        experiments = mainSummary.keys()
+        experiments.sort()
+        table_alternative = list()
+        table = list()
+        results = defaultdict(dict)
+        for experiment in experiments:
+            summary = mainSummary[experiment]
+
+            for significanceLevel, significantRanks in summary['significantRanks']:
+                significanceLevel = float(significanceLevel[:-1]) / 100
+                for rank, taxa in significantRanks["ranks"].items():
+                    for taxon, query_seqs  in taxa.items():
+                        for query in query_seqs:
+                            results[query['name']][rank] = [experiment, taxon, query["probability"]]
+
+            for double, analyzed in summary['doubleToAnalyzedDict'].items():
+                results[double] = results[analyzed]
+
+            for query in results:
+                for rank in results[query]:
+                    experiment, taxon, prob = results[query][rank]
+                    table.append([experiment, self.mapBackQueryName(query, sequenceNameMap), rank, taxon, prob])
+
+        return table
+
+
+    def createClassicMainPage(self, mainSummary, sequenceNameMap):
         """Create front page containing tables of identified names"""
 
         print "Creating main page...",
@@ -73,217 +202,6 @@ class ResultHTML:
 
         notConvergedListFileName = '%s/notConverged.tbl' % (self.options.statsdir)
         notConvergedListFile = open(notConvergedListFileName, 'w')
-
-        tooltipCSS = '.tip {font:10px/12px Arial,Helvetica,sans-serif; border:solid 1px #666666; padding:1px; position:absolute; z-index:100; visibility:hidden; color:#333333; top:20px; left:90px; background-color:#ffffcc; layer-background-color:#ffffcc;}'
-
-        tooltipJS = '''// Extended Tooltip Javascript
-// copyright 9th August 2002, 3rd July 2005
-// by Stephen Chapman, Felgall Pty Ltd
-
-// permission is granted to use this javascript provided that the below code is not altered
-var DH = 0;var an = 0;var al = 0;var ai = 0;if (document.getElementById) {ai = 1; DH = 1;}else {if (document.all) {al = 1; DH = 1;} else { browserVersion = parseInt(navigator.appVersion); if ((navigator.appName.indexOf('Netscape') != -1) && (browserVersion == 4)) {an = 1; DH = 1;}}} function fd(oi, wS) {if (ai) return wS ? document.getElementById(oi).style:document.getElementById(oi); if (al) return wS ? document.all[oi].style: document.all[oi]; if (an) return document.layers[oi];}
-function pw() {return window.innerWidth != null? window.innerWidth: document.body.clientWidth != null? document.body.clientWidth:null;}
-function mouseX(evt) {if (evt.pageX) return evt.pageX; else if (evt.clientX)return evt.clientX + (document.documentElement.scrollLeft ?  document.documentElement.scrollLeft : document.body.scrollLeft); else return null;}
-function mouseY(evt) {if (evt.pageY) return evt.pageY; else if (evt.clientY)return evt.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop); else return null;}
-function popUp(evt,oi) {if (DH) {var wp = pw(); ds = fd(oi,1); dm = fd(oi,0); st = ds.visibility; if (dm.offsetWidth) ew = dm.offsetWidth; else if (dm.clip.width) ew = dm.clip.width; if (st == "visible" || st == "show") { ds.visibility = "hidden"; } else {tv = mouseY(evt) + 20; lv = mouseX(evt) - (ew/4); if (lv < 2) lv = 2; else if (lv + ew > wp) lv -= ew/2; if (!an) {lv += 'px';tv += 'px';} ds.left = lv; ds.top = tv; ds.visibility = "visible";}}}
-'''
-
-        styleCSS = """body {  
-    font-family: verdana, geneva, arial, helvetica, sans-serif;
-    font-size: 12px; 
-    font-style: normal; 
-    text-decoration: none; 
-    font-weight: lighter; 
-}
-
-a {
-    font-style: normal; 
-    font-weight: lighter; 
-}
-
-/* Put a <div class="alignment"> around the alignment table and remove the pre tags. The - signs needs to be replaced for .  Create colors using <font color="red">C</font> Use regexps to catch strethes of the same letter to avoid excess font tags*/
-
-.alignment {
-    font-size:10px;
-}
-
-.alignmentseq {
-    padding:0px; 
-    margin:0px;
-    font-size: 12px;
-    font-family: "Courier New" Courier monospace;
-}
-
-.green {
-    color:#009900;
-}
-
-.center {
-    text-align: center;   
-}
-
-.key {
-    font-size:10px;
-}
-
-.key table {
-    border-style: none;
-    padding: 0px;
-    border-collapse: collapse;
-    margin: 10px;
-}
-
-.key td {
-    padding: 2px 10px 2px 2px;
-}
-
-table {
-    border-style: none;
-    margin: 0px;
-    padding: 0px;
-    border-collapse: collapse;
-}
-
-td {
-    vertical-align: top;
-    padding: 3px;
-}
-
-.ranktable {
-    padding: 0px;   
-}
-
-.quicknavigation {
-    /* background-color: #dddddd; */
-}
-
-.summary {
-    background-color: #ffffff;
-}
-
-.taxonomysummary {
-    background-color: #ffffff;
-    padding-left: 40px;
-    padding-top: 15px;
-}
-
-.clonelist td {
-    padding: 5px;
-}
-
-.header {
-    background-color: #999999;
-}
-
-.lightblue {
-    /* color: #0000FF;*/
-    background-color: #CEE0F3;
-    /* background-color: #ADDFFF; */
-}
-
-.dark {
-    background-color: #dddddd;
-}
-
-.light {
-    background-color: #eeeeee;
-}
-
-p { 
-    font-size: 12px;
-    margin-top: 2px;
-    margin-left: 5px;
-}
-
-h1 {
-    font-size: 13pt;
-    line-height: 13pt;
-    background-color: #ddd;
-    /* border:2px solid black; */
-    padding-bottom: 0pt;
-    margin-bottom: 0pt;
-/*     margin-left: 3pt; */
-    padding: 5pt;
-}
-
-h2 {
-    font-size: 11pt;
-    margin-bottom: 0pt;
-    margin-left: 3pt;
-    font-weight: bold
-}
-
-h3 {
-    font-size: 9pt;
-    margin-bottom: 0pt;
-    margin-top: 2pt;
-    margin-left: 3pt;
-    font-weight: bold;
-}
-
-a:active blue {
-    color: #666666;
-}
-
-a:active {
-    color: #666666;
-}
-
-a:link {
-    color: #000000;
-    text-decoration: underline;
-}
-
-a:visited {
-    color: #000000;
-    text-decoration: underline;
-}
-
-a:hover {
-    color: #000000;
-    text-decoration: underline;
-}
-
-/*Tooltip*/
-
-span.info{
-	position:relative; /*this is the key*/
-	/*color: silver;
-	font: bold 11px "Trebuchet MS", Verdana, Arial, sans-serif;*/
-	cursor:crosshair;
-	text-decoration: none;
-}
-
-span.info:hover {
-	/* background-color:white; */
-	color: black;
-}
-
-span.info span.tooltip {
-	display:none;
-}
-
-span.info:hover span.tooltip { /*the span will display just on :hover state*/
-    display:block;
-    position:absolute;
-    padding: 3px 3px 3px 6px;
-    top:1ex;
-    left:0;
-    width:1000%;
-/*     border:1px solid black;
-    background-color: #eeeeee; */
-    color:#000;
-    font-size:100%;
-    text-align:left;
-    z-index: 20;
-/* 	opacity: .70; */
-}
-"""
-
-        writeFile(os.path.join(self.options.resultdir, 'style.css'), styleCSS)
-        writeFile(os.path.join(self.options.resultdir, 'clones', 'style.css'), styleCSS)
-        writeFile(os.path.join(self.options.resultdir, 'tooltip.css'), tooltipCSS)
-        writeFile(os.path.join(self.options.resultdir, 'tooltip.js'), tooltipJS)
         
         text = "<h1>Assignment Summary</h1>"
 
@@ -450,7 +368,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
 
                     clonesAssignedDict = {}
 
-                    nClones = 0;
+                    nClones = 0
                     for name in sorted(significantRanks['ranks'][rank].keys()):
                         # New row:
                         if rowCount % 2:
@@ -550,7 +468,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 #text += "<br>"
                 
         htmlContents = self.createHtml("Summary page", text, header=True)
-        writeFile(self.options.resultdir + '/index.html', htmlContents)
+        writeFile(self.options.resultdir + '/classic.html', htmlContents)
 
         print "done"
 
@@ -818,18 +736,20 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
                 alignment = Nexus.Nexus(alignmentFileName)
                 text += "<table style=\"font-size:10px;\">"
 
-                querySeq = alignment.matrix[name].tostring()
+                querySeq = str(alignment.matrix[name])
                 score = 1.0
 
                 nameForAlignment = self.mapBackQueryName(name, sequenceNameMap)
                 if len(nameForAlignment) > 27:
                    nameForAlignment = nameForAlignment[:27] + '...'
                 text += '<tr><td>%s:</td><td>%.2f</td><td class="alignmentseq">%s</td></tr>\n' % (nameForAlignment, score, markupSequence(querySeq, name))
-                
+
+
+
                 del alignment.matrix[name]
                 scoreKeyAndSeqList = []
                 for key in alignment.matrix.keys():
-                    sequence = alignment.matrix[key].tostring()
+                    sequence = str(alignment.matrix[key])
                     score = similarityScore(querySeq, sequence)
                     scoreKeyAndSeqList.append([score, sequence, key])
                 scoreKeyAndSeqList.sort(lambda x, y: cmp(y[0], x[0]) or cmp(y[1], x[1]))
@@ -950,6 +870,220 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
 
             writeFile(self.options.resultdir + '/distances.html', htmlContents)
 
+    def writeCSSandJS(self):
+
+        tooltipCSS = '.tip {font:10px/12px Arial,Helvetica,sans-serif; border:solid 1px #666666; padding:1px; position:absolute; z-index:100; visibility:hidden; color:#333333; top:20px; left:90px; background-color:#ffffcc; layer-background-color:#ffffcc;}'
+
+        tooltipJS = '''// Extended Tooltip Javascript
+// copyright 9th August 2002, 3rd July 2005
+// by Stephen Chapman, Felgall Pty Ltd
+
+// permission is granted to use this javascript provided that the below code is not altered
+var DH = 0;var an = 0;var al = 0;var ai = 0;if (document.getElementById) {ai = 1; DH = 1;}else {if (document.all) {al = 1; DH = 1;} else { browserVersion = parseInt(navigator.appVersion); if ((navigator.appName.indexOf('Netscape') != -1) && (browserVersion == 4)) {an = 1; DH = 1;}}} function fd(oi, wS) {if (ai) return wS ? document.getElementById(oi).style:document.getElementById(oi); if (al) return wS ? document.all[oi].style: document.all[oi]; if (an) return document.layers[oi];}
+function pw() {return window.innerWidth != null? window.innerWidth: document.body.clientWidth != null? document.body.clientWidth:null;}
+function mouseX(evt) {if (evt.pageX) return evt.pageX; else if (evt.clientX)return evt.clientX + (document.documentElement.scrollLeft ?  document.documentElement.scrollLeft : document.body.scrollLeft); else return null;}
+function mouseY(evt) {if (evt.pageY) return evt.pageY; else if (evt.clientY)return evt.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop); else return null;}
+function popUp(evt,oi) {if (DH) {var wp = pw(); ds = fd(oi,1); dm = fd(oi,0); st = ds.visibility; if (dm.offsetWidth) ew = dm.offsetWidth; else if (dm.clip.width) ew = dm.clip.width; if (st == "visible" || st == "show") { ds.visibility = "hidden"; } else {tv = mouseY(evt) + 20; lv = mouseX(evt) - (ew/4); if (lv < 2) lv = 2; else if (lv + ew > wp) lv -= ew/2; if (!an) {lv += 'px';tv += 'px';} ds.left = lv; ds.top = tv; ds.visibility = "visible";}}}
+'''
+
+        styleCSS = """body {  
+    font-family: verdana, geneva, arial, helvetica, sans-serif;
+    font-size: 12px; 
+    font-style: normal; 
+    text-decoration: none; 
+    font-weight: lighter; 
+}
+
+a {
+    font-style: normal; 
+    font-weight: lighter; 
+}
+
+/* Put a <div class="alignment"> around the alignment table and remove the pre tags. The - signs needs to be replaced for .  Create colors using <font color="red">C</font> Use regexps to catch strethes of the same letter to avoid excess font tags*/
+
+.alignment {
+    font-size:10px;
+}
+
+.alignmentseq {
+    padding:0px; 
+    margin:0px;
+    font-size: 12px;
+    font-family: "Courier New" Courier monospace;
+}
+
+.green {
+    color:#009900;
+}
+
+.center {
+    text-align: center;   
+}
+
+.key {
+    font-size:10px;
+}
+
+.key table {
+    border-style: none;
+    padding: 0px;
+    border-collapse: collapse;
+    margin: 10px;
+}
+
+.key td {
+    padding: 2px 10px 2px 2px;
+}
+
+table {
+    border-style: none;
+    margin: 0px;
+    padding: 0px;
+    border-collapse: collapse;
+}
+
+td {
+    vertical-align: top;
+    padding: 3px;
+}
+
+.ranktable {
+    padding: 0px;   
+}
+
+.quicknavigation {
+    /* background-color: #dddddd; */
+}
+
+.summary {
+    background-color: #ffffff;
+}
+
+.taxonomysummary {
+    background-color: #ffffff;
+    padding-left: 40px;
+    padding-top: 15px;
+}
+
+.clonelist td {
+    padding: 5px;
+}
+
+.header {
+    background-color: #999999;
+}
+
+.lightblue {
+    /* color: #0000FF;*/
+    background-color: #CEE0F3;
+    /* background-color: #ADDFFF; */
+}
+
+.dark {
+    background-color: #dddddd;
+}
+
+.light {
+    background-color: #eeeeee;
+}
+
+p { 
+    font-size: 12px;
+    margin-top: 2px;
+    margin-left: 5px;
+}
+
+h1 {
+    font-size: 13pt;
+    line-height: 13pt;
+    background-color: #ddd;
+    /* border:2px solid black; */
+    padding-bottom: 0pt;
+    margin-bottom: 0pt;
+/*     margin-left: 3pt; */
+    padding: 5pt;
+}
+
+h2 {
+    font-size: 11pt;
+    margin-bottom: 0pt;
+    margin-left: 3pt;
+    font-weight: bold
+}
+
+h3 {
+    font-size: 9pt;
+    margin-bottom: 0pt;
+    margin-top: 2pt;
+    margin-left: 3pt;
+    font-weight: bold;
+}
+
+a:active blue {
+    color: #666666;
+}
+
+a:active {
+    color: #666666;
+}
+
+a:link {
+    color: #000000;
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #000000;
+    text-decoration: underline;
+}
+
+a:hover {
+    color: #000000;
+    text-decoration: underline;
+}
+
+/*Tooltip*/
+
+span.info{
+	position:relative; /*this is the key*/
+	/*color: silver;
+	font: bold 11px "Trebuchet MS", Verdana, Arial, sans-serif;*/
+	cursor:crosshair;
+	text-decoration: none;
+}
+
+span.info:hover {
+	/* background-color:white; */
+	color: black;
+}
+
+span.info span.tooltip {
+	display:none;
+}
+
+span.info:hover span.tooltip { /*the span will display just on :hover state*/
+    display:block;
+    position:absolute;
+    padding: 3px 3px 3px 6px;
+    top:1ex;
+    left:0;
+    width:1000%;
+/*     border:1px solid black;
+    background-color: #eeeeee; */
+    color:#000;
+    font-size:100%;
+    text-align:left;
+    z-index: 20;
+/* 	opacity: .70; */
+}
+"""
+
+        writeFile(os.path.join(self.options.resultdir, 'style.css'), styleCSS)
+        writeFile(os.path.join(self.options.resultdir, 'clones', 'style.css'), styleCSS)
+        writeFile(os.path.join(self.options.resultdir, 'tooltip.css'), tooltipCSS)
+        writeFile(os.path.join(self.options.resultdir, 'tooltip.js'), tooltipJS)
+
+
 
     def webify(self, summaryPickleFileNames, fastaFileBaseNameList, doubleToAnalyzedDict, sequenceNameMap):
 
@@ -960,10 +1094,14 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
             summary = pickle.load(summaryPickleFile)
             summaryPickleFile.close()
 
-            self.createMainPage(summary, sequenceNameMap)
+            self.createClassicMainPage(summary, sequenceNameMap)
+            self.createTableMainPage(summary, sequenceNameMap)
+
             self.createClonePages(summary, fastaFileBaseNameList, doubleToAnalyzedDict, sequenceNameMap)
 
             self.createStatPage(summary)
 
             if self.options.diffs:
                 self.createSequenceDistancePage(fastaFileBaseNameList)
+
+            self.writeCSSandJS()

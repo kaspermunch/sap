@@ -196,14 +196,14 @@ space-separated strings.
     # pass the custom column names as a Python list
     >>> fname = 'Blast/tab_2226_tblastn_009.txt'
     >>> custom_fields = ['qseqid', 'sseqid']
-    >>> qresult = SearchIO.parse(fname, 'blast-tab', fields=custom_fields).next()
+    >>> qresult = next(SearchIO.parse(fname, 'blast-tab', fields=custom_fields))
     >>> qresult
     QueryResult(id='gi|16080617|ref|NP_391444.1|', 3 hits)
 
     # pass the custom column names as a space-separated string
     >>> fname = 'Blast/tab_2226_tblastn_009.txt'
     >>> custom_fields = 'qseqid sseqid'
-    >>> qresult = SearchIO.parse(fname, 'blast-tab', fields=custom_fields).next()
+    >>> qresult = next(SearchIO.parse(fname, 'blast-tab', fields=custom_fields))
     >>> qresult
     QueryResult(id='gi|16080617|ref|NP_391444.1|', 3 hits)
 
@@ -368,7 +368,7 @@ The blast-text parser provides the following object attributes:
 |                 | pos_num                 | number of positive matches in    |
 |                 |                         | alignment                        |
 +-----------------+-------------------------+----------------------------------+
-| HSPFragment     | aln_annotation          | alignment homology string        |
+| HSPFragment     | aln_annotation          | alignment similarity string      |
 | (also via       +-------------------------+----------------------------------+
 | HSP)            | aln_span                | length of alignment fragment     |
 |                 +-------------------------+----------------------------------+
@@ -395,10 +395,9 @@ The blast-text parser provides the following object attributes:
 
 """
 
-from blast_tab import *
-from blast_xml import *
-from blast_text import *
-
+from .blast_tab import BlastTabParser, BlastTabIndexer, BlastTabWriter
+from .blast_xml import BlastXmlParser, BlastXmlIndexer, BlastXmlWriter
+from .blast_text import BlastTextParser
 
 # if not used as a module, run the doctest
 if __name__ == "__main__":

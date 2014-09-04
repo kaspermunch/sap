@@ -49,11 +49,11 @@ class Aligner:
                     print "No one best mapping..."
                     print alignmentList
                 alignment = alignmentList[0]
-                alignedQuerySeq, alignedBestMatch = alignment.matrix[bestMatchFasta.title].tostring()
+                alignedQuerySeq, alignedBestMatch = str(alignment.matrix[bestMatchFasta.title])
 
             # Get the sequences:
-            alignedQuerySeq = alignment.matrix[queryFasta.title].tostring()
-            alignedBestMatch = alignment.matrix[bestMatchFasta.title].tostring()
+            alignedQuerySeq = str(alignment.matrix[queryFasta.title])
+            alignedBestMatch = str(alignment.matrix[bestMatchFasta.title])
 
             # Get the left and right boundries:
             leftBoundary = len(re.search("^(-*)", alignedQuerySeq).groups()[0])

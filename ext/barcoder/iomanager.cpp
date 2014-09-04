@@ -1,6 +1,7 @@
 #include "iomanager.h"
 #include <iostream>
 #include <dirent.h>
+#include <unistd.h>
 #include "crossplatform.h"
 
 

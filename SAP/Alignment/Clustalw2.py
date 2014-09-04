@@ -64,13 +64,13 @@ class Aligner:
             if truncate is True:
                 # Get borders of query sequence:
                 queryName = baseName
-                querySeq = alignment.matrix[queryName].tostring()
+                querySeq = str(alignment.matrix[queryName])
                 leftBound = len(re.search("^(-*)", querySeq).groups()[0])
                 rightBound = len(querySeq) - len(re.search("(-*)$", querySeq).groups()[0])
 
                 # Truncate the alignment to only include sequence relevant to the query:
                 for key in alignment.matrix.keys():
-                    seq = alignment.matrix[key].tostring()
+                    seq = str(alignment.matrix[key])
                     alignment.matrix[key].data = seq[leftBound:rightBound]
 
             # we convet to str here to get anound wxpython unicode....

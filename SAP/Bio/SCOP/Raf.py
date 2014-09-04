@@ -21,16 +21,20 @@ ascii alphabetic character, a-z, A-Z). e.g. "1", "10A", "1010b", "-1"
 
 See "ASTRAL RAF Sequence Maps":http://astral.stanford.edu/raf.html
 
-to_one_letter_code -- A mapping from the 3-letter amino acid codes found
+protein_letters_3to1 -- A mapping from the 3-letter amino acid codes found
                         in PDB files to 1-letter codes.  The 3-letter codes
                         include chemically modified residues.
 """
 
+from __future__ import print_function
+from SAP.Bio._py3k import basestring
+from SAP.Bio._py3k import _universal_read_mode
+
 from copy import copy
 
-from SAP.Bio.SCOP.Residues import Residues
+from SAP.Bio.Data.SCOPData import protein_letters_3to1
 
-from three_to_one_dict import to_one_letter_code
+from SAP.Bio.SCOP.Residues import Residues
 
 
 def normalize_letters(one_letter_code):
@@ -64,8 +68,7 @@ class SeqMapIndex(dict):
         dict.__init__(self)
         self.filename = filename
 
-        f = open(self.filename, "rU")
-        try:
+        with open(self.filename, _universal_read_mode) as f:
             position = 0
             while True:
                 line = f.readline()
@@ -75,20 +78,15 @@ class SeqMapIndex(dict):
                 if key is not None:
                     self[key]=position
                 position = f.tell()
-        finally:
-            f.close()
 
     def __getitem__(self, key):
         """ Return an item from the indexed file. """
-        position = dict.__getitem__(self,key)
+        position = dict.__getitem__(self, key)
 
-        f = open(self.filename, "rU")
-        try:
+        with open(self.filename, _universal_read_mode) as f:
             f.seek(position)
             line = f.readline()
             record = SeqMap(line)
-        finally:
-            f.close()
         return record
 
     def getSeqMap(self, residues):
@@ -103,12 +101,12 @@ class SeqMapIndex(dict):
         pdbid = residues.pdbid
         frags = residues.fragments
         if not frags:
-            frags =(('_','',''),) # All residues of unnamed chain
+            frags = (('_', '', ''),) # All residues of unnamed chain
 
         seqMap = None
         for frag in frags:
             chainid = frag[0]
-            if chainid=='' or chainid=='-' or chainid==' ' or chainid=='_':
+            if chainid in ['', '-', ' ', '_']:
                 chainid = '_'
             id = pdbid + chainid
 
@@ -120,7 +118,7 @@ class SeqMapIndex(dict):
             if frag[1]:
                 start = int(sm.index(frag[1], chainid))
             if frag[2]:
-                end = int(sm.index(frag[2], chainid)+1)
+                end = int(sm.index(frag[2], chainid)) + 1
 
             sm = sm[start:end]
 
@@ -166,7 +164,7 @@ class SeqMap(object):
 
         line = line.rstrip()  # no trailing whitespace
 
-        if len(line)<header_len:
+        if len(line) < header_len:
             raise ValueError("Incomplete header: "+line)
 
         self.pdbid = line[0:4]
@@ -175,8 +173,8 @@ class SeqMap(object):
         self.version = line[6:10]
 
         #Raf format versions 0.01 and 0.02 are identical for practical purposes
-        if(self.version != "0.01" and self.version !="0.02"):
-            raise ValueError("Incompatible RAF version: "+self.version)
+        if(self.version != "0.01" and self.version != "0.02"):
+            raise ValueError("Incompatible RAF version: " + self.version)
 
         self.pdb_datestamp = line[14:20]
         self.flags = line[21:27]
@@ -197,7 +195,7 @@ class SeqMap(object):
         for i in range(0, len(self.res)):
             if self.res[i].resid == resid and self.res[i].chainid == chainid:
                 return i
-        raise KeyError("No such residue "+chainid+resid)
+        raise KeyError("No such residue " + chainid + resid)
 
     def __getitem__(self, index):
         if not isinstance(index, slice):
@@ -258,16 +256,16 @@ class SeqMap(object):
         #The set of residues that I have to find records for.
         resSet = {}
         for r in self.res:
-            if r.atom=='X':  # Unknown residue type
+            if r.atom == 'X':  # Unknown residue type
                 continue
             chainid = r.chainid
             if chainid == '_':
                 chainid = ' '
             resid = r.resid
-            resSet[(chainid,resid)] = r
+            resSet[(chainid, resid)] = r
 
         resFound = {}
-        for line in pdb_handle.xreadlines():
+        for line in pdb_handle:
             if line.startswith("ATOM  ") or line.startswith("HETATM"):
                 chainid = line[21:22]
                 resid = line[22:27].strip()
@@ -276,15 +274,15 @@ class SeqMap(object):
                     res = resSet[key]
                     atom_aa = res.atom
                     resName = line[17:20]
-                    if resName in to_one_letter_code:
-                        if to_one_letter_code[resName] == atom_aa:
+                    if resName in protein_letters_3to1:
+                        if protein_letters_3to1[resName] == atom_aa:
                             out_handle.write(line)
                             resFound[key] = res
 
         if len(resSet) != len(resFound):
-            #for k in resFound.keys():
+            #for k in resFound:
             #    del resSet[k]
-            #print resSet
+            #print(resSet)
 
             raise RuntimeError('I could not find at least one ATOM or HETATM'
                    +' record for each and every residue in this sequence map.')

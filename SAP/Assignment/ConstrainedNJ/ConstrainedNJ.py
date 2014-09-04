@@ -64,7 +64,7 @@ class ConstrainedNJ(object):
         for i, key in enumerate(self.keyList):
             #self.translation[key] = str(i+1)
             self.translation[key] = str(i+1)
-            self.alignment.append(alignment.matrix[key].tostring())
+            self.alignment.append(str(alignment.matrix[key]))
         self.alignmentLength = int(len(self.alignment[0]))
 
         self.constraintTree = constraintTree
@@ -183,6 +183,7 @@ class ConstrainedNJ(object):
         tmpFile, tmpFileName = tempfile.mkstemp()
         self.dumpBootstrapTreesNexus(iterations, tmpFileName)
         bootstrapTrees = Nexus.Nexus(tmpFileName)
+        tmpFile.close()
         os.remove(tmpFileName)        
         consensusTree = NexusTrees.consensus(bootstrapTrees.trees)
 

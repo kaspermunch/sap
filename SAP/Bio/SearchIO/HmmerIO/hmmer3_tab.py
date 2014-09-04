@@ -36,7 +36,7 @@ class Hmmer3TabParser(object):
 
     def _parse_row(self):
         """Returns a dictionary of parsed row values."""
-        cols = filter(None, self.line.strip().split(' '))
+        cols = [x for x in self.line.strip().split(' ') if x]
         # if len(cols) > 19, we have extra description columns
         # combine them all into one string in the 19th column
         if len(cols) > 19:
@@ -50,10 +50,10 @@ class Hmmer3TabParser(object):
         # assign parsed column data into qresult, hit, and hsp dicts
         qresult = {}
         qresult['id'] = cols[2]                     # query name
-        qresult['acc'] = cols[3]                    # query accession
+        qresult['accession'] = cols[3]              # query accession
         hit = {}
         hit['id'] = cols[0]                         # target name
-        hit['acc'] = cols[1]                        # target accession
+        hit['accession'] = cols[1]                  # target accession
         hit['evalue'] = float(cols[4])              # evalue (full sequence)
         hit['bitscore'] = float(cols[5])            # score (full sequence)
         hit['bias'] = float(cols[6])                # bias (full sequence)
@@ -97,7 +97,10 @@ class Hmmer3TabParser(object):
                 prev = cur
                 prev_qid = cur_qid
             # only parse the result row if it's not EOF
-            if self.line:
+            # NOTE: we are not parsing the extra '#' lines appended to the end
+            # of hmmer31b1 tabular results since storing them in qresult
+            # objects means we can not do a single-pass parsing
+            if self.line and not self.line.startswith('#'):
                 cur = self._parse_row()
                 cur_qid = cur['qresult']['id']
             else:
@@ -131,7 +134,7 @@ class Hmmer3TabParser(object):
 
                 # create qresult and yield if we're at a new qresult or at EOF
                 if qres_state == state_QRES_NEW or file_state == state_EOF:
-                    qresult = QueryResult(prev_qid, hits=hit_list)
+                    qresult = QueryResult(hit_list, prev_qid)
                     for attr, value in prev['qresult'].items():
                         setattr(qresult, attr, value)
                     yield qresult
@@ -174,11 +177,11 @@ class Hmmer3TabIndexer(SearchIndexer):
             if not line:
                 break
 
-            cols = line.strip().split(split_mark)
+            cols = [x for x in line.strip().split(split_mark) if x]
             if qresult_key is None:
-                qresult_key = list(filter(None, cols))[query_id_idx]
+                qresult_key = cols[query_id_idx]
             else:
-                curr_key = list(filter(None, cols))[query_id_idx]
+                curr_key = cols[query_id_idx]
 
                 if curr_key != qresult_key:
                     adj_end = end_offset - len(line)
@@ -206,7 +209,7 @@ class Hmmer3TabIndexer(SearchIndexer):
             line = handle.readline()
             if not line:
                 break
-            cols = list(filter(None, line.strip().split(split_mark)))
+            cols = [x for x in line.strip().split(split_mark) if x]
             if qresult_key is None:
                 qresult_key = cols[query_id_idx]
             else:
@@ -235,7 +238,7 @@ class Hmmer3TabWriter(object):
         qresult_counter, hit_counter, hsp_counter, frag_counter = 0, 0, 0, 0
 
         try:
-            first_qresult = qresults.next()
+            first_qresult = next(qresults)
         except StopIteration:
             handle.write(self._build_header())
         else:
@@ -247,8 +250,8 @@ class Hmmer3TabWriter(object):
                     handle.write(self._build_row(qresult))
                     qresult_counter += 1
                     hit_counter += len(qresult)
-                    hsp_counter += sum([len(hit) for hit in qresult])
-                    frag_counter += sum([len(hit.fragments) for hit in qresult])
+                    hsp_counter += sum(len(hit) for hit in qresult)
+                    frag_counter += sum(len(hit.fragments) for hit in qresult)
 
         return qresult_counter, hit_counter, hsp_counter, frag_counter
 
@@ -261,8 +264,8 @@ class Hmmer3TabWriter(object):
             #qnamew = max(20, len(first_qresult.id))
             qnamew = 20 # why doesn't the above work?
             tnamew = max(20, len(first_qresult[0].id))
-            qaccw = max(10, len(first_qresult.acc))
-            taccw = max(10, len(first_qresult[0].acc))
+            qaccw = max(10, len(first_qresult.accession))
+            taccw = max(10, len(first_qresult[0].accession))
         else:
             qnamew, tnamew, qaccw, taccw = 20, 20, 10, 10
 
@@ -294,13 +297,13 @@ class Hmmer3TabWriter(object):
         # adapted from HMMER's source: src/p7_tophits.c#L1083
         qnamew = max(20, len(qresult.id))
         tnamew = max(20, len(qresult[0].id))
-        qaccw = max(10, len(qresult.acc))
-        taccw = max(10, len(qresult[0].acc))
+        qaccw = max(10, len(qresult.accession))
+        taccw = max(10, len(qresult[0].accession))
 
         for hit in qresult:
             rows += "%-*s %-*s %-*s %-*s %9.2g %6.1f %5.1f %9.2g %6.1f %5.1f " \
             "%5.1f %3d %3d %3d %3d %3d %3d %3d %s\n" % (tnamew, hit.id, taccw,
-            hit.acc, qnamew, qresult.id, qaccw, qresult.acc, hit.evalue,
+            hit.accession, qnamew, qresult.id, qaccw, qresult.accession, hit.evalue,
             hit.bitscore, hit.bias, hit.hsps[0].evalue, hit.hsps[0].bitscore,
             hit.hsps[0].bias, hit.domain_exp_num, hit.region_num, hit.cluster_num,
             hit.overlap_num, hit.env_num, hit.domain_obs_num,

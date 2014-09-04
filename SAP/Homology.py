@@ -275,7 +275,7 @@ class HomolCompiler:
                     #########################
                     # This is a small hack to force include the subspecies name in 'Homo sapiens sapiens':
                     if self.options.subspecieslevel and homologue.taxonomy.name('species') == 'Homo sapiens' and not homologue.taxonomy.name('subspecies'):
-                        subSpeciesLevel = TaxonomyLevel("Homo sapiens sapiens", 'subspecies')
+                        subSpeciesLevel = Taxonomy.TaxonomyLevel("Homo sapiens sapiens", 'subspecies')
                         homologue.taxonomy.add(subSpeciesLevel)
                     #########################
 
@@ -329,8 +329,8 @@ class HomolCompiler:
                                simScore = similarityScore(fastaRecord.sequence, homologue.sequence)
                             else:
                                alignment = pairwiseClustalw2(queryName, fastaRecord.sequence, gi, homologue.sequence)
-                               alignedQuery = alignment.matrix[queryName].tostring()
-                               alignedHomol = alignment.matrix[gi].tostring()
+                               alignedQuery = str(alignment.matrix[queryName])
+                               alignedHomol = str(alignment.matrix[gi])
                                simScore = similarityScore(alignedQuery, alignedHomol)
                             if len(homologyResult.homologues) == 0 and simScore < self.options.minidentity:
                                 sys.stdout.write('\n\tMinimum identity enforced (%.2f < %.2f) consider changing the --minidentity value' \
@@ -542,8 +542,8 @@ class HomolCompiler:
                         
                         alignment = pairwiseClustalw2(queryName, fastaRecord.sequence, forceGI, homologue.sequence)
                         # Get sequences:
-                        alignedQuery = alignment.matrix[queryName].tostring()
-                        alignedHomol = alignment.matrix[forceGI].tostring()
+                        alignedQuery = str(alignment.matrix[queryName])
+                        alignedHomol = str(alignment.matrix[forceGI])
                         assert len(alignedQuery) == len(alignedHomol)
 
                         leftBoundaryQuery = len(re.search("^(-*)", alignedQuery).groups()[0])
@@ -910,8 +910,8 @@ class HomolCompiler:
 
             alignment = pairwiseClustalw2(homologyResult.queryName, homologyResult.queryFasta.sequence, ID, fastaRecord.sequence)
             # Get sequences:
-            alignedQuery = alignment.matrix[homologyResult.queryName].tostring()
-            alignedHomol = alignment.matrix[ID].tostring()
+            alignedQuery = str(alignment.matrix[homologyResult.queryName])
+            alignedHomol = str(alignment.matrix[ID])
             assert len(alignedQuery) == len(alignedHomol)
 
             leftBoundaryQuery = len(re.search("^(-*)", alignedQuery).groups()[0])
@@ -927,7 +927,7 @@ class HomolCompiler:
             alignmentMatches = 0
             for i in range(len(alignedQueryTrunc)):
                 if alignedQueryTrunc[i] == alignedHomolTrunc[i]:
-                    alignmentMatches += 1 
+                    alignmentMatches += 1
             identity = float(alignmentMatches)/len(alignedHomolTrunc)
             print "\t\t%s %.0f%% identity" % (ID, identity * 100),
             if identity < self.options.forceidentity:

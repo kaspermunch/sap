@@ -87,8 +87,8 @@ class PairWiseDiffs:
                            matrices[fastaFileBaseName][key2][key1]['alignedSequences'] = (seq2, seq1)
                         else:
                            alignment = pairwiseClustalw2(key1, seq1, key2, seq2)
-                           aligned1 = alignment.matrix[key1].tostring()
-                           aligned2 = alignment.matrix[key2].tostring()
+                           aligned1 = str(alignment.matrix[key1])
+                           aligned2 = str(alignment.matrix[key2])
                            simScore = similarityScore(aligned1, aligned2)
 
                            matrices[fastaFileBaseName][key1][key2]['alignedSequences'] = (aligned1, aligned2)

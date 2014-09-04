@@ -2,26 +2,28 @@
 # This code is part of the Biopython distribution and governed by its
 # license.  Please see the LICENSE file that should have been included
 # as part of this package.
-"""Tools for sequence motif analysis (OBSOLETE, see Bio.motifs instead).
+"""Tools for sequence motif analysis (DEPRECATED, see Bio.motifs instead).
 
-This module (Bio.Motif) is now obsolete, and will be deprecated and
-removed in a future release of release of Biopython. Please use the
-new module Bio.motifs instead.
+This module (Bio.Motif) has been deprecated and will be removed in a
+future release of release of Biopython. Please use the new module
+Bio.motifs instead.
 
 This contains the core Motif class containing various I/O methods as
 well as methods for motif comparisons and motif searching in sequences.
 It also inlcudes functionality for parsing AlignACE and MEME programs.
 """
 
+from __future__ import print_function
+
 import warnings
-warnings.warn("The module Bio.Motif is now obsolete, and will be"
-              "deprecated and removed in a future release of"
-              "release of Biopython. As a replacement for Bio.Motif,"
-              "please use the new module Bio.motifs instead. Please"
-              "be aware that though the functionality of Bio.Motif"
-              "is retained (and extended) in Bio.motifs, usage may"
+from SAP.Bio import BiopythonDeprecationWarning
+warnings.warn("The module Bio.Motif has been deprecated and will be "
+              "removed in a future release of Biopython. Instead "
+              "please use the new module Bio.motifs instead. Please "
+              "be aware that though the functionality of Bio.Motif "
+              "is retained (and extended) in Bio.motifs, usage may "
               "be different.",
-              PendingDeprecationWarning)
+              BiopythonDeprecationWarning)
 
 
 from SAP.Bio.Motif._Motif import Motif
@@ -29,8 +31,8 @@ from SAP.Bio.Motif.Parsers.AlignAce import read as _AlignAce_read
 from SAP.Bio.Motif.Parsers.MEME import read as _MEME_read
 from SAP.Bio.Motif.Thresholds import ScoreDistribution
 
-_parsers={"AlignAce" : _AlignAce_read,
-          "MEME" : _MEME_read,
+_parsers={"AlignAce": _AlignAce_read,
+          "MEME": _MEME_read,
           }
 
 def _from_pfm(handle):
@@ -45,7 +47,7 @@ _readers={"jaspar-pfm": _from_pfm,
 
 
           
-def parse(handle,format):
+def parse(handle, format):
     """Parses an output file of motif finding programs.
 
     Currently supported formats:
@@ -60,8 +62,10 @@ def parse(handle,format):
     For example:
 
     >>> from SAP.Bio import Motif
-    >>> for motif in Motif.parse(open("Motif/alignace.out"),"AlignAce"):
-    ...     print motif.consensus()
+    >>> with open("Motif/alignace.out") as handle:
+    ...     for motif in Motif.parse(handle, "AlignAce"):
+    ...         print(motif.consensus())
+    ...
     TCTACGATTGAG
     CTGCACCTAGCTACGAGTGAG
     GTGCCCTAAGCATACTAGGCG
@@ -93,7 +97,7 @@ def parse(handle,format):
         for m in parser(handle).motifs:
             yield m
 
-def read(handle,format):
+def read(handle, format):
     """Reads a motif from a handle using a specified file-format.
 
     This supports the same formats as Bio.Motif.parse(), but
@@ -101,14 +105,18 @@ def read(handle,format):
     reading a pfm file:
 
     >>> from SAP.Bio import Motif
-    >>> motif = Motif.read(open("Motif/SRF.pfm"),"jaspar-pfm")
+    >>> with open("Motif/SRF.pfm") as handle:
+    ...     motif = Motif.read(handle, "jaspar-pfm")
+    ...
     >>> motif.consensus()
     Seq('GCCCATATATGG', IUPACUnambiguousDNA())
 
     Or a single-motif MEME file,
 
     >>> from SAP.Bio import Motif
-    >>> motif =  Motif.read(open("Motif/meme.out"),"MEME")
+    >>> with open("Motif/meme.out") as handle:
+    ...     motif =  Motif.read(handle, "MEME")
+    ...
     >>> motif.consensus()
     Seq('CTCAATCGTA', IUPACUnambiguousDNA())
 
@@ -116,7 +124,9 @@ def read(handle,format):
     an exception is raised:
 
     >>> from SAP.Bio import Motif
-    >>> motif = Motif.read(open("Motif/alignace.out"),"AlignAce")
+    >>> with open("Motif/alignace.out") as handle:
+    ...     motif = Motif.read(handle, "AlignAce")
+    ...
     Traceback (most recent call last):
         ...
     ValueError: More than one motif found in handle
@@ -126,7 +136,9 @@ def read(handle,format):
     shown in the example above).  Instead use:
 
     >>> from SAP.Bio import Motif
-    >>> motif = Motif.parse(open("Motif/alignace.out"),"AlignAce").next()
+    >>> with open("Motif/alignace.out") as handle:
+    ...    motif = next(Motif.parse(handle, "AlignAce"))
+    ...
     >>> motif.consensus()
     Seq('TCTACGATTGAG', IUPACUnambiguousDNA())
 
@@ -135,13 +147,13 @@ def read(handle,format):
     """
     iterator = parse(handle, format)
     try:
-        first = iterator.next()
+        first = next(iterator)
     except StopIteration:
         first = None
     if first is None:
         raise ValueError("No motifs found in handle")
     try:
-        second = iterator.next()
+        second = next(iterator)
     except StopIteration:
         second = None
     if second is not None:
@@ -149,23 +161,6 @@ def read(handle,format):
     return first
 
 
-def _test():
-    """Run the Bio.Motif module's doctests.
-
-    This will try and locate the unit tests directory, and run the doctests
-    from there in order that the relative paths used in the examples work.
-    """
-    import doctest
-    import os
-    if os.path.isdir(os.path.join("..","..","Tests")):
-        print "Runing doctests..."
-        cur_dir = os.path.abspath(os.curdir)
-        os.chdir(os.path.join("..","..","Tests"))
-        doctest.testmod()
-        os.chdir(cur_dir)
-        del cur_dir
-        print "Done"
-
 if __name__ == "__main__":
-    #Run the doctests
-    _test()
+    from SAP.Bio._utils import run_doctest
+    run_doctest(verbose=0)

@@ -260,7 +260,7 @@ def writePhylipFile(fileName, seqList):
     seqs = []
     longestName = 0
     for name, seq in seqList:
-        seq = seq.tostring()
+        seq = str(seq)
         assert len(seq) == alnLength, "SEQUENCES NOT SAME LENGTH"
         names.append(name)
         seqs.append(seq)

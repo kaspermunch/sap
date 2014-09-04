@@ -280,7 +280,7 @@ class TreeStatistics:
 
                     # Check if the alignment has gaps in the query sequence:
                     alignment = Nexus.Nexus(os.path.join(self.options.alignmentcache, homologyResult.alignmentFileName))
-                    querySeq = alignment.matrix[queryName].tostring()
+                    querySeq = str(alignment.matrix[queryName])
                     noGapsInQuery = re.search("^-*([^-]+)-*$", querySeq)
                     if noGapsInQuery:
                         summary['gapsInQuery'][queryName] = False

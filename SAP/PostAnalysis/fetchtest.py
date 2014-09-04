@@ -52,8 +52,8 @@ alignmentLength = None
 alignmentString = ""
 for gi in alignment.matrix.keys():
     
-    alignmentString += "%-10s %s\n" % (gi, alignment.matrix[gi].tostring())
-    alignmentLength = len(alignment.matrix[gi].tostring())
+    alignmentString += "%-10s %s\n" % (gi, str(alignment.matrix[gi])
+    alignmentLength = len(str(alignment.matrix[gi]))
 
 tree = "((0,1):3,2):4"
         

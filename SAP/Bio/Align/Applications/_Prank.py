@@ -5,6 +5,8 @@
 """Command line wrapper for the multiple alignment program PRANK.
 """
 
+from __future__ import print_function
+
 __docformat__ = "epytext en"  # Don't just use plain text in epydoc API pages!
 
 from SAP.Bio.Application import _Option, _Switch, AbstractCommandline
@@ -27,7 +29,7 @@ class PrankCommandline(AbstractCommandline):
     ...                                o="aligned", #prefix only!
     ...                                f=8, #FASTA output
     ...                                notree=True, noxml=True)
-    >>> print prank_cline
+    >>> print(prank_cline)
     prank -d=unaligned.fasta -o=aligned -f=8 -noxml -notree
 
     You would typically run the command line with prank_cline() or via
@@ -46,7 +48,7 @@ class PrankCommandline(AbstractCommandline):
     Last checked against version: 081202
     """
     def __init__(self, cmd="prank", **kwargs):
-        OUTPUT_FORMAT_VALUES = list(range(1,18))
+        OUTPUT_FORMAT_VALUES = list(range(1, 18))
         self.parameters = [
             ################## input/output parameters: ##################
             #-d=sequence_file
@@ -55,7 +57,7 @@ class PrankCommandline(AbstractCommandline):
                     filename=True,
                     is_required=True),
             #-t=tree_file [default: no tree, generate approximate NJ tree]
-            _Option(["-t", "t"],"Input guide tree filename",
+            _Option(["-t", "t"], "Input guide tree filename",
                     filename=True),
             #-tree="tree_string" [tree in newick format; in double quotes]
             _Option(["-tree", "tree"],
@@ -82,9 +84,15 @@ class PrankCommandline(AbstractCommandline):
                     "7. Fitch      	17. PAUP/NEXUS",
                     checker_function=lambda x: x in OUTPUT_FORMAT_VALUES),
             _Switch(["-noxml", "noxml"],
-                    "Do not output XML files"),
+                    "Do not output XML files "
+                    "(PRANK versions earlier than v.120626)"),
             _Switch(["-notree", "notree"],
-                    "Do not output dnd tree files"),
+                    "Do not output dnd tree files "
+                    "(PRANK versions earlier than v.120626)"),
+            _Switch(["-showxml", "showxml"],
+                    "Output XML files (PRANK v.120626 and later)"),
+            _Switch(["-showtree", "showtree"],
+                    "Output dnd tree files (PRANK v.120626 and later)"),
             _Switch(["-shortnames", "shortnames"],
                     "Truncate names at first space"),
             _Switch(["-quiet", "quiet"],
@@ -193,16 +201,16 @@ class PrankCommandline(AbstractCommandline):
             _Switch(["-convert", "convert"],
                     "Convert input alignment to new format. Do "
                     "not perform alignment")
-            ]
+        ]
         AbstractCommandline.__init__(self, cmd, **kwargs)
 
 
 def _test():
     """Run the module's doctests (PRIVATE)."""
-    print "Running modules doctests..."
+    print("Running modules doctests...")
     import doctest
     doctest.testmod()
-    print "Done"
+    print("Done")
 
 if __name__ == "__main__":
     _test()
