@@ -11,17 +11,21 @@ class TestSAP(unittest.TestCase):
         """
         self.queryFileName = 'tests/query.fasta'
         self.projectDir = "testproject"
-        self.databaseFileName = "tests/nativedb.fasta"
+        self.databaseFileName = "tests/testdb.fasta"
 
     def test_1_dependencies(self):
+	sys.argv = ['', '--compile', 'COI[Gene Name] AND Aves[ORGN]', '--database', self.databaseFileName]
+        ConsoleScripts.sap()
+
+    def test_2_dependencies(self):
         sys.argv = ['', '--installdependencies']
         ConsoleScripts.sap()
 
-    def test_2_native_with_barcoder(self):
+    def test_3_native_with_barcoder(self):
         sys.argv = ['', "-d", self.projectDir, "--email", "test@test.com", "-S", "Barcoder", "--database", self.databaseFileName, self.queryFileName]
         ConsoleScripts.sap()
 
-    def test_3_genbank_with_cnj(self):
+    def test_4_genbank_with_cnj(self):
         sys.argv = ['', "--project", self.projectDir, "--email", "test@test.com", "-S", "ConstrainedNJ", "--database", "GenBank", self.queryFileName]
         ConsoleScripts.sap()
     

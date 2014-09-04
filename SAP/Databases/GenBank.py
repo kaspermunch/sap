@@ -136,7 +136,7 @@ class DB:
             else:
                 wordSize = ''
 
-            blastCmd = 'blastn -remote -outfmt 5 -db nr %s %s -evalue %s -max_target_seqs %s -entrez_query "%s" -query %s -out %s' \
+            blastCmd = 'blastn -remote -outfmt 5 -db nt %s %s -evalue %s -max_target_seqs %s -entrez_query "%s" -query %s -out %s' \
                        % (wordSize, filterOption, self.options.minsignificance, self.options.maxblasthits, \
                           entrezQuery, fastaRecordFileName, blastFileName)
 

@@ -220,7 +220,7 @@ class Taxonomy:
     #def populateFromNCBI(self, subspecieslevel=False, minimaltaxonomy=5, dbid=None, allow_unclassified=False):
     def populateFromNCBI(self, minimaltaxonomy=5, dbid=None, xml=None):
 
-        assert dbid is None != xml is None
+        assert (dbid is None) != (xml is None)
 
         if dbid is not None:
             # Retrieve the taxonomy xml form NCBI:
@@ -234,7 +234,6 @@ class Taxonomy:
                     time.sleep(tries * 5)
                     continue
                 else:
-                    fp.close()
                     successful = True
                     break
             if not successful:
