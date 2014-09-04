@@ -478,91 +478,91 @@ class ResultHTML:
 
         text = '<h1>Statistics</h1>\n'
 
-        for experiment in mainSummary.keys():
-            summary = mainSummary[experiment]
-
-            if not summary.has_key('relativeRate'):
-                continue
-
-            text += '<h2>%s: Relative rate tests</h2>' % experiment
-
-            for relativeRateSetting in summary['relativeRate'].keys():
-                markerName = relativeRateSetting[0]
-                ctMin = relativeRateSetting[1]
-                ctMax = relativeRateSetting[2]
-                ageMin = relativeRateSetting[3]
-                ageMax = relativeRateSetting[4]
-                ctGrid = relativeRateSetting[5]
-                ageGrid = relativeRateSetting[6]
-                testType = relativeRateSetting[7]
-
-                IDstring = "%s_%.4f-%.4f_%.4f-%.4f_%dx%d_%s" % (markerName,
-                                                                ctMin,
-                                                                ctMax,
-                                                                ageMin,
-                                                                ageMax,
-                                                                ctGrid,
-                                                                ageGrid,
-                                                                testType)
-
-                text += '<h2>%s: AgeMin=%s, AgeMax=%s, CTmin=%s, CTMax=%s, grid:%sx%s, type=%s</h2>' % (markerName,
-                                                                                                        ageMin,
-                                                                                                        ageMax,
-                                                                                                        ctMin,
-                                                                                                        ctMax,
-                                                                                                        ctGrid,
-                                                                                                        ageGrid,
-                                                                                                        testType)
-
-                matrixDict = summary['relativeRate'][relativeRateSetting]
-                matrix = matrixDict['matrix']
-                rowLabels = matrixDict['rowLabels']
-                colLabels = matrixDict['colLabels']
-                matrixFileNames = matrixDict['files']
-
-                string = ""
-                for i in range(len(colLabels)):
-                    string += str(colLabels[i]) + " "
-                string += "\n"
-                for i in range(len(matrix)):
-                    string += str(rowLabels[i]) + " "
-                    for j in range(len(matrix[i])):
-                        string += str(matrix[i,j]) + " "
-                    string += "\n"
-                writeFile("%s/sumMatrix_%s.txt" % (webDir, IDstring), string)
-
-                sumMatrixFile = "%s/sumMatrix_%s.ps" % (webDir, IDstring)
-                r.postscript(sumMatrixFile)
-                if len(rowLabels) > 1:
-                    m = r.matrix(matrix, len(rowLabels), len(colLabels))
-                    r.filled_contour(rowLabels,colLabels,m, xlab="CT", ylab="Age", color=r.heat_colors)
-                else:
-                    r.plot(colLabels, matrix[0], xlab="Age", ylab="LL")
-                r.dev_off()
-                sumMatrixGifFileName = sumMatrixFile.replace(".ps", ".gif")
-                os.system("convert -rotate 90 %s %s" % (sumMatrixFile, sumMatrixGifFileName))
-
-                text += '<br><a href="sumMatrix_%s.txt">Data file</a><br>' % (IDstring)
-                text += '<img src="%s"><br>' % (sumMatrixGifFileName.split("/")[-1])
-
-                text += "<h3>Individual plots</h3>"
-                text += "The plot above was generated as the sum over the following plots:<br>"
-                for i in range(len(matrixFileNames)):
-                    matrixFileName = matrixFileNames[i]
-                    outputFileName = "%s/matrix_%s_%d.ps" % (webDir, IDstring, i+1)
-                    fp = open(matrixFileName, 'r')
-                    data = fp.readlines()
-                    fp.close()
-                    x = data[0].strip().split(" ")
-                    y = data[1].strip().split(" ")[1:]
-                    r.postscript(outputFileName)
-                    r.plot(x,y, xlab="Age", ylab="LL")
-                    r.dev_off()
-                    outputGifFileName = outputFileName.replace(".ps", ".gif")
-                    os.system("convert -rotate 90 %s %s" % (outputFileName, outputGifFileName))
-                    text += '%s<br>' % matrixFileName
-                    text += '<img src="%s"><br>' % (outputGifFileName.split("/")[-1])
-
+        # for experiment in mainSummary.keys():
+        #     summary = mainSummary[experiment]
+        #
+        #     if not summary.has_key('relativeRate'):
+        #         continue
+        #
+        #     text += '<h2>%s: Relative rate tests</h2>' % experiment
+        #
+        #     for relativeRateSetting in summary['relativeRate'].keys():
+        #         markerName = relativeRateSetting[0]
+        #         ctMin = relativeRateSetting[1]
+        #         ctMax = relativeRateSetting[2]
+        #         ageMin = relativeRateSetting[3]
+        #         ageMax = relativeRateSetting[4]
+        #         ctGrid = relativeRateSetting[5]
+        #         ageGrid = relativeRateSetting[6]
+        #         testType = relativeRateSetting[7]
+        #
+        #         IDstring = "%s_%.4f-%.4f_%.4f-%.4f_%dx%d_%s" % (markerName,
+        #                                                         ctMin,
+        #                                                         ctMax,
+        #                                                         ageMin,
+        #                                                         ageMax,
+        #                                                         ctGrid,
+        #                                                         ageGrid,
+        #                                                         testType)
+        #
+        #         text += '<h2>%s: AgeMin=%s, AgeMax=%s, CTmin=%s, CTMax=%s, grid:%sx%s, type=%s</h2>' % (markerName,
+        #                                                                                                 ageMin,
+        #                                                                                                 ageMax,
+        #                                                                                                 ctMin,
+        #                                                                                                 ctMax,
+        #                                                                                                 ctGrid,
+        #                                                                                                 ageGrid,
+        #                                                                                                 testType)
+        #
+        #         matrixDict = summary['relativeRate'][relativeRateSetting]
+        #         matrix = matrixDict['matrix']
+        #         rowLabels = matrixDict['rowLabels']
+        #         colLabels = matrixDict['colLabels']
+        #         matrixFileNames = matrixDict['files']
+        #
+        #         string = ""
+        #         for i in range(len(colLabels)):
+        #             string += str(colLabels[i]) + " "
+        #         string += "\n"
+        #         for i in range(len(matrix)):
+        #             string += str(rowLabels[i]) + " "
+        #             for j in range(len(matrix[i])):
+        #                 string += str(matrix[i,j]) + " "
+        #             string += "\n"
+        #         writeFile("%s/sumMatrix_%s.txt" % (webDir, IDstring), string)
+        #
+        #         sumMatrixFile = "%s/sumMatrix_%s.ps" % (webDir, IDstring)
+        #         r.postscript(sumMatrixFile)
+        #         if len(rowLabels) > 1:
+        #             m = r.matrix(matrix, len(rowLabels), len(colLabels))
+        #             r.filled_contour(rowLabels,colLabels,m, xlab="CT", ylab="Age", color=r.heat_colors)
+        #         else:
+        #             r.plot(colLabels, matrix[0], xlab="Age", ylab="LL")
+        #         r.dev_off()
+        #         sumMatrixGifFileName = sumMatrixFile.replace(".ps", ".gif")
+        #         os.system("convert -rotate 90 %s %s" % (sumMatrixFile, sumMatrixGifFileName))
+        #
+        #         text += '<br><a href="sumMatrix_%s.txt">Data file</a><br>' % (IDstring)
+        #         text += '<img src="%s"><br>' % (sumMatrixGifFileName.split("/")[-1])
+        #
+        #         text += "<h3>Individual plots</h3>"
+        #         text += "The plot above was generated as the sum over the following plots:<br>"
+        #         for i in range(len(matrixFileNames)):
+        #             matrixFileName = matrixFileNames[i]
+        #             outputFileName = "%s/matrix_%s_%d.ps" % (webDir, IDstring, i+1)
+        #             fp = open(matrixFileName, 'r')
+        #             data = fp.readlines()
+        #             fp.close()
+        #             x = data[0].strip().split(" ")
+        #             y = data[1].strip().split(" ")[1:]
+        #             r.postscript(outputFileName)
+        #             r.plot(x,y, xlab="Age", ylab="LL")
+        #             r.dev_off()
+        #             outputGifFileName = outputFileName.replace(".ps", ".gif")
+        #             os.system("convert -rotate 90 %s %s" % (outputFileName, outputGifFileName))
+        #             text += '%s<br>' % matrixFileName
+        #             text += '<img src="%s"><br>' % (outputGifFileName.split("/")[-1])
+        #
 
         htmlContents = self.createHtml("Statistics page", text, header=True)
         writeFile(self.options.resultdir + '/stat.html', htmlContents)
@@ -1099,7 +1099,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
 
             self.createClonePages(summary, fastaFileBaseNameList, doubleToAnalyzedDict, sequenceNameMap)
 
-            self.createStatPage(summary)
+            # self.createStatPage(summary)
 
             if self.options.diffs:
                 self.createSequenceDistancePage(fastaFileBaseNameList)
