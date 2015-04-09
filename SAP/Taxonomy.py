@@ -990,16 +990,18 @@ class TaxonomySummary:
                 search = probRE.search(text)
                 probText = search.group(1)
 
-                text = re.sub(r'^(\S+)', r'<tspan font-style="italic">\1</tspan>', text)
+                text_it = re.sub(r'^(\S+)', r'<tspan font-style="italic">\1</tspan>', text)
 
                 if float(probText) > 50:
-                    s += '<text class="fnt2" x="%d" y="%d">%s</text>\n' % (len(leader)*charWidth, y, text)
+                    s += '<a xlink:href="http://www.eol.org/search?q=%s&search_image="><text class="fnt2" x="%d" y="%d">%s</text></a>\n' \
+                         % ("+".join(text.rsplit(None, 2)[0].split()), len(leader)*charWidth, y, text_it)
                 else:
-                    s += '<text class="fnt1" x="%d" y="%d">%s</text>\n' % (len(leader)*charWidth, y, text)
+                    s += '<a xlink:href="http://www.eol.org/search?q=%s&search_image="><text class="fnt1" x="%d" y="%d">%s</text></a>\n' \
+                         % ("+".join(text.rsplit(None, 2)[0].split()), len(leader)*charWidth, y, text_it)
 
         head = '''<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
-<svg width="%d" height="%d"
+<svg width="%d" height="%d" viewBox="0 0 %d %d"
     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
  <defs>
   <style type="text/css">
@@ -1013,7 +1015,7 @@ class TaxonomySummary:
   </style>
  </defs>
 <g>
-''' % (maxLength*charWidth, y)
+''' % (3*maxLength*charWidth/2.0, 3*y/2.0, maxLength*charWidth, y)
         tail =  "</g></svg>"
         s =  head + s + tail
         return s
