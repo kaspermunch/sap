@@ -126,7 +126,7 @@ Running against a local database:
         self.parser.add_option("-m", "--maxblasthits",
                           type="int",
                           default=200,
-                          help="Number of blast hits to retrieve.")
+                          help="Number of blast hits to retrieve per blast search.")
         self.parser.add_option("--nolowcomplexfilter",
                           action="store_true",
                           default=False,
@@ -448,7 +448,7 @@ Running against a local database:
         if self.options.nofillin and self.options.fillinall:
             self.showMessageAndExit("Don't use the options fillinall and nofillin at the same time.", guiParent=guiParent)
 
-        if self.options.compile and not self.options.database:
+        if self.options.compile and self.options.database == "GenBank":
             self.showMessageAndExit("You must specify a name for your database using --database", guiParent=guiParent)
 
         # Make sure alignment options are unique and nonoverlapping:
