@@ -116,6 +116,7 @@ class ResultHTML:
         writeFile(self.options.resultdir + '/index.html', htmlContents)
 
         print "done"
+        sys.stdout.flush()
 
 
     def compileAssignmentTable(self, mainSummary, sequenceNameMap):
@@ -471,7 +472,7 @@ class ResultHTML:
         writeFile(self.options.resultdir + '/classic.html', htmlContents)
 
         print "done"
-
+        sys.stdout.flush()
 
     def createStatPage(self, mainSummary):
         """ Create statistics page - now only RRtest information remaining"""
@@ -572,6 +573,9 @@ class ResultHTML:
     def createClonePages(self, mainSummary, fastaFileBaseNames, doubleToAnalyzedDict, sequenceNameMap):
         """Create pages on all individual query sequences"""
 
+        # list for csv file of all clones
+        clone_list = list()
+
         text = ""
 
         listText = '<div class="clonelist">\n'
@@ -589,6 +593,10 @@ class ResultHTML:
 
             listText += "<p>\n"
             for name in summary['sequences']:
+
+                # add file name and sequence name to a list:
+                clone_list.append((experiment, name, self.mapBackQueryName(name, sequenceNameMap)))
+
                 if not summary['gapsInQuery'].has_key(name):
                     # If the key is not in this dict for with info
                     # about gaps in query the sequence it is because
@@ -734,15 +742,15 @@ class ResultHTML:
                 text += '<div class="alignment">'
 
                 alignment = Nexus.Nexus(alignmentFileName)
-                text += "<table style=\"font-size:10px;\">"
+                # text += "<table style=\"font-size:10px;\">"
+                text += "<table>"
 
                 querySeq = str(alignment.matrix[name])
-                score = 1.0
 
                 nameForAlignment = self.mapBackQueryName(name, sequenceNameMap)
                 if len(nameForAlignment) > 27:
                    nameForAlignment = nameForAlignment[:27] + '...'
-                text += '<tr><td>%s:</td><td>%.2f</td><td class="alignmentseq">%s</td></tr>\n' % (nameForAlignment, score, markupSequence(querySeq, name))
+                text += '<tr><td>%s:</td><td>&nbsp;</td><td class="alignmentseq">%s</td></tr>\n' % (nameForAlignment, markupSequence(querySeq, name))
 
 
 
@@ -769,6 +777,10 @@ class ResultHTML:
                 htmlContents = self.createHtml("Sequence: %s" % name, text)
 
                 writeFile(htmlFileName, htmlContents)
+
+        with open(os.path.join(self.options.project, 'querylist.csv'), 'w') as f:
+            for t in clone_list:
+                print >>f, ",".join(t)
 
         htmlContents = self.createHtml("Sequence list", listText, header=True)
         writeFile(self.options.resultdir + '/clones.html', htmlContents)
