@@ -2,6 +2,7 @@
 import random, string, os, sys, re, logging
 from flask import Flask, redirect, session, url_for, render_template, request, jsonify, g, flash
 from celery.exceptions import SoftTimeLimitExceeded
+from celery import chain
 from werkzeug import secure_filename
 from utilities import make_celery
 from SAP import Options
@@ -43,7 +44,6 @@ class ReverseProxied(object):
 app = Flask(__name__)
 # app.wsgi_app = ReverseProxied(app.wsgi_app)
 app.debug = False
-
 
 
 # FIXME: enable this for deployment
@@ -114,19 +114,22 @@ if not app.debug:
 #
 # @task_success.connect
 # def notify_success(result, **kwargs):
-#     if 'email_address' in session and session['email_address']:
-#         proj_id = os.path.basename(result)
-#         email_revoked(session['email_address'], proj_id=proj_id)
+#     with app.app_context():
+#         if 'email_address' in session and session['email_address']:
+#             proj_id = os.path.basename(result)
+#             email_revoked(session['email_address'], proj_id=proj_id)
 #
 # @task_failure.connect
 # def notify_failure(**kwargs):
-#     if 'email_address' in session and session['email_address']:
-#         email_revoked(session['email_address'], proj_id=None)
+#     with app.app_context():
+#         if 'email_address' in session and session['email_address']:
+#             email_revoked(session['email_address'], proj_id=None)
 #
 # @task_revoked.connect
 # def notify_revoked(**kwargs):
-#     if 'email_address' in session and session['email_address']:
-#         email_revoked(session['email_address'], proj_id=None)
+#     with app.app_context():
+#         if 'email_address' in session and session['email_address']:
+#             email_revoked(session['email_address'], proj_id=None)
 
 
 
@@ -134,12 +137,12 @@ if not app.debug:
 # HELPERS #
 ###########
 
-from tasks import run_analysis
+import tasks
 
 @app.url_value_preprocessor
 def get_task_from_id(endpoint, values):
     if app.url_map.is_endpoint_expecting(endpoint, 'task_id'):
-        g.task = run_analysis.AsyncResult(values['task_id'])
+        g.task = tasks.run_analysis.AsyncResult(values['task_id'])
 
 ##########
 # ROUTES #
@@ -213,12 +216,21 @@ def submit():
     sys.argv = ['']
     optionParser = Options.Options()
     sys.argv = argv
-    options = optionParser.options
     form_is_valid = True
+
+    os.environ["PATH"] += os.pathsep + "/home/kasper"
+
+    optionParser.options.email = "kaspermunch@birc.au.dk" # my email in case of the server spams ncbi
 
     for name, text in request.form.items():
         inputError = False
         newValue = None
+
+        if name == 'notificationemail':
+            if text == 'not required':
+                text = ''
+            notification_email = text
+            continue
 
         if name == 'softalignmentlimit':
             name = 'besthits'
@@ -295,8 +307,20 @@ def submit():
     stderr_file = os.path.join(optionParser.options.project, 'stderr.txt')
 
     if form_is_valid and input_filename:
-        task = run_analysis.delay(input_filename, optionParser.options, stdout_file, stderr_file)
-        return redirect(url_for('wait', task_id=task.id))
+
+        # FIXME: ask Dan if it is possible for the same user to run more than one analysis at at time...
+
+        # FIXME: get progress bar working with chain. you need the parent argument to AsyncResult
+
+        if notification_email:
+            subtask1 = tasks.run_analysis.s(input_filename, optionParser.options, stdout_file, stderr_file)
+            subtask2 = tasks.notify_email.s(notification_email)
+            task = chain(subtask1, subtask2).delay()
+            # return redirect(url_for('wait', task_id=task.id))
+            return redirect(url_for('submitted', email=notification_email, task_id=task.id))
+        else:
+            task = tasks.run_analysis.delay(input_filename, optionParser.options, stdout_file, stderr_file)
+            return redirect(url_for('wait', task_id=task.id))
     else:
         return redirect(url_for('options'))
 
@@ -304,6 +328,10 @@ def submit():
 @app.route('/wait/<task_id>')
 def wait(task_id):
     return render_template('wait.html', task_id=task_id)
+
+@app.route('/submitted/<email>/<task_id>')
+def submitted(email, task_id):
+    return render_template('submitted.html', email=email, task_id=task_id)
 
 
 @app.route('/view/<task_id>')

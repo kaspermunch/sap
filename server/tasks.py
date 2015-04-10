@@ -9,6 +9,8 @@ from SAP.UtilityFunctions import *
 from SAP.FindPlugins import *
 from SAP.InstallDependencies import *
 
+from email_notification import email_success, email_failure, email_revoked
+from celery.exceptions import SoftTimeLimitExceeded
 
 @celery.task(name='app.run_analysis', bind=True)
 def run_analysis(self, input_file, options, stdout_file, stderr_file):
@@ -173,3 +175,15 @@ def run_analysis(self, input_file, options, stdout_file, stderr_file):
         print 'done'
 
     return options.project
+
+
+@celery.task(name='app.notify_email', bind=False)
+def notify_email(result, email_address):
+    if isinstance(result, basestring):
+        proj_id = os.path.basename(result)
+        email_success(email_address, proj_id=proj_id)
+    elif isinstance(result, SoftTimeLimitExceeded):
+        email_revoked(email_address, proj_id=None)
+    else:
+        email_failure(email_address, proj_id=None)
+    return result
