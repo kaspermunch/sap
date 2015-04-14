@@ -222,6 +222,8 @@ def submit():
 
     optionParser.options.email = "kaspermunch@birc.au.dk" # my email in case of the server spams ncbi
 
+    notification_email = ''
+
     for name, text in request.form.items():
         inputError = False
         newValue = None
@@ -308,19 +310,19 @@ def submit():
 
     if form_is_valid and input_filename:
 
-        # FIXME: ask Dan if it is possible for the same user to run more than one analysis at at time...
+        task = tasks.run_analysis.delay(input_filename, optionParser.options,
+                                        stdout_file, stderr_file, notification_email)
+        return redirect(url_for('wait', task_id=task.id))
 
-        # FIXME: get progress bar working with chain. you need the parent argument to AsyncResult
-
-        if notification_email:
-            subtask1 = tasks.run_analysis.s(input_filename, optionParser.options, stdout_file, stderr_file)
-            subtask2 = tasks.notify_email.s(notification_email)
-            task = chain(subtask1, subtask2).delay()
-            # return redirect(url_for('wait', task_id=task.id))
-            return redirect(url_for('submitted', email=notification_email, task_id=task.id))
-        else:
-            task = tasks.run_analysis.delay(input_filename, optionParser.options, stdout_file, stderr_file)
-            return redirect(url_for('wait', task_id=task.id))
+        # if notification_email:
+        #     subtask1 = tasks.run_analysis.s(input_filename, optionParser.options, stdout_file, stderr_file)
+        #     subtask2 = tasks.notify_email.s(notification_email)
+        #     task = chain(subtask1, subtask2).delay()
+        #     # return redirect(url_for('wait', task_id=task.id))
+        #     return redirect(url_for('submitted', email=notification_email, task_id=task.id))
+        # else:
+        #     task = tasks.run_analysis.delay(input_filename, optionParser.options, stdout_file, stderr_file)
+        #     return redirect(url_for('wait', task_id=task.id))
     else:
         return redirect(url_for('options'))
 
@@ -328,10 +330,6 @@ def submit():
 @app.route('/wait/<task_id>')
 def wait(task_id):
     return render_template('wait.html', task_id=task_id)
-
-@app.route('/submitted/<email>/<task_id>')
-def submitted(email, task_id):
-    return render_template('submitted.html', email=email, task_id=task_id)
 
 
 @app.route('/view/<task_id>')

@@ -3,9 +3,11 @@ from flask import render_template
 from flask_mail import Message
 
 from decorators import async
-from app import app, mail
+from app import mail
 from config.app_config import ADMINS
 
+import os
+from celery.exceptions import SoftTimeLimitExceeded
 
 # @async
 # def send_async_email(app, msg):
@@ -44,3 +46,13 @@ def email_revoked(email_address, proj_id):
                render_template("email_revoked.txt", proj_id=proj_id),
                render_template("email_revoked.html", proj_id=proj_id))
 
+
+def notify_email(result, email_address):
+    if isinstance(result, basestring):
+        proj_id = os.path.basename(result)
+        email_success(email_address, proj_id=proj_id)
+    elif isinstance(result, SoftTimeLimitExceeded):
+        email_revoked(email_address, proj_id=None)
+    else:
+        email_failure(email_address, proj_id=None)
+    return result
