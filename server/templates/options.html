@@ -1,0 +1,1115 @@
+{% extends "layout.html" %}
+{% block title %}SAP web server{% endblock %}
+{% block head %}
+{{ super() }}
+
+            <style>
+        .tab-content {
+        padding-top: 15px;
+        }
+
+    </style>
+
+    <style>
+        .clearfix{*zoom:1;}.clearfix:before,.clearfix:after{display:table;content:"";line-height:0;}
+        .clearfix:after{clear:both;}
+        .hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0;}
+        .input-block-level{display:block;width:100%;min-height:30px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}
+        .btn-file{overflow:hidden;position:relative;vertical-align:middle;}.btn-file>input{position:absolute;top:0;right:0;margin:0;opacity:0;filter:alpha(opacity=0);transform:translate(-300px, 0) scale(4);font-size:23px;direction:ltr;cursor:pointer;}
+        .fileupload{margin-bottom:9px;}.fileupload .uneditable-input{display:inline-block;margin-bottom:0px;vertical-align:middle;cursor:text;}
+        .fileupload .thumbnail{overflow:hidden;display:inline-block;margin-bottom:5px;vertical-align:middle;text-align:center;}.fileupload .thumbnail>img{display:inline-block;vertical-align:middle;max-height:100%;}
+        .fileupload .btn{vertical-align:middle;}
+        .fileupload-exists .fileupload-new,.fileupload-new .fileupload-exists{display:none;}
+        .fileupload-inline .fileupload-controls{display:inline;}
+        .fileupload-new .input-append .btn-file{-webkit-border-radius:0 3px 3px 0;-moz-border-radius:0 3px 3px 0;border-radius:0 3px 3px 0;}
+        .thumbnail-borderless .thumbnail{border:none;padding:0;-webkit-border-radius:0;-moz-border-radius:0;border-radius:0;-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none;}
+        .fileupload-new.thumbnail-borderless .thumbnail{border:1px solid #ddd;}
+        .control-group.warning .fileupload .uneditable-input{color:#a47e3c;border-color:#a47e3c;}
+        .control-group.warning .fileupload .fileupload-preview{color:#a47e3c;}
+        .control-group.warning .fileupload .thumbnail{border-color:#a47e3c;}
+        .control-group.error .fileupload .uneditable-input{color:#b94a48;border-color:#b94a48;}
+        .control-group.error .fileupload .fileupload-preview{color:#b94a48;}
+        .control-group.error .fileupload .thumbnail{border-color:#b94a48;}
+        .control-group.success .fileupload .uneditable-input{color:#468847;border-color:#468847;}
+        .control-group.success .fileupload .fileupload-preview{color:#468847;}
+        .control-group.success .fileupload .thumbnail{border-color:#468847;}
+    </style>
+
+    <script>
+    !function(e){var t=function(t,n){this.$element=e(t),this.type=this.$element.data("uploadtype")||(this.$element.find(".thumbnail").length>0?"image":"file"),this.$input=this.$element.find(":file");if(this.$input.length===0)return;this.name=this.$input.attr("name")||n.name,this.$hidden=this.$element.find('input[type=hidden][name="'+this.name+'"]'),this.$hidden.length===0&&(this.$hidden=e('<input type="hidden" />'),this.$element.prepend(this.$hidden)),this.$preview=this.$element.find(".fileupload-preview");var r=this.$preview.css("height");this.$preview.css("display")!="inline"&&r!="0px"&&r!="none"&&this.$preview.css("line-height",r),this.original={exists:this.$element.hasClass("fileupload-exists"),preview:this.$preview.html(),hiddenVal:this.$hidden.val()},this.$remove=this.$element.find('[data-dismiss="fileupload"]'),this.$element.find('[data-trigger="fileupload"]').on("click.fileupload",e.proxy(this.trigger,this)),this.listen()};t.prototype={listen:function(){this.$input.on("change.fileupload",e.proxy(this.change,this)),e(this.$input[0].form).on("reset.fileupload",e.proxy(this.reset,this)),this.$remove&&this.$remove.on("click.fileupload",e.proxy(this.clear,this))},change:function(e,t){if(t==="clear")return;var n=e.target.files!==undefined?e.target.files[0]:e.target.value?{name:e.target.value.replace(/^.+\\/,"")}:null;if(!n){this.clear();return}this.$hidden.val(""),this.$hidden.attr("name",""),this.$input.attr("name",this.name);if(this.type==="image"&&this.$preview.length>0&&(typeof n.type!="undefined"?n.type.match("image.*"):n.name.match(/\.(gif|png|jpe?g)$/i))&&typeof FileReader!="undefined"){var r=new FileReader,i=this.$preview,s=this.$element;r.onload=function(e){i.html('<img src="'+e.target.result+'" '+(i.css("max-height")!="none"?'style="max-height: '+i.css("max-height")+';"':"")+" />"),s.addClass("fileupload-exists").removeClass("fileupload-new")},r.readAsDataURL(n)}else this.$preview.text(n.name),this.$element.addClass("fileupload-exists").removeClass("fileupload-new")},clear:function(e){this.$hidden.val(""),this.$hidden.attr("name",this.name),this.$input.attr("name","");if(navigator.userAgent.match(/msie/i)){var t=this.$input.clone(!0);this.$input.after(t),this.$input.remove(),this.$input=t}else this.$input.val("");this.$preview.html(""),this.$element.addClass("fileupload-new").removeClass("fileupload-exists"),e&&(this.$input.trigger("change",["clear"]),e.preventDefault())},reset:function(e){this.clear(),this.$hidden.val(this.original.hiddenVal),this.$preview.html(this.original.preview),this.original.exists?this.$element.addClass("fileupload-exists").removeClass("fileupload-new"):this.$element.addClass("fileupload-new").removeClass("fileupload-exists")},trigger:function(e){this.$input.trigger("click"),e.preventDefault()}},e.fn.fileupload=function(n){return this.each(function(){var r=e(this),i=r.data("fileupload");i||r.data("fileupload",i=new t(this,n)),typeof n=="string"&&i[n]()})},e.fn.fileupload.Constructor=t,e(document).on("click.fileupload.data-api",'[data-provides="fileupload"]',function(t){var n=e(this);if(n.data("fileupload"))return;n.fileupload(n.data());var r=e(t.target).closest('[data-dismiss="fileupload"],[data-trigger="fileupload"]');r.length>0&&(r.trigger("click.fileupload"),t.preventDefault())})}(window.jQuery)
+    </script>
+
+    <script>
+    $('#myTab a').click(function (e) {
+      e.preventDefault()
+      $(this).tab('show')
+  })
+    </script>
+
+    <style>
+        .nav-tabs {
+        margin-top:20px;
+        }
+    </style>
+
+
+    <script>
+function project_name()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 5; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    text = 'proj_' + text
+
+    return text;
+}
+
+    </script>
+
+
+    <script type="text/javascript">
+function toggle (t) {
+$('#options').toggle();
+if (t.innerHTML == "Hide") {
+    t.innerHTML = "Show";
+} else {
+    t.innerHTML = "Hide";
+}
+}
+    </script>
+
+{% endblock %}
+
+{% block script %}
+    $(document).ready(function() {
+        var images = ['butterfly7.jpg'];
+
+        $('.jumbotron').css({'background-image': 'url(static/img/' + images[Math.floor(Math.random() * images.length)] + ')'});
+    });
+{% endblock %}
+
+{% block style %}
+.jumbotron
+    {
+        background-size: cover;
+        background-repeat: no-repeat;
+
+    }
+.jumbotron.img {
+    opacity: 0.4;
+    filter: alpha(opacity=40); /* For IE8 and earlier */
+}
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="jumbotron">
+        <h1>SAP web service</h1>
+        <p>The server is for trying out sap and running small analyses.
+            For large analyses install SAP on your own computer.</p>
+    </div>
+
+    <!--<div class="row">-->
+        <!--<div class="col-xs-12 col-sm-12 col-md-12">-->
+            <!--<h1 class="page-header">SAP <small>Statistical Assignment Package</small></h1>-->
+            <!--<p>This server makes SAP available as a web tool. SAP identifies species and other taxonomic units from DNA sequences. See the <a href="docs/index.html">documentation</a> for more information. SAP is also available for <a href="downloads/index.html">download</a> and runs on most platforms.</p>-->
+        <!--</div>-->
+    <!--</div>-->
+
+    <form class="form-horizontal" method="post" action="{{ url_for('submit') }}" enctype=multipart/form-data>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <h3>1. Select input file</h3>
+
+            <div class="fileupload fileupload-new" data-provides="fileupload">
+                    <span class="btn btn-primary btn-file"><span class="fileupload-new">Select</span>
+                    <span class="fileupload-exists">Change</span> <input type="file" name="inputfile" /></span>
+                <span class="fileupload-preview"></span>
+                <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+            </div>
+        </div>
+
+
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <h3>2. Inspect options</h3>
+            <!--<button class="btn btn-primary" type="button" onclick="$('#options').toggle();">Show/Hide</button>-->
+            <button class="btn btn-primary" type="button" onclick="toggle(this)">Show</button>
+        </div>
+
+
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <h3>3. Run analysis</h3>
+            <button class="btn btn-primary" type="submit">Run</button>
+        </div>
+    </div>
+
+
+        <div id="options" style="display:none">
+
+            <ul class="nav nav-tabs" role="tablist" id="myTab">
+                <li class="active"><a href="#General" role="tab" data-toggle="tab">General</a></li>
+                <li><a href="#Advanced" role="tab" data-toggle="tab">Advanced</a></li>
+                <!--<li><a href="#Blast" role="tab" data-toggle="tab">Blast</a></li>-->
+                <!--<li><a href="#Homology" role="tab" data-toggle="tab">Homology</a></li>-->
+                <!--<li><a href="#Alignment" role="tab" data-toggle="tab">Alignment</a></li>-->
+                <!--<li><a href="#Output" role="tab" data-toggle="tab">Output</a></li>-->
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="General">
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="project" class="control-label col-xs-6">Project</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="project" name="project" data-placement="top">
+                                    <!--<script>-->
+                                        <!--var elem = document.getElementById("project");-->
+                                        <!--elem.value = project_name();-->
+                                    <!--</script>-->
+                                    <script>
+                                        var elem = document.getElementById("project");
+                                        elem.value = "myproject";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#project")
+                                        .popover({ title: 'String', content: "Name of your analysis (one word)"})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--FIXME: rename this to notificationemail and make it a special case in option parsing where you also set email to kaspermunch@birc.au.dk-->
+
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="notificationemail" class="control-label col-xs-6">Notification email</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="notificationemail" name="notificationemail" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("notificationemail");
+                                        elem.value = "not required";
+                                    </script>
+                                    <script>
+                                    $(function () {
+                                        $("#notificationemail")
+                                        .popover({ title: 'Email (optional)', content: "Email for notification on completion of analysis"})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="inputformat" class="control-label col-xs-6">Input format</label>
+                                <div class="col-xs-6">
+                                    <select class="form-control" id="inputformat" name="inputformat" value="fasta">
+                                        <option>fasta</option>
+                                        <option>nexus</option>
+                                    </select>
+                                    <script>
+                                    $(function () {
+                                        $("#inputformat")
+                                        .popover({ title: 'String', content: "If Nexus is chosen sequences will be read from the Nexus alignment."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="database" class="control-label col-xs-6">Database</label>
+                                <div class="col-xs-6">
+                                    <select class="form-control" id="database" name="database" value="GenBank">
+                                        <option>GenBank</option>
+                                        <option>COIaves.fasta</option>
+                                    </select>
+
+                                    <!--<input type="text" class="form-control" id="database" name="database" value="Genbank" data-placement="top">-->
+                                    <script>
+                                    $(function () {
+                                        $("#database")
+                                        .popover({ title: 'Choice', content: "Database to compare to."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="assignment" class="control-label col-xs-6">Assignment</label>
+                                <div class="col-xs-6">
+
+                                    <select class="form-control" id="assignment" name="assignment" value="Barcoder">
+                                        <option>Barcoder</option>
+                                        <option>ConstrainedNJ</option>
+                                    </select>
+
+                                    <!--<input type="text" class="form-control" id="assignment_method" name="assignment_method" value="Barcoder">-->
+                                    <script>
+                                    $(function () {
+                                        $("#assignment")
+                                        .popover({ title: 'Integer', content: "Assignment method used."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="alignment" class="control-label col-xs-6">Alignment</label>
+                                <div class="col-xs-6">
+                                    <select class="form-control" id="alignment" name="alignment" value="Clustalw2">
+                                        <option>Clustalw2</option>
+                                    </select>
+
+                                    <script>
+                                    $(function () {
+                                        $("#alignment")
+                                        .popover({ title: 'Integer', content: "Alignment method used."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="tab-pane" id="Advanced">
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="minsignificance" class="control-label col-xs-6">minsignificance</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="minsignificance" name="minsignificance" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("minsignificance");
+                                        elem.value = "10";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#minsignificance")
+                                        .popover({ title: 'Float', content: "Lower significance bound (E-value if using GenBank) for accepting homologue sequences."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="significance" class="control-label col-xs-6">significance</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="significance" name="significance" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("significance");
+                                        elem.value = "0.1";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#significance")
+                                        .popover({ title: 'Float', content: "Value above which hits are considered significant."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="nrsignificant" class="control-label col-xs-6">nrsignificant</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="nrsignificant" name="nrsignificant" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("nrsignificant");
+                                        elem.value = "5";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#nrsignificant")
+                                        .popover({ title: 'Float', content: "Minimum number of accepted significant homologues required."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="limitquery" class="control-label col-xs-6">limitquery</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="limitquery" name="limitquery" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("limitquery");
+                                        elem.value = "all[FILT]";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#limitquery")
+                                        .popover({ title: 'String', content: "Entrez query to limit blast database. Eg. 'COI[GENE] AND Hominidae[ORGANISM]' to compare only to Human COI sequences, or 'keyword[barcode]' to compare to only sequences labeled barcode entries."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="minidentity" class="control-label col-xs-6">minidentity</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="minidentity" name="minidentity" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("minidentity");
+                                        elem.value = "0.95";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#minidentity")
+                                        .popover({ title: 'Float', content: "Minimum global alignment similarity of best blast hit."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="relbitscore" class="control-label col-xs-6">relbitscore</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="relbitscore" name="relbitscore" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("relbitscore");
+                                        elem.value = "0.5";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#relbitscore")
+                                        .popover({ title: 'Float', content: "Ratio of best to worst length normalized bit score accepted."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="maxblasthits" class="control-label col-xs-6">maxblasthits</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="maxblasthits" name="maxblasthits" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("maxblasthits");
+                                        elem.value = "200";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#maxblasthits")
+                                        .popover({ title: 'Integer', content: "Number of blast hits to retrieve per blast search."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="nolowcomplexfilter" class="control-label col-xs-6">nolowcomplexfilter</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="nolowcomplexfilter" name="nolowcomplexfilter" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("nolowcomplexfilter");
+                                        elem.value = "No";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#nolowcomplexfilter")
+                                        .popover({ title: 'Yes/No', content: "Disable low-complexity filtering of query sequences."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="blastwordsize" class="control-label col-xs-6">blastwordsize</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="blastwordsize" name="blastwordsize" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("blastwordsize");
+                                        elem.value = "False";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#blastwordsize")
+                                        .popover({ title: 'Integer', content: "Blast word size."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="tab-pane" id="Homology">-->
+                    <!--<div class="row">-->
+
+
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="quickcompile" class="control-label col-xs-6">quickcompile</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="quickcompile" name="quickcompile" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("quickcompile");
+                                        elem.value = "No";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#quickcompile")
+                                        .popover({ title: 'Yes/No', content: "Do not make pairwise alignments to sample-sequence to further ensure that the homologue maches up. NB: Using this option disables --minidentity cutoff."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="softalignmentlimit" class="control-label col-xs-6">softalignmentlimit</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="softalignmentlimit" name="softalignmentlimit" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("softalignmentlimit");
+                                        elem.value = "30";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#softalignmentlimit")
+                                        .popover({ title: 'Integer', content: "Maximal number of homologues to add to  alignment purely based on significant E-value."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="alignmentlimit" class="control-label col-xs-6">alignmentlimit</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="alignmentlimit" name="alignmentlimit" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("alignmentlimit");
+                                        elem.value = "50";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#alignmentlimit")
+                                        .popover({ title: 'Integer', content: "Maximal number of sequences allowed in the homologue set."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="individuals" class="control-label col-xs-6">individuals</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="individuals" name="individuals" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("individuals");
+                                        elem.value = "1";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#individuals")
+                                        .popover({ title: 'Integer', content: "Number of best matching individuals from a species to include in homologue set."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="subspecieslevel" class="control-label col-xs-6">subspecieslevel</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="subspecieslevel" name="subspecieslevel" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("subspecieslevel");
+                                        elem.value = "No";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#subspecieslevel")
+                                        .popover({ title: 'Yes/No', content: "Include one of each relevant subspecies (and not only species) if possible."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="phyla" class="control-label col-xs-6">phyla</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="phyla" name="phyla" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("phyla");
+                                        elem.value = "2";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#phyla")
+                                        .popover({ title: 'Integer', content: "Number of phyla to try to get into homology set."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="classes" class="control-label col-xs-6">classes</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="classes" name="classes" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("classes");
+                                        elem.value = "3";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#classes")
+                                        .popover({ title: 'Integer', content: "Number of classes to try to get into homology set."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="orders" class="control-label col-xs-6">orders</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="orders" name="orders" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("orders");
+                                        elem.value = "5";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#orders")
+                                        .popover({ title: 'Integer', content: "Number of orders to try to get into homology set."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="families" class="control-label col-xs-6">families</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="families" name="families" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("families");
+                                        elem.value = "6";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#families")
+                                        .popover({ title: 'Integer', content: "Number of families to try to get into homology set."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="genera" class="control-label col-xs-6">genera</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="genera" name="genera" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("genera");
+                                        elem.value = "10";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#genera")
+                                        .popover({ title: 'Integer', content: "Number of genera to try to get into homology set."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="minimaltaxonomy" class="control-label col-xs-6">minimaltaxonomy</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="minimaltaxonomy" name="minimaltaxonomy" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("minimaltaxonomy");
+                                        elem.value = "5";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#minimaltaxonomy")
+                                        .popover({ title: 'Integer', content: "Minimal number of annotated taxonomic levels in accepted taxonomy annotation."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="harddiversity" class="control-label col-xs-6">harddiversity</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="harddiversity" name="harddiversity" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("harddiversity");
+                                        elem.value = "No";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#harddiversity")
+                                        .popover({ title: 'Yes/No', content: "Discard homologue set if diversity specifications are not met."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="forceexcludegilist" class="control-label col-xs-6">forceexcludegilist</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="forceexcludegilist" name="forceexcludegilist" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("forceexcludegilist");
+                                        elem.value = "";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#forceexcludegilist")
+                                        .popover({ title: 'String', content: "Space separated list of gi numbers to force exclude in each homology set. Takes priority over forceincludegilist"})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="forceincludegilist" class="control-label col-xs-6">forceincludegilist</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="forceincludegilist" name="forceincludegilist" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("forceincludegilist");
+                                        elem.value = "";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#forceincludegilist")
+                                        .popover({ title: 'String', content: "Space separated list of gi numbers to force include in each homology set."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="forceidentity" class="control-label col-xs-6">forceidentity</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="forceidentity" name="forceidentity" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("forceidentity");
+                                        elem.value = "0.9";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#forceidentity")
+                                        .popover({ title: 'Float', content: "Minimal accepted match identity of forced included GIs to query sequence."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <!--<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">-->
+                            <!--<div class="form-group">-->
+                                <!--<label for="forceincludefile" class="control-label col-xs-6">forceincludefile</label>-->
+                                <!--<div class="col-xs-6">-->
+                                    <!--<input type="text" class="form-control" id="forceincludefile" name="forceincludefile" data-placement="top">-->
+                                    <!--<script>-->
+                                        <!--var elem = document.getElementById("forceincludefile");-->
+                                        <!--elem.value = "";-->
+                                    <!--</script>-->
+
+                                    <!--<script>-->
+                                    <!--$(function () {-->
+                                        <!--$("#forceincludefile")-->
+                                        <!--.popover({ title: 'String', content: "File name of entries to force include in each homology set."})-->
+                                        <!--.blur(function () {-->
+                                            <!--$(this).popover('hide');-->
+                                        <!--});-->
+                                    <!--});-->
+                                    <!--</script>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <!--<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">-->
+                            <!--<div class="form-group">-->
+                                <!--<label for="forceincludefile" class="control-label col-xs-6">forceincludefile</label>-->
+                                <!--<div class="col-xs-6">-->
+                                    <!--<input type="text" class="form-control" id="forceincludefile" name="forceincludefile" data-placement="top">-->
+                                    <!--<script>-->
+                                        <!--var elem = document.getElementById("forceincludefile");-->
+                                        <!--elem.value = "";-->
+                                    <!--</script>-->
+
+                                    <!--<script>-->
+                                    <!--$(function () {-->
+                                        <!--$("#forceincludefile")-->
+                                        <!--.popover({ title: 'Float', content: "File name of entries to force include in each homology set."})-->
+                                        <!--.blur(function () {-->
+                                            <!--$(this).popover('hide');-->
+                                        <!--});-->
+                                    <!--});-->
+                                    <!--</script>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="nofillin" class="control-label col-xs-6">nofillin</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="nofillin" name="nofillin" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("nofillin");
+                                        elem.value = "No";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#nofillin")
+                                        .popover({ title: 'Yes/No', content: "Do not Fill in more individuals up to alignment limit even if nr. of individuals can be kept even."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="fillinall" class="control-label col-xs-6">fillinall</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="fillinall" name="fillinall" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("fillinall");
+                                        elem.value = "No";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#fillinall")
+                                        .popover({ title: 'Yes/No', content: "Fill in more individuals up to alignment limit disrespecting nr. of individuals."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="fillintomatch" class="control-label col-xs-6">fillintomatch</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="fillintomatch" name="fillintomatch" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("fillintomatch");
+                                        elem.value = "No";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#fillintomatch")
+                                        .popover({ title: 'String', content: "Used with the force include options to fill in individuals up to the number of of homologues for the specified species or subspecies."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="flanks" class="control-label col-xs-6">flanks</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="flanks" name="flanks" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("flanks");
+                                        elem.value = "0";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#flanks")
+                                        .popover({ title: 'Integer', content: "Extra flanks to add to the homologue before aligning the set."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="notruncate" class="control-label col-xs-6">notruncate</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="notruncate" name="notruncate" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("notruncate");
+                                        elem.value = "No";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#notruncate")
+                                        .popover({ title: 'Yes/No', content: "Do not truncate homologue sequence to match of sample-sequence."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="tab-pane" id="Alignment">-->
+                    <!--<div class="row">-->
+
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="alignmentoption" class="control-label col-xs-6">alignmentoption</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="alignmentoption" name="alignmentoption" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("alignmentoption");
+                                        elem.value = "-gapopen=50";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#alignmentoption")
+                                        .popover({ title: 'String', content: "Options passed to ClustalW2. Specify once for every option. You can specify multiple options as a comma separated list."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+        <!--# Alignment options:-->
+        <!--self.parser.add_option("--alignmentoption",-->
+                          <!--type="string",-->
+                          <!--action="append",-->
+                          <!--default=['-gapopen=50'],-->
+                          <!--help="Options passed to ClustalW2. Specify once for every option. You can specify multiple options as a comma separated list. Defaults to -gapopen=50")-->
+
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="tab-pane" id="Output">-->
+                    <!--<div class="row">-->
+
+
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="form-group">
+                                <label for="ppcutoff" class="control-label col-xs-6">ppcutoff</label>
+                                <div class="col-xs-6">
+                                    <input type="text" class="form-control" id="ppcutoff" name="ppcutoff" data-placement="top">
+                                    <script>
+                                        var elem = document.getElementById("ppcutoff");
+                                        elem.value = "95";
+                                    </script>
+
+                                    <script>
+                                    $(function () {
+                                        $("#ppcutoff")
+                                        .popover({ title: 'Integer', content: "Posterior probability cut-off (percent) for assignments reported on the main summary page. Default is 95% Give the options more than once to get reports for more than one cut-off."})
+                                        .blur(function () {
+                                            $(this).popover('hide');
+                                        });
+                                    });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
+
+        <!--self.parser.add_option("--diffs",-->
+                          <!--action="store_true",-->
+                          <!--default=False,-->
+                          <!--help="Calculate and show pairwise differences statistics for query sequences.")-->
+        <!--self.parser.add_option("--cleanlook",-->
+                          <!--action="store_true",-->
+                          <!--default=False,-->
+                          <!--help="Do not produce red text in summary and clone pages.")-->
+        <!--self.parser.add_option("--nocopycache",-->
+                          <!--action="store_true",-->
+                          <!--default=False,-->
+                          <!--help="Do not copy cache for duplicate query sequences.")-->
+        <!--self.parser.add_option("--warnongaps",-->
+                          <!--action="store_true",-->
+                          <!--default=False,-->
+                          <!--help="Issue a warning if the sample-sequence has internal gaps in the alignment.")-->
+        <!--self.parser.add_option("--bayesfactors",-->
+                          <!--action="store_true",-->
+                          <!--default=False,-->
+                          <!--help="Print Bayes factors as well.")-->
+        <!--self.parser.add_option("--svg",-->
+                          <!--action="store_true",-->
+                          <!--default=False,-->
+                          <!--help="Generate publication grade SVG of the taxonomy summaries instead of ASCI trees. The SVG pictures are easily converted to EPS, PS or PSF format using the free program Incscape.")-->
+
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            $(function () {
+                $('#myTab a:first').tab('show')
+            })
+            </script>
+
+        </div>
+    </form>
+
+{% endblock %}
+
+        <!--# Tree statistics options:-->
+        <!--self.parser.add_option("--prunelevel",-->
+                          <!--dest="prunelevel",-->
+                          <!--type="float",-->
+                          <!--default=0,-->
+                          <!--help="Prune level... float")-->
+
+
+
+

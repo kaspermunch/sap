@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}SAP {% endblock %}
+{% block head %}
+{{ super() }}
+<!-- refresh every 10 sec to let us check sentinel file indicating completion of external command -->
+<!--<meta http-equiv="refresh" content="30">-->
+
+<script>
+	$.ajaxSetup ({
+    // Disable caching of AJAX responses
+    cache: false
+	});
+	</script>
+{% endblock %}
+{% block content %}
+
+<div class="row">
+
+    {% if finished %}
+
+    <div class="col-xs-12">
+        <textarea id="final" style="width: 100%; height: 400px;"> </textarea>
+        <script>
+            $( "#final" ).load("../" + "{{ output_path }}" + "/stdout.txt", function() {
+                document.getElementById("final").scrollTop = document.getElementById("final").scrollHeight;
+            });
+		</script>
+    </div>
+
+
+    <div class="col-xs-12">
+            <a href="/results/{{ proj_id }}" target="_self" class="btn btn-success" type="submit">View your results &raquo;</a>
+    </div>
+
+    {% else %}
+
+    <div class="col-xs-12">
+        <textarea id="progress" style="width: 100%; height: 400px;"> </textarea>
+        <script>
+				var myVar=setInterval(function () {myLoader()}, 3000);
+				function myLoader() {
+					$( "#progress" ).load("../" + "{{ output_path }}" + "/stdout.txt", function() {
+						document.getElementById("progress").scrollTop = document.getElementById("progress").scrollHeight;	
+					});
+
+                    $.ajax({
+                      url: "../" + "{{ output_path }}" + "/html/index.html",
+                      success: function(){
+                        location.reload(forceGet=true);
+                      },
+                      error: function(){
+
+                      },
+                    })
+
+				}
+		</script>
+    </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

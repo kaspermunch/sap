@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block title %}SAP{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block script %}
+    $(document).ready(function() {
+        var images = ['butterfly1.jpg'];
+
+        $('.jumbotron').css({'background-image': 'url(static/img/' + images[Math.floor(Math.random() * images.length)] + ')'});
+    });
+{% endblock %}
+
+{% block style %}
+.jumbotron
+    {
+        background-size: cover;
+        background-repeat: no-repeat;
+
+    }
+.jumbotron.img {
+    opacity: 0.4;
+    filter: alpha(opacity=40); /* For IE8 and earlier */
+}
+{% endblock %}
+
+{% block content %}
+    <div class="jumbotron">
+        <h1>SAP <small>Statistical Assignment Package</small></h1>
+        <p><font color="white">SAP identifies species and other taxonomic units from DNA sequences.
+            It uses Bayesian phylogentics to evaluate the statistical support for
+            assignment to each taxonomic unit represented by sequences in a database
+            like <a href="http://www.ncbi.nlm.nih.gov/nucleotide/" target="_self">GenBank</a>.</font></p>
+
+        <p><a href="/example" target="_self" class="btn btn-primary btn-lg">Example Assignment</a></p>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <h2>Download</h2>
+            <p>The command line version of SAP is available for Linux/Unix plaforms as well as OSX and Windows.
+                You can compile the sourcecode, but prebuilt versions for Windows are also available.</p>
+            <p><a href="/downloads" target="_self" class="btn btn-primary">Learn More &raquo;</a></p>
+        </div>
+        <div class="col-xs-4">
+            <h2>Web server</h2>
+            <p>You can try out SAP without installing it locally by visiting the web server.
+                The papacity of the server is limited so please limit your analysis to a small number of sample sequences.</p>
+            <p><a href="/server" target="_self" class="btn btn-primary">Learn More &raquo;</a></p>
+        </div>
+        <div class="col-xs-4">
+            <h2>Documentation</h2>
+            <p>Say you have retrieved COI sequences from an environmnetal sample and want to know which taxonomic groups
+                these can be assigned to. Use SAP to produce a taxonomic assignment to the finest reliable level.</p>
+            <p><a href="/example" target="_self" class="btn btn-primary">Learn More &raquo;</a></p>
+        </div>
+
+
+
+
+    </div>
+{% endblock %}
