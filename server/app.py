@@ -42,8 +42,7 @@ class ReverseProxied(object):
 
 
 app = Flask(__name__)
-# app.wsgi_app = ReverseProxied(app.wsgi_app)
-app.debug = False
+app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 
 # FIXME: enable this for deployment
@@ -141,7 +140,8 @@ import tasks
 
 @app.url_value_preprocessor
 def get_task_from_id(endpoint, values):
-    if app.url_map.is_endpoint_expecting(endpoint, 'task_id'):
+    app.logger.debug('hello %s %s', endpoint, values)
+    if endpoint and app.url_map.is_endpoint_expecting(endpoint, 'task_id'):
         g.task = tasks.run_analysis.AsyncResult(values['task_id'])
 
 ##########
@@ -314,7 +314,7 @@ def submit():
 
         if notification_email:
             subtask1 = tasks.run_analysis.s(input_filename, optionParser.options, stdout_file, stderr_file)
-            subtask2 = tasks.notify_email.s(notification_email)
+            subtask2 = tasks.notify_email.s(mail, notification_email)
             task = chain(subtask1, subtask2).delay()
             # return redirect(url_for('wait', task_id=task.id))
             return redirect(url_for('submitted', email=notification_email, task_id=task.id))
@@ -430,4 +430,4 @@ def clone(proj_id, clone_id):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=8000, host='0.0.0.0', debug=True)

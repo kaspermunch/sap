@@ -1,5 +1,0 @@
-db: redis-server $REDIS_CONFIG
-worker: celery -A app.celery worker
-monitor: celery -A app.celery flower
-web: gunicorn -c $GUNICORN_CONFIG app:app
-# web: python app.py
