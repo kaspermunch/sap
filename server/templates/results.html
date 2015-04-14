@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% block title %}Results{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="row">
+
+    <div class="col-xs-12 col-xs-12 col-md-12">
+        <h1 class="page-header">Result summary <small>{{ proj_name }}</small></h1>
+    </div>
+
+</div>
+<div class="row">
+
+        <div class="col-xs-12 col-md-6">
+
+        <h2>Reading the results</h2>
+
+        <p>Each row in the table below represents the assignemnt made for a query sequence. The first column is the the probability cutoff used.
+            The second column is the query sequence name. The next six columns give the names of the assignend taxa (if any)
+            at the phylum, class, order, family, genus and species levels.
+        </p>
+        <p>
+            To see the distribution of assignment probability
+            across taxa, and the alignment used for the assignemt you can click the details button at the end of each row.
+        </p>
+        <p>If you want to look at a assignments that did not pass any specified threshold you can
+            find it in the list of input sequences by following <a href="{{ url_for('clonelist', proj_id=proj_id) }}">this link</a>.
+        </p>
+        </div>
+        <div class="col-xs-12 col-md-6">
+
+        <h2>A word of caution</h2>
+
+        <p>SAP relies on the assumption that all relevant taxa are present in the database. If the database used is
+            not large or diverse enough it may not be possible
+            to compile a data set of homologues that allows a valid assignment to be made.
+            In such cases there are no homologues in the alignment that are never part of a defining clade.
+            I these cases additional information is supplied in the last three columns to assess the severity
+            of this problem: <strong>nr</strong>: Number of significant homologues used included in the alignment if this number is below five.
+            <strong>min. freq.</strong>: The proportion of sampled trees that includes the homologue most
+            rarely included. <strong>min. prob.</strong>: The smallest posterior probability at the lowest taxonomic level with
+            any support.</p>
+        </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-xs-12 col-md-12">
+
+        <h2>Assignments</h2>
+
+        <div class="table-responsive">
+            <table class="table">
+                <tr><th align="left">cutoff</th><th align="left">id</th>
+                    <th align="left">phylum</th><th align="left">class</th><th align="left">order</th>
+                    <th align="left">family</th><th align="left">genus</th><th align="left">species</th>
+                    <th align="left">nr. hom.</th><th align="left">min. freq.</th><th align="left">min. prob.</th>
+                    <th align="left">detail</th></tr>
+
+        {% for row in summary_table %}
+                <tr>
+
+            {% for cell in row[1:2] + row[3:] %}
+                    <td>{{ cell }}</td>
+            {% endfor %}
+
+            {% for cell in row[2:3] %}
+                    <td><a href="/clone/{{ proj_id }}/{{ cell }}" target="_self" class="btn btn-info btn-xs">Detail &raquo;</a></td>
+            {% endfor %}
+                </tr>
+        {% endfor %}
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

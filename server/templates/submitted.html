@@ -1,49 +1,10 @@
 {% extends "layout.html" %}
-{% block title %}Wait{% endblock %}
+{% block title %}Submitted{% endblock %}
 {% block content %}
-  <h1>Your analysis is queued or running</h1>
+  <h1>Your analysis has been submitted</h1>
 
-  <p>You will be automatically redirected when your results are ready.</p>
+  <p>Once it is completed you will receive a notification at <b>{{ email }}</b> with a link to your results.</p>
 
-  <div class="progress">
-    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0"
-         aria-valuemax="100" style="width: 0%;">
-    <span id="progress">0</span>%
-    </div>
-  </div>
+  <p>At this point your analysis will be available <a href="{{ url_for('view', task_id=task_id) }}">here</a>.</p>
 
-  <!--<p>Progress: <span id="progress">0</span>%</p>-->
-
-  <p><a href="{{ url_for('cancel', task_id=task_id) }}" target="_self" class="btn btn-danger btn-sm">Cancel job</a></p>
-
-  <!--<p>You can also bookmark <a href="{{ url_for('view', task_id=task_id) }}">this link</a>.-->
-  <p>
-      You can bookmark this page and go back to check progress later.
-  </p>
-   <!--<p>-->
-       <!--You can also <a href="{{ url_for('sendmail', task_id_proxy=task_id) }}">subscribe to email notification</a>-->
-       <!--on completion of your analysis.-->
-   <!--</p>-->
-
-    <p>If you supplied an email address you will be notified once your analysis completes.</p>
-
-
-  <script>
-  $(function () {
-    var UPDATE_INTERVAL = 2000;
-    var intervalId = setInterval(function () {
-      $.get("{{ url_for('status', task_id=task_id) }}", function (response) {
-        if (response['status'] == 'SUCCESS' ||
-        response['status'] == 'FAILURE' ||
-        response['status'] == 'REVOKED') {
-          window.location = "{{ url_for('view', task_id=task_id) }}";
-        } else if (response['status'] == 'PROGRESS') {
-          var progress = Math.floor(response['result']['current'] / response['result']['total'] * 100);
-          $('#progress').html(progress);
-          $('.progress-bar').css('width', progress+'%').attr('aria-valuenow', progress);
-        }
-      });
-    }, UPDATE_INTERVAL);
-  });
-  </script>
 {% endblock %}
