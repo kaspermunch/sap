@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/SVG/DTD/svg10.dtd">
+<svg width="840" height="315" viewBox="0 0 560 210"
+    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str1 {stroke:#000000;stroke-width:2}
+    .fil1 {fill:none}
+    .fil2 {fill:#000000}
+    .fnt1 {fill:grey;font-weight:normal;font-size:11px;font-family:"Arial";text-rendering:optimizeLegibility;}
+    .fnt2 {fill:black;font-weight:normal;font-size:11px;font-family:"Arial";text-rendering:optimizeLegibility;}
+   ]]>
+  </style>
+ </defs>
+<g>
+<circle class="fil2 str1" cx="32" cy="30" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Eukaryota&search_image="><text class="fnt2" x="35" y="30"><tspan font-style="italic">Eukaryota</tspan> (superkingdom) 100%</text></a>
+<line class="fill1 str1" x1="32" y1="30" x2="32" y2="46" />
+<line class="fill1 str1" x1="32" y1="45" x2="59" y2="45" />
+<circle class="fil2 str1" cx="60" cy="45" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Metazoa&search_image="><text class="fnt2" x="63" y="45"><tspan font-style="italic">Metazoa</tspan> (kingdom) 100%</text></a>
+<line class="fill1 str1" x1="60" y1="45" x2="60" y2="61" />
+<line class="fill1 str1" x1="60" y1="60" x2="87" y2="60" />
+<circle class="fil2 str1" cx="88" cy="60" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Chordata&search_image="><text class="fnt2" x="91" y="60"><tspan font-style="italic">Chordata</tspan> (phylum) 100%</text></a>
+<line class="fill1 str1" x1="88" y1="60" x2="88" y2="76" />
+<line class="fill1 str1" x1="88" y1="75" x2="115" y2="75" />
+<circle class="fil2 str1" cx="116" cy="75" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Craniata&search_image="><text class="fnt2" x="119" y="75"><tspan font-style="italic">Craniata</tspan> (subphylum) 100%</text></a>
+<line class="fill1 str1" x1="116" y1="75" x2="116" y2="91" />
+<line class="fill1 str1" x1="116" y1="90" x2="143" y2="90" />
+<circle class="fil2 str1" cx="144" cy="90" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Mammalia&search_image="><text class="fnt2" x="147" y="90"><tspan font-style="italic">Mammalia</tspan> (class) 100%</text></a>
+<line class="fill1 str1" x1="144" y1="90" x2="144" y2="106" />
+<line class="fill1 str1" x1="144" y1="105" x2="171" y2="105" />
+<circle class="fil2 str1" cx="172" cy="105" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Laurasiatheria&search_image="><text class="fnt2" x="175" y="105"><tspan font-style="italic">Laurasiatheria</tspan> (superorder) 100%</text></a>
+<line class="fill1 str1" x1="172" y1="105" x2="172" y2="121" />
+<line class="fill1 str1" x1="172" y1="120" x2="199" y2="120" />
+<circle class="fil2 str1" cx="200" cy="120" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Carnivora&search_image="><text class="fnt2" x="203" y="120"><tspan font-style="italic">Carnivora</tspan> (order) 100%</text></a>
+<line class="fill1 str1" x1="200" y1="120" x2="200" y2="136" />
+<line class="fill1 str1" x1="200" y1="135" x2="227" y2="135" />
+<circle class="fil2 str1" cx="228" cy="135" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Feliformia&search_image="><text class="fnt2" x="231" y="135"><tspan font-style="italic">Feliformia</tspan> (suborder) 100%</text></a>
+<line class="fill1 str1" x1="228" y1="135" x2="228" y2="151" />
+<line class="fill1 str1" x1="228" y1="150" x2="255" y2="150" />
+<circle class="fil2 str1" cx="256" cy="150" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Felidae&search_image="><text class="fnt2" x="259" y="150"><tspan font-style="italic">Felidae</tspan> (family) 100%</text></a>
+<line class="fill1 str1" x1="256" y1="150" x2="256" y2="166" />
+<line class="fill1 str1" x1="256" y1="165" x2="283" y2="165" />
+<circle class="fil2 str1" cx="284" cy="165" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Acinonychinae&search_image="><text class="fnt2" x="287" y="165"><tspan font-style="italic">Acinonychinae</tspan> (subfamily) 100%</text></a>
+<line class="fill1 str1" x1="284" y1="165" x2="284" y2="181" />
+<line class="fill1 str1" x1="284" y1="180" x2="311" y2="180" />
+<circle class="fil2 str1" cx="312" cy="180" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Acinonyx&search_image="><text class="fnt2" x="315" y="180"><tspan font-style="italic">Acinonyx</tspan> (genus) 100%</text></a>
+<line class="fill1 str1" x1="312" y1="180" x2="312" y2="196" />
+<line class="fill1 str1" x1="312" y1="195" x2="339" y2="195" />
+<circle class="fil2 str1" cx="340" cy="195" r="1.3"/><a xlink:href="http://www.eol.org/search?q=Acinonyx+jubatus&search_image="><text class="fnt2" x="343" y="195"><tspan font-style="italic">Acinonyx</tspan> jubatus (species) 100%</text></a>
+</g></svg>

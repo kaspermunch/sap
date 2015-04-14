@@ -1,0 +1,31 @@
+Experiment: exampleY7IQXNshow
+	Significance level: 95%
+		Rank: phylum
+			Chordata	4
+		total/all_analyzed 4/4 100.0%
+
+		Rank: class
+			Mammalia	4
+		total/all_analyzed 4/4 100.0%
+
+		Rank: order
+			Carnivora	4
+		total/all_analyzed 4/4 100.0%
+
+		Rank: family
+			Felidae	4
+		total/all_analyzed 4/4 100.0%
+
+		Rank: genus
+			Acinonyx	1
+			Panthera	2
+			Uncia	1
+		total/all_analyzed 4/4 100.0%
+
+		Rank: species
+			Panthera leo	1
+			Panthera pardus	1
+			Acinonyx jubatus	1
+			Uncia uncia	1
+		total/all_analyzed 4/4 100.0%
+
