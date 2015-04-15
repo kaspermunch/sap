@@ -9,4 +9,7 @@ ADD ext/ /code/sap/ext/
 RUN cd code/sap/ && python -u setup.py install
 
 ADD server /code/server
+
+RUN ln -s /usr/bin/clustalw /usr/bin/clustalw2
+
 RUN cd /code/server && pip install -r requirements.txt
