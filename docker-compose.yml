@@ -14,7 +14,7 @@ web:
 worker:
   build: .
   working_dir: /code/server/
-  command: celery -A app.celery worker
+  command: celery --loglevel=DEBUG --concurrency=1 -A app.celery worker
   volumes:
    - server:/code/server
   env_file:
