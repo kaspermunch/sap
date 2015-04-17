@@ -1,0 +1,19 @@
+web:
+  extends:
+    file: common.yml
+    service: web
+  links:
+   - db
+   - worker
+  command: python app.py
+worker:
+  extends:
+    file: common.yml
+    service: worker
+  links:
+   - db
+  command: celery --loglevel=DEBUG --concurrency=1 -A app.celery worker
+db:
+  extends:
+    file: common.yml
+    service: db
