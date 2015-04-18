@@ -95,7 +95,7 @@ if not app.debug:
 
     # logging to file:
     from logging import FileHandler, Formatter
-    file_handler = FileHandler('test.log')
+    file_handler = FileHandler('app.log')
     file_handler.setFormatter(Formatter(
         '%(asctime)s %(levelname)s: %(message)s '
         '[in %(pathname)s:%(lineno)d]'
