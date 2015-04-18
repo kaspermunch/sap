@@ -1,11 +1,13 @@
 
 import random, string, os, sys, re, logging
-from flask import Flask, redirect, session, url_for, render_template, request, jsonify, g, flash
+from flask import Flask, redirect, session, url_for, render_template, request, jsonify, g, flash, send_file
 from celery.exceptions import SoftTimeLimitExceeded
 from celery import chain
 from werkzeug import secure_filename
 from utilities import make_celery
 from SAP import Options
+
+import StringIO, shutil
 
 class ReverseProxied(object):
     '''Wrap the application in this middleware and configure the
@@ -52,7 +54,7 @@ app.config['UPLOAD_FOLDER'] = 'uploads/'
 
 from flask_mail import Mail
 mail = Mail(app)
-from email_notification import email_success, email_failure, email_revoked
+#from email_notification import email_success, email_failure, email_revoked
 
 celery = make_celery(app)
 celery.config_from_object(os.environ['CELERY_CONFIG_MODULE'])
@@ -136,13 +138,13 @@ if not app.debug:
 # HELPERS #
 ###########
 
-import tasks
+#import tasks
 
 @app.url_value_preprocessor
 def get_task_from_id(endpoint, values):
     app.logger.debug('hello %s %s', endpoint, values)
     if endpoint and app.url_map.is_endpoint_expecting(endpoint, 'task_id'):
-        g.task = tasks.run_analysis.AsyncResult(values['task_id'])
+        g.task = run_analysis.AsyncResult(values['task_id'])
 
 ##########
 # ROUTES #
@@ -205,7 +207,7 @@ def example():
 
 
 @app.route('/server', methods=['GET', 'POST'])
-def options():
+def server():
     return render_template('options.html', nav="server")
 
 
@@ -229,7 +231,7 @@ def submit():
         newValue = None
 
         if name == 'notificationemail':
-            if text == 'not required':
+            if 'not required' in text:
                 text = ''
             notification_email = text
             continue
@@ -310,7 +312,7 @@ def submit():
 
     if form_is_valid and input_filename:
 
-        task = tasks.run_analysis.delay(input_filename, optionParser.options,
+        task = run_analysis.delay(input_filename, optionParser.options,
                                         stdout_file, stderr_file, notification_email)
         return redirect(url_for('wait', task_id=task.id))
 
@@ -425,6 +427,305 @@ def clone(proj_id, clone_id):
 
     return render_template("clone.html", content=alignment, svg_tree=svg_tree, clone_id=clone_id,
                            file_id=file_id, seq_id=seq_id)
+
+
+@app.route('/sendresults/<proj_id>')
+def sendresults(proj_id):
+    file_name = os.path.join(STATIC_USER_PROJ_DIR, proj_id, 'assignments.csv')
+    strIO = StringIO.StringIO()
+    with open(file_name, 'r') as f:
+        strIO.write("sep=,\n" + f.read())
+    strIO.seek(0)
+    return send_file(strIO,
+                     attachment_filename="{}_assignments.csv".format(proj_id),
+                     as_attachment=True)
+
+
+###########
+# TASKS   #
+###########
+
+from SAP.Homology import HomolCompiler
+from SAP.TreeStatistics import TreeStatistics
+from SAP.PairWiseDiffs import PairWiseDiffs
+from SAP.ResultHTML import ResultHTML
+from SAP.Initialize import Initialize
+from SAP.UtilityFunctions import *
+from SAP.FindPlugins import *
+from SAP.InstallDependencies import *
+
+@celery.task(name='app.run_analysis', bind=True)
+def run_analysis(self, input_file, options, stdout_file, stderr_file, email):
+
+    class RedirectStdStreams(object):
+        def __init__(self, stdout=None, stderr=None):
+            if stdout is not None:
+                stdout = open(stdout, 'w')
+            if stderr is not None:
+                stderr = open(stderr, 'w')
+            self.stdout = stdout
+            self.stderr = stderr
+            self._stdout = stdout or sys.stdout
+            self._stderr = stderr or sys.stderr
+
+        def __enter__(self):
+            self.old_stdout, self.old_stderr = sys.stdout, sys.stderr
+            self.old_stdout.flush()
+            self.old_stderr.flush()
+            sys.stdout, sys.stderr = self._stdout, self._stderr
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            self._stdout.flush(); self._stderr.flush()
+            if sys.stdout is self.stdout:
+                sys.stdout.close()
+            if sys.stderr is self.stderr:
+                sys.stderr.close()
+            sys.stdout = self.old_stdout
+            sys.stderr = self.old_stderr
+
+    with RedirectStdStreams(stdout=stdout_file, stderr=stderr_file):
+
+        # Make directories and write fixed inputfiles:
+        init = Initialize(options)
+        init.createDirs()
+
+        inputFiles, seqCount, sequenceNameMap = init.fixAndMoveInput([input_file])
+        init.checkCacheConsistency(inputFiles)
+
+        progress = 1
+        self.update_state(state='PROGRESS', meta={'current': progress, 'total': seqCount*4+2})
+
+        fastaFileBaseNames = []
+
+        try:
+            alignmentPlugin = findPlugin(options.alignment, 'SAP.alignment')
+        except PluginNotFoundError:
+            from SAP.Alignment import Clustalw2 as alignmentPlugin
+            # exec("from SAP.Alignment import %s as alignmentPlugin" % options.alignment)
+        aligner = alignmentPlugin.Aligner(options)
+
+        try:
+            assignmentPlugin = findPlugin(options.assignment, 'SAP.assignment')
+        except PluginNotFoundError:
+            if options.assignment == "Barcoder":
+                from SAP.Assignment import Barcoder as assignmentPlugin
+            elif options.assignment == "ConstrainedNJ":
+                from SAP.Assignment import ConstrainedNJ as assignmentPlugin
+            else:
+                assert 0
+           # exec("from SAP.Assignment import %s as assignmentPlugin" % options.assignment)
+        assignment = assignmentPlugin.Assignment(options)
+
+        uniqueDict = {}
+        copyLaterDict = {}
+
+        homolcompiler = HomolCompiler(options)
+
+        inputQueryNames = {}
+
+        # For each fasta file execute pipeline
+        for fastaFileName in inputFiles:
+
+            fastaFile = open(fastaFileName, 'r')
+            fastaIterator = Fasta.Iterator(fastaFile, parser=Fasta.RecordParser())
+            fastaFileBaseName = os.path.splitext(os.path.basename(fastaFileName))[0]
+            fastaFileBaseNames.append(fastaFileBaseName)
+
+            inputQueryNames[fastaFileBaseName] = {}
+
+            for fastaRecord in fastaIterator:
+
+                # Discard the header except for the first id word:
+                fastaRecord.title = re.search(r'^(\S+)', fastaRecord.title).group(1)
+
+                app.logger.info("file: {}, query: {}".format(fastaFileBaseName, fastaRecord.title))
+
+                inputQueryNames[fastaFileBaseName][fastaRecord.title] = True
+
+                print "%s -> %s: " % (fastaFileBaseName, fastaRecord.title)
+
+                # See if the sequence is been encountered before and if so skip it for now:
+                if uniqueDict.has_key(fastaRecord.sequence):
+                    copyLaterDict.setdefault(uniqueDict[fastaRecord.sequence], []).append('%s_%s' % (fastaFileBaseName, fastaRecord.title))
+                    print '\tsequence double - skipping...\n'
+                    continue
+                else:
+                    uniqueDict[fastaRecord.sequence] = '%s_%s' % (fastaFileBaseName, fastaRecord.title)
+
+                # Find homologues: Fasta files and pickled homologyResult objects are written to homologcache
+                homologyResult = homolcompiler.compileHomologueSet(fastaRecord, fastaFileBaseName)
+
+                progress += 1
+                self.update_state(state='PROGRESS', meta={'current': progress, 'total': seqCount*4+2})
+
+                if homologyResult != None:
+                    # The homologyResult object serves as a job carrying the relevant information.
+
+                    aligner.align(os.path.join(options.homologcache, homologyResult.homologuesFileName))
+
+                    progress += 1
+                    self.update_state(state='PROGRESS', meta={'current': progress, 'total': seqCount*4+2})
+
+                    try:
+                       assignment.run(os.path.join(options.alignmentcache, homologyResult.alignmentFileName))
+                    except assignmentPlugin.AssignmentError, X:
+                       print X.msg
+
+                    progress += 1
+                    self.update_state(state='PROGRESS', meta={'current': progress, 'total': seqCount*4+2})
+
+                    treeStatistics = TreeStatistics(options)
+                    treeStatistics.runTreeStatistics([os.path.join(options.homologcache, homologyResult.homologuesPickleFileName)], generateSummary=False)
+
+                    progress += 1
+                    self.update_state(state='PROGRESS', meta={'current': progress, 'total': seqCount*4+2})
+                else:
+                    progress += 3
+                    self.update_state(state='PROGRESS', meta={'current': progress, 'total': seqCount*4+2})
+
+            fastaFile.close()
+
+        # Make dictionary to map doubles the ones analyzed:
+        doubleToAnalyzedDict = {}
+        for k, l in copyLaterDict.items():
+            doubleToAnalyzedDict.update(dict([[v,k] for v in l]))
+
+        if not options.nocopycache and len(doubleToAnalyzedDict):
+            # Copy cache files for sequences that occoured more than once:
+            print "Copying cached results for %d doubles" % len(doubleToAnalyzedDict)
+            copyCacheForSequenceDoubles(copyLaterDict, options)
+
+        # Calculate the pairwise differences between sequences in each file:
+        if options.diffs:
+            pairwisediffs = PairWiseDiffs(options)
+            pairwisediffs.runPairWiseDiffs(inputFiles)
+
+        # Summary tree stats:
+        print 'Computing tree statistics summary...'
+        treeStatistics = TreeStatistics(options)
+        treeStatistics.runTreeStatistics(inputFiles, generateSummary=True, doubleToAnalyzedDict=doubleToAnalyzedDict, inputQueryNames=inputQueryNames)
+        print "done"
+
+        progress += 1
+        self.update_state(state='PROGRESS', meta={'current': progress, 'total': seqCount*4+2})
+
+        # Make HTML output:
+        print '\tGenerating HTML output...'
+
+        resultHTML = ResultHTML(options)
+        resultHTML.webify([options.treestatscache + '/summary.pickle'], fastaFileBaseNames, doubleToAnalyzedDict, sequenceNameMap)
+        print 'done'
+
+        # clean up files we won't need anyway
+        shutil.rmtree(options.datadir)
+        shutil.rmtree(options.homologcache)
+        shutil.rmtree(options.blastcache)
+        shutil.rmtree(options.dbcache)
+        shutil.rmtree(options.treescache)
+        shutil.rmtree(options.alignmentcache)
+
+    if email:
+        notify_email(options.project, email)
+
+    return options.project
+
+
+# @celery.task(name='app.notify_email', bind=False)
+# def notify_email(mail, result, email_address):
+#     if isinstance(result, basestring):
+#         proj_id = os.path.basename(result)
+#         email_success(mail, email_address, proj_id=proj_id)
+#     elif isinstance(result, SoftTimeLimitExceeded):
+#         email_revoked(mail, email_address, proj_id=None)
+#     else:
+#         email_failure(mail, email_address, proj_id=None)
+#     return result
+
+
+
+# @main.route('/query/<file_id>')
+# def download(file_id):
+#     (file_basename, server_path, file_size) = get_file_params(file_id)
+#     response = make_response()
+#     response.headers['Content-Description'] = 'File Transfer'
+#     response.headers['Cache-Control'] = 'no-cache'
+#     response.headers['Content-Type'] = 'application/octet-stream'
+#     response.headers['Content-Disposition'] = 'attachment; filename=%s' % file_basename
+#     response.headers['Content-Length'] = file_size
+#     response.headers['X-Accel-Redirect'] = server_path # nginx: http://wiki.nginx.org/NginxXSendfile
+#     return response
+
+
+# def get_file_params(filename):
+#     filepath = os.path.abspath(current_app.root_path)+"/../download/"+filename
+#     if os.path.isfile(filepath):
+#         return filename,"/download/"+filename,os.path.getsize(filepath)
+#     with open(filepath, 'w') as outfile:
+#         data = load_from_mongo("ddcss","queries",\
+#             criteria = {"_id" : ObjectId(filename)}, projection = {'_id': 0})
+#         #outfile.write(json.dumps(data[0], default=json_util.default))
+#         outfile.write(dumps(data[0]))
+#     return filename, "/download/"+filename, os.path.getsize(filepath)
+
+###########
+# EMAIL   #
+###########
+
+from flask_mail import Message
+
+from decorators import async
+from config.app_config import ADMINS
+
+import os
+from celery.exceptions import SoftTimeLimitExceeded
+
+# @async
+# def send_async_email(app, msg):
+#     with app.app_context():
+#         mail.send(msg)
+
+
+def send_email(subject, sender, recipients, text_body, html_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    # send_async_email(app, msg)
+    mail.send(msg)
+
+
+def email_success(email_address, proj_id=None):
+    send_email(mail, "Your SAP analysis is complete",
+               ADMINS[0],
+               [email_address],
+               render_template("email_success.txt", proj_id=proj_id),
+               render_template("email_success.html", proj_id=proj_id))
+
+
+def email_failure(email_address, proj_id):
+    send_email(mail, "Your SAP analysis failed",
+               ADMINS[0],
+               [email_address],
+               render_template("email_failure.txt", proj_id=proj_id),
+               render_template("email_failure.html", proj_id=proj_id))
+
+
+def email_revoked(email_address, proj_id):
+    send_email(mail, "Your SAP analysis ran out of time",
+               ADMINS[0],
+               [email_address],
+               render_template("email_revoked.txt", proj_id=proj_id),
+               render_template("email_revoked.html", proj_id=proj_id))
+
+
+def notify_email(result, email_address):
+    if isinstance(result, basestring):
+        proj_id = os.path.basename(result)
+        email_success(email_address, proj_id=proj_id)
+    elif isinstance(result, SoftTimeLimitExceeded):
+        email_revoked(email_address, proj_id=None)
+    else:
+        email_failure(email_address, proj_id=None)
+    return result
 
 
 if __name__ == '__main__':
