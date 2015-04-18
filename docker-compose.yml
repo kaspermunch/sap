@@ -10,7 +10,8 @@ web:
   volumes:
    - server:/code/server
   working_dir: /code/server/
-  command: gunicorn -b 0.0.0.0:8000 -w 4 app:app
+  #command: gunicorn -b 0.0.0.0:8000 -w 4 app:app
+  command: python app.py 
 worker:
   build: .
   working_dir: /code/server/
