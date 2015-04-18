@@ -23,7 +23,7 @@ Default: Running against Genbank
     sap --project myproject query.fasta
 
 Compiling a local database specified by a query for Genbank nucleotide db:
-    sap --compile '(COI[Gene Name]) AND barcode[Keyword]' coi_barcode_db.fasta
+    sap --compile '(COI[Gene Name]) AND barcode[Keyword]' --database coi_barcode_db.fasta
 
 Running against a local database:
     sap --project myproject --database coi_barcode_db.fasta query.fasta
