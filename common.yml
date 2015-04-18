@@ -1,8 +1,5 @@
 web:
   build: .
-  links:
-   - db
-   - worker
   ports:
    - "7000:8000"
   env_file:
@@ -10,19 +7,14 @@ web:
   volumes:
    - server:/code/server
   working_dir: /code/server/
-  #command: gunicorn -b 0.0.0.0:8000 -w 4 app:app
-  command: python app.py 
 worker:
   build: .
   working_dir: /code/server/
-  command: celery --loglevel=INFO --concurrency=1 -A app.celery worker
   volumes:
    - server:/code/server
   env_file:
    - server/.env
   environment:
    C_FORCE_ROOT: true
-  links:
-   - db
 db:
   image: redis

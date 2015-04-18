@@ -1,0 +1,19 @@
+web:
+  extends:
+    file: common.yml
+    service: web
+  links:
+   - db
+   - worker
+  command: gunicorn -b 0.0.0.0:8000 -w 4 app:app
+worker:
+  extends:
+    file: common.yml
+    service: worker
+  links:
+   - db
+  command: celery --loglevel=INFO --concurrency=1 -A app.celery worker
+db:
+  extends:
+    file: common.yml
+    service: db
