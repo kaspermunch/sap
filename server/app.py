@@ -1,8 +1,16 @@
 
 import random, string, os, sys, re, logging
+
+from flask_mail import Message
+
+#from decorators import async
+from config.app_config import ADMINS
+
 from flask import Flask, redirect, session, url_for, render_template, request, jsonify, g, flash, send_file
 from celery.exceptions import SoftTimeLimitExceeded
-from celery import chain
+from celery.signals import after_setup_task_logger
+
+#from celery import chain
 from werkzeug import secure_filename
 from utilities import make_celery
 from SAP import Options
@@ -10,7 +18,7 @@ from SAP import Options
 import StringIO, shutil
 
 class ReverseProxied(object):
-    '''Wrap the application in this middleware and configure the
+    """Wrap the application in this middleware and configure the
     front-end server to add these headers, to let you quietly bind
     this to a URL other than / and to an HTTP scheme that is
     different than what is used locally.
@@ -25,7 +33,7 @@ class ReverseProxied(object):
         }
 
     :param app: the WSGI application
-    '''
+    """
     def __init__(self, app):
         self.app = app
 
@@ -46,8 +54,6 @@ class ReverseProxied(object):
 app = Flask(__name__)
 app.wsgi_app = ReverseProxied(app.wsgi_app)
 
-
-# FIXME: enable this for deployment
 app.config.from_envvar('APP_CONFIG')
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 
@@ -59,7 +65,7 @@ mail = Mail(app)
 celery = make_celery(app)
 celery.config_from_object(os.environ['CELERY_CONFIG_MODULE'])
 
-ALLOWED_EXTENSIONS = set(['fa', 'fasta', 'fst', 'FASTA', 'FA', 'txt'])
+ALLOWED_EXTENSIONS = {'fa', 'fasta', 'fst', 'FASTA', 'FA', 'txt'}
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))   # refers to application_top
 APP_STATIC = os.path.join(APP_ROOT, 'static')
 STATIC_USER_PROJ_DIR = os.path.join('static', 'user_projects')
@@ -104,7 +110,6 @@ if not app.debug:
     app.logger.addHandler(file_handler)
 
 
-    from celery.signals import after_setup_task_logger
     @after_setup_task_logger.connect
     #def add_handler(logger, loglevel, logfile, format, colorize):
     def add_handler(logger, **kwargs):
@@ -290,14 +295,14 @@ def submit():
 
     # upload input file
     try:
-        file = request.files['inputfile']
+        userfile = request.files['inputfile']
     except KeyError:
         flash('Please select input file before you hit Run', 'danger')
         return render_template('options.html', nav="server")
-    input_filename = None
-    if file and allowed_file(file.filename):
-        input_filename = os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(optionParser.options.project) + "_" + secure_filename(file.filename))
-        file.save(input_filename)
+
+    if userfile and allowed_file(userfile.filename):
+        input_filename = os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(optionParser.options.project) + "_" + secure_filename(userfile.filename))
+        userfile.save(input_filename)
     else:
         flash('Please select input file before you hit Run', 'danger')
         return render_template('options.html', nav="server")
@@ -382,9 +387,6 @@ def cancel(task_id):
 def results(proj_id):
 
     with open(os.path.join(STATIC_USER_PROJ_DIR, proj_id, 'assignments.csv'), 'r') as f:
-        levelsSummaried = ['phylum', 'class', 'order', 'family', 'genus', 'species']
-        header=['file', 'cutoff', 'detail', 'id']+levelsSummaried+['nr. homolgues', 'min. freq. homologue', 'min. prob. taxon']
-        # table = '<tr><th align="left">' + '</th><th align="left">'.join(map(str, header)) + '</th></tr>\n'
         table = list()
         for l in f:
             row = l.split(',')
@@ -558,7 +560,7 @@ def run_analysis(self, input_file, options, stdout_file, stderr_file, email):
                 progress += 1
                 self.update_state(state='PROGRESS', meta={'current': progress, 'total': seqCount*4+2})
 
-                if homologyResult != None:
+                if homologyResult is not None:
                     # The homologyResult object serves as a job carrying the relevant information.
 
                     aligner.align(os.path.join(options.homologcache, homologyResult.homologuesFileName))
@@ -671,13 +673,6 @@ def run_analysis(self, input_file, options, stdout_file, stderr_file, email):
 # EMAIL   #
 ###########
 
-from flask_mail import Message
-
-from decorators import async
-from config.app_config import ADMINS
-
-import os
-from celery.exceptions import SoftTimeLimitExceeded
 
 # @async
 # def send_async_email(app, msg):
@@ -694,7 +689,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
 
 
 def email_success(email_address, proj_id=None):
-    send_email(mail, "Your SAP analysis is complete",
+    send_email("Your SAP analysis is complete",
                ADMINS[0],
                [email_address],
                render_template("email_success.txt", proj_id=proj_id),
@@ -702,7 +697,7 @@ def email_success(email_address, proj_id=None):
 
 
 def email_failure(email_address, proj_id):
-    send_email(mail, "Your SAP analysis failed",
+    send_email("Your SAP analysis failed",
                ADMINS[0],
                [email_address],
                render_template("email_failure.txt", proj_id=proj_id),
@@ -710,7 +705,7 @@ def email_failure(email_address, proj_id):
 
 
 def email_revoked(email_address, proj_id):
-    send_email(mail, "Your SAP analysis ran out of time",
+    send_email("Your SAP analysis ran out of time",
                ADMINS[0],
                [email_address],
                render_template("email_revoked.txt", proj_id=proj_id),
