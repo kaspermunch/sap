@@ -81,6 +81,16 @@ def allowed_file(filename):
 #if not app.debug:
 app.logger.setLevel(logging.INFO) # FIXME: Maybe this sets global lowest level...
 
+# logging to file:
+from logging import FileHandler, Formatter
+file_handler = FileHandler('app.log')
+file_handler.setFormatter(Formatter(
+    '%(asctime)s %(levelname)s: %(message)s '
+    '[in %(pathname)s:%(lineno)d]'
+))
+file_handler.setLevel(logging.INFO)
+app.logger.addHandler(file_handler)
+
 #     from logging.handlers import SMTPHandler
 #     mail_handler = SMTPHandler('127.0.0.1',
 #                                'server-error@example.com',
@@ -100,21 +110,15 @@ app.logger.setLevel(logging.INFO) # FIXME: Maybe this sets global lowest level..
 #     mail_handler.setLevel(logging.ERROR)
 #     app.logger.addHandler(mail_handler)
 
-    # logging to file:
-    from logging import FileHandler, Formatter
-    file_handler = FileHandler('app.log')
-    file_handler.setFormatter(Formatter(
-        '%(asctime)s %(levelname)s: %(message)s '
-        '[in %(pathname)s:%(lineno)d]'
-    ))
-    file_handler.setLevel(logging.INFO)
-    app.logger.addHandler(file_handler)
 
 
-    @after_setup_task_logger.connect
-    #def add_handler(logger, loglevel, logfile, format, colorize):
-    def add_handler(logger, **kwargs):
-        logger.addHandler(file_handler)
+
+@after_setup_task_logger.connect
+#def add_handler(logger, loglevel, logfile, format, colorize):
+def add_handler(logger, **kwargs):
+    logger.addHandler(file_handler)
+
+
 
 
 # from celery.signals import task_success, task_failure, task_revoked
