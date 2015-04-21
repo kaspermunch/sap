@@ -7,17 +7,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='extra.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-switch.css') }}">
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-switch.css') }}">-->
 
     <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>-->
-    <script src="/static/js/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 
     <!--<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
-    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
-    <script src="/static/js/bootstrap-switch.js"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-switch.js') }}"></script>
 
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!--<script src="{{ url_for('static', filename='js/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML') }}"></script>-->
+    <!--<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>-->
     {% endblock %}
 
     <style>
@@ -48,29 +49,29 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="nav navbar-nav">
                 {% if nav == "example" %}
-                <li class="active"><a href="/example" target="_self">Example</a></li>
+                <li class="active"><a href="{{ url_for('example') }}" target="_self">Example</a></li>
                 {% else %}
-                <li><a href="/example" target="_self">Example</a></li>
+                <li><a href="{{ url_for('example') }}" target="_self">Example</a></li>
                 {% endif %}
                 {% if nav == "downloads" %}
-                <li class="active"><a href="/downloads" target="_self">Downloads</a></li>
+                <li class="active"><a href="{{ url_for('downloads') }}" target="_self">Downloads</a></li>
                 {% else %}
-                <li><a href="/downloads" target="_self">Downloads</a></li>
+                <li><a href="{{ url_for('downloads') }}" target="_self">Downloads</a></li>
                 {% endif %}
                 {% if nav == "docs" %}
-                <li class="active"><a href="/docs" target="_self">Documentation</a></li>
+                <li class="active"><a href="{{ url_for('docs') }}" target="_self">Documentation</a></li>
                 {% else %}
-                <li><a href="/docs" target="_self">Documentation</a></li>
+                <li><a href="{{ url_for('docs') }}" target="_self">Documentation</a></li>
                 {% endif %}
                 {% if nav == "faq" %}
-                <li class="active"><a href="/faq" target="_self">FAQ</a></li>
+                <li class="active"><a href="{{ url_for('faq') }}" target="_self">FAQ</a></li>
                 {% else %}
-                <li><a href="/faq" target="_self">FAQ</a></li>
+                <li><a href="{{ url_for('faq') }}" target="_self">FAQ</a></li>
                 {% endif %}
                 {% if nav == "server" %}
-                <li class="active"><a href="/server" target="_self">Web server</a></li>
+                <li class="active"><a href="{{ url_for('server') }}" target="_self">Web server</a></li>
                 {% else %}
-                <li><a href="/server" target="_self">Web server</a></li>
+                <li><a href="{{ url_for('server') }}" target="_self">Web server</a></li>
                 {% endif %}
             </ul>
         </div>
