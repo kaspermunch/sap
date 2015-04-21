@@ -78,8 +78,8 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-if not app.debug:
-    app.logger.setLevel(logging.INFO) # FIXME: Maybe this sets global lowest level...
+#if not app.debug:
+app.logger.setLevel(logging.INFO) # FIXME: Maybe this sets global lowest level...
 
 #     from logging.handlers import SMTPHandler
 #     mail_handler = SMTPHandler('127.0.0.1',
