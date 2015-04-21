@@ -55,6 +55,7 @@ app = Flask(__name__)
 app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 app.config.from_envvar('APP_CONFIG')
+app.config['SERVER_NAME'] = "192.168.59.103:7000"
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 
 
@@ -689,27 +690,30 @@ def send_email(subject, sender, recipients, text_body, html_body):
 
 
 def email_success(email_address, proj_id=None):
-    send_email("Your SAP analysis is complete",
-               ADMINS[0],
-               [email_address],
-               render_template("email_success.txt", proj_id=proj_id),
-               render_template("email_success.html", proj_id=proj_id))
+    with app.app_context():
+        send_email("Your SAP analysis is complete",
+                   ADMINS[0],
+                   [email_address],
+                   render_template("email_success.txt", proj_id=proj_id),
+                   render_template("email_success.html", proj_id=proj_id))
 
 
 def email_failure(email_address, proj_id):
-    send_email("Your SAP analysis failed",
-               ADMINS[0],
-               [email_address],
-               render_template("email_failure.txt", proj_id=proj_id),
-               render_template("email_failure.html", proj_id=proj_id))
+    with app.app_context():
+        send_email("Your SAP analysis failed",
+                   ADMINS[0],
+                   [email_address],
+                   render_template("email_failure.txt", proj_id=proj_id),
+                   render_template("email_failure.html", proj_id=proj_id))
 
 
 def email_revoked(email_address, proj_id):
-    send_email("Your SAP analysis ran out of time",
-               ADMINS[0],
-               [email_address],
-               render_template("email_revoked.txt", proj_id=proj_id),
-               render_template("email_revoked.html", proj_id=proj_id))
+    with app.app_context():
+        send_email("Your SAP analysis ran out of time",
+                   ADMINS[0],
+                   [email_address],
+                   render_template("email_revoked.txt", proj_id=proj_id),
+                   render_template("email_revoked.html", proj_id=proj_id))
 
 
 def notify_email(result, email_address):
