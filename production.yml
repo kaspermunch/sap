@@ -7,6 +7,8 @@ web:
    - worker
   command: gunicorn -b 0.0.0.0:8000 -w 4 app:app
   restart: always
+  environment:
+    SERVER_NAME: services.birc.au.dk
 worker:
   extends:
     file: common.yml
@@ -15,6 +17,8 @@ worker:
    - db
   command: celery --loglevel=INFO --concurrency=1 -A app.celery worker
   restart: always
+  environment:
+    SERVER_NAME: services.birc.au.dk
 db:
   extends:
     file: common.yml

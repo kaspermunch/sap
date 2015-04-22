@@ -55,7 +55,7 @@ app = Flask(__name__)
 app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 app.config.from_envvar('APP_CONFIG')
-app.config['SERVER_NAME'] = "192.168.59.103:7000"
+app.config['SERVER_NAME'] = os.environ['SERVER_NAME']
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 
 
