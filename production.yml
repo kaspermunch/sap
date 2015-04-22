@@ -6,6 +6,7 @@ web:
    - db
    - worker
   command: gunicorn -b 0.0.0.0:8000 -w 4 app:app
+  restart: always
 worker:
   extends:
     file: common.yml
@@ -13,7 +14,9 @@ worker:
   links:
    - db
   command: celery --loglevel=INFO --concurrency=1 -A app.celery worker
+  restart: always
 db:
   extends:
     file: common.yml
     service: db
+  restart: always
