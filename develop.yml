@@ -6,6 +6,8 @@ web:
    - db
    - worker
   command: python app.py
+  environment:
+    SERVER_NAME: 192.168.59.103:7000
 worker:
   extends:
     file: common.yml
@@ -13,6 +15,8 @@ worker:
   links:
    - db
   command: celery --loglevel=DEBUG --concurrency=1 -A app.celery worker
+  environment:
+    SERVER_NAME: 192.168.59.103:7000
 db:
   extends:
     file: common.yml
