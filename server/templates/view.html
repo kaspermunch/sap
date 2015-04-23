@@ -16,7 +16,7 @@
   </div>
 
   <div class="col-xs-12">
-            <a href="/results/{{ proj_id }}" target="_self" class="btn btn-success" type="submit">View your results &raquo;</a>
+            <a href="{{ url_for('results', proj_id=proj_id) }}" target="_self" class="btn btn-success" type="submit">View your results &raquo;</a>
   </div>
 
       </div>

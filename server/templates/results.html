@@ -66,7 +66,7 @@
             {% endfor %}
 
             {% for cell in row[2:3] %}
-                    <td><a href="/clone/{{ proj_id }}/{{ cell }}" target="_self" class="btn btn-info btn-xs">Detail &raquo;</a></td>
+                    <td><a href="{{ url_for('clone', proj_id=proj_id, clone_id=cell) }}" target="_self" class="btn btn-info btn-xs">Detail &raquo;</a></td>
             {% endfor %}
                 </tr>
         {% endfor %}
