@@ -9,9 +9,9 @@ MAIL_PORT = 465
 MAIL_USE_TLS = False
 MAIL_USE_SSL = True
 #MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-MAIL_USERNAME = 'sapwebserver@gmail.com'
+#MAIL_USERNAME = 'sapwebserver@gmail.com'
 #MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-MAIL_PASSWORD = 'flycatcher'
+#MAIL_PASSWORD = 'flycatcher'
 # administrator list
 ADMINS = ['kaspermunch@gmail.com']
 
