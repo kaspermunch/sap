@@ -59,13 +59,9 @@ app.config['SERVER_NAME'] = os.environ['SERVER_NAME']
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 
 app.config.update(
-    #MAIL_USERNAME = 'sapwebserver@gmail.com'
-    #MAIL_PASSWORD = 'flycatcher',
 	MAIL_SERVER='smtp01.uni.au.dk',
 	MAIL_PORT=25,
-	#MAIL_USE_SSL=True,
-	MAIL_USERNAME = 'norespond@services.birc.au.dk',
-	MAIL_PASSWORD = ''
+	MAIL_USERNAME='noreply@services.birc.au.dk'
 )
 
 from flask_mail import Mail
