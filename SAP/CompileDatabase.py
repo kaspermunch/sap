@@ -221,7 +221,7 @@ def compileDatabase(query, email, output_file_name):
     try:
         # Make the search
         Entrez.email = email
-        search_handle = Entrez.esearch(db="nucleotide",term=query, usehistory="y", retmax=1000000)
+        search_handle = Entrez.esearch(db="nucleotide",term=query, usehistory="y", retmax=5000000)
         search_results = Entrez.read(search_handle)
         search_handle.close()
 
