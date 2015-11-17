@@ -15,7 +15,7 @@ from SAP.Exceptions import AnalysisTerminated
 #     Base class for exceptions in this module.
 #     """
 #     pass
-#     
+#
 # class PluginNotFoundError(Error):
 #     """
 #     Raised when a plugin is not found.
@@ -56,7 +56,7 @@ def systemCall(cmd, stdout=None, stderr=None):
 
     try:
         retcode = subprocess.call(cmdlist, shell=False, env=os.environ, stdout=stdout, stderr=stderr, startupinfo=STARTUPINFO)
-        if os.name in ('nt', 'dos'):           
+        if os.name in ('nt', 'dos'):
             # retcode is apparently allways 0 on Windows 95 and 98 so we return None:
             error = None
         else:
@@ -72,7 +72,7 @@ def systemCall(cmd, stdout=None, stderr=None):
     except OSError, e:
         print 'System call "%s" failed:' % cmd, e
         error = True
-        
+
     return error
 
 def pairwiseClustalw2(id1, sequence1, id2, sequence2):
@@ -129,7 +129,9 @@ def findOnSystem(filename):
 
         if os.name == 'posix':
             # In OSX applications the PATH set by user shell is not available:
-            for path in [os.path.join(os.environ['HOME'], 'bin'), os.path.join(os.environ['HOME'], 'usr/local/bin'),'/usr/local/bin/']:
+            for path in [os.path.join(os.environ['HOME'], 'bin'),
+                         os.path.join(os.environ['HOME'], 'usr/local/bin'),
+                         '/usr/local/bin/', '/usr/bin/']:
                 if os.path.exists(os.path.join(path, filename)):
                     paths.append(path)
                     ## os.putenv('PATH', os.pathsep.join(paths))
@@ -140,13 +142,13 @@ def findOnSystem(filename):
         if os.name == 'nt':
             # On windows look in directories under "Program Files":
             for path in glob.glob(r'C:\Program Files\*'):
-                if os.path.exists(os.path.join(path, filename)):                    
+                if os.path.exists(os.path.join(path, filename)):
                     paths.append(path)
                     ## os.putenv('PATH', os.pathsep.join(paths))
                     os.environ['PATH'] = os.pathsep.join(paths)
                     fileFound = 1
                     break
-                
+
     if fileFound:
         return os.path.abspath(path)
     else:
@@ -230,11 +232,11 @@ def writeNexusFile(fileName, seqList):
         names.append(fastaRecord.title)
         seqs.append(fastaRecord.sequence)
         longestName = max(len(fastaRecord.title), longestName)
-        
+
     for start in range(0, alnLength, width):
         for i in range(len(names)):
             s = seqs[i][start:min(end, alnLength)]
-            entry += "%- *s %s\n" % (longestName, names[i], s)         
+            entry += "%- *s %s\n" % (longestName, names[i], s)
         end += width
         entry += "\n"
     entry += ";\nend;\n"
@@ -324,7 +326,7 @@ def flatten(sequence, toExpand=listOrTuple):
 def safeName(name):
     """
     Change the fasta title to something safe. E.g. MrBayes does not like dashes.
-    """    
+    """
     name = name.strip()
     name = re.sub(r'[-/\\\(\)|<>.,:;\[\] ]', '_', name)
     name = re.sub(r'[!@#$%^&*+?~`"\']', '', name)
@@ -422,7 +424,7 @@ def safeReadFastaCache(fastaFileName):
             fastaEntry = fastaIterator.next()
         except KeyboardInterrupt:
            sys.exit()
-        except:             
+        except:
             print 'Fasta cache reading failed - retrying'
         fastaFile.close()
         if fastaEntry is not None:
@@ -445,7 +447,7 @@ def safeReadTaxonomyCache(taxonomyFileName):
            sys.exit()
         except:
             print 'Taxonomy cache reading failed - retrying'
-        taxonomyFile.close()    
+        taxonomyFile.close()
         if taxonomy is not None:
             break
         time.sleep(i * 2)
@@ -463,17 +465,17 @@ if __name__ == "__main__":
         raise Exception
 
     fastaFile = open(fastaFileName, 'r')
-    fastaIterator = Fasta.Iterator(fastaFile, parser=Fasta.RecordParser())        
+    fastaIterator = Fasta.Iterator(fastaFile, parser=Fasta.RecordParser())
     seqList = []
     for r in fastaIterator:
         seqList.append(r)
 
     writeNexusFile('tmp.nex', seqList)
-# 
+#
 #     fastaFile = open(fastaFileName, 'r')
-#     fastaIterator = Fasta.Iterator(fastaFile, parser=Fasta.RecordParser())        
+#     fastaIterator = Fasta.Iterator(fastaFile, parser=Fasta.RecordParser())
 #     seqList = []
 #     for r in fastaIterator:
 #         seqList.append((r.title, Seq.Seq(r.sequence)))
-# 
+#
 #     writePhylipFile('tmp.phylip', seqList)

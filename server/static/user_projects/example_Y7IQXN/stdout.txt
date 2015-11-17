@@ -1,0 +1,210 @@
+
+exampleY7IQXNshow -> 327419798: 
+	Retrieval of homologs:
+		Entry status: (c)=cached, (d)=downloaded, (l)=local
+		Error types:
+		              (!D)=Download error, (!?)=Unknown error
+		              (!T)=Taxonomic annotation problem
+
+		Searching database... done.
+			145558797(d)* 573464887(d)* 577029783(d) 554792415(d)* 
+			727354692(d) 327419596(d) 145558769(d)* 78709127(d)* 
+			327419598(d) 666876027(d) 482514544(d) 387861064(d) 
+			327419594(d) 695275806(d) 576179448(d) 301506371(d) 
+			267383291(d) 755573649(d) 755573648(d) 576896669(d) 
+			339716998(d) 339716942(d) 339716928(d) 267383280(d) 
+			216408202(d) 208611632(d) 339716970(d) 545484678(d) 
+			327419600(d) 342318668(d) 339716984(d) 339716914(d) 
+			339716900(d) 267383287(d) 145558783(d) 695275620(d)* 
+			339716956(d) 301506357(d) 216408200(d) 213013066(d) 
+			78709120(d) 216408196(d) 695275624(d)* 186694333(d) 
+			1098523(d)* 239618606(d) 239618602(d) 78157535(d)* 
+			239618604(d) 661903717(d)* 327419410(d)* 1098537(d) 
+			303386850(d)* 695275622(d) 685192618(d) 326557388(d) 
+			695275626(d)* 258676955(d)* 326557352(d) 343963518(d)* 
+			301340109(d) 408692345(d) 258676953(d)* 545746586(d) 
+			212725401(d)* 326557382(d)* 326557384(d) 51339301(d) 
+			695275958(d)* 695275994(d) 695275546(d) 695275544(d) 
+			695275540(d) 695275538(d) 695275536(d) 326557386(d) 
+			695275542(d) 695275534(d) 408692327(d) 532694800(d) 
+			327199365(d)* 
+		Trying to fill in:
+			
+	20 significant homologues found.
+	20 homologues in set:
+		1 phyla: Chordata 
+		1 classes: Mammalia 
+		1 orders: Carnivora 
+		3 families: Herpestidae Viverridae Felidae 
+		12 genera: Felis Leptailurus Civettictis Panthera Profelis Uncia 
+			Prionailurus Catopuma Atilax Lynx Caracal Neofelis 
+	Last accepted E-value is 1.157080e-149
+	Ratio of lowest to highest bit score is: 0.449053844044
+	NOTE: Diversity goal not reached.
+	Relative bit-score cut-off (0.50) at level: species
+
+	Writing homologues to fasta file... done.
+exampleY7IQXNshow_327419798: Alignment:  Computing... done.
+exampleY7IQXNshow_327419798: Sampling trees:  Computing... done.
+exampleY7IQXNshow_327419798: Calculating tree statistics:  Computing... done.
+exampleY7IQXNshow -> 327419598: 
+	Retrieval of homologs:
+		Entry status: (c)=cached, (d)=downloaded, (l)=local
+		Error types:
+		              (!D)=Download error, (!?)=Unknown error
+		              (!T)=Taxonomic annotation problem
+
+		Searching database... done.
+			145558769(c)* 576179448(c) 695275806(c) 666876027(c) 
+			327419596(c)* 482514544(c) 387861064(c) 573464887(c) 
+			577029783(c) 327419594(c) 554792415(c)* 78709127(c)* 
+			327419798(d)* 145558797(c) 727354692(c) 755573649(c) 
+			755573648(c) 576896669(c) 339716998(c) 339716956(c) 
+			301506357(c) 267383280(c) 216408202(c) 208611632(c) 
+			339716970(c) 545484678(c) 327419600(c) 342318668(c) 
+			339716984(c) 339716914(c) 339716900(c) 267383287(c) 
+			145558783(c) 339716942(c) 339716928(c) 216408200(c) 
+			213013066(c) 78709120(c) 301506371(c) 216408196(c) 
+			267383291(c) 258676955(c)* 343963518(c)* 301340109(c) 
+			695275620(c)* 239618606(c)* 239618602(c)* 1098523(c) 
+			258676957(d)* 695275624(c) 239618604(c) 186694333(c) 
+			208611634(d) 303386850(c)* 78157535(c)* 1098537(c) 
+			258676953(c)* 326557388(c) 545746586(c) 685192618(c) 
+			212725401(c)* 695275626(c)* 661903717(c)* 326557382(c)* 
+			326557384(c) 51339301(c) 326557352(c) 408692345(c) 
+			326557386(c) 299779597(d)* 
+		Trying to fill in:
+			
+	19 significant homologues found.
+	19 homologues in set:
+		1 phyla: Chordata 
+		1 classes: Mammalia 
+		2 orders: Rodentia Carnivora 
+		2 families: Muridae Felidae 
+		10 genera: Felis Neofelis Berylmys Panthera Profelis Uncia 
+			Leptailurus Catopuma Lynx Prionailurus 
+	Last accepted E-value is 3.149560e-165
+	Ratio of lowest to highest bit score is: 0.492024366528
+	NOTE: Diversity goal not reached.
+	Relative bit-score cut-off (0.50) at level: species
+
+	Writing homologues to fasta file... done.
+exampleY7IQXNshow_327419598: Alignment:  Computing... done.
+exampleY7IQXNshow_327419598: Sampling trees:  Computing... done.
+exampleY7IQXNshow_327419598: Calculating tree statistics:  Computing... done.
+exampleY7IQXNshow -> 327419384: 
+	Retrieval of homologs:
+		Entry status: (c)=cached, (d)=downloaded, (l)=local
+		Error types:
+		              (!D)=Download error, (!?)=Unknown error
+		              (!T)=Taxonomic annotation problem
+
+		Searching database... done.
+			38373498(d)* 38304374(d) 326557618(d)* 359741835(d) 
+			326557622(d) 51339326(d) 326557634(d) 326557630(d) 
+			326557632(d) 545746586(c)* 326557636(d) 212725401(c)* 
+			695275620(c)* 343963518(c)* 301340109(c) 303386850(c)* 
+			258676955(c)* 258676953(c)* 326557388(c) 326557384(c)* 
+			326557382(c) 327419410(c)* 239618604(c)* 239618602(c) 
+			1098523(c) 695275624(c)* 186694333(c) 326557386(c) 
+			239618606(c) 258676957(c)* 51339301(c) 1098537(c) 
+			755573649(c)* 545484678(c) 327419600(c) 342318668(c) 
+			339716984(c) 145558783(c) 326557352(c) 339716970(c) 
+			755573648(c) 685192618(c) 576896669(c) 339716998(c) 
+			339716956(c) 339716942(c) 339716928(c) 301506357(c) 
+			267383280(c) 216408202(c) 208611632(c) 78709120(c) 
+			339716914(c) 339716900(c) 267383287(c) 216408196(c) 
+			301506371(c) 216408200(c) 213013066(c) 408692345(c) 
+			327200049(d)* 
+		Trying to fill in:
+			
+	16 significant homologues found.
+	16 homologues in set:
+		1 phyla: Chordata 
+		1 classes: Mammalia 
+		2 orders: Chiroptera Carnivora 
+		2 families: Vespertilionidae Felidae 
+		11 genera: Felis Puma Panthera Myotis Profelis Catopuma Lynx Acinonyx 
+			Caracal Prionailurus Neofelis 
+	Last accepted E-value is 3.149560e-165
+	Ratio of lowest to highest bit score is: 0.487535100505
+	NOTE: Diversity goal not reached.
+	Relative bit-score cut-off (0.50) at level: species
+
+	Writing homologues to fasta file... done.
+exampleY7IQXNshow_327419384: Alignment:  Computing... done.
+exampleY7IQXNshow_327419384: Sampling trees:  Computing... done.
+exampleY7IQXNshow_327419384: Calculating tree statistics:  Computing... done.
+exampleY7IQXNshow -> 695275626: 
+	Retrieval of homologs:
+		Entry status: (c)=cached, (d)=downloaded, (l)=local
+		Error types:
+		              (!D)=Download error, (!?)=Unknown error
+		              (!T)=Taxonomic annotation problem
+
+		Searching database... done.
+			326557618(c)
+	Minimum identity enforced (0.91 < 0.95) consider changing the --minidentity value
+	0 significant homologues found.
+No accepted homologs at significance level 1.00e-01. Consider raising the value for the --minsignificance option.
+exampleY7IQXNshow -> 327419596: 
+	Retrieval of homologs:
+		Entry status: (c)=cached, (d)=downloaded, (l)=local
+		Error types:
+		              (!D)=Download error, (!?)=Unknown error
+		              (!T)=Taxonomic annotation problem
+
+		Searching database... done.
+			482514544(c)* 387861064(c) 327419594(c) 573464887(c) 
+			145558769(c)* 577029783(c) 327419598(c) 554792415(c)* 
+			695275806(c) 666876027(c) 576179448(c) 78709127(c)* 
+			327419798(c)* 145558797(c) 727354692(c) 755573649(c) 
+			755573648(c) 576896669(c) 339716998(c) 339716956(c) 
+			301506357(c) 267383280(c) 216408202(c) 208611632(c) 
+			339716970(c) 545484678(c) 327419600(c) 342318668(c) 
+			339716984(c) 339716914(c) 339716900(c) 267383287(c) 
+			145558783(c) 339716942(c) 339716928(c) 216408200(c) 
+			213013066(c) 78709120(c) 301506371(c) 216408196(c) 
+			267383291(c) 343963518(c)* 301340109(c) 327419410(c)* 
+			258676955(c)* 78157535(c)* 695275620(c)* 695275622(c) 
+			695275626(c)* 303386850(c)* 326557388(c) 1098523(c)* 
+			239618606(c)* 239618602(c) 695275624(c) 239618604(c) 
+			186694333(c) 326557618(c)* 359741835(c) 258676953(c)* 
+			545746586(c) 326557622(c) 212725401(c)* 51339326(c) 
+			326557634(c) 661903717(c)* 326557382(c)* 326557632(c) 
+			326557384(c) 326557636(c) 51339301(c) 532694800(c) 
+			326557352(c) 326557386(c) 117936768(d)* 
+		Trying to fill in:
+			
+	20 significant homologues found.
+	20 homologues in set:
+		1 phyla: Chordata 
+		1 classes: Mammalia 
+		2 orders: Chiroptera Carnivora 
+		2 families: Molossidae Felidae 
+		12 genera: Felis Neofelis Eumops Panthera Profelis Uncia Puma 
+			Leptailurus Catopuma Lynx Caracal Prionailurus 
+	Last accepted E-value is 1.895540e-162
+	Ratio of lowest to highest bit score is: 0.491134856363
+	NOTE: Diversity goal not reached.
+	Relative bit-score cut-off (0.50) at level: species
+
+	Writing homologues to fasta file... done.
+exampleY7IQXNshow_327419596: Alignment:  Computing... done.
+exampleY7IQXNshow_327419596: Sampling trees:  Computing... done.
+exampleY7IQXNshow_327419596: Calculating tree statistics:  Computing... done.
+Computing tree statistics summary...
+exampleY7IQXNshow_327419798: Calculating tree statistics:  Using cached results.
+exampleY7IQXNshow_327419598: Calculating tree statistics:  Using cached results.
+exampleY7IQXNshow_327419384: Calculating tree statistics:  Using cached results.
+exampleY7IQXNshow_327419596: Calculating tree statistics:  Using cached results.
+done
+	Generating HTML output...
+Creating main page... done
+Creating main table page... done
+0.00% exampleY7IQXNshow_327419384
+20.00% exampleY7IQXNshow_327419596
+40.00% exampleY7IQXNshow_327419598
+60.00% exampleY7IQXNshow_327419798
+80.00% exampleY7IQXNshow_695275626
+done

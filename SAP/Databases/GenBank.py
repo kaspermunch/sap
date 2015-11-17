@@ -199,6 +199,7 @@ class DB:
             for tries in range(10):
                 try:
                     Entrez.email = self.options.email
+                    Entrez.tool = 'sapwebserver'
                     fp = Entrez.efetch(db="nucleotide", id=gi, retmode="xml")
 
                     # Get the cross ref to the taxonomy database:

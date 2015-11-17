@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}Submitted{% endblock %}
+{% block content %}
+  <h1>Your analysis has been submitted</h1>
+
+  <p>Once it is completed you will receive a notification at <b>{{ email }}</b> with a link to your results.</p>
+
+  <p>At this point your analysis will be available <a href="{{ url_for('view', task_id=task_id) }}">here</a>.</p>
+
+{% endblock %}

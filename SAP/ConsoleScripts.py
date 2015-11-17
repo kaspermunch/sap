@@ -17,7 +17,7 @@ from SAP.Homology import HomolCompiler, HomologySet, Homologue
 from SAP.TreeStatistics import TreeStatistics
 from SAP.PairWiseDiffs import PairWiseDiffs
 from SAP.ResultHTML import ResultHTML
-from SAP.Initialize import Initialize        
+from SAP.Initialize import Initialize
 from SAP.UtilityFunctions import *
 from SAP.FindPlugins import *
 from SAP.InstallDependencies import assertClustalw2Installed, assertBlastInstalled
@@ -57,14 +57,14 @@ def sap():
             from UtilityFunctions import findOnSystem
             missing = False
             if os.name in ('nt', 'dos'):
-                name = 'blastn.exe'        
+                name = 'blastn.exe'
             else:
                 name = 'blastn'
             if not findOnSystem(name):
                 print "\nThis program depends on %s for searching databases. Automatic installation is not longer supported. You need to install this yourself from:\nftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST\n\n" % name
                 missing = True
             if os.name in ('nt', 'dos'):
-                name = 'clustalw2.exe'        
+                name = 'clustalw2.exe'
             else:
                 name = 'clustalw2'
             if not findOnSystem(name):
@@ -76,7 +76,7 @@ def sap():
 #                 print "All dependencies are installed"
 #             #sys.exit()
             return None
-            
+
         if options.onlinehelp:
             webbrowser.open('http://kaspermunch.wordpress.com/statistical-assignment-package-sap/', new=2, autoraise=1)
             #sys.exit()
@@ -126,21 +126,21 @@ def sap():
 #                 ima = IMa.Assignment(options)
 #                 ima.run(args)
 #             #######################################
-            
+
         else:
 
             # Check that netblast and clustalw2 are installed:
             from UtilityFunctions import findOnSystem
             missing = False
             if os.name in ('nt', 'dos'):
-                name = 'blastn.exe'        
+                name = 'blastn.exe'
             else:
                 name = 'blastn'
             if not findOnSystem(name):
                 print "\nThis program depends on %s for searching databases. Automatic installation is not longer supported. You need to install this yourself from:\nftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST\n\n" % name
                 missing = True
             if os.name in ('nt', 'dos'):
-                name = 'clustalw2.exe'        
+                name = 'clustalw2.exe'
             else:
                 name = 'clustalw2'
             if not findOnSystem(name):
@@ -148,11 +148,11 @@ def sap():
                 missing = True
             if missing:
                 return None
-# 
+#
 #             print "Locating dependencies"
 #             assertClustalw2Installed()
 #             assertBlastInstalled()
-        
+
             # Make directories and write fixed inputfiles:
             init = Initialize(options)
             init.createDirs()
@@ -162,21 +162,21 @@ def sap():
             if not args or not seqCount:
                 print "You need to specify file name of at least one non-empty sequence file in Fasta format."
                 sys.exit()
-                        
+
             # Make sure cache is consistent with specified options:
             init.checkCacheConsistency(args)
-    
+
             if options.hostfile:
                 pool = MachinePool.MachinePool(options.hostfile)
             elif options.sge:
                 pool = SGE.SGE(nodes=options.sge)
-    
+
             fastaFileBaseNames = []
-    
+
             uniqueDict = {}
             copyLaterDict = {}
-    
-    
+
+
     #         def getAllFromQueue(self, Q):
     #             """Generator to yield one after the others all item currently in
     #             the queue Q, without any waiting"""
@@ -185,63 +185,63 @@ def sap():
     #                     yield Q.get_nowait()
     #             except Queue.Empty:
     #                 raise StopIteration
-    # 
+    #
     #         import Queue
     #         outputQueue = Queue.Queue()
     #         maxNrOfThreads = 5
     #         homologyThreadPool = HomologyThreadPool(options, outputQueue, maxNrOfThreads)
-    # 
+    #
     #         # For each fasta file execute pipeline
     #         for fastaFileName in args:
     #             records += 1
     #             homologyThreadPool.put([fastaRecord, fastaFileName])
     #             homologyPoolStatus(homologyThreadPool)
-    # 
+    #
     #             # Homology.py would need the same functionality that
     #             # SGE.py has so that the queue can be monitored and it can
     #             # be made sure that at most some number of threads are
     #             # running. The run method should then call compileHomologueset()
-    # 
-    #         
+    #
+    #
     #         while records:
     #             for record in self.getAllFromQueue(outputQueue):
     #                 records -= 1
     #                 # submit or run sub commands:
-    #             
+    #
     #                 homologyPoolStatus(homologyThreadPool)
-    #                 
+    #
     #                 time.sleep(1)
-    # 
+    #
     #         # Close the thread pool:
     #         homologyThreadPool.close()
     #         homologyPoolStatus(homologyThreadPool)
-    
+
 
             homolcompiler = HomolCompiler(options)
 
             inputQueryNames = {}
-    
+
             # For each fasta file execute pipeline
             for fastaFileName in args:
-        
+
                 fastaFile = open(fastaFileName, 'r')
                 fastaFileBaseName, suffix = os.path.splitext(os.path.basename(fastaFileName))
                 fastaIterator = Fasta.Iterator(fastaFile, parser=Fasta.RecordParser())
                 fastaFileBaseNames.append(fastaFileBaseName)
 
                 inputQueryNames[fastaFileBaseName] = {}
-                    
+
                 for fastaRecord in fastaIterator:
                     #break
                     #homolcompiler = HomolCompiler(options)
-    
+
                     # Discard the header except for the first id word:
                     fastaRecord.title = re.search(r'^(\S+)', fastaRecord.title).group(1)
 
                     inputQueryNames[fastaFileBaseName][fastaRecord.title] = True
-    
+
                     print "%s -> %s: " % (fastaFileBaseName, fastaRecord.title)
-                    
+
                     # See if the sequence is been encountered before and if so skip it for now:
                     if uniqueDict.has_key(fastaRecord.sequence):
                         copyLaterDict.setdefault(uniqueDict[fastaRecord.sequence], []).append('%s_%s' % (fastaFileBaseName, fastaRecord.title))
@@ -249,14 +249,14 @@ def sap():
                         continue
                     else:
                         uniqueDict[fastaRecord.sequence] = '%s_%s' % (fastaFileBaseName, fastaRecord.title)
-    
+
                     # Find homologues: Fasta files and pickled homologyResult objects are written to homologcache
                     homologyResult = homolcompiler.compileHomologueSet(fastaRecord, fastaFileBaseName)
-    
+
                     cmd = ''
                     if homologyResult != None:
                         # The homologyResult object serves as a job carrying the relevant information.
-    
+
                         print '\tIssuing sub-tasks:'
                         # Alignment using ClustalW. (Reads the fasta files
                         # in homologcache and puts alignments in
@@ -265,7 +265,7 @@ def sap():
                         cmd += "%s %s --_align %s ; " \
                               % ('sap', optionStr, os.path.join(options.homologcache, homologyResult.homologuesFileName))
 
-    
+
                         print "\t\tTree sampling using", options.assignment
                         cmd += "%s %s --_sample %s ; " % ('sap', optionStr, os.path.join(options.alignmentcache, homologyResult.alignmentFileName))
 
@@ -277,7 +277,7 @@ def sap():
                         cmd += "%s %s --_stats %s" % ('sap', optionStr, os.path.join(options.homologcache, homologyResult.homologuesPickleFileName))
 
                         cmd = cmd.replace('(', '\(').replace(')', '\)')
-                        
+
                         if options.hostfile or options.sge:
                             try:
                                 pool.enqueue(cmd)
@@ -292,15 +292,15 @@ def sap():
                                     os.system(cmd)
                             else:
                                 os.system(cmd)
-    
+
                     # Output current status of parallel jobs
                     if options.hostfile or options.sge:
                         poolStatus(pool)
-        
+
                     print ""
 
                 fastaFile.close()
-    
+
             if options.hostfile or options.sge:
                 # Wait for all jobs to finish:
                 pool.close()
@@ -312,18 +312,18 @@ def sap():
             doubleToAnalyzedDict = {}
             for k, l in copyLaterDict.items():
                 doubleToAnalyzedDict.update(dict([[v,k] for v in l]))
-    
+
             if not options.nocopycache and len(doubleToAnalyzedDict):
                 # Copy cache files for sequences that occoured more than once:
                 print "Copying cached results for %d doubles" % len(doubleToAnalyzedDict)
                 copyCacheForSequenceDoubles(copyLaterDict, options)
-                
+
             # Calculate the pairwise differences between sequences in each file:
             if options.diffs:
                 pairwisediffs = PairWiseDiffs(options)
                 pairwisediffs.runPairWiseDiffs(args)
                 #runPairWiseDiffs(args)
-    
+
             # Summary tree stats:
             print 'Computing tree statistics summary...'
             treeStatistics = TreeStatistics(options)
@@ -332,7 +332,7 @@ def sap():
 
             # Make HTML output:
             print '\tGenerating HTML output...'
-    
+
             resultHTML = ResultHTML(options)
             resultHTML.webify([options.treestatscache + '/summary.pickle'], fastaFileBaseNames, doubleToAnalyzedDict, sequenceNameMap)
             print 'done'
@@ -348,7 +348,7 @@ def sap():
 #         print "".join(traceback.format_tb(sys.exc_info()[2]))
 #         print exe
 #     #########################
-    except Exception, exe: 
+    except Exception, exe:
         print """
 ## SAP crashed, sorry ###################################################
 Help creating a more stable program by sending all the debugging information
@@ -393,7 +393,7 @@ About sap and the framework.
 About the IMa2 model (sang chul)
 How sap and ima2 interacts
 About the benchmark analysis
-About the example analysis on Flycatchers 
+About the example analysis on Flycatchers
 
 Results
 Benchmark analysis
@@ -440,7 +440,7 @@ Make a way to summarize the result information
 
 
 
-            # Make a summary data structure    
+            # Make a summary data structure
             homologyResult = HomologySet(queryName=queryName,
                                             origQueryName=origQueryName,
                                             queryFasta=fastaRecord,
@@ -457,13 +457,13 @@ Make a way to summarize the result information
                 # Make a homology object:
                 homologue = Homologue(gi=gi,
                                       sequence=sequence,
-                                      significance = 0, 
+                                      significance = 0,
                                       taxonomy=taxonomy)
                 homologyResult.homologues.apppend(homologue)
 
 
         """
-   
+
 
 
 

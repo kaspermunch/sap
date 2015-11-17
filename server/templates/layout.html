@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+
+    {% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-theme.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='extra.css') }}">
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-switch.css') }}">-->
+
+    <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>-->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+
+    <!--<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/bootstrap-switch.js') }}"></script>
+
+    <!--<script src="{{ url_for('static', filename='js/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML') }}"></script>-->
+    <!--<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>-->
+    {% endblock %}
+
+    <style>
+    {% block style %}
+    {% endblock %}
+    </style>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-63177564-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+    <script>
+    {% block script %}
+    {% endblock %}
+    </script>
+</head>
+<body>
+{% block navbar %}
+<nav id="myNavbar" class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbarCollapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('main') }}">SAP</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="nav navbar-nav">
+                {% if nav == "example" %}
+                <li class="active"><a href="{{ url_for('example') }}" target="_self">Example</a></li>
+                {% else %}
+                <li><a href="{{ url_for('example') }}" target="_self">Example</a></li>
+                {% endif %}
+                {% if nav == "downloads" %}
+                <li class="active"><a href="{{ url_for('downloads') }}" target="_self">Downloads</a></li>
+                {% else %}
+                <li><a href="{{ url_for('downloads') }}" target="_self">Downloads</a></li>
+                {% endif %}
+                {% if nav == "docs" %}
+                <li class="active"><a href="{{ url_for('docs') }}" target="_self">Documentation</a></li>
+                {% else %}
+                <li><a href="{{ url_for('docs') }}" target="_self">Documentation</a></li>
+                {% endif %}
+                {% if nav == "faq" %}
+                <li class="active"><a href="{{ url_for('faq') }}" target="_self">FAQ</a></li>
+                {% else %}
+                <li><a href="{{ url_for('faq') }}" target="_self">FAQ</a></li>
+                {% endif %}
+                {% if nav == "server" %}
+                <li class="active"><a href="{{ url_for('server') }}" target="_self">Web server</a></li>
+                {% else %}
+                <li><a href="{{ url_for('server') }}" target="_self">Web server</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+<div class="container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="alert alert-{{ category }}" role="alert">{{ message|safe }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}
+    {% endblock %}
+    <hr>
+    <div class="row">
+        <div class="col-xs-12">
+            <footer>
+                <p>&copy; Copyright 2015 Kasper Munch</p>
+            </footer>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

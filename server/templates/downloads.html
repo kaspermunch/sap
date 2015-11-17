@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+{% block title %}Downloads{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-xs-12">
+
+        <h1 class="page-header">How to get SAP running on your own machine</h1>
+        <p>
+            The <a href="{{ url_for('server') }}">web server</a> replaces the graphical user interfaces,
+            which I will no longer maintain.
+            If you want to run a lot of analyses using SAP you should install the command line tool on your own machine.
+            Even if you have never used a command line tool before you will be up and running in half an hour.
+            Once SAP is installed you run can run it on sequences in a fasta file <code>mydata.fasta</code> like this:
+         </p>
+            <pre>sap --project myanalysis  mydata.fasta </pre>
+
+        <p>
+            and your results will end up in a folder named <code>myanalysis</code>.
+        </p>
+
+        <h2>Install dependencies</h2>
+        <p>
+            To run SAP you need Python (version 2.7 not 3.*) on your machine.
+            If you are on a Mac or Unix/Linux system you already have that. If you are on Windows you need a
+            Python distribution that comes with the mingw package because Python needs this to
+            compile SAP. I recommend the
+            <a href="http://continuum.io/downloads">Anaconda distribution</a> from Continuum Analytics.
+
+            SAP also needs <a href="http://www.clustal.org/clustal2/">clustalw2</a> and <a href="http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download">blast</a> for alignments and database search
+            so you need to install them on your on your machine too.
+        </p>
+
+        <h2>Get the source code</h2>
+
+        <p>
+            The latest stable version of the source code is always available on
+            <a href="https://github.com/kaspermunch/sap">Github</a> where you can download a zipped version of the code.
+            If you have git installed you can clone the proejct this way:
+        </p>
+
+        <pre>git clone https://github.com/kaspermunch/sap.git</pre>
+
+        <h2>Compile and install SAP</h2>
+
+        <p>
+            If you downloaded a zipped package you must first unpack it (not open it). Right-click and select unpack.
+        </p>
+
+        </p>
+            On Mac/Linux open the Terminal application. On Windows right-click on the Cmd
+            application and click "Open as administrator".
+            Then navigate into the unpacked directory containing the file setup.py.
+            If you are unfamiliar with the Cmd on Windows you can look
+            <a href="http://www.computerhope.com/issues/chusedos.htm">here</a>for a guide.
+        </p>
+
+        <p>On <b>Windows</b> execute the following commands:</p>
+
+        <pre>python setup.py setopt --command=build --option=compiler --set-value=mingw32
+python setup.py install</pre>
+
+        <p>
+            On <b>Mac/Linux</b> you execute the following command:
+        </p>
+
+        <pre>sudo python setup.py install</pre>
+
+        If you prefer pip you can do this instead:
+
+        <pre>sudo pip install .</pre>
+
+        <p>
+            Compiling the program issues a lot of warnings. Do not worry about this. If you don't get
+            any error messages at the end you are fine.
+        </p>
+
+        <p>
+            If you do not have admin privileges or just want to install in some non-default
+            directory <code><b>some_dir</b></code> you first make sure the following set of nested directories
+            exist: <code><b>some_dir</b>/lib/python2.7/site-packages</code> (if your python is 2.7).
+            You then just type:
+        </p>
+
+        <pre class="example">python setup.py install --prefix=&lt;some_dir&gt;</pre>
+
+        Or you can just install in your user directory with pip:
+
+        <pre>pip install --user .</pre>
+
+        <p>
+        If you install in a non-default location you need to ensure that the install directory for the
+            scripts is included in your PATH environmental variable and that the package install directory
+            is included in the PYTHONPATH environmental variable . These variables are usually set in your
+            .bachrc or .profile file like this:
+        </p>
+
+        <p>
+            On <b>Windows</b> you need to help you operating system find the <code>sap</code> script by doing
+            the following:
+
+        <ol>
+            <li>Using the mouse, right-click on the "My Computer" and choose "Properties".</li>
+            <li>Click on the "Advanced" tab or "Advanced system settings".</li>
+            <li>Click on the "Environment Variables..." button.</li>
+            <li>Highlight the "Path" System variable (bottom).</li>
+            <li>Click on the "Edit..." button.</li>
+            <li>Append the line with ";C:Python27\Scripts\;" (if you are running python 2.7).</li>
+            <li>Click OK on your way out.</li>
+        </ol>
+        </p>
+
+    </div>
+
+
+
+</div>
+{% endblock %}

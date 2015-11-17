@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block title %}FAQ{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="row">
+
+    <div class="col-xs-8 col-xs-10 col-md-12">
+        <h1 class="page-header">FAQ <small>Frequently Asked Questions</small></h1>
+
+        <dl>
+            <dt>What platforms does SAP run on?</dt>
+            <dd>Linux/Unix, Mac, Windows</dd>
+        </dl>
+        <dl>
+            <dt>Why must I specify my email when I run SAP agianst GenBank?</dt>
+            <dd>This is a way for the people at NCBI to reach
+                you if you over exploit their web services (before they block you from using them). </dd>
+        </dl>
+            <dt>How many sequences can I run on the web server?</dt>
+            <dd>As of now there is no bound on the number of sequences, but if you intend to run a
+            large number of sequences you should
+        </dl>
+        <dl>
+            <a href="{{ url_for('server') }}">install SAP on your own machine</a>.</dd>
+            <dt>What should I do if my question is not listed here?</dt>
+            <dd>Send me an <a href="mailto:kaspermunch@birc.au.dk">email</a></dd>
+        </dl>
+
+    </div>
+</div>
+
+{% endblock %}

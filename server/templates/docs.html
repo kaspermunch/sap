@@ -1,0 +1,203 @@
+{% extends "layout.html" %}
+{% block title %}Documentation{% endblock %}
+{% block head %}
+{{ super() }}
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+</script>
+
+{% endblock %}
+{% block content %}
+<div class="row">
+
+        <div class="col-md-9">
+            <h1 class="page-header">Documentation</h1>
+
+<p>The assignment of DNA from organic material to species or taxonomic groups is integral to a number of scientific disciplines. Metagenomcis is an approach particularly suitable for viruses and bacterial species, which have relatively small genome. The approach can be used to characterize environments according to their genetic fingerprint. Even without taking genomic approaches, however, DNA sequencing of selected markers from environmental samples may provide ecological information or identify relevant species such as human pathogens. A related field where unknown specimens are identified based on Cytochrome Oxidase I (COI) has become know as DNA Barcoding. The Statistical Assignment Package is a command line tool answer the central question in these fields: what taxonomic group does an unknown organism represented by a DNA sequence belong to? SAP uses a Bayesian approach to calculate a probability distribution over all taxa represented in a sequence database. The probability of assignment to each taxa serves as a measure of confidence in the assignment. As of now SAP only runs on the command line. However a more user friendly graphical user interface is in the pipeline.</p>
+<p> The package is the presented in a two papers but make sure to cite the version of the program used as the package has matured considerably since publication.</p>
+
+<p><strong>Statistical Assignment of DNA Sequences using Bayesian Phylogenetics</strong><br>
+Munch K, Boomsma W, Huelsenbeck J P, Willerslev E, Nielsen N<br>
+<a href="http://www.informaworld.com/smpp/content~content=a904007579~db=all~tab=content~order=page"><strong>Systematic Biology</strong>, 2008 57(5) 750 – 757</a></p>
+
+<p><strong>Fast Phylogenetic DNA barcoding</strong><br>
+Munch K, Boomsma W, Willerslev E, Nielsen R<br>
+<a href="http://journals.royalsociety.org/content/cr6334424720l757/?p=45f22590dcef40848af2c1cbd4d31b20&amp;pi=0"><strong>Philosophical Transactions of the Royal Society B</strong>, 2008 363(1512) 3997 – 4002</a></p>
+
+
+<h2>SAP in a nut shell</h2>
+The program has five stages:
+<ol>
+    <li>A set of relevant homologues is compiled using NetBlast searches against <a href="http://www.ncbi.nlm.nih.gov/">GenBank</a>.</li>
+    <li>The set of homologues is aligned using ClustalW2.</li>
+    <li>Markov Chain Monte Carlo (MCMC) or neighbour-joining + bootstrapping is used to sample
+a large number of phylogenetic trees of the sample-sequence and the set of homologues.</li>
+    <li>Assignment statistics are calculated from the sampled phylogenies.</li>
+    <li>HTML output is generated with summary information for the entire analysis as well as
+detailed information for each assignment.</li>
+</ol>
+In parallel mode the stages two, three, and four are distributed to multiple machines.
+
+
+<h2>Theoretical outline</h2>
+
+The assignment of sequences can be done using a number of different statistical frameworks. SAP uses a Bayesian approach where the probability that an environmental sequence belongs to specific taxonomic groups is assigned a probability. We will make the assumption that the species to which the sequence is assigned is represented in a reference database. If this is not the case, the method will calculate the probability that the sequence belongs to any of the taxonomic groups actually represented this database. It is important to emphasize that this method, like any other comparable methods, can only assign sequences to taxonomic groups that are actually represented in the database. SAP makes no attempt to model the structure and sampling representation of the databases to evaluate the probability that the sequence truly belongs to some other taxon not represented in the database.
+
+The probability that the sample-sequence falls as a monophyletic group with database sequences belonging to a given taxon can be formulated as a posterior probability
+
+$$P(X \in T_i \mid X, \mathbf{D}) = = \frac{\displaystyle P(X, \mathbf{D} \mid X \in T_i) P(X \in T_i)}{\displaystyle\sum^k_{j=1} P(X, \mathbf{D} \mid X \in T_j ) P(X \in T_j)}$$
+
+where \(X\) is the sample-sequence, \(T_i\) is taxon \(i\), and \(\mathbf{D}\) is the set of data base sequences. Including only database sequences for which \(P(X,\mathbf{D} \mid X \in T_j) > 0\) reduces \(\mathbf{D}\) to a set of relevant homologues that can be aligned to the sample-sequence. Based on a compiled set of homologues a large number of phylogenetic trees can be sampled from a Markov chain Monte Carlo simulation. Since the probability of sampling a tree where the sample-sequence forms a monophyletic group with a given taxon, \(X \in T_j\), is proportional the likelihood, \(P(X,\mathbf{D} \mid X \in T_j)\) the posterior probability can be calculated as the fraction of sampled trees where \(X \in T_i\).
+
+SAP now also offers a fast alternative to approximate the probability of assignment using neighbour-joining + bootstrapping. The neighbour-joining approach should only be used when the MCMC analysis is not practically possible. The statistical interpretation of the generated bootstrap proportions is not the same as that of the posterior probability generated by the MCMC. For large values (&gt;80), however, the two measures seem to be in agreement. For smaller values the bootstrap proportions do not constitute valid measures of confidence.
+
+<h2>Running SAP</h2>
+As of now, SAP is a command line tool. So you need a terminal window or command prompt to run it. The syntax is this:
+<pre>sap [OPTIONS]  [ ...]</pre>
+Do not use spaces in your file names. Use underscore characters instead like in this example:
+<pre>sap --project myproject -x 90 input_sequences.fata and_some_more.fasta</pre>
+<h3>Expected run time</h3>
+The time to complete an analysis depends on the speed of your Internet for downloading sequences and annotation and on the way phylogenies are sampled. For each sample-sequence the MCMC analysis takes about an hour. The neighbour-joining + bootstrap analysis takes a few minutes.
+<h3>Terminal output</h3>
+SAP prints progress information in the terminal window or to a file if standard output collected in a file. Below is an example of the output for one sample-sequence.
+<pre>myFastaFile -&gt; myFastaID:
+        Retrieval of homologs:
+                Entry status: (c)=cached, (d)=downloaded,
+                Error types:
+                              (!M)=Memory error, (!D)=Download error,
+                              (!T)=Annotation error, (!?)=Unknown error
+
+                Searching database... done.
+                        66644230(c)* 171854887(c)* 158934074(c)* 157922406(c)* 
+                        157922400(c)* 157922399(c)* 157922398(c)* 157922397(c)*
+                        157922396(c) 157922395(c)* 157922394(c) 157922392(c)*
+                        66644273(c)* 66644233(c)* 66644232(c)* 66644231(c)* 
+                        21667367(c) 57639439(c) 57639438(c) 57639437(c) 
+                        9279867(c) 9279866(c) 9279859(c) 9279858(c) 9279857(c)
+                        9279855(c) 9279854(c) 9279853(c) 9279852(c) 9279851(c) 
+                        9279849(c) 9279848(c) 9279847(c) 7620584(c)* 157922408(c)*
+                        157922407(c)* 157922405(c)* 157922401(c)* 66644283(c)* 
+                        66644280(c)* 66644279(c)* 66644278(c)* 66644277(c)* 
+                        66644275(c)* 66644274(c) 66644272(c)* 66644271(c)* 
+                        66644256(c) 66644252(c) 66644251(c) 66644250(c) 
+                        66644247(c) 66644246(c) 66644245(c) 66644244(c) 
+                        66644240(c) 66644239(c) 66644235(c) 66644234(c) 
+                        21667360(c) 7620588(c) 7620587(c) 7620586(c) 7620585(c) 
+                        7620582(c) 7620581(c) 7620578(c) 7620577(c) 7620576(c) 
+                        7620574(c) 7620573(c) 7620572(c) 7620571(c) 7620570(c)
+                        9279863(c) 9279862(c) 52551076(c) 52551075(c) 52551074(c)
+                        52551073(c) 157922403(c) 9279865(c) 9279864(c) 66644227(c)
+                        7620579(c) 9279905(c)* 9279911(d)* 34329954(c)* 
+                        21667358(c) 18025252(c)* 25071158(c) 25071157(c) 
+                        148790857(d)* 148790856(d)* 126256023(d)* 112253730(d)* 
+                        66644270(c) 66644268(c) 66644267(c) 66644266(c)
+                        66644264(c) 66644263(c) 66644262(c) 66644261(c) 
+                        66644259(c) 66644258(c) 66644257(c) 66644255(c)
+                        66644253(c) 66644249(c) 66644242(c) 66644241(c) 
+                        66644237(c) 66644236(c) 78057750(d)* 78057749(d) 
+                        78057747(d)* 78057746(d)* 78057745(d)* 78057744(d)*
+                        78057742(d)* 78057741(d)*
+        50 significant homologues found.
+        50 homologues in set:
+                1 phyla: Streptophyta
+                1 classes: Coniferopsida
+                4 orders: Coniferales Lamiales Piperales Solanales
+                8 families: Scrophulariaceae Podocarpaceae Sciadopityaceae Araucariaceae
+                        Montiniaceae Cupressaceae Piperaceae Gesneriaceae
+                26 genera: Grevea Athrotaxis Thujopsis Fokienia Piper Nemesia Calocedrus
+                        Cupressus Callitropsis Sinningia Sequoia Glyptostrobus
+                        Platycladus Cryptomeria Metasequoia Tetraclinis Taxodium
+                        Sequoiadendron Chamaecyparis Araucaria Microbiota Podocarpus
+                        Juniperus Sciadopitys Agathis Taiwania
+        Last accepted E-value is 2.402550e-06
+        Ratio of lowest to highest bit score is: 0.593898074532
+        WARNING: Diversity goal not reached.
+        WARNING: Relative bit-score cut-off (0.50) not reached.
+
+        Writing homologues to fasta file... done.
+        Issuing sub-tasks:
+                ClustalW alignment
+                Barcoder tree sampling
+                Tree statstics computation
+
+myFastaFile_myFastaID: Alignment:  Computing... done
+myFastaFile_myFastaID: Sampling trees:  Computing... done.
+myFastaFile_myFastaID: Calculating tree statistics:  Computing... done.
+
+Computing tree statistics summary...
+myFastaFile_myFastaID: Calculating tree statistics:  Using cached results.
+done
+
+        Generating HTML output...
+100.00% myFastaFile_myFastaID
+done</pre>
+Each section of output is identified by the fasta file name and the sample-sequence id. After that progress on compiling the homologue set is printed. Here only one Blast search is performed but several rounds of blast searches may be required. The id of each downloaded GenBank entry is printed along with a entry status and possibly an error indicator as explained in the output. A star indicates that the entry is included in the set. After compilation of the homologue set some statistics are printed. In this case two warnings are issued. "Diversity goal not reached" notifies the user that the standard taxonomic diversity goal of two phyla, three classes, five orders, six families and ten genera have not been reached. This is usually not a problem. However, you do need to check that the diversity of the in the set is not too small. "Relative bit-score cut-off (0.50) not reached" warns the user of the risk that the set of homologues does not adequately exhaust the database. This need not be a concern either. By the end of the analysis it is checked if the set exhausts the database (see the section on HTML output below). An alignment is then computed, trees are sampled using MCMC, and summary statistics is calculated for the assignment. Finally a grand summary is computed and HTML pages are generated.
+<h3>HTML output</h3>
+The tables on the main result page show the posterior probabilities for each taxonomic level exceeding a assignment probability cut-off. Click the sequence name to get details on the assignment. Clicking a taxonomic name takes you to the corresponding page at <a href="http://eol.org">Encyclopedia of Life</a>. If you want to look at a particular assignment you can also find it in the list of input sequences by following the link at the top of this page. If you click a name you are taken to a summary taxonomy, in the form of a taxonomy tree, showing the posterior probabilities of assigning the sequence to the different taxa. At each tip in the tree is the name of the taxon with the probability of assignment and the number of sampled phylogenies supporting the assignment. Below this tree the multiple alignment of the sample-sequence and homologues is shown. Clicking the names of homologues takes you to the GenBank entry.
+<h3>Caching and restarting analyses.</h3>
+SAP caches sub-results in the analysis for two reasons. Sequences and taxonomic annotation downloaded from <a href="http://www.ncbi.nlm.nih.gov/">GenBank</a> may be of use in the assignment of more than one sample-sequence. Caching saves download time. The other reason is that in the unlikely event that you abort the analysis before it is done you can restart the analysis loosing only the step in the analysis where the program was aborted. The Blast cache stores the blast results. The <a href="http://www.ncbi.nlm.nih.gov/">GenBank</a> cache stores the sequences and taxonomic annotation downloaded from <a href="http://www.ncbi.nlm.nih.gov/">GenBank</a>. The homologue cache stores the compiled set of homologues retrieved from GenBank. The alignment cache contains the alignment files generated by ClustalW. The trees cache stores all output files for the sampled trees. The tree statistics cache stores the inference based on the sampled trees. The stats cache stores miscellaneous files as well as information on pairwise differences between sample-sequences. The caching of sub-results can amount to quite a lot on the hard disk if you have many sequences. The cache for each sample-sequence will take up about 5-6 Mb on your hard disk. If you sample more than the default number of trees by increasing the number of MCMC generations I think you can roughly calculate the required hard disk space this way: <code>Bytes </code> 15 * #homologs * #MCMCgenerations= <strong><code>NOTE:</code></strong> <code>If you restart the analysis using different parameters the program will delete the parts of the cache that conflicts with the changed options.</code>
+
+<h2>Using a custom local database.</h2>
+The database file needs to be in Fasta format. The taxonomic annotation in the header line must be in the following format. Note the user of colons and semicolons:
+<pre>&gt;mySequenceID ; family: Hominidae, genus: Homo, species: Homo sapiens ; Myself
+AGCGATAGGATCACGTAGACCACAGATATAGCGATAGGATCACGTAGACCACAGATAT
+TAGGATCACGTAGACCACAGATATAGCGATAGGATCACGTAGACCACAGATATCCTAA</pre>
+The following taxonomic levels are recognized: superkingdom, kingdom, subkingdom, superphylum, phylum, subphylum, superclass, class, subclass, infraclass, superorder, order, suborder, infraorder, parvorder, superfamily, family, subfamily, supertribe, tribe, subtribe, supergenus, genus, subgenus, species group, species subgroup, species, subspecies. The name after the last semicolon is the organism name. This is sometimes different from the species or subspecies name.
+</pre>
+
+If you want a local database (called local_database.fasta) that is a subset of GenBank SAP can generate that for you. To compile a database with only bird COI
+sequences from the Barcode of life project you can do this:
+
+<pre>sap --compile '(COI[Gene Name]) AND barcode[Keyword] AND Aves[Orgn]' --database local_database.fasta</pre>
+
+
+To run the program against a local database specify the database fasta file as argument to the database option:
+
+<pre>sap --database local_database.fasta --project myproject input_sequences.fasta</pre>
+
+The first time the program is run against the fasta file it will build a database and write to the directory of the fasta file for future use.
+
+<h2>Running SAP in parallel on many computers.</h2>
+Apart from running normally on one machine the program can also run in two alternative parallel modes. For this to work each machine used must mount the same file system as the one where the analysis is started from.
+
+Use the —hostfile option to specify a file with a newline separated list of host names. The program will then use this pool of machines to distribute the assignment of individual sequences between the machines.
+
+Use the —sge option to run parallel assignments on a Sun Grid Engine cluster with a shared file system. The program uses the SGE queue to manage its sub-tasks. This means that sub-tasks are submitted to the queue individually.
+<h2>Program options</h2>
+The options described below are supplied to modify the behaviour of the program for use in situations out of the ordinary. Before you head out trying them all out remember that they all have been assigned their default values for good reason.
+
+Some of the options take an argument. -str-: string, -int-: integer, -float-: floating point number. If you specify a string argument containing spaces or starting with '-' you must enclose it in quotes.
+<h3>General options</h3>
+<dl><dt><strong><code>--version</code></strong></dt><dd>show program's version number and exit.</dd><dt><strong><code>--onlinehelp</code></strong></dt><dd>Open online manual in default browser.</dd><dt><strong><code>-d, --project -str-</code></strong></dt><dd>Output directory for this project. Results will be written to this directory and cached results will be read from and written to this directory. Defaults to project-hour.minute-month.day.year.</dd><dt><strong><code>-D, --database -str-</code></strong></dt><dd>Name of database plugin to use. Default is online GenBank. You can also specify the path to a file in FASTA format to serve as database.</dd><dt><strong><code>-S, --assignment -str-</code></strong></dt><dd>Name of sampling plugin to use. Default is Barcoder. The alternative is ConstrainedNJ.</dd><dt><strong><code>-A, --alignment -str-</code></strong></dt><dd>Name of alignment plugin to use. Default is ClustalW2.</dd></dl>
+<h3>Blast search</h3>
+<dl><dt><strong><code>--email -str-</code></strong></dt><dd>You must specify your email address to be able to search against GenBank remotely</dd><dt><strong><code>-t -float-, --minsignificance -float-</code></strong></dt><dd>Lower E-value bound for accepting homologue sequences.</dd><dt><strong><code>-s -float-, --significance -float</code></strong></dt><dd>E-value cutoff for significant hits.</dd><dt><strong><code>-n -int-, ---nrsignificant -int-</code></strong></dt><dd>Minimum number of accepted significant homologues required.</dd><dt><strong><code>-l -str-, --limitquery -str-</code></strong></dt><dd>Entrez query to limit blast database. Eg. "COI[GENE] AND Hominidae[ORGANISM]".</dd><dt><strong><code>--minidentity -float-</code></strong></dt><dd>Minimum global alignment similarity of best blast hit.</dd><dt><strong><code>-r -float-, --relbitscore -float-</code></strong></dt><dd>Ratio of best to worst length normalized bit score accepted.</dd><dt><strong><code>-m -int-, --maxblasthits -int-</code></strong></dt><dd>Number of blast hits to retrieve.</dd><dt><strong><code>--nolowcomplexfilter</code></strong></dt><dd>Disable low-complexity filtering of sample-sequences.</dd></dl>
+<h3>Homologue set compilation</h3>
+<dl><dt><strong><code>-q, --quickcompile</code></strong></dt><dd>Make pairwise alignments to sample-sequence to further ensure that the homologue maches up.</dd><dt><strong><code>-b BESTHITS, --besthits BESTHITS, --softalignmentlimit BESTHITS</code></strong></dt><dd>Maximal number of homologues to add to alignment purely based on significant E-value.</dd><dt><strong><code>-a ALIGNMENTLIMIT, --alignmentlimit ALIGNMENTLIMIT</code></strong></dt><dd>Maximal number of sequences allowed in the homologue set.</dd><dt><strong><code>--quick</code></strong></dt><dd>Do not make pairwise alignments to sample-sequence to ensure that match has exactly same length.</dd><dt><strong><code>-i INDIVIDUALS, --individuals INDIVIDUALS</code></strong></dt><dd>Number of best matching individuals from a species to include in homologue set.</dd><dt><strong><code>--subspecieslevel</code></strong></dt><dd>Include one of each relevant subspecies (and not only species) if possible.</dd><dt><strong><code>-p PHYLA, --phyla PHYLA</code></strong></dt><dd>Number of phyla to try to get into homology set.</dd><dt><strong><code>-c CLASSES, --classes CLASSES</code></strong></dt><dd>Number of classes to try to get into homology set.</dd><dt><strong><code>-o ORDERS, --orders ORDERS</code></strong></dt><dd>Number of orders to try to get into homology set.</dd><dt><strong><code>-f FAMILIES, --families FAMILIES</code></strong></dt><dd>Number of families to try to get into homology set.</dd><dt><strong><code>-g GENERA, --genera GENERA</code></strong></dt><dd>Number of genera to try to get into homology set.</dd><dt><strong><code>--minimaltaxonomy -int-</code></strong></dt><dd>Minimal number of annotated taxonomic levels in accepted taxonomy annotation.</dd><dt><strong><code>--harddiversity</code></strong></dt><dd>Discard homologue set if diversity specifications are not met.</dd><dt><strong><code>--forceexcludegilist -str-</code></strong></dt><dd>Space separated list (in quotes) of gi numbers to force exclude in each homology set. Takes priority over forceincludegilist.</dd><dt><strong><code>--forceincludegilist -str-</code></strong></dt><dd>Space separated list (in quotes) of gi numbers to force include in each homology set.</dd><dt><strong><code>--forceidentity -float-</code></strong></dt><dd>Minimal accepted match identity of forced included GIs to sample-sequence.</dd><dt><strong><code>--forceincludefile -str-</code></strong></dt><dd>File name of entries to force include in each homology set.</dd><dt><strong><code>--nofillin</code></strong></dt><dd>Do not Fill in more individuals up to alignment limit even if nr. of individuals can be kept even.</dd><dt><strong><code>--fillinall</code></strong></dt><dd>Fill in more individuals up to alignment limit disrespecting nr. of individuals.</dd><dt><strong><code>--fillintomatch -str-</code></strong></dt><dd>Used with the force include options to fill in individuals up to the number of of homologues for the specified species or subspecies.</dd><dt><strong><code>--flanks FLANKS</code></strong></dt><dd>Extra flanks to add to the homologue before aligning the set.</dd></dl>
+<h3>Alignment</h3>
+<dl><dt><strong><code>--alignmentoption -str-</code></strong></dt><dd>Options passed to ClustalW2. Specify once for every option. Defaults to "-gapopen=50".</dd></dl>
+<h3>Output</h3>
+<dl><dt><strong><code>-x -int-, --ppcutoff -int-</code></strong></dt><dd>Posterior probability cut-off (in percent) for assignments reported on the main summary page. Default is 95. Specify the option more than once to get reports for more than one cut-off.</dd><dt><strong><code>--nocopycache</code></strong></dt><dd>Do not copy cache for duplicate sample-sequences.</dd><dt><strong><code>--warnongaps</code></strong></dt><dd>Issue a warning if the sample-sequence has internal gaps in the alignment.</dd><dt><strong><code>--svg</code></strong></dt><dd>Generate publication grade SVG of the taxonomy summaries instead of ASCI trees. The SVG pictures are easily converted to EPS, PS or PSF format using the free program Incscape.</dd></dl>
+<h3>Parallel computing</h3>
+<dl><dt><strong><code>--hostfile -str-</code></strong></dt><dd>Use this option to specify a file with a newline separated list of host names. The program will then use this pool of machines to distribute the assignment of individual sequences between the machines using ssh.</dd><dt><strong><code>--sge -int-</code></strong></dt><dd>Use this option to run parallel assignments on a Sun Grid Engine cluster with a shared file system. Use the qrun.sh script to do this. The program uses the SGE queue to manage its sub-tasks. This means that sub-tasks are submitted to the queue individually. The sge option is given two arguments. The first is a job name for the sub-jobs. The second is the maximal number of queued sub-jobs allowed.</dd></dl>
+<h3>Caching</h3>
+<dl><dt><strong><code>--blastcache -str-</code></strong></dt><dd>Where to put cached blast files.</dd><dt><strong><code>--genbankcache -str-</code></strong></dt><dd>Where to put cached GenBank files.</dd><dt><strong><code>--resultdir -str-</code></strong></dt><dd>Where to put cached result HTML files.</dd><dt><strong><code>--datadir -str-</code></strong></dt><dd>Where to put the fixed input files.</dd></dl>
+<h2>Caveats and recommended use</h2>
+SAP goes a long way to automate the task of assigning unknown sequences to taxa. The values of the default parameters have been tested in a variety of different scenarios and have their default values for good reason. They should be changed with caution, but sometimes they must be. In the following I will try to outline some of the non standard scenarios.
+<h3>The minimum identity parameter and the incomplete database problem.</h3>
+As you know the GenBank does not have all species. In the cases where the species or genus the sample-sequence is from is not represented in GenBank SAP assigns to the most likely of the taxa that <span style="text-decoration: underline;">are</span> in GenBank. This is always a risk, and often it is not possible to tell if this has happened. In other situations, however, it is more clear. These are the cases where it is not possible to find <span style="text-decoration: underline;">any</span> homologs with a sequence similarity within what is expected from a match to the correct species.
+
+This is where the "minidentity" (minimum identity) parameter of SAP comes in. The reasoning behind setting the "minidentity" value is that it should describe an upper bound of the diversity expected (lower bound on similarity) in the taxonomic units you want to assign to. If you want to assign the species 0.95 would often be a good choice. If you only want to assign to genus because the species is not included in the database a lower value would be appropriate. What this lower values depends on the expected diversity within the genera in question.
+
+So the role of the minidentiry parameter is to act as a primitive safeguard to keep SAP from assigning to something crazy (e.g. with similarity as low as 70%) just because there are no better matches in GenBank.
+<h3>Neighbour joining vs. Markov chain monte carlo</h3>
+SAP currently has two alternative methods of doing the statistical assignment: ConstrainedNJ which is a neighbour joining + bootstrapping algorithm and Barcoder that is a Bayesian approach very much like MrBayes. Both allow topological constraints to be imposed on the sampled trees so that known taxonomic relationships are enforced. Barcoder produces a posterior probability of assignment whereas ConstrainedNJ produces a bootstrap proportion what can be thought of as an approximation to this. Barcoder is default and is the more reliable of the two. However, ConstrainedNJ is a lot faster and has a valid use in cases where the number of unknown sequence makes the time consuming MCMC approach infeasible.
+
+        </div>
+
+
+
+
+    </div>
+
+{% endblock %}

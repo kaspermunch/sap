@@ -116,6 +116,7 @@ class ResultHTML:
         writeFile(self.options.resultdir + '/index.html', htmlContents)
 
         print "done"
+        sys.stdout.flush()
 
 
     def compileAssignmentTable(self, mainSummary, sequenceNameMap):
@@ -471,98 +472,98 @@ class ResultHTML:
         writeFile(self.options.resultdir + '/classic.html', htmlContents)
 
         print "done"
-
+        sys.stdout.flush()
 
     def createStatPage(self, mainSummary):
         """ Create statistics page - now only RRtest information remaining"""
 
         text = '<h1>Statistics</h1>\n'
 
-        for experiment in mainSummary.keys():
-            summary = mainSummary[experiment]
-
-            if not summary.has_key('relativeRate'):
-                continue
-
-            text += '<h2>%s: Relative rate tests</h2>' % experiment
-
-            for relativeRateSetting in summary['relativeRate'].keys():
-                markerName = relativeRateSetting[0]
-                ctMin = relativeRateSetting[1]
-                ctMax = relativeRateSetting[2]
-                ageMin = relativeRateSetting[3]
-                ageMax = relativeRateSetting[4]
-                ctGrid = relativeRateSetting[5]
-                ageGrid = relativeRateSetting[6]
-                testType = relativeRateSetting[7]
-
-                IDstring = "%s_%.4f-%.4f_%.4f-%.4f_%dx%d_%s" % (markerName,
-                                                                ctMin,
-                                                                ctMax,
-                                                                ageMin,
-                                                                ageMax,
-                                                                ctGrid,
-                                                                ageGrid,
-                                                                testType)
-
-                text += '<h2>%s: AgeMin=%s, AgeMax=%s, CTmin=%s, CTMax=%s, grid:%sx%s, type=%s</h2>' % (markerName,
-                                                                                                        ageMin,
-                                                                                                        ageMax,
-                                                                                                        ctMin,
-                                                                                                        ctMax,
-                                                                                                        ctGrid,
-                                                                                                        ageGrid,
-                                                                                                        testType)
-
-                matrixDict = summary['relativeRate'][relativeRateSetting]
-                matrix = matrixDict['matrix']
-                rowLabels = matrixDict['rowLabels']
-                colLabels = matrixDict['colLabels']
-                matrixFileNames = matrixDict['files']
-
-                string = ""
-                for i in range(len(colLabels)):
-                    string += str(colLabels[i]) + " "
-                string += "\n"
-                for i in range(len(matrix)):
-                    string += str(rowLabels[i]) + " "
-                    for j in range(len(matrix[i])):
-                        string += str(matrix[i,j]) + " "
-                    string += "\n"
-                writeFile("%s/sumMatrix_%s.txt" % (webDir, IDstring), string)
-
-                sumMatrixFile = "%s/sumMatrix_%s.ps" % (webDir, IDstring)
-                r.postscript(sumMatrixFile)
-                if len(rowLabels) > 1:
-                    m = r.matrix(matrix, len(rowLabels), len(colLabels))
-                    r.filled_contour(rowLabels,colLabels,m, xlab="CT", ylab="Age", color=r.heat_colors)
-                else:
-                    r.plot(colLabels, matrix[0], xlab="Age", ylab="LL")
-                r.dev_off()
-                sumMatrixGifFileName = sumMatrixFile.replace(".ps", ".gif")
-                os.system("convert -rotate 90 %s %s" % (sumMatrixFile, sumMatrixGifFileName))
-
-                text += '<br><a href="sumMatrix_%s.txt">Data file</a><br>' % (IDstring)
-                text += '<img src="%s"><br>' % (sumMatrixGifFileName.split("/")[-1])
-
-                text += "<h3>Individual plots</h3>"
-                text += "The plot above was generated as the sum over the following plots:<br>"
-                for i in range(len(matrixFileNames)):
-                    matrixFileName = matrixFileNames[i]
-                    outputFileName = "%s/matrix_%s_%d.ps" % (webDir, IDstring, i+1)
-                    fp = open(matrixFileName, 'r')
-                    data = fp.readlines()
-                    fp.close()
-                    x = data[0].strip().split(" ")
-                    y = data[1].strip().split(" ")[1:]
-                    r.postscript(outputFileName)
-                    r.plot(x,y, xlab="Age", ylab="LL")
-                    r.dev_off()
-                    outputGifFileName = outputFileName.replace(".ps", ".gif")
-                    os.system("convert -rotate 90 %s %s" % (outputFileName, outputGifFileName))
-                    text += '%s<br>' % matrixFileName
-                    text += '<img src="%s"><br>' % (outputGifFileName.split("/")[-1])
-
+        # for experiment in mainSummary.keys():
+        #     summary = mainSummary[experiment]
+        #
+        #     if not summary.has_key('relativeRate'):
+        #         continue
+        #
+        #     text += '<h2>%s: Relative rate tests</h2>' % experiment
+        #
+        #     for relativeRateSetting in summary['relativeRate'].keys():
+        #         markerName = relativeRateSetting[0]
+        #         ctMin = relativeRateSetting[1]
+        #         ctMax = relativeRateSetting[2]
+        #         ageMin = relativeRateSetting[3]
+        #         ageMax = relativeRateSetting[4]
+        #         ctGrid = relativeRateSetting[5]
+        #         ageGrid = relativeRateSetting[6]
+        #         testType = relativeRateSetting[7]
+        #
+        #         IDstring = "%s_%.4f-%.4f_%.4f-%.4f_%dx%d_%s" % (markerName,
+        #                                                         ctMin,
+        #                                                         ctMax,
+        #                                                         ageMin,
+        #                                                         ageMax,
+        #                                                         ctGrid,
+        #                                                         ageGrid,
+        #                                                         testType)
+        #
+        #         text += '<h2>%s: AgeMin=%s, AgeMax=%s, CTmin=%s, CTMax=%s, grid:%sx%s, type=%s</h2>' % (markerName,
+        #                                                                                                 ageMin,
+        #                                                                                                 ageMax,
+        #                                                                                                 ctMin,
+        #                                                                                                 ctMax,
+        #                                                                                                 ctGrid,
+        #                                                                                                 ageGrid,
+        #                                                                                                 testType)
+        #
+        #         matrixDict = summary['relativeRate'][relativeRateSetting]
+        #         matrix = matrixDict['matrix']
+        #         rowLabels = matrixDict['rowLabels']
+        #         colLabels = matrixDict['colLabels']
+        #         matrixFileNames = matrixDict['files']
+        #
+        #         string = ""
+        #         for i in range(len(colLabels)):
+        #             string += str(colLabels[i]) + " "
+        #         string += "\n"
+        #         for i in range(len(matrix)):
+        #             string += str(rowLabels[i]) + " "
+        #             for j in range(len(matrix[i])):
+        #                 string += str(matrix[i,j]) + " "
+        #             string += "\n"
+        #         writeFile("%s/sumMatrix_%s.txt" % (webDir, IDstring), string)
+        #
+        #         sumMatrixFile = "%s/sumMatrix_%s.ps" % (webDir, IDstring)
+        #         r.postscript(sumMatrixFile)
+        #         if len(rowLabels) > 1:
+        #             m = r.matrix(matrix, len(rowLabels), len(colLabels))
+        #             r.filled_contour(rowLabels,colLabels,m, xlab="CT", ylab="Age", color=r.heat_colors)
+        #         else:
+        #             r.plot(colLabels, matrix[0], xlab="Age", ylab="LL")
+        #         r.dev_off()
+        #         sumMatrixGifFileName = sumMatrixFile.replace(".ps", ".gif")
+        #         os.system("convert -rotate 90 %s %s" % (sumMatrixFile, sumMatrixGifFileName))
+        #
+        #         text += '<br><a href="sumMatrix_%s.txt">Data file</a><br>' % (IDstring)
+        #         text += '<img src="%s"><br>' % (sumMatrixGifFileName.split("/")[-1])
+        #
+        #         text += "<h3>Individual plots</h3>"
+        #         text += "The plot above was generated as the sum over the following plots:<br>"
+        #         for i in range(len(matrixFileNames)):
+        #             matrixFileName = matrixFileNames[i]
+        #             outputFileName = "%s/matrix_%s_%d.ps" % (webDir, IDstring, i+1)
+        #             fp = open(matrixFileName, 'r')
+        #             data = fp.readlines()
+        #             fp.close()
+        #             x = data[0].strip().split(" ")
+        #             y = data[1].strip().split(" ")[1:]
+        #             r.postscript(outputFileName)
+        #             r.plot(x,y, xlab="Age", ylab="LL")
+        #             r.dev_off()
+        #             outputGifFileName = outputFileName.replace(".ps", ".gif")
+        #             os.system("convert -rotate 90 %s %s" % (outputFileName, outputGifFileName))
+        #             text += '%s<br>' % matrixFileName
+        #             text += '<img src="%s"><br>' % (outputGifFileName.split("/")[-1])
+        #
 
         htmlContents = self.createHtml("Statistics page", text, header=True)
         writeFile(self.options.resultdir + '/stat.html', htmlContents)
@@ -571,6 +572,9 @@ class ResultHTML:
 
     def createClonePages(self, mainSummary, fastaFileBaseNames, doubleToAnalyzedDict, sequenceNameMap):
         """Create pages on all individual query sequences"""
+
+        # list for csv file of all clones
+        clone_list = list()
 
         text = ""
 
@@ -589,6 +593,10 @@ class ResultHTML:
 
             listText += "<p>\n"
             for name in summary['sequences']:
+
+                # add file name and sequence name to a list:
+                clone_list.append((experiment, name, self.mapBackQueryName(name, sequenceNameMap)))
+
                 if not summary['gapsInQuery'].has_key(name):
                     # If the key is not in this dict for with info
                     # about gaps in query the sequence it is because
@@ -734,15 +742,15 @@ class ResultHTML:
                 text += '<div class="alignment">'
 
                 alignment = Nexus.Nexus(alignmentFileName)
-                text += "<table style=\"font-size:10px;\">"
+                # text += "<table style=\"font-size:10px;\">"
+                text += "<table>"
 
                 querySeq = str(alignment.matrix[name])
-                score = 1.0
 
                 nameForAlignment = self.mapBackQueryName(name, sequenceNameMap)
                 if len(nameForAlignment) > 27:
                    nameForAlignment = nameForAlignment[:27] + '...'
-                text += '<tr><td>%s:</td><td>%.2f</td><td class="alignmentseq">%s</td></tr>\n' % (nameForAlignment, score, markupSequence(querySeq, name))
+                text += '<tr><td>%s:</td><td>&nbsp;</td><td class="alignmentseq">%s</td></tr>\n' % (nameForAlignment, markupSequence(querySeq, name))
 
 
 
@@ -769,6 +777,10 @@ class ResultHTML:
                 htmlContents = self.createHtml("Sequence: %s" % name, text)
 
                 writeFile(htmlFileName, htmlContents)
+
+        with open(os.path.join(self.options.project, 'querylist.csv'), 'w') as f:
+            for t in clone_list:
+                print >>f, ",".join(t)
 
         htmlContents = self.createHtml("Sequence list", listText, header=True)
         writeFile(self.options.resultdir + '/clones.html', htmlContents)
@@ -1099,7 +1111,7 @@ span.info:hover span.tooltip { /*the span will display just on :hover state*/
 
             self.createClonePages(summary, fastaFileBaseNameList, doubleToAnalyzedDict, sequenceNameMap)
 
-            self.createStatPage(summary)
+            # self.createStatPage(summary)
 
             if self.options.diffs:
                 self.createSequenceDistancePage(fastaFileBaseNameList)

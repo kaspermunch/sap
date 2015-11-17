@@ -1,0 +1,3 @@
+Your SAP analysis was revoked because it ran for longer than allowed for a single analysis.
+
+If you run many sequnces you can get around this by splitting your analysis into several smaller analyses.
