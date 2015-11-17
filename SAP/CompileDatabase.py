@@ -161,9 +161,9 @@ def retrieve_taxonomies(taxid2gi):
                 taxonomy.add(Taxonomy.TaxonomyLevel(name, rank))
             taxonomy.organism = entry['ScientificName']
 
-            # if not taxonomy.name('species'):
-            #     species = ' '.join(taxonomy.organism.split()[:2])
-            #     taxonomy.add(Taxonomy.TaxonomyLevel(species, 'species'))
+            if not taxonomy.name('species'):
+                species = ' '.join(taxonomy.organism.split()[:2])
+                taxonomy.add(Taxonomy.TaxonomyLevel(species, 'species'))
 
             try:
                 for gi in taxid2gi[taxid]:
