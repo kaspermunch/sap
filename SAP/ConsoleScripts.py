@@ -142,7 +142,7 @@ def sap():
             if os.name in ('nt', 'dos'):
                 name = 'clustalw2.exe'
             else:
-                name = 'clustalw'
+                name = 'clustalw2'
             if not findOnSystem(name):
                 print "\nThis program depends on %s for aligning homologues. Automatic installation is not longer supported. You need to install this yourself from:\nftp.ebi.ac.uk/pub/software/clustalw2/2.0.8\n\n" % name
                 missing = True
