@@ -71,7 +71,7 @@ mail = Mail(app)
 celery = make_celery(app)
 celery.config_from_object(os.environ['CELERY_CONFIG_MODULE'])
 
-ALLOWED_EXTENSIONS = {'fa', 'fasta', 'fst', 'FASTA', 'FA', 'txt'}
+ALLOWED_EXTENSIONS = {'fas', 'fa', 'fasta', 'fst', 'FASTA', 'FA', 'txt'}
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))   # refers to application_top
 APP_STATIC = os.path.join(APP_ROOT, 'static')
 STATIC_USER_PROJ_DIR = os.path.join('static', 'user_projects')
