@@ -126,7 +126,11 @@ Running against a local database:
         self.parser.add_option("-m", "--maxblasthits",
                           type="int",
                           default=200,
+<<<<<<< .merge_file_PXHgj7
                           help="Number of blast hits to retrieve per blast search.")
+=======
+                          help="Number of blast hits to retrieve.")
+>>>>>>> .merge_file_S30Qq1
         self.parser.add_option("--nolowcomplexfilter",
                           action="store_true",
                           default=False,
@@ -331,7 +335,7 @@ Running against a local database:
                           help="Where to put the fixed input files.")
         self.parser.add_option("-e", "--email",
                           type="string",
-                          default=None,
+                          default=None,#'kaspermunch@birc.au.dk',
                           help="When using GenBank remotely like sap does NCBI strongly recommends you to specify your email along with the requests. In case of excessive usage of the E-utilities, NCBI will attempt to contact a user at the email address provided before blocking access to the E-utilities.")
 
         self.parser.add_option("--_align",
@@ -448,7 +452,11 @@ Running against a local database:
         if self.options.nofillin and self.options.fillinall:
             self.showMessageAndExit("Don't use the options fillinall and nofillin at the same time.", guiParent=guiParent)
 
+<<<<<<< .merge_file_PXHgj7
         if self.options.compile and self.options.database == "GenBank":
+=======
+        if self.options.compile and not self.options.database:
+>>>>>>> .merge_file_S30Qq1
             self.showMessageAndExit("You must specify a name for your database using --database", guiParent=guiParent)
 
         # Make sure alignment options are unique and nonoverlapping:
