@@ -126,11 +126,7 @@ Running against a local database:
         self.parser.add_option("-m", "--maxblasthits",
                           type="int",
                           default=200,
-<<<<<<< .merge_file_PXHgj7
                           help="Number of blast hits to retrieve per blast search.")
-=======
-                          help="Number of blast hits to retrieve.")
->>>>>>> .merge_file_S30Qq1
         self.parser.add_option("--nolowcomplexfilter",
                           action="store_true",
                           default=False,
@@ -452,12 +448,10 @@ Running against a local database:
         if self.options.nofillin and self.options.fillinall:
             self.showMessageAndExit("Don't use the options fillinall and nofillin at the same time.", guiParent=guiParent)
 
-<<<<<<< .merge_file_PXHgj7
         if self.options.compile and self.options.database == "GenBank":
-=======
-        if self.options.compile and not self.options.database:
->>>>>>> .merge_file_S30Qq1
             self.showMessageAndExit("You must specify a name for your database using --database", guiParent=guiParent)
+        if self.options.compile and not self.options.email:
+            self.showMessageAndExit("When fetching data from NCBI you must specify your email using --email", guiParent=guiParent)
 
         # Make sure alignment options are unique and nonoverlapping:
         alignmentoption = []

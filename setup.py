@@ -78,19 +78,16 @@ else:
     extra_options = {}
     data_files = []
 
+EXTRA_COMPILE_ARGS = []
+EXTRA_LINK_ARGS = []
+
 # This is because EPD is built against the 10.5 SDK to run on all more recent versions of OSX. If you use the 
 if sys.platform=='darwin':# and sys.executable != '/usr/bin/python' and 'anaconda' not in sys.executable:
    import platform
    v, _, _ = platform.mac_ver()
    osx_version = float('.'.join(v.split('.')[:2]))
    if v >= 10.9:
-      EXTRA_COMPILE_ARGS = []
-      EXTRA_LINK_ARGS = ['-lstdc++']#'-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib']
-   else:
-      EXTRA_COMPILE_ARGS = []
-      EXTRA_LINK_ARGS = []#'-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib']
-else:
-   EXTRA_LINK_ARGS = []
+      EXTRA_LINK_ARGS.append('-lstdc++')#'-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib']
 
 # EXTRA_COMPILE_ARGS = ['-fvisibility=hidden']
 
