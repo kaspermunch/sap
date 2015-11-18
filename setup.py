@@ -88,7 +88,7 @@ if sys.platform=='darwin':# and sys.executable != '/usr/bin/python' and 'anacond
       EXTRA_LINK_ARGS = ['-lstdc++']#'-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib']
    else:
       EXTRA_COMPILE_ARGS = []
-      EXTRA_LINK_ARGS = ['-lstdc++']#'-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib']
+      EXTRA_LINK_ARGS = []#'-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib']
 
 else:
    EXTRA_LINK_ARGS = []
