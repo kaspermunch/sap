@@ -23,13 +23,13 @@ Default: Running against Genbank
     sap --project myproject query.fasta
 
 Compiling a local database specified by a query for Genbank nucleotide db:
-    sap --compile '(COI[Gene Name]) AND barcode[Keyword]' coi_barcode_db.fasta
+    sap --compile '(COI[Gene Name]) AND barcode[Keyword]' --database coi_barcode_db.fasta
 
 Running against a local database:
     sap --project myproject --database coi_barcode_db.fasta query.fasta
 """
 
-        self.parser = OptionParser(usage=usage, version="%prog 1.9.5")
+        self.parser = OptionParser(usage=usage, version="%prog 1.9.6")
 
         # General options:
         self.parser.add_option("--onlinehelp",
@@ -126,7 +126,7 @@ Running against a local database:
         self.parser.add_option("-m", "--maxblasthits",
                           type="int",
                           default=200,
-                          help="Number of blast hits to retrieve.")
+                          help="Number of blast hits to retrieve per blast search.")
         self.parser.add_option("--nolowcomplexfilter",
                           action="store_true",
                           default=False,
@@ -331,7 +331,7 @@ Running against a local database:
                           help="Where to put the fixed input files.")
         self.parser.add_option("-e", "--email",
                           type="string",
-                          default='kaspermunch@birc.au.dk',
+                          default=None,#'kaspermunch@birc.au.dk',
                           help="When using GenBank remotely like sap does NCBI strongly recommends you to specify your email along with the requests. In case of excessive usage of the E-utilities, NCBI will attempt to contact a user at the email address provided before blocking access to the E-utilities.")
 
         self.parser.add_option("--_align",
@@ -448,8 +448,10 @@ Running against a local database:
         if self.options.nofillin and self.options.fillinall:
             self.showMessageAndExit("Don't use the options fillinall and nofillin at the same time.", guiParent=guiParent)
 
-        if self.options.compile and not self.options.database:
+        if self.options.compile and self.options.database == "GenBank":
             self.showMessageAndExit("You must specify a name for your database using --database", guiParent=guiParent)
+        if self.options.compile and not self.options.email:
+            self.showMessageAndExit("When fetching data from NCBI you must specify your email using --email", guiParent=guiParent)
 
         # Make sure alignment options are unique and nonoverlapping:
         alignmentoption = []

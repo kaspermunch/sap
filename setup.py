@@ -27,7 +27,7 @@ if sys.version < '2.4' or sys.version >= '3.0':
 guiscript = 'SAP/GUI.py'
 
 # grep for r'version="%prog\s+[\d.]+" in SAP/Options.py
-version = "1.9.5"
+version = "1.9.6"
 
 if sys.platform == 'darwin':
     # Cross-platform applications generally expect sys.argv to be used for opening files:
@@ -78,11 +78,16 @@ else:
     extra_options = {}
     data_files = []
 
+EXTRA_COMPILE_ARGS = []
+EXTRA_LINK_ARGS = []
+
 # This is because EPD is built against the 10.5 SDK to run on all more recent versions of OSX. If you use the 
-if sys.platform=='darwin' and sys.executable != '/usr/bin/python' and 'anaconda' not in sys.executable:
-   EXTRA_LINK_ARGS = []#'-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib']
-else:
-   EXTRA_LINK_ARGS = []
+if sys.platform=='darwin':# and sys.executable != '/usr/bin/python' and 'anaconda' not in sys.executable:
+   import platform
+   v, _, _ = platform.mac_ver()
+   osx_version = float('.'.join(v.split('.')[:2]))
+   if v >= 10.9:
+      EXTRA_LINK_ARGS.append('-lstdc++')#'-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib']
 
 # EXTRA_COMPILE_ARGS = ['-fvisibility=hidden']
 
