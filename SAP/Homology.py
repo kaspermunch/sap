@@ -215,7 +215,14 @@ class HomolCompiler:
             excludeLevel = 'species'
             lowestTaxonomicLevelExhausted = None
 
+            # keep track of prev excludeList so we don't keep doing the same search if we don't find anything
+            prev_excludeList = []
+
             while not minIdentEnforced and not notEnoughSignificant and not dataBaseExhausted and not alignmentLimitReached:
+
+                if excludeList and excludeList == prev_excludeList:
+                    break
+                prev_excludeList = excludeList
 
                 seqLen = 0
 

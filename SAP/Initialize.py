@@ -55,7 +55,7 @@ class Initialize:
         if not outputDir:
            outputDir = self.options.datadir
 
-        allowedLetters = IUPAC.IUPACAmbiguousDNA().letters
+        allowedLetters = IUPAC.IUPACAmbiguousDNA().letters + IUPAC.IUPACAmbiguousDNA().letters.lower()
 
         sequenceCount = 0
         inputFileList = []

@@ -357,6 +357,8 @@ with *.sap file in the project folder and the sequence input file used.
 """
         print "".join(traceback.format_tb(sys.exc_info()[2]))
         print exe
+        if hasattr(exe, 'msg'):
+            print exe.msg
         print "#########################################################################"
 
 
