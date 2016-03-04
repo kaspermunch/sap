@@ -21,12 +21,6 @@
 
         {% for row in table %}
                 <tr>
-                {% for cell in row[0:1] %}
-                    <td>
-                     {{ cell }}
-                    </td>
-                {% endfor %}
-                <!--</tr>-->
                 {% for cell in row[1:2] %}
                     <td>
                     <a href="/sap/clone/{{ proj_id }}/{{ cell }}">
