@@ -20,19 +20,16 @@
             <table class="table">
 
         {% for row in table %}
-                {% for cell in row[0:1] %}
-                     <tr {{ cell }} >
-                {% endfor %}
-                </tr>
+                <tr>
                 {% for cell in row[1:2] %}
-                    </td>
-                    <a href="/clone/{{ proj_id }}/{{ cell }}">
+                    <td>
+                    <a href="/sap/clone/{{ proj_id }}/{{ cell }}">
                 {% endfor %}
                 {% for cell in row[2:3] %}
-                        {{ cell }}</a>
+                     {{ cell }}
+                    </a>
                     </td>
                 {% endfor %}
-
                 </tr>
         {% endfor %}
 
