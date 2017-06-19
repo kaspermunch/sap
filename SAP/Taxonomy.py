@@ -7,6 +7,7 @@ from Bio import Entrez
 levelList = ['superkingdom', 'kingdom', 'subkingdom',
              'superphylum', 'phylum', 'subphylum',
              'superclass', 'class', 'subclass', 'infraclass',
+             'supercohort','cohort','subcohort','infracohort',
              'superorder', 'order', 'suborder', 'infraorder', 'parvorder',
              'superfamily', 'family', 'subfamily',
              'supertribe', 'tribe', 'subtribe',
