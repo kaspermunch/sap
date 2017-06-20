@@ -44,9 +44,9 @@ from io import BytesIO
 import xml.etree.ElementTree as ET
 
 # Importing these functions with leading underscore as not intended for reuse
-from Bio._py3k import urlopen as _urlopen
-from Bio._py3k import urlparse as _urlparse
-from Bio._py3k import unicode
+from SAP.Bio._py3k import urlopen as _urlopen
+from SAP.Bio._py3k import urlparse as _urlparse
+from SAP.Bio._py3k import unicode
 
 
 # The following four classes are used to add a member .attributes to integers,
@@ -188,7 +188,7 @@ class DataHandler(object):
         if not os.path.isdir(local_xsd_dir):
             raise exception
 
-    from Bio import Entrez
+    from SAP.Bio import Entrez
     global_dtd_dir = os.path.join(str(Entrez.__path__[0]), "DTDs")
     global_xsd_dir = os.path.join(str(Entrez.__path__[0]), "XSDs")
     del Entrez
@@ -227,7 +227,7 @@ class DataHandler(object):
             from io import StringIO
             if isinstance(handle, StringIO):
                 from io import BytesIO
-                from Bio._py3k import _as_bytes
+                from SAP.Bio._py3k import _as_bytes
                 handle = BytesIO(_as_bytes(handle.read()))
         try:
             self.parser.ParseFile(handle)
