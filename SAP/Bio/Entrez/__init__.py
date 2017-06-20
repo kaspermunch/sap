@@ -65,7 +65,7 @@ Functions:
     - read         Parses the XML results returned by any of the above functions.
       Typical usage is:
 
-          >>> from Bio import Entrez
+          >>> from SAP.Bio import Entrez
           >>> Entrez.email = "Your.Name.Here@example.org"
           >>> handle = Entrez.einfo() # or esearch, efetch, ...
           >>> record = Entrez.read(handle)
@@ -144,7 +144,7 @@ def efetch(db, **keywords):
 
     Short example:
 
-    >>> from Bio import Entrez
+    >>> from SAP.Bio import Entrez
     >>> Entrez.email = "Your.Name.Here@example.org"
     >>> handle = Entrez.efetch(db="nucleotide", id="57240072", rettype="gb", retmode="text")
     >>> print(handle.readline().strip())
@@ -196,7 +196,7 @@ def esearch(db, term, **keywds):
 
     Short example:
 
-    >>> from Bio import Entrez
+    >>> from SAP.Bio import Entrez
     >>> Entrez.email = "Your.Name.Here@example.org"
     >>> handle = Entrez.esearch(db="nucleotide", retmax=10, term="opuntia[ORGN] accD")
     >>> record = Entrez.read(handle)
@@ -235,7 +235,7 @@ def elink(**keywds):
     This example finds articles related to the Biopython application
     note's entry in the PubMed database:
 
-    >>> from Bio import Entrez
+    >>> from SAP.Bio import Entrez
     >>> Entrez.email = "Your.Name.Here@example.org"
     >>> pmid = "19304878"
     >>> handle = Entrez.elink(dbfrom="pubmed", id=pmid, linkname="pubmed_pubmed")
@@ -270,7 +270,7 @@ def einfo(**keywds):
 
     Short example:
 
-    >>> from Bio import Entrez
+    >>> from SAP.Bio import Entrez
     >>> Entrez.email = "Your.Name.Here@example.org"
     >>> record = Entrez.read(Entrez.einfo())
     >>> 'pubmed' in record['DbList']
@@ -298,7 +298,7 @@ def esummary(**keywds):
 
     This example discovers more about entry 30367 in the journals database:
 
-    >>> from Bio import Entrez
+    >>> from SAP.Bio import Entrez
     >>> Entrez.email = "Your.Name.Here@example.org"
     >>> handle = Entrez.esummary(db="journals", id="30367")
     >>> record = Entrez.read(handle)
@@ -332,7 +332,7 @@ def egquery(**keywds):
     Tutorial just checks there are over 60 matches for 'Biopython'
     in PubMedCentral:
 
-    >>> from Bio import Entrez
+    >>> from SAP.Bio import Entrez
     >>> Entrez.email = "Your.Name.Here@example.org"
     >>> handle = Entrez.egquery(term="biopython")
     >>> record = Entrez.read(handle)
@@ -363,7 +363,7 @@ def espell(**keywds):
 
     Short example:
 
-    >>> from Bio import Entrez
+    >>> from SAP.Bio import Entrez
     >>> Entrez.email = "Your.Name.Here@example.org"
     >>> record = Entrez.read(Entrez.espell(term="biopythooon"))
     >>> print(record["Query"])
@@ -411,7 +411,7 @@ def ecitmatch(**keywds):
 
     Short example:
 
-    >>> from Bio import Entrez
+    >>> from SAP.Bio import Entrez
     >>> Entrez.email = "Your.Name.Here@example.org"
     >>> citation_1 = {
     ...    "journal_title": "proc natl acad sci u s a",
@@ -552,7 +552,7 @@ Email address is not specified.
 To make use of NCBI's E-utilities, NCBI requires you to specify your
 email address with each request.  As an example, if your email address
 is A.N.Other@example.com, you can specify it as follows:
-   from Bio import Entrez
+   from SAP.Bio import Entrez
    Entrez.email = 'A.N.Other@example.com'
 In case of excessive usage of the E-utilities, NCBI will attempt to contact
 a user at the email address provided before blocking access to the
