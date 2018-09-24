@@ -15,6 +15,6 @@ worker:
   env_file:
    - server/.env
   environment:
-   C_FORCE_ROOT: true
+   C_FORCE_ROOT: 1
 db:
   image: redis
