@@ -27,7 +27,7 @@ if sys.version < '2.4' or sys.version >= '3.0':
 guiscript = 'SAP/GUI.py'
 
 # grep for r'version="%prog\s+[\d.]+" in SAP/Options.py
-version = "1.9.8"
+version = "1.9.9"
 
 if sys.platform == 'darwin':
     # Cross-platform applications generally expect sys.argv to be used for opening files:
