@@ -37,3 +37,11 @@ nosetests.xml
 # PyCharm
 .idea
 
+
+*.tmp
+*.dnd
+*.fasta
+*.log
+server/uploads/*
+server/static/user_projects/*
+
