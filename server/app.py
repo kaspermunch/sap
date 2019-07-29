@@ -341,7 +341,7 @@ def submit():
         #     task = tasks.run_analysis.delay(input_filename, optionParser.options, stdout_file, stderr_file)
         #     return redirect(url_for('wait', task_id=task.id))
     else:
-        return redirect(url_for('options'))
+        return redirect(url_for('server'))
 
 
 @app.route('/wait/<task_id>')
@@ -390,7 +390,7 @@ def cancel(task_id):
         return redirect(url_for('wait', task_id=task_id))
     g.task.revoke()
     flash('Your job has been cancelled.', 'danger')
-    return redirect(url_for('options'))
+    return redirect(url_for('server'))
 
 
 @app.route('/results/<proj_id>', methods=['GET', 'POST'])
