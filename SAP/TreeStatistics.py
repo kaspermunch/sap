@@ -460,8 +460,15 @@ class TreeStatistics:
             else:
                 taxonName = node.data.taxon
 
-            gi, organism = taxonName.split("_", 1)
-            taxonomy = homologyResult.homologues[gi].taxonomy
+            gi, name = terminal.split("_", 1)
+            try:
+                taxonomy = homologyResult.homologues[gi].taxonomy
+            except KeyError:
+                # HACK to accomodate that NCBI entries now include a database prefix sepearted by an underscore.
+                gi, name = terminal.split("_", 2)
+                gi = '_'.join(gi)
+                taxonomy = homologyResult.homologues[gi].taxonomy
+
             return taxonomy
         else:
             childTaxonomies = []
@@ -687,6 +694,11 @@ class TreeStatistics:
         groupTerminals = []
         for terminal in terminals:
             t = terminal.split('_')[0]
+
+            # HACK to accomodate that NCBI entries now include a database prefix sepearted by an underscore.
+            if not t in homologyResult.homologues:
+                t = '_'.join(terminal.split("_", 2)[:2])
+
             if t in groupIDs:
                 groupTerminals.append(terminal)
 
@@ -701,8 +713,14 @@ class TreeStatistics:
         # Get all taxonomic levels:
         for terminal in terminals:        
 
-            gi,name = terminal.split("_", 1)
-            taxonomy = homologyResult.homologues[gi].taxonomy
+            gi, name = terminal.split("_", 1)
+            try:
+                taxonomy = homologyResult.homologues[gi].taxonomy
+            except KeyError:
+                # HACK to accomodate that NCBI entries now include a database prefix sepearted by an underscore.
+                gi, name = terminal.split("_", 2)
+                gi = '_'.join(gi)
+                taxonomy = homologyResult.homologues[gi].taxonomy
 
             for taxLevel in taxonomy:
                 knownLevels[taxLevel.level] = taxLevel.name
