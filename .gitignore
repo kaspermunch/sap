@@ -45,3 +45,19 @@ nosetests.xml
 server/uploads/*
 server/static/user_projects/*
 
+
+
+
+*/alignmentcache/*
+*/assignments.csv
+*/blastcache/*
+*/data/*
+*/dbcache/*
+*/homologcache/*
+*/html/*
+*/myproject.sap
+*/querylist.csv
+*/stats/*
+*/taxon_probabilities.csv
+*/treescache/*
+*/treestatscache/*
