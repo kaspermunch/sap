@@ -17,6 +17,11 @@ from SAP.SearchResult import BlastSearchResult
 
 from SAP import Homology # I should rename this to Homology
 
+# Hack to disable ssl verification made default in python 2.7.9
+import os, ssl
+if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
+    getattr(ssl, '_create_unverified_context', None)): 
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 class SearchResult(BlastSearchResult):   
    """
@@ -241,8 +246,9 @@ class DB:
                     return None, retrievalStatus.replace(")", "!M)")
                 except:
                    ## print ' retrieving failed - retrying'
+                   raise
                    time.sleep(tries * 5)
-                   continue
+#                   continue
                 else:
                    successful = True
                    fp.close()
