@@ -2,7 +2,7 @@ FROM python:2.7.9
 
 RUN apt-get update && apt-get install -y clustalw
 
-ADD MANIFEST.in ez_setup.py setup.cfg setup.py README /code/sap/
+ADD MANIFEST.in ez_setup.py setup.cfg setup.py README.md /code/sap/
 ADD SAP/ /code/sap/SAP/
 ADD icons/ /code/sap/icons/
 ADD ext/ /code/sap/ext/
