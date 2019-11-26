@@ -37,6 +37,8 @@ nosetests.xml
 # PyCharm
 .idea
 
+# VS coce
+.vscode
 
 *.tmp
 *.dnd
