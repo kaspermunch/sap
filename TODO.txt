@@ -1,0 +1,71 @@
+
+
+make it so check for genbank cache is done seperately for sequence and taxonomy so that only hte taxonomhy is downloaded if that is missing. 
+
+Check what low complexity filtering I use with Blast
+
+Use new-style classes everywhere
+
+Update SAP with the code from stuffer - both machinepool, sge, and the multicpu parts
+
+Calculate the proportion of stem to crown assignemts. 
+
+use the _isLief() function instead of doing self.count == 0 or len(self.dict) ... 
+
+Make a function _insertPlaceHolderLevel()
+
+New interface for assignment that fits IM too
+
+Make sure infinite distances are handled sensitbly in ConstraindNJ 
+
+Defualt values are not show in lists in options in gui 
+
+Remove cnexus.so from svn 
+
+Is is possible at all to get the problem that we delete the lowest taxonomic level with highest prob. when collapsing levels with placeHolders? 
+
+Add a baseProb to each pruneList entry so that _print of each pruned trees can be called with the correct top baseProb
+
+Find this and take a look at it: #print "inserting placeholder child at level WHY IS DBID SOMETIMES NONE?", level, key, self.dict[key].dbid 
+
+Make sure __iadd__ in TaxonomySummary supports dibids. 
+
+Add changes to Consolescripts to GUI also. 
+
+Figure out a way to keep the original names of the local database sequences (and genbank ones too) for showing in the alignments. 
+
+figure out a way to make sapdb databases portable. Also why is one of the files called *.db.db? 
+
+Sort out what to do with the now different functionality in the python version of ConstrainedNJ: That it takes a matrix and that it returns a treestring with labels on each node.
+
+Make threads killable using KillableThread
+
+Implement fix at line 296 in Homology.py
+
+TreeStatistics line 815: 
+
+Add warning when users use more the 50 homologs with the MCMC version.
+
+The treestats files should have a plugin specific suffix like the tree files, so we do not loose that information if we run another assignment plugin. 
+
+Make a list of SAP database errors and warning messages
+
+See if I avoid environmental and uncultured sequences from GenBank.
+
+Use new-style classes everywhere.
+
+Implement the --scrictlylocal or --offline option to keep native from getting taxonomies from NCBI if the information is wrongly formatted.
+
+There should be a warnings pickle file with a dict like this: warnings[<query_name>] = ['warning....', 'warning....', 'warning....'] that is loaded in each analysis stage so warning can be recorded for each query and then printed on the results clone page. 
+
+Run longrunning c/c++ extensions in parallel thread and subclass KeyboardInterrupt so that it makes a system call to "kill -p " + os.getpid()
+
+Write code so that all sequences above some cutoff are writen to a fasta file.
+
+Make the seperately usefull parts of SAP into its packages under SVN control
+
+Make download of taxonomy use eutils
+
+Change interface standard for SearchResult
+
+Implement Genbank retrieval the same way as I did in for IMa
