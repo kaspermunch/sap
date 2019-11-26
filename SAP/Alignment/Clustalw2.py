@@ -1,6 +1,6 @@
 
 import os, re, sys, os
-from SAP.Bio.Nexus import Nexus
+from Bio.Nexus import Nexus
 
 from SAP.UtilityFunctions import *
 

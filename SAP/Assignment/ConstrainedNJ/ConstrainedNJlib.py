@@ -1,6 +1,6 @@
 
 import os
-from SAP.Bio.Nexus import Nexus
+from Bio.Nexus import Nexus
 import random, copy, sys, re, math
 from decimal import Decimal
 

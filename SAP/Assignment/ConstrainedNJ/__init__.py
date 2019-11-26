@@ -1,7 +1,7 @@
 
 import sys, os, tempfile
-from SAP.Bio.Nexus import Nexus
-from SAP.Bio.Nexus import Trees as NexusTrees
+from Bio.Nexus import Nexus
+from Bio.Nexus import Trees as NexusTrees
 
 from SAP.UtilityFunctions import *
 from ConstrainedNJ import ConstrainedNJ, BootstrapError

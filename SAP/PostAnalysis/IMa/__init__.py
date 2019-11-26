@@ -7,11 +7,11 @@ except:
 import re, os, sys, tempfile, shutil, copy
 
 ####################################################
-from SAP.Bio import Entrez
+from Bio import Entrez
 ####################################################
 
 from SAP import Fasta, Table
-from SAP.Bio.Nexus import Nexus
+from Bio.Nexus import Nexus
 
 from SAP.Databases import Native
 

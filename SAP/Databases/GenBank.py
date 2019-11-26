@@ -5,11 +5,11 @@ except:
    import pickle
 import os, sys, time, re, pickle
 
-from SAP.Bio import Entrez
+from Bio import Entrez
 
 from SAP import Fasta
 from SAP import UtilityFunctions as utils
-from SAP.Bio.Blast import NCBIXML
+from Bio.Blast import NCBIXML
 from SAP import Taxonomy
 from SAP import XML2Obj
 
@@ -42,6 +42,9 @@ class DB:
         self.prevExcludeList = None
         self.prevQueryName = None
         
+        Entrez.email = self.options.email
+        Entrez.tool = 'sapwebserver'
+
     def search(self, fastaRecord, excludelist=[]):
 
         # Check that we get a new exclude list for every blast:
@@ -147,13 +150,13 @@ class DB:
 
             for i in range(20):
                 time.sleep(2 * i)
+#                print('blasting...')
                 error = utils.systemCall(blastCmd, stdout='IGNORE', stderr='IGNORE')
-                try:
-
-#                     retval = os.system(blastCmd)
-#                     if retval != 0:
-#                        print "Netblast failed with return value %d. Trying again..." % retval                   
-                    error = utils.systemCall(blastCmd)
+                # error = utils.systemCall(blastCmd)
+                # print('...done with error:', error)
+                # sys.stdout.flush()
+                try:                  
+#                    error = utils.systemCall(blastCmd)
                     if error or not os.path.exists(blastFileName) or os.path.getsize(blastFileName) == 0:
                        print "Netblast failed. Trying again..."
                        continue
@@ -203,8 +206,6 @@ class DB:
             successful = False
             for tries in range(10):
                 try:
-                    Entrez.email = self.options.email
-                    Entrez.tool = 'sapwebserver'
                     fp = Entrez.efetch(db="nucleotide", id=gi, retmode="xml")
 
                     # Get the cross ref to the taxonomy database:

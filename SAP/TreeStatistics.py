@@ -4,7 +4,7 @@ try:
 except:
    import pickle
 import sys, os, re, string, copy, random
-from SAP.Bio.Nexus import Nexus, Trees, Nodes
+from Bio.Nexus import Nexus, Trees, Nodes
 
 import Fasta
 
@@ -460,12 +460,12 @@ class TreeStatistics:
             else:
                 taxonName = node.data.taxon
 
-            gi, name = terminal.split("_", 1)
+            gi, name = taxonName.split("_", 1)
             try:
                 taxonomy = homologyResult.homologues[gi].taxonomy
             except KeyError:
                 # HACK to accomodate that NCBI entries now include a database prefix sepearted by an underscore.
-                gi, name = terminal.split("_", 2)
+                gi, name = taxonName.split("_", 2)
                 gi = '_'.join(gi)
                 taxonomy = homologyResult.homologues[gi].taxonomy
 

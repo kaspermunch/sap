@@ -7,7 +7,7 @@ except:
 import os, shutil, sys
 from math import floor
 from UtilityFunctions import *
-from SAP.Bio.Nexus import Nexus
+from Bio.Nexus import Nexus
 from Assignment.ConstrainedNJ import ConstrainedNJ
 
 levelsSummaried = ['phylum', 'class', 'order', 'family', 'genus', 'species']

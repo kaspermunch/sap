@@ -1,7 +1,7 @@
 import os, re, sys, os
-from SAP.Bio.Nexus import Nexus
+from Bio.Nexus import Nexus
 from SAP import Fasta
-from SAP.Bio import pairwise2
+from Bio import pairwise2
 from SAP.UtilityFunctions import *
 
 class Aligner:

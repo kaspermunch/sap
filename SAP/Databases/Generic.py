@@ -34,8 +34,8 @@ except:
 import os, sys, time, re, pickle
 
 from SAP import Fasta
-from SAP.Bio.EUtils.Datatypes import DBIds
-from SAP.Bio.EUtils.ThinClient import ThinClient
+from Bio.EUtils.Datatypes import DBIds
+from Bio.EUtils.ThinClient import ThinClient
 
 from SAP import Homology # I should rename this to Homology
 

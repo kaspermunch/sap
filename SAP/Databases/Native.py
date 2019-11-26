@@ -2,12 +2,12 @@
 
 import sys, os, re, shelve, tempfile, StringIO
 from SAP import Fasta, Taxonomy, Homology
-from SAP.Bio.Alphabet import IUPAC
+from Bio.Alphabet import IUPAC
 from SAP.FastaIndex import FastaIndex
 from SAP.InstallDependencies import assertBlastInstalled
 from SAP.UtilityFunctions import *
 from SAP.FindPlugins import *
-from SAP.Bio.Blast import NCBIXML
+from Bio.Blast import NCBIXML
 try:
     import cPickle as pickle
 except ImportError:

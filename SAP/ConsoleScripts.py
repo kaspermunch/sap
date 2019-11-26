@@ -6,7 +6,7 @@ from math import floor
 from types import ListType
 
 # BioPython modules:
-from SAP.Bio.Nexus import Nexus, Trees, Nodes
+from Bio.Nexus import Nexus, Trees, Nodes
 
 from SAP import Fasta
 

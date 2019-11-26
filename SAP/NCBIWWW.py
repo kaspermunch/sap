@@ -30,7 +30,7 @@ try:
 except ImportError:
     import StringIO
 
-from SAP.Bio.ParserSupport import *
+from Bio.ParserSupport import *
 
 class BlastParser(AbstractParser):
     """Parses WWW BLAST data into a Record.Blast object.
@@ -65,7 +65,7 @@ class _Scanner:
         object that will receive events as the report is scanned.
 
         """
-        from SAP.Bio import File
+        from Bio import File
 
         # This stuff appears in 2.0.12.
         # <p><!--
@@ -735,7 +735,7 @@ def blast(program, database, query,
     """
     import time
     import urlparse
-    from SAP.Bio.WWW import NCBI
+    from Bio.WWW import NCBI
     
     import warnings
     warnings.warn("blast is deprecated.  Please use qblast instead.",
@@ -1062,7 +1062,7 @@ def qblast(program, database, sequence,
 
     """
     import urllib, urllib2
-    from SAP.Bio.WWW import RequestLimiter
+    from Bio.WWW import RequestLimiter
 
     assert program == 'blastn' or program == 'blastp'
 

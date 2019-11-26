@@ -1,6 +1,6 @@
 
 import os, random, copy, sys, re, math
-from SAP.Bio.Nexus import Nexus
+from Bio.Nexus import Nexus
 
 #from cConstrainedNJlib import computeTree, initialize
 import ctypes

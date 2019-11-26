@@ -5,7 +5,7 @@ except:
    import pickle
 import re, random, string, time, sys, os, glob, subprocess
 # from pkg_resources import load_entry_point, get_entry_info, get_entry_map, iter_entry_points, EntryPoint
-from SAP.Bio.Nexus import Nexus
+from Bio.Nexus import Nexus
 from SAP import Fasta
 
 from SAP.Exceptions import AnalysisTerminated
@@ -459,7 +459,7 @@ if __name__ == "__main__":
 
 
     import Fasta
-    from SAP.Bio import Seq
+    from Bio import Seq
     fastaFileName = sys.argv[1]
     if not os.path.exists(fastaFileName):
         raise Exception

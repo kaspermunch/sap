@@ -2,7 +2,7 @@
 # Neighbour or trees, built by the neighbour joining algorithm
 
 import os
-from SAP.Bio.Nexus import Nexus
+from Bio.Nexus import Nexus
 import random, copy, sys, re, math
 
 class Error(Exception):

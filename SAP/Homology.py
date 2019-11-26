@@ -5,13 +5,13 @@ try:
 except:
    import pickle
 import copy, re, os, sys, warnings, time, warnings, glob
-from SAP.Bio.Nexus import Nexus
+from Bio.Nexus import Nexus
 
 from SAP import Fasta
 
 from SAP.UtilityFunctions import *
 from SAP.FindPlugins import *
-from SAP.Bio.Blast import NCBIXML
+from Bio.Blast import NCBIXML
 from SAP import Taxonomy
 from SAP.XML2Obj import XML2Obj
 
@@ -211,13 +211,13 @@ class HomolCompiler:
             # For saving homologs that are not accepted first of:
             savedForFillIn = {}
             savedForFillInRanks = []
-            
+
             excludeLevel = 'species'
             lowestTaxonomicLevelExhausted = None
 
             # keep track of prev excludeList so we don't keep doing the same search if we don't find anything
             prev_excludeList = []
-
+            
             while not minIdentEnforced and not notEnoughSignificant and not dataBaseExhausted and not alignmentLimitReached:
 
                 if excludeList and excludeList == prev_excludeList:

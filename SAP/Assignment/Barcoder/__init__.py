@@ -5,7 +5,7 @@ except:
    import pickle
 import re, os, sys, tempfile, shutil
 
-from SAP.Bio.Nexus import Nexus
+from Bio.Nexus import Nexus
 
 #import Barcoder
 import Barcoder

@@ -7,8 +7,8 @@ except:
 import sys, os, re, string, glob
 from optparse import OptionParser
 
-from SAP.Bio.Alphabet import IUPAC
-from SAP.Bio.Nexus import Nexus
+from Bio.Alphabet import IUPAC
+from Bio.Nexus import Nexus
 from UtilityFunctions import *
 
 from SAP.Exceptions import AnalysisTerminated

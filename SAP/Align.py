@@ -1,7 +1,7 @@
 
 import os, re, sys, os
-from SAP.Bio.Nexus import Nexus
-from SAP.Bio import pairwise2, Seq
+from Bio.Nexus import Nexus
+from Bio import pairwise2, Seq
 
 import Fasta
 
