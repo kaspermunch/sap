@@ -1,19 +1,35 @@
-FROM python:2.7.9
 
-RUN apt-get update && apt-get install -y clustalw
+FROM continuumio/miniconda3:4.7.12
 
-ADD MANIFEST.in ez_setup.py setup.cfg setup.py README.md /code/sap/
-ADD SAP/ /code/sap/SAP/
-ADD icons/ /code/sap/icons/
-ADD ext/ /code/sap/ext/
+LABEL maintainer="Kasper Munch <kaspermunch@birc.au.dk>"
 
-RUN cd code/sap/ && python -u setup.py install
+ENV PYTHONUNBUFFERED 1
 
-ADD server /code/server
+RUN apt-get update && apt-get -y install build-essential libc6-dev libpthread-stubs0-dev && \
+    apt-get remove --purge && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN ln -s /usr/bin/clustalw /usr/bin/clustalw2
+RUN ln -s /usr/lib/x86_64-linux-gnu/libmpfr.so.6 /usr/lib/x86_64-linux-gnu/libmpfr.so.4
 
-RUN cd /code/server && pip install -r requirements.txt
+COPY environment.yml environment.yml
+RUN conda env create -q -f environment.yml && \
+    conda clean -y -i -l -t -p
 
-ADD binaries /code/sap/binaries/
-ENV PATH /code/sap/binaries/:$PATH
+ENV PATH /opt/conda/envs/sap/bin:$PATH
+
+ADD MANIFEST.in /code/sap/
+ADD ez_setup.py /code/sap/
+ADD setup.cfg /code/sap/
+ADD setup.py /code/sap/
+ADD README.md /code/sap/
+ADD SAP /code/sap/SAP
+ADD icons /code/sap/icons
+ADD ext /code/sap/ext
+ADD tests /code/sap/tests
+ADD server /code/sap/server
+
+WORKDIR /code/sap
+
+# RUN python setup.py install
+RUN python setup.py install
+# RUN pip install --editable . 

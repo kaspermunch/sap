@@ -1,23 +1,38 @@
 web:
-  extends:
-    file: common.yml
-    service: web
+  build: .
+  ports:
+   - "7000:8000"
+  env_file:
+   - server/.env
+  volumes:
+   - ${PWD}/SAP:/code/sap/SAP
+   - ${PWD}/server/templates:/code/sap/server/templates/   
+   - ${PWD}/server/app.py:/code/sap/server/app.py
+   - /tmp/user_projects:/code/sap/server/static/user_projects/
+   - /tmp/uploads:/code/sap/server/uploads/
+  working_dir: /code/sap/server/
   links:
    - db
    - worker
   command: python app.py
   environment:
-    SERVER_NAME: localhost:7000
+    SERVER_NAME: localhost:7000    
 worker:
-  extends:
-    file: common.yml
-    service: worker
+  build: .
+  env_file:
+   - server/.env
+  volumes:
+   - ${PWD}/SAP:/code/sap/SAP
+   - ${PWD}/server/templates:/code/sap/server/templates/   
+   - ${PWD}/server/app.py:/code/sap/server/app.py
+   - /tmp/user_projects:/code/sap/server/static/user_projects/
+   - /tmp/uploads:/code/sap/server/uploads/
+  working_dir: /code/sap/server/
   links:
    - db
   command: celery --loglevel=DEBUG --concurrency=1 -A app.celery worker
   environment:
-    SERVER_NAME: localhost:7000
+   C_FORCE_ROOT: 1
+   SERVER_NAME: localhost:7000
 db:
-  extends:
-    file: common.yml
-    service: db
+  image: redis

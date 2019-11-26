@@ -325,9 +325,15 @@ def submit():
     stdout_file = os.path.join(optionParser.options.project, 'stdout.txt')
     stderr_file = os.path.join(optionParser.options.project, 'stderr.txt')
 
+    # import unicodedata
+    # stdout_file = unicodedata.normalize('NFKD', stdout_file).encode('ascii','ignore')
+    # stderr_file = unicodedata.normalize('NFKD', stderr_file).encode('ascii','ignore')
+
+
     if form_is_valid and input_filename:
 
-        task = run_analysis.delay(input_filename, optionParser.options,
+        # task = run_analysis.delay(input_filename, optionParser.options,
+        task = run_analysis.delay(input_filename, vars(optionParser.options),
                                         stdout_file, stderr_file, notification_email)
         return redirect(url_for('wait', task_id=task.id))
 
@@ -468,6 +474,12 @@ from SAP.InstallDependencies import *
 
 @celery.task(name='app.run_analysis', bind=True)
 def run_analysis(self, input_file, options, stdout_file, stderr_file, email):
+
+    class dummy():
+        def __init__(self, d):
+            for k, v in d.items():
+                setattr(self, k, v)
+    options = dummy(options)
 
     class RedirectStdStreams(object):
         def __init__(self, stdout=None, stderr=None):
