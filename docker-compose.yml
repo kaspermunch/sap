@@ -8,8 +8,10 @@ web:
    - ${PWD}/SAP:/code/sap/SAP
    - ${PWD}/server/templates:/code/sap/server/templates/   
    - ${PWD}/server/app.py:/code/sap/server/app.py
-   - /tmp/user_projects:/code/sap/server/static/user_projects/
-   - /tmp/uploads:/code/sap/server/uploads/
+   - /tmp/user_projects:/code/sap/server/static/user_projects/ # change this to line below in windows
+  #  - C:\Windows\Temp\user_projects:/code/sap/server/static/user_projects/
+   - /tmp/uploads:/code/sap/server/uploads/ # change this to line below in windows
+  #  - C:\Windows\Temp\uploads:/code/sap/server/static/user_projects/
   working_dir: /code/sap/server/
   links:
    - db
@@ -25,8 +27,10 @@ worker:
    - ${PWD}/SAP:/code/sap/SAP
    - ${PWD}/server/templates:/code/sap/server/templates/   
    - ${PWD}/server/app.py:/code/sap/server/app.py
-   - /tmp/user_projects:/code/sap/server/static/user_projects/
-   - /tmp/uploads:/code/sap/server/uploads/
+   - /tmp/user_projects:/code/sap/server/static/user_projects/ # change this to line below in windows
+  #  - C:\Windows\Temp\user_projects:/code/sap/server/static/user_projects/
+   - /tmp/uploads:/code/sap/server/uploads/ # change this to line below in windows
+  #  - C:\Windows\Temp\uploads:/code/sap/server/static/user_projects/
   working_dir: /code/sap/server/
   links:
    - db
