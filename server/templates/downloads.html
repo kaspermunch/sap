@@ -9,13 +9,18 @@
 
         <h1 class="page-header">Download and install SAP</h1>
         <p>
-
-                If you only want to run a single analysis using SAP you can use the <a href="{{ url_for('server') }}">web server</a>. 
-                Otherwise you should install the comamnd line version of SAP on your own machine. It is quite easy.
+        If you only want to run a single analysis using SAP you can use the <a href="{{ url_for('server') }}">web server</a>. 
+        Otherwise you should install SAP on your own machine. 
+    </p>
+    <p>
+        On <strong>Mac</strong> and <strong>Linux</strong>, installation is straight forward (see below).    
+        If you are on a <strong>Windows</strong> machine, SAP can be installed
+        through Docker. This also lets you user the webserver interface on your local machine. 
+        Feel free to contact me if you are interested in this.
         </p>
 
         <h3>Make a conda environment</h3>
-        <p>The easiest way to install the command line version of SAP is to first install Anaconda Python.
+        <p>The easiest way to install the command line version of SAP on Mac and Linux is to first install Anaconda Python.
              Once that is done you can create a conda environment. The command for doing this depends on your operating system.
         </p>
 
@@ -27,17 +32,21 @@
 
         <pre>conda create --name sap -c conda-forge -c bioconda -c biobuilds -c anaconda python=2.7 blast clustalw biopython==1.75 clang_osx-64 git</pre>
 
-        <p>Then activate the environment like this:</p>
+        <h3>Activate environment</h3>
+
+        <p>Activate the `sap` environment like this:</p>
 
         <pre>conda activate sap</pre>
 
-        <h3>Install SAP</h3>
+        <h3>Download SAP from GitHub</h3>
 
         <P>Then clone the SAP source code from GitHub:</P>
 
         <pre>git clone https://github.com/kaspermunch/sap.git</pre>
 
-        <p>THen enter the `sap` directory and install sap:</p>
+        <h3>Install SAP</h3>
+
+        <p>Then enter the `sap` directory and install sap:</p>
 
         <pre>cd sap</pre>
 
@@ -45,7 +54,17 @@
 
         <pre>python setup.py install</pre>
 
-        <p>That's it. To run sap you must always first acativate the sap environment where you installed it.</p>
+        <p>That's it.</p>
+
+    
+        <h3>Run SAP</h3>
+
+        <p>To run sap you must always first acativate the sap environment where you installed it:</p>
+
+        <pre>conda activate sap</pre>
+
+        <p>Then you can run sap. Here just to see the help text:</p>
+        <pre>sap --help</pre>
 
         <p>See the <a href="{{ url_for('docs') }}">documentation</a> for how to use sap on the command line.</p>
 
