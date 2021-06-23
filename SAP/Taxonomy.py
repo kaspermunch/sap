@@ -334,7 +334,7 @@ class Taxonomy:
                     assert taxonName
                     assert taxonLevel                
                     # Record all canonocal taxonomic levels:
-                    if not re.search('no rank', taxonLevel):                        
+                    if not re.search('no rank', taxonLevel) and not re.search('clade', taxonLevel):                        
 
                         # Make and add the taxonomic level if not unclassified and not a BOLD unidentified specimen:
                         if not re.search(r'unclassified|BOLD:', taxonName):

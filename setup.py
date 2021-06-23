@@ -16,6 +16,7 @@ import ez_setup
 ez_setup.use_setuptools()
 
 import sys, glob, os
+import platform
 from setuptools import setup, Extension, find_packages
 
 if sys.version < '2.4' or sys.version >= '3.0':
@@ -91,7 +92,7 @@ if sys.platform=='darwin':# and sys.executable != '/usr/bin/python' and 'anacond
    if v >= 10.10:
       EXTRA_COMPILE_ARGS.append("-stdlib=libc++")
 #      EXTRA_COMPILE_ARGS.append("-mmacosx-version-min=10.14")
-      os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.14"
+      os.environ["MACOSX_DEPLOYMENT_TARGET"] = platform.mac_ver()[0]
       
     #   EXTRA_COMPILE_ARGS.append("-stdlib=libstdc++")
 # EXTRA_COMPILE_ARGS = ['-fvisibility=hidden']
