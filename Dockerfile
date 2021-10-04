@@ -5,7 +5,7 @@ LABEL maintainer="Kasper Munch <kaspermunch@birc.au.dk>"
 
 ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update && apt-get -y install build-essential libc6-dev libpthread-stubs0-dev && \
+RUN apt-get --allow-releaseinfo-change update && apt-get -y install build-essential libc6-dev libpthread-stubs0-dev && \
     apt-get remove --purge && \
     rm -rf /var/lib/apt/lists/*
 
@@ -33,3 +33,6 @@ WORKDIR /code/sap
 # RUN python setup.py install
 RUN python setup.py install
 # RUN pip install --editable . 
+
+ENTRYPOINT ["sap"]
+CMD ["--help"]
