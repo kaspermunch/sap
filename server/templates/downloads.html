@@ -9,17 +9,38 @@
 
         <h1 class="page-header">Download and install SAP</h1>
         <p>
-        If you only want to run a single analysis using SAP you can use the <a href="{{ url_for('server') }}">web server</a>. 
-        Otherwise you should install SAP on your own machine. 
+        If you only want to run a few analyses using SAP, you can use the <a href="{{ url_for('server') }}">web server</a>. 
+        Otherwise you should run SAP on your own machine. 
     </p>
+    <h3>Docker image</h3>
     <p>
-        On <strong>Mac</strong> and <strong>Linux</strong>, installation is straight forward (see below).    
-        If you are on a <strong>Windows</strong> machine, SAP can be installed
-        through Docker. This also lets you user the webserver interface on your local machine. 
-        Feel free to contact me if you are interested in this.
-        </p>
+        SAP is now distributed as a Docker image allowing it to run on both Mac, Windows, and Linux. 
+        To use SAP in this way, you need to download and install <a href="https://www.docker.com/get-started">Docker Desktop</a>.
+        Having done that, you run sap from the command line using this command on Mac/Linux:</p>
 
-        <h3>Make a conda environment</h3>
+        <pre>docker run --rm -v $PWD:/code/sap kaspermunch/sap:latest</pre>
+
+        <a>and this one on Windows:</a>
+
+        <pre>docker run --rm -v %CD%:/code/sap kaspermunch/sap:latest</pre>
+
+        <p>The first time you do this it will pull the image from DockerHub and run it. 
+            On subsequent runs it will run the cached image.</p>
+
+        <p>See the <a href="{{ url_for('docs') }}">documentation</a> for how to use sap on the command line.</p>
+
+        <h3>Running the image with Singularity</h3>
+
+        <p>Where it is not possible to install Docker, as is often the case on shared computing facilities, the image can be pulled using 
+            <a href="https://sylabs.io/singularity/">Singularity</a> (you only need to do this once):</p>
+
+        <pre>singularity pull sap docker://kaspermunch/sap:latest</pre>
+    
+        <p>Then just run the image as any other executable:</p>
+    
+        <pre>./sap [ARGUMENTS]</pre>
+
+        <!-- <h3>Make a conda environment</h3>
         <p>The easiest way to install the command line version of SAP on Mac and Linux is to first install Anaconda Python.
              Once that is done you can create a conda environment. The command for doing this depends on your operating system.
         </p>
@@ -70,9 +91,9 @@
         <pre>conda activate sap</pre>
 
         <p>Then you can run sap. Here just to see the help text:</p>
-        <pre>sap --help</pre>
+        <pre>sap --help</pre> -->
 
-        <p>See the <a href="{{ url_for('docs') }}">documentation</a> for how to use sap on the command line.</p>
+        <!-- <p>See the <a href="{{ url_for('docs') }}">documentation</a> for how to use sap on the command line.</p> -->
 
 
     </div>
