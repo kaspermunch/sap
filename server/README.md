@@ -69,22 +69,22 @@ Delete old so files built on OSX (becuase the docker container links to these fi
 
     python setup.py clean
 
-Build Docker image:
+Build Docker image (replace VERSION for the version e.g. 1-9-9):
 
-    docker build -t kaspermunch/sap:latest -t kaspermunch/sap:version-1.9.9  .
+    docker build -t kaspermunch/sap:latest -t kaspermunch/sap:version-VERSION  .
 
 Login to DockerHub:
 
     docker login
 
-Push docker image:
+Push docker image (replace VERSION for the version e.g. 1-9-9):
 
-    docker push kaspermunch/sap:version-1.9.9
+    docker push kaspermunch/sap:version-VERSION
     docker push kaspermunch/sap:latest
 
 Run docker image (with Docker):
 
-    docker run --rm -v $PWD:/mnt kaspermunch/sap:latest [ARGUMENTS]
+    docker run --rm -v $PWD:/code/sap kaspermunch/sap:latest [ARGUMENTS]
 
 On a machine without access to Docker, the image can be pulled using Singularity (you only need to do this once):
 
