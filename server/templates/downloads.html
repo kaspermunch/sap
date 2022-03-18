@@ -18,11 +18,11 @@
         To use SAP in this way, you need to download and install <a href="https://www.docker.com/get-started">Docker Desktop</a>.
         Having done that, you run sap from the command line using this command on Mac/Linux:</p>
 
-        <pre>docker run --rm -v $PWD:/code/sap kaspermunch/sap:latest</pre>
+        <pre>docker run --rm -v $PWD:/code/sap kaspermunch/sap:latest [arguments]</pre>
 
         <a>and this one on Windows:</a>
 
-        <pre>docker run --rm -v %CD%:/code/sap kaspermunch/sap:latest</pre>
+        <pre>docker run --rm -v %CD%:/code/sap kaspermunch/sap:latest [arguments]</pre>
 
         <p>The first time you do this it will pull the image from DockerHub and run it. 
             On subsequent runs it will run the cached image.</p>
@@ -38,7 +38,7 @@
     
         <p>Then just run the image as any other executable:</p>
     
-        <pre>./sap [ARGUMENTS]</pre>
+        <pre>./sap [arguments]</pre>
 
         <!-- <h3>Make a conda environment</h3>
         <p>The easiest way to install the command line version of SAP on Mac and Linux is to first install Anaconda Python.
