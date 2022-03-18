@@ -16,13 +16,13 @@ To use SAP in this way, you need to download and install <a href="https://www.do
 Having done that, you run sap from the command line using this command on Mac/Linux:</p>
 
 ```
-docker run --rm -v $PWD:/code/sap kaspermunch/sap:latest
+docker run --rm -v $PWD:/code/sap kaspermunch/sap:latest [arguments]
 ```
 
 and this one on Windows:
 
 ```
-docker run --rm -v %CD%:/code/sap kaspermunch/sap:latest
+docker run --rm -v %CD%:/code/sap kaspermunch/sap:latest [arguments]
 ```
 
 The first time you do this it will pull the image from DockerHub and run it. On subsequent runs it will run the cached image.
@@ -38,7 +38,7 @@ singularity pull sap docker://kaspermunch/sap:latest
 Then just run the image as any other executable:
 
 ```
-./sap [ARGUMENTS]
+./sap [arguments]
 ```
 
 You can find more documentation and detail on how to install and run SAP on the [web service](https://services.birc.au.dk/sap) under Downloads.
