@@ -21,11 +21,30 @@ Close continuumio/miniconda3 container.
 
 Delete old so files built on OSX (becuase the docker container links to these files and thinks they are up to date.)
 
-    python setup.py clean
+    python2.7 setup.py clean
 
 Build the container using develop.yml so that I can edit files on my own file system even though sap runs in the container
 
     docker-compose build
+
+Tag images (replace VERSION for the version e.g. 1-9-9):
+
+    docker image tag sap_web kaspermunch/sap_web:VERSION
+    docker image tag sap_web kaspermunch/sap_web:latest
+
+    docker image tag sap_worker kaspermunch/sap_worker:VERSION
+    docker image tag sap_worker kaspermunch/sap_worker:latest
+
+Login to DockerHub:
+
+    docker login
+
+Push docker images (replace VERSION for the version e.g. 1-9-9):
+
+    docker push kaspermunch/sap_web:version-VERSION
+    docker push kaspermunch/sap_worker:latest
+
+Testing the server:
 
 Take container down
 
@@ -42,7 +61,6 @@ Run bash in the container
 Start the web service on port 7000
 
     docker-compose up
-
 
 # Docker for distribution
 
@@ -67,7 +85,7 @@ Close continuumio/miniconda3 container.
 
 Delete old so files built on OSX (becuase the docker container links to these files and thinks they are up to date.)
 
-    python setup.py clean
+    python2.7 setup.py clean
 
 Build Docker image (replace VERSION for the version e.g. 1-9-9):
 
