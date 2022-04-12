@@ -11,7 +11,8 @@ from celery.exceptions import SoftTimeLimitExceeded
 from celery.signals import after_setup_task_logger
 
 #from celery import chain
-from werkzeug import secure_filename
+#from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 from utilities import make_celery
 from SAP import Options
 

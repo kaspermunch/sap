@@ -11,27 +11,28 @@ dependencies:
   - backports=1.0=py_2
   - billiard=3.6.3.0=py27h516909a_0
   - binutils_impl_linux-64=2.36.1=h193b22a_2
-  - binutils_linux-64=2.36=hf3e587d_1
-  - blast=2.12.0=pl5262h3289130_0
+  - binutils_linux-64=2.36=hf3e587d_9
+  - biopython=1.75=py27h516909a_0
+  - blast=2.12.0=hf3cf87c_4
   - blinker=1.4=py_1
   - bzip2=1.0.8=h7f98852_4
-  - c-ares=1.17.2=h7f98852_0
-  - ca-certificates=2021.5.30=ha878542_0
+  - c-ares=1.18.1=h7f98852_0
+  - ca-certificates=2021.10.8=ha878542_0
   - celery=4.4.2=pyh8c360ce_0
   - certifi=2019.11.28=py27h8c360ce_1
   - cffi=1.14.0=py27hd463f26_0
   - click=7.1.2=pyh9f0ad1d_0
-  - clustalw=2.1=h7d875b9_6
+  - clustalw=2.1=h9f5acd7_7
   - configparser=3.7.3=py27h8c360ce_2
   - contextlib2=0.6.0.post1=py_0
   - cryptography=2.8=py27h2c19f6a_2
-  - curl=7.79.1=h2574ce0_1
-  - entrez-direct=15.6=he881be0_1
+  - curl=7.82.0=h7bff187_0
+  - entrez-direct=16.2=he881be0_0
   - enum34=1.1.10=py27h8c360ce_1
   - flask=1.1.2=pyh9f0ad1d_0
   - flask-mail=0.9.1=py_2
-  - gcc_impl_linux-64=11.2.0=h82a94d6_9
-  - gcc_linux-64=11.2.0=h39a9532_1
+  - gcc_impl_linux-64=11.2.0=h82a94d6_15
+  - gcc_linux-64=11.2.0=h39a9532_9
   - gunicorn=19.9.0=py27_1000
   - idna=3.1=pyhd3deb0d_0
   - importlib-metadata=1.5.0=py27h8c360ce_1
@@ -39,49 +40,59 @@ dependencies:
   - ipaddress=1.0.23=py_0
   - itsdangerous=1.1.0=py_0
   - jinja2=2.11.3=pyh44b312d_0
-  - kernel-headers_linux-64=2.6.32=he073ed8_14
+  - kernel-headers_linux-64=2.6.32=he073ed8_15
+  - keyutils=1.6.1=h166bdaf_0
   - kombu=4.6.9=py27h8c360ce_0
-  - krb5=1.19.2=hcc1bbae_2
+  - krb5=1.19.3=h3790be6_0
   - ld_impl_linux-64=2.36.1=hea4e1c9_2
-  - libcurl=7.79.1=h2574ce0_1
+  - libblas=3.9.0=14_linux64_openblas
+  - libcblas=3.9.0=14_linux64_openblas
+  - libcurl=7.82.0=h7bff187_0
   - libedit=3.1.20191231=he28a2e2_2
   - libev=4.33=h516909a_1
   - libffi=3.2.1=he1b5a44_1007
-  - libgcc-devel_linux-64=11.2.0=h0952999_9
-  - libgcc-ng=11.2.0=h1d223b6_9
-  - libgomp=11.2.0=h1d223b6_9
-  - libnghttp2=1.43.0=h812cca2_1
-  - libsanitizer=11.2.0=he4da1e4_9
+  - libgcc-devel_linux-64=11.2.0=h0952999_15
+  - libgcc-ng=11.2.0=h1d223b6_15
+  - libgfortran-ng=11.2.0=h69a702a_15
+  - libgfortran5=11.2.0=h5c6108e_15
+  - libgomp=11.2.0=h1d223b6_15
+  - liblapack=3.9.0=14_linux64_openblas
+  - libnghttp2=1.47.0=h727a467_0
+  - libnsl=2.0.0=h7f98852_0
+  - libopenblas=0.3.20=pthreads_h78a6416_0
+  - libsanitizer=11.2.0=he4da1e4_15
   - libssh2=1.10.0=ha56f1ee_2
-  - libstdcxx-ng=11.2.0=he4da1e4_9
-  - libzlib=1.2.11=h36c2ea0_1013
+  - libstdcxx-ng=11.2.0=he4da1e4_15
+  - libzlib=1.2.11=h166bdaf_1014
   - markupsafe=1.1.1=py27hdf8410d_1
   - more-itertools=5.0.0=py_0
-  - ncurses=6.2=h58526e2_4
-  - openssl=1.1.1l=h7f98852_0
+  - ncurses=6.3=h27087fc_1
+  - numpy=1.16.5=py27h95a1406_0
+  - openssl=1.1.1n=h166bdaf_0
   - pathlib2=2.3.5=py27h8c360ce_1
   - pcre=8.45=h9c3ff4c_0
-  - perl=5.26.2=h36c2ea0_1008
-  - perl-archive-tar=2.32=pl526_0
-  - perl-carp=1.38=pl526_3
-  - perl-common-sense=3.74=pl526_2
-  - perl-compress-raw-bzip2=2.087=pl526he1b5a44_0
-  - perl-compress-raw-zlib=2.087=pl526hc9558a2_0
-  - perl-exporter=5.72=pl526_1
-  - perl-exporter-tiny=1.002001=pl526_0
-  - perl-extutils-makemaker=7.36=pl526_1
-  - perl-io-compress=2.087=pl526he1b5a44_0
-  - perl-io-zlib=1.10=pl526_2
-  - perl-json=4.02=pl526_0
-  - perl-json-xs=2.34=pl526h6bb024c_3
-  - perl-list-moreutils=0.428=pl526_1
-  - perl-list-moreutils-xs=0.428=pl526_0
-  - perl-pathtools=3.75=pl526h14c3975_1
-  - perl-scalar-list-utils=1.52=pl526h516909a_0
-  - perl-types-serialiser=1.0=pl526_2
-  - perl-xsloader=0.24=pl526_0
+  - perl=5.32.1=2_h7f98852_perl5
+  - perl-archive-tar=2.40=pl5321hdfd78af_0
+  - perl-carp=1.50=pl5321hd8ed1ab_0
+  - perl-common-sense=3.75=pl5321hdfd78af_0
+  - perl-compress-raw-bzip2=2.103=pl5321h87f3376_0
+  - perl-compress-raw-zlib=2.103=pl5321h87f3376_0
+  - perl-encode=3.17=pl5321hec16e2b_0
+  - perl-exporter=5.74=pl5321hd8ed1ab_0
+  - perl-exporter-tiny=1.002002=pl5321hdfd78af_0
+  - perl-extutils-makemaker=7.64=pl5321hd8ed1ab_0
+  - perl-io-compress=2.102=pl5321h87f3376_1
+  - perl-io-zlib=1.11=pl5321hdfd78af_0
+  - perl-json=4.05=pl5321hdfd78af_0
+  - perl-json-xs=2.34=pl5321h9f5acd7_5
+  - perl-list-moreutils=0.430=pl5321hdfd78af_0
+  - perl-list-moreutils-xs=0.430=pl5321hec16e2b_1
+  - perl-parent=0.238=pl5321hd8ed1ab_0
+  - perl-pathtools=3.75=pl5321hec16e2b_3
+  - perl-scalar-list-utils=1.62=pl5321hec16e2b_0
+  - perl-types-serialiser=1.01=pl5321hdfd78af_0
   - pip=20.1.1=pyh9f0ad1d_0
-  - pycparser=2.20=pyh9f0ad1d_2
+  - pycparser=2.21=pyhd8ed1ab_0
   - python=2.7.15=h5a48372_1011_cpython
   - python_abi=2.7=1_cp27mu
   - pytz=2020.1=pyh9f0ad1d_0
@@ -92,16 +103,13 @@ dependencies:
   - setuptools=44.0.0=py27_0
   - six=1.16.0=pyh6c4a22f_0
   - sqlalchemy=1.3.15=py27hdf8410d_1
-  - sqlite=3.36.0=h9cd32fc_2
-  - sysroot_linux-64=2.12=he073ed8_14
-  - tk=8.6.11=h27826a3_1
-  - vine=5.0.0=pyh9f0ad1d_0
+  - sqlite=3.38.2=h4ff8645_0
+  - sysroot_linux-64=2.12=he073ed8_15
+  - tk=8.6.12=h27826a3_0
+  - vine=1.3.0=py_0
   - werkzeug=1.0.1=pyh9f0ad1d_0
-  - wheel=0.37.0=pyhd8ed1ab_1
+  - wheel=0.37.1=pyhd8ed1ab_0
   - zipp=1.0.0=py_0
-  - zlib=1.2.11=h36c2ea0_1013
-  - pip:
-    - biopython==1.75
-    - numpy==1.16.6
+  - zlib=1.2.11=h166bdaf_1014
 prefix: /opt/conda/envs/sap
 

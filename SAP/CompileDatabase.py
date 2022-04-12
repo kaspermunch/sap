@@ -140,7 +140,7 @@ def retrieve_taxonomies(taxid2gi):
             unique_ranks = dict()
             for x in entry['LineageEx']:
                 rank, name = x['Rank'], x['ScientificName']
-                if rank == 'no rank':
+                if rank == 'no rank' or rank == 'clade':                    
                     continue
                 if rank not in unique_ranks:
                     unique_ranks[rank] = name

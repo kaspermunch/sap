@@ -8,9 +8,8 @@ Run the miniconda docker container and run bash
 
 In the docker container: Create and export a sap environment in the miniconda container
 
-    conda create --name sap -c conda-forge -c bioconda -c biobuilds -c anaconda python=2.7 blast clustalw flask celery redis redis-py gunicorn flask-mail gcc_linux-64
+    conda create --name sap -c conda-forge -c bioconda -c biobuilds -c anaconda python=2.7 blast clustalw flask celery redis redis-py gunicorn flask-mail gcc_linux-64 biopython=1.75 vine=1.3
     conda activate sap
-    pip install biopython==1.75
     conda env export > environment.yml
 
 Outside the docker container (read id off prompt in docker conatainer):
@@ -29,10 +28,10 @@ Build the container using develop.yml so that I can edit files on my own file sy
 
 Tag images (replace VERSION for the version e.g. 1-9-9):
 
-    docker image tag sap_web kaspermunch/sap_web:VERSION
+    docker image tag sap_web kaspermunch/sap_web:version-VERSION
     docker image tag sap_web kaspermunch/sap_web:latest
 
-    docker image tag sap_worker kaspermunch/sap_worker:VERSION
+    docker image tag sap_worker kaspermunch/sap_worker:version-VERSION
     docker image tag sap_worker kaspermunch/sap_worker:latest
 
 Login to DockerHub:
@@ -42,6 +41,9 @@ Login to DockerHub:
 Push docker images (replace VERSION for the version e.g. 1-9-9):
 
     docker push kaspermunch/sap_web:version-VERSION
+    docker push kaspermunch/sap_web:latest
+
+    docker push kaspermunch/sap_worker:version-VERSION
     docker push kaspermunch/sap_worker:latest
 
 Testing the server:
@@ -72,9 +74,8 @@ Run the miniconda docker container and run bash
 
 In the docker container: Create and export a sap environment in the miniconda container
 
-    conda create --name sap -c conda-forge -c bioconda -c biobuilds -c anaconda python=2.7 blast clustalw flask celery redis redis-py gunicorn flask-mail gcc_linux-64
+    conda create --name sap -c conda-forge -c bioconda -c biobuilds -c anaconda python=2.7 blast clustalw flask celery redis redis-py gunicorn flask-mail gcc_linux-64 biopython=1.75 vine=1.3
     conda activate sap
-    pip install biopython==1.75
     conda env export > environment.yml
 
 Outside the docker container (read id off prompt in docker conatainer):

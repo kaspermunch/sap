@@ -1,5 +1,5 @@
 
-#FROM continuumio/miniconda3:4.7.12
+# FROM continuumio/miniconda3:4.7.12
 FROM continuumio/miniconda2:4.7.12
 
 LABEL maintainer="Kasper Munch <kaspermunch@birc.au.dk>"
@@ -33,6 +33,3 @@ WORKDIR /code/sap
 
 RUN python setup.py install
 # RUN pip install --editable . 
-
-ENTRYPOINT ["sap"]
-CMD ["--help"]
