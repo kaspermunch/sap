@@ -29,7 +29,7 @@ Running against a local database:
     sap --project myproject --database coi_barcode_db.fasta query.fasta
 """
 
-        self.parser = OptionParser(usage=usage, version="%prog 1.9.10")
+        self.parser = OptionParser(usage=usage, version="%prog 1.9.11")
 
         # General options:
         self.parser.add_option("--onlinehelp",
