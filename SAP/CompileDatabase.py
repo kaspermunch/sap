@@ -234,11 +234,11 @@ def compileDatabase(query, email, output_file_name):
         webenv = search_results["WebEnv"]
         query_key = search_results["QueryKey"]
 
-        answer = raw_input('total nr of entries for download: %d. Proceed? yes/no: ' % (count))
-        if answer != 'yes':
-            sys.exit()
+        # answer = raw_input('total nr of entries for download: %d. Proceed? yes/no: ' % (count))
+        # if answer != 'yes':
+            # sys.exit()
 
-        print >>sys.stderr, "Downloading"
+        print >>sys.stderr, "Downloading %d entries" % (count)
         temp = tempfile.TemporaryFile(mode='w+t')
         taxid2gi, not_downloaded = retrieve_sequence_records(query_key, webenv, count, temp)
 
