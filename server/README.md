@@ -100,6 +100,10 @@ Push docker image (replace VERSION for the version e.g. 1-9-9):
     docker push kaspermunch/sap:version-VERSION
     docker push kaspermunch/sap:latest
 
+Run bash in image interactively:
+
+    docker run -it --entrypoint /bin/bash kaspermunch/sap
+
 Run docker image (with Docker):
 
     docker run --rm -v $PWD:/code/sap kaspermunch/sap:latest [ARGUMENTS]
@@ -111,3 +115,6 @@ On a machine without access to Docker, the image can be pulled using Singularity
 Then just run the image as any other executable:
 
     ./sap [ARGUMENTS]
+
+
+

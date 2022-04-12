@@ -30,7 +30,6 @@ ADD server /code/sap/server
 
 WORKDIR /code/sap
 
-# RUN python setup.py install
 RUN python setup.py install
 # RUN pip install --editable . 
 

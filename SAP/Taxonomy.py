@@ -278,6 +278,7 @@ class Taxonomy:
 
         parser = XML2Obj()
         try:
+            xml = re.sub(r'<OtherNames>.*</OtherNames>', '', xml, re.MULTILINE, re.DOTALL)
             taxaSet = parser.Parse(xml)
         except:
             raise AnalysisTerminated(1, "There seems to be a problem at the NCBI server. The retrieved annotation is not valid XML. Try again later")
