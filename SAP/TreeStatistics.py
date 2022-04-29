@@ -509,7 +509,7 @@ class TreeStatistics:
         # arguments. querySubTreeNodeID and queryNodeID get passed the
         # same reference. That could make sense if it was called in an
         # other way at other occations, but that does not seem to be the
-        # case. We could probably simplyfy it a bit...
+        # case. We could probably simplyfy it a bit...p
 
         self.removeTripleBranchRoot(tree)
 
@@ -519,105 +519,145 @@ class TreeStatistics:
         # Get parrent node to the query terminal:
         parentNodeID = querySubTreeNode.prev
 
-        # There are two possible sister groups - dependent on where the root is.
-        # Either the root is placed above the query parent (no change in tree necessary)
-        # or the root is placed between the query parent and the sister group
+        if self.options.ingroup:
 
-        # Root nodes of the two possible sister groups:
-        sisterGroupRootNodeIDs = []
+            outgroups_and_claderoots = []
 
-        # Find a node that can root the sub-tree on the side of the query
-        # parrent that includs the root.
-        if parentNodeID == tree.root:
-            # The parrent of the query IS the root
-            for childID in tree.node(tree.root).succ:
-                # Change the parrent node to be the child on the other
-                # side of the root. This way we will find both sister
-                # groups on the other side of the root below.
-                if childID != querySubTreeNodeID:
-                    parentNodeID = childID
-        else:
-            # The query parrent is NOT the root
-            if tree.node(parentNodeID).prev == tree.root:
-                # The root is the parrent of the query parrent.
+            if parentNodeID == tree.root:
                 for childID in tree.node(tree.root).succ:
-                    # Get the sister groups on either side of the root.
-                    if childID != parentNodeID:
-                        # Record the sister group root node on the other side of the root.
-                        sisterGroupRootNodeIDs.append(childID)
+                    if childID != querySubTreeNodeID:
+                        other_root_child = childID
+                if not tree.is_terminal(other_root_child):
+                    child1, child2 = tree.node(other_root_child).succ
+                    if not tree.is_terminal(child1):
+                        for outgroup_node in tree.node(child1).succ:
+                            outgroups_and_claderoots.append((outgroup_node, child1))
+                    if not tree.is_terminal(child2):
+                        for outgroup_node in tree.node(child2).succ:
+                            outgroups_and_claderoots.append((outgroup_node, child2))
+
+            elif tree.node(parentNodeID).prev == tree.root:
+                if not tree.is_terminal(tree.root):
+                    for childID in tree.node(tree.root).succ:
+                        if childID != querySubTreeNodeID:
+                            other_root_child = childID
+                        if not tree.is_terminal(other_root_child):
+                            for outgroup_node in tree.node(other_root_child).succ:
+                                outgroups_and_claderoots.append((outgroup_node, other_root_child))
+
             else:
-                # Record the parent of the query parent as a sister group root node:
-                sisterGroupRootNodeIDs.append(tree.node(parentNodeID).prev)
+                claderoot_node = tree.node(parentNodeID).prev
+                outgroup_node = tree.node(claderoot_node).prev
+                outgroups_and_claderoots.append((outgroup_node, claderoot_node))
 
-        # Find a node that can root the tree on the side of the query
-        # parrent that DOES NOT include the root.
-        for childID in tree.node(parentNodeID).succ:
-            if childID != querySubTreeNodeID:
-                sisterGroupRootNodeIDs.append(childID)
+                if not tree.is_terminal(parentNodeID):
+                    for childID in tree.node(parentNodeID).succ:
+                        if childID != querySubTreeNodeID:
+                            claderoot_node = childID
+                    if not tree.is_terminal(claderoot_node):
+                        for childID in tree.node(claderoot_node).succ:
+                            if childID != querySubTreeNodeID:
+                                outgroup_node = childID                     
+                        outgroups_and_claderoots.append((outgroup_node, claderoot_node))
 
-        assert len(sisterGroupRootNodeIDs) == 2
+            def get_constax(outgroup_node, clade_node):
+                outGroupOK = tree.root_with_outgroup(tree.get_taxa(outgroup_node))
+                assert outGroupOK != -1
+                querySubTreeNode = tree.node(querySubTreeNodeID) 
+                parentNodeID = querySubTreeNode.prev
+                consTax = self.findConsensusTaxonomy(homologyResult, tree, clade_node, [queryNodeID])
+                return outgroup_node, consTax
 
-#         # Second sister group does not require re-rooting:
-#         #tree.root_with_outgroup(tree.get_taxa(sisterGroupRootNodeIDs[1]))
-#         querySubTreeNode = tree.node(querySubTreeNodeID)
-#         parentNodeID = querySubTreeNode.prev
-#         consTax2 = self.findConsensusTaxonomy(homologyResult, tree, parentNodeID, [queryNodeID])
-# 
-#         # First sister group needs re-rooting:
-#         outGroupOK = tree.root_with_outgroup(tree.get_taxa(sisterGroupRootNodeIDs[0]))
-#         assert outGroupOK != -1
-#         querySubTreeNode = tree.node(querySubTreeNodeID)
-#         parentNodeID = querySubTreeNode.prev
-#         consTax1 = self.findConsensusTaxonomy(homologyResult, tree, parentNodeID, [queryNodeID])
-# 
-#         # Pick tree with most specific consensus
-#         if len(consTax1) > len(consTax2):
-#             return sisterGroupRootNodeIDs[1], consTax1
-#         elif len(consTax1) < len(consTax2):
-#             # Change tree back to first root setting
-#             tree.root_with_outgroup(tree.get_taxa(sisterGroupRootNodeIDs[1]))
-#             return sisterGroupRootNodeIDs[0], consTax2
-#         else:
-#             # If the consensus taxonomies have the same lengths we can't
-#             # say which one is the correct one. They can only be same
-#             # length if some part of them are identical. We strip off the
-#             # lower non-identical levels before returning it.
-# 
-#             # Find the longest aggreeing consensus taxonomy:
-#             aggreeingConsTax = consTax1.consensusTaxonomy(consTax2)
-#             return sisterGroupRootNodeIDs[0], aggreeingConsTax
+            outgroups_and_constax = [get_constax(o,c) for o, c in outgroups_and_claderoots]
+            outgroups_and_constax = sorted(outgroups_and_constax, key=lambda x: len(x[1]))
+            assert outgroups_and_constax
 
-        # First rooting
-        outGroupOK = tree.root_with_outgroup(tree.get_taxa(sisterGroupRootNodeIDs[0]))
-        assert outGroupOK != -1
-        querySubTreeNode = tree.node(querySubTreeNodeID)
-        parentNodeID = querySubTreeNode.prev
-        consTax1 = self.findConsensusTaxonomy(homologyResult, tree, parentNodeID, [queryNodeID])
+            if len(outgroups_and_constax) == 1:
+                return outgroups_and_constax[0]
+            else:
+                (outgr1, consTax1), (outgr2, consTax2) = outgroups_and_constax[:2]
+                if len(consTax1) > len(consTax2):
+                    tree.root_with_outgroup(tree.get_taxa(outgr1))
+                    return outgr1, consTax1
+                elif len(consTax1) < len(consTax2):
+                    return outgr2, consTax2
+                else:
+                    aggreeingConsTax = consTax1.consensusTaxonomy(consTax2)
+                    tree.root_with_outgroup(tree.get_taxa(queryNodeID))
+                    return outgr1, aggreeingConsTax
 
-        # Second rooting
-        outGroupOK = tree.root_with_outgroup(tree.get_taxa(sisterGroupRootNodeIDs[1]))
-        assert outGroupOK != -1
-        querySubTreeNode = tree.node(querySubTreeNodeID)
-        parentNodeID = querySubTreeNode.prev
-        consTax2 = self.findConsensusTaxonomy(homologyResult, tree, parentNodeID, [queryNodeID])
 
-        # Pick tree with most specific consensus
-        if len(consTax1) > len(consTax2):
-            # Change tree back to first root setting
-            tree.root_with_outgroup(tree.get_taxa(sisterGroupRootNodeIDs[0]))
-            return sisterGroupRootNodeIDs[1], consTax1
-        elif len(consTax1) < len(consTax2):
-            return sisterGroupRootNodeIDs[0], consTax2
+
         else:
-            # If the consensus taxonomies have the same lengths we can't
-            # say which one is the correct one. They can only be same
-            # length if some part of them are identical. We strip off the
-            # lower non-identical levels before returning it.
+            # There are two possible sister groups - dependent on where the root is.
+            # Either the root is placed above the query parent (no change in tree necessary)
+            # or the root is placed between the query parent and the sister group
 
-            # Find the longest aggreeing consensus taxonomy:
-            aggreeingConsTax = consTax1.consensusTaxonomy(consTax2)
-            tree.root_with_outgroup(tree.get_taxa(queryNodeID))
-            return sisterGroupRootNodeIDs[0], aggreeingConsTax
+            # Root nodes of the two possible sister groups:
+            sisterGroupRootNodeIDs = []
+
+            # Find a node that can root the sub-tree on the side of the query
+            # parrent that includs the root.
+            if parentNodeID == tree.root:
+                # The parrent of the query IS the root
+                for childID in tree.node(tree.root).succ:
+                    # Change the parrent node to be the child on the other
+                    # side of the root. This way we will find both sister
+                    # groups on the other side of the root below.
+                    if childID != querySubTreeNodeID:
+                        parentNodeID = childID
+            else:
+                # The query parrent is NOT the root
+                if tree.node(parentNodeID).prev == tree.root:
+                    # The root is the parrent of the query parrent.
+                    for childID in tree.node(tree.root).succ:
+                        # Get the sister groups on either side of the root.
+                        if childID != parentNodeID:
+                            # Record the sister group root node on the other side of the root.
+                            sisterGroupRootNodeIDs.append(childID)
+                else:
+                    # Record the parent of the query parent as a sister group root node:
+                    sisterGroupRootNodeIDs.append(tree.node(parentNodeID).prev)
+
+            # Find a node that can root the tree on the side of the query
+            # parrent that DOES NOT include the root.
+            for childID in tree.node(parentNodeID).succ:
+                if childID != querySubTreeNodeID:
+                    sisterGroupRootNodeIDs.append(childID)
+
+            assert len(sisterGroupRootNodeIDs) == 2
+
+            # First rooting
+            outGroupOK = tree.root_with_outgroup(tree.get_taxa(sisterGroupRootNodeIDs[0]))
+            assert outGroupOK != -1
+            querySubTreeNode = tree.node(querySubTreeNodeID)
+            parentNodeID = querySubTreeNode.prev
+            consTax1 = self.findConsensusTaxonomy(homologyResult, tree, parentNodeID, [queryNodeID])
+
+            # Second rooting
+            outGroupOK = tree.root_with_outgroup(tree.get_taxa(sisterGroupRootNodeIDs[1]))
+            assert outGroupOK != -1
+            querySubTreeNode = tree.node(querySubTreeNodeID)
+            parentNodeID = querySubTreeNode.prev
+            consTax2 = self.findConsensusTaxonomy(homologyResult, tree, parentNodeID, [queryNodeID])
+
+            # Pick tree with most specific consensus
+            if len(consTax1) > len(consTax2):
+                # Change tree back to first root setting
+                tree.root_with_outgroup(tree.get_taxa(sisterGroupRootNodeIDs[0]))
+                return sisterGroupRootNodeIDs[1], consTax1
+            elif len(consTax1) < len(consTax2):
+                return sisterGroupRootNodeIDs[0], consTax2
+            else:
+                # If the consensus taxonomies have the same lengths we can't
+                # say which one is the correct one. They can only be same
+                # length if some part of them are identical. We strip off the
+                # lower non-identical levels before returning it.
+
+                # Find the longest aggreeing consensus taxonomy:
+                aggreeingConsTax = consTax1.consensusTaxonomy(consTax2)
+                tree.root_with_outgroup(tree.get_taxa(queryNodeID))
+                return sisterGroupRootNodeIDs[0], aggreeingConsTax
 
 
     def writeNexusTmp(self, header, block):
@@ -899,6 +939,8 @@ class TreeStatistics:
             print "done."
             sys.stdout.flush()
 
+            print str(taxonomySummary)
+            sys.stdout.flush()
 
         return taxonomySummary
 

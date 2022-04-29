@@ -29,7 +29,7 @@ Running against a local database:
     sap --project myproject --database coi_barcode_db.fasta query.fasta
 """
 
-        self.parser = OptionParser(usage=usage, version="%prog 1.9.13")
+        self.parser = OptionParser(usage=usage, version="%prog 1.10.0")
 
         # General options:
         self.parser.add_option("--onlinehelp",
@@ -239,6 +239,10 @@ Running against a local database:
                           help="Options passed to ClustalW2. Specify once for every option. You can specify multiple options as a comma separated list. Defaults to -gapopen=50")
 
         # Tree statistics options:
+        self.parser.add_option("-I", "--ingroup",
+                          action="store_true",
+                          default=False,
+                          help="Only allow assignment to taxonomic levels where query falls inside the defining clade.")
         self.parser.add_option("--prunelevel",
                           dest="prunelevel",
                           type="float",

@@ -118,4 +118,16 @@ Then just run the image as any other executable:
     ./sap [ARGUMENTS]
 
 
+# Developing in container
 
+In VScode, run "Open workspace in container"
+
+Open terminal and run
+
+    python setup.py develop
+
+Then
+
+    activate sap
+
+Then you can run sap on terminal to test changes to code.
