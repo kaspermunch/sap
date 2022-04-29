@@ -131,3 +131,7 @@ Then
     activate sap
 
 Then you can run sap on terminal to test changes to code.
+
+To be able to push/pull/fetch using Git, you need to run this command on the local machine (in the terminal outside the container):
+
+    ssh-add ~/.ssh/id_rsa
