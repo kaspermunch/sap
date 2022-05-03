@@ -96,6 +96,7 @@ class ConstrainedNJ(object):
         node = tree.chain[nodeID]
         if node.succ != []:
             otus = tree.get_taxa(nodeID)
+            # partList.append(otus)
             otus = map(lambda x: self.translation[x], otus)
             partList.append(otus)
             for childID in node.succ:
@@ -173,6 +174,11 @@ class ConstrainedNJ(object):
         fp = open(fileName, 'w')
         fp.write(s)
         fp.close()    
+
+        # from Bio.Phylo.NexusIO import parse
+        # from Bio.Phylo import draw_ascii
+        # for tree in parse(fileName):
+        #     draw_ascii(tree)
 
 
     def consensusTree(self, iterations):
