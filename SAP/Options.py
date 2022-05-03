@@ -29,7 +29,7 @@ Running against a local database:
     sap --project myproject --database coi_barcode_db.fasta query.fasta
 """
 
-        self.parser = OptionParser(usage=usage, version="%prog 1.10.0")
+        self.parser = OptionParser(usage=usage, version="%prog 1.10.1")
 
         # General options:
         self.parser.add_option("--onlinehelp",
@@ -75,6 +75,14 @@ Running against a local database:
                           type="string",
                           default=False,
                           help="Print options for an existing project specified as argument.")
+        self.parser.add_option("--barcoder",
+                          action="store_true",
+                          default=False,
+                          help="Convenience option. Same as: -q -x 50 -i 2 -d barcoder_cache -D COI -I -S ConstrainedNJ -O assignments.csv")
+        self.parser.add_option("--barcoder-compile-db",
+                          type="string",
+                          default=False,
+                          help="Convenience option. Same as: --compile '(COI[Gene Name]) AND barcode[Keyword]' --database COI -e <your@email.com>. Give your email as arguemnt.")
 
         # Parallel options:
         self.parser.add_option("--hostfile",
@@ -206,6 +214,11 @@ Running against a local database:
                           #default=False,
                           default=None,
                           help="File name of entries to force include in each homology set.")
+        self.parser.add_option("-E", "--excludetaxon",
+                          type="string",
+                          action="append",
+                          default=[],
+                          help="Name of taxon to exclude from homologs.")
         self.parser.add_option("--nofillin",
                           action="store_true",
                           default=False,
@@ -286,6 +299,11 @@ Running against a local database:
                           action="store_true",
                           default=False,
                           help="Generate publication grade SVG of the taxonomy summaries instead of ASCI trees. The SVG pictures are easily converted to EPS, PS or PSF format using the free program Incscape.")
+        self.parser.add_option("-O", "--outputfile",
+                          type="string",
+                          default=None,
+                          help="Output summary csv file")
+
 
 
         self.parser.add_option("--blastcache",
@@ -372,7 +390,11 @@ Running against a local database:
                           action="store_true",
                           default=False)
 
+        # parse actual options
         self.options, self.args = self.parser.parse_args()
+
+        # store default values for comparision
+        self.defaults, _ = self.parser.parse_args([])
 
         if self.options.printoptions:
             pickleFileName = os.path.join(self.options.printoptions, os.path.split(self.options.printoptions)[1] + '.sap')
@@ -394,7 +416,7 @@ Running against a local database:
                     print "--%s %s" % (k, v)
             sys.exit()
 
-            
+
 
     def showMessageAndExit(self, msg, guiParent=None):
 
@@ -415,6 +437,44 @@ Running against a local database:
 
         if self.options.installdependencies:
             return (self.options, self.args)
+
+        if self.options.barcoder_compile_db:
+            if self.options.compile == self.defaults.compile:
+                self.options.compile = '(COI[Gene Name]) AND barcode[Keyword]'
+            if self.options.database == self.defaults.database:
+                self.options.database = 'COI'
+            self.options.email = self.options.barcoder_compile_db
+
+        if self.options.barcoder:
+
+            if self.options.individuals == self.defaults.individuals:
+                self.options.individuals = 2
+            if self.options.ingroup == self.defaults.ingroup:
+                self.options.ingroup = True
+            if self.options.ppcutoff == self.defaults.ppcutoff:
+                self.options.ppcutoff = [50]
+            if self.options.project == self.defaults.project:
+                self.options.project = 'barcoder_cache'
+            if self.options.database == self.defaults.database:
+                self.options.database = 'COI'
+            if self.options.quickcompile == self.defaults.quickcompile:
+                self.options.quickcompile = True
+            if self.options.assignment == self.defaults.assignment:
+                self.options.assignment = 'ConstrainedNJ'
+            if self.options.outputfile == self.defaults.outputfile:
+                self.options.outputfile = 'assignments.csv' 
+            # if self.options.alignmentlimit == self.defaults.alignmentlimit:
+            #     self.options.alignmentlimit = 70
+            # if self.options.phyla == self.defaults.phyla:
+            #     self.options.phyla = 2
+            # if self.options.classes == self.defaults.classes:
+            #     self.options.classes = 3
+            # if self.options.orders == self.defaults.orders:
+            #     self.options.orders = 5
+            # if self.options.families == self.defaults.families:
+            #     self.options.families = 6
+            # if self.options.genera == self.defaults.genera:
+            #     self.options.genera = 10                               
 
         if self.options.database == 'GenBank' and not self.options.email:
             self.showMessageAndExit("When acessing GenBank remotely you must specify your email address using the email option.", guiParent=guiParent)

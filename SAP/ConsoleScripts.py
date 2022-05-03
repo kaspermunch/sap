@@ -90,7 +90,7 @@ def sap():
                 if type(v) is ListType:
                     if len(v) > 0:
                         joinString = ' --%s ' % k
-                        v = [str(x) for x in v]
+                        v = [repr(x) for x in v]
                         optionStr += joinString + joinString.join(v)
                 elif v is True:
                     optionStr += ' --%s' % k

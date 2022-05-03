@@ -80,6 +80,10 @@ class ResultHTML:
         with open(os.path.join(self.options.project, 'taxon_probabilities.csv'), 'w') as f:
             for r in levelProbabilities:
                 print >>f, ",".join(map(str, r))
+        if self.options.outputfile:
+            with open(self.options.outputfile, 'w') as f:
+                for r in levelProbabilities:
+                    print >>f, ",".join(map(str, r))
 
         html = """
                     <h1>Assignments</h1>

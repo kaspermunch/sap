@@ -211,6 +211,7 @@ class HomolCompiler:
             # For saving homologs that are not accepted first of:
             savedForFillIn = {}
             savedForFillInRanks = []
+            savedForFillInSimScores = []
 
             excludeLevel = 'species'
             lowestTaxonomicLevelExhausted = None
@@ -359,6 +360,19 @@ class HomolCompiler:
                                 speciesTag = homologue.taxonomy.name('subspecies')
                             else:
                                 speciesTag = homologue.taxonomy.name('species')
+
+                        # exclude homologue if any taxon level is in list of taxons to be excluded:
+                        if any(excl in homologue.taxonomy for excl in self.options.excludetaxon):
+                            sys.stdout.write(' ')
+                            sys.stdout.flush()                            
+                            continue
+
+                        # if there is more than one individual, make sure the last one is always the worst blast match for the species
+                        if speciesTag and individualsCounter.has_key(speciesTag) and len(individualsCounter[speciesTag]) > 1:
+                            if speciesTag in savedForFillIn:
+                                # find last accepted and swap this with that
+                                homologue, to_save = savedForFillIn[speciesTag].pop(), homologue
+                                savedForFillIn.setdefault(speciesTag, []).append(to_save)
 
                         # Save the homologue for the later if we got enough for now:
                         if speciesTag and individualsCounter.has_key(speciesTag) and len(individualsCounter[speciesTag]) == self.options.individuals:
@@ -869,6 +883,11 @@ class HomolCompiler:
                 tmpName = "%s_%s" % (tmpHomologue.gi, tmpHomologue.taxonomy.organism.replace(" ","_").replace("-","_").replace("'",""))
                 taxonomyLevel = Taxonomy.TaxonomyLevel(tmpName, 'otu')
                 tmpHomologue.taxonomy.add(taxonomyLevel)
+
+                # remove species and subspecies levels from constraing (because of ILS):
+                tmpHomologue.taxonomy.remove('species')
+                tmpHomologue.taxonomy.remove('subspecies')
+
                 # Add the modified taxonomy to the summary:
                 constraintSummary.addTaxonomy(tmpHomologue.taxonomy)
             # Write a nexus formatted tree of the constraint summary:
