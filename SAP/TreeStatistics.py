@@ -531,9 +531,11 @@ class TreeStatistics:
                     child1, child2 = tree.node(other_root_child).succ
                     if not tree.is_terminal(child1):
                         for outgroup_node in tree.node(child1).succ:
+                            tree.get_taxa(outgroup_node)
                             outgroups_and_claderoots.append((outgroup_node, child1))
                     if not tree.is_terminal(child2):
                         for outgroup_node in tree.node(child2).succ:
+                            tree.get_taxa(outgroup_node)
                             outgroups_and_claderoots.append((outgroup_node, child2))
 
             elif tree.node(parentNodeID).prev == tree.root:
@@ -543,11 +545,21 @@ class TreeStatistics:
                             other_root_child = childID
                         if not tree.is_terminal(other_root_child):
                             for outgroup_node in tree.node(other_root_child).succ:
+                                tree.get_taxa(outgroup_node)
                                 outgroups_and_claderoots.append((outgroup_node, other_root_child))
+
+            elif tree.node(tree.node(parentNodeID).prev).prev == tree.root:
+                claderoot_node = tree.node(parentNodeID).prev
+                for childID in tree.node(tree.root).succ:
+                    if childID != querySubTreeNodeID:
+                        outgroup_node = childID
+                outgroups_and_claderoots.append((outgroup_node, claderoot_node))
+
 
             else:
                 claderoot_node = tree.node(parentNodeID).prev
                 outgroup_node = tree.node(claderoot_node).prev
+                # print outgroup_node, tree.get_taxa(claderoot_node)
                 outgroups_and_claderoots.append((outgroup_node, claderoot_node))
 
                 if not tree.is_terminal(parentNodeID):
@@ -558,13 +570,14 @@ class TreeStatistics:
                         for childID in tree.node(claderoot_node).succ:
                             if childID != querySubTreeNodeID:
                                 outgroup_node = childID                     
+                                tree.get_taxa(outgroup_node)
                         outgroups_and_claderoots.append((outgroup_node, claderoot_node))
 
             def get_constax(outgroup_node, clade_node):
                 outGroupOK = tree.root_with_outgroup(tree.get_taxa(outgroup_node))
                 assert outGroupOK != -1
-                querySubTreeNode = tree.node(querySubTreeNodeID) 
-                parentNodeID = querySubTreeNode.prev
+                # querySubTreeNode = tree.node(querySubTreeNodeID) 
+                # parentNodeID = querySubTreeNode.prev
                 consTax = self.findConsensusTaxonomy(homologyResult, tree, clade_node, [queryNodeID])
                 return outgroup_node, consTax
 
@@ -573,17 +586,19 @@ class TreeStatistics:
             assert outgroups_and_constax
 
             if len(outgroups_and_constax) == 1:
-                return outgroups_and_constax[0]
+                outgr, consTax = outgroups_and_constax[0]
+                return outgr, consTax
             else:
                 (outgr1, consTax1), (outgr2, consTax2) = outgroups_and_constax[:2]
                 if len(consTax1) > len(consTax2):
                     tree.root_with_outgroup(tree.get_taxa(outgr1))
                     return outgr1, consTax1
                 elif len(consTax1) < len(consTax2):
+                    tree.root_with_outgroup(tree.get_taxa(outgr2))
                     return outgr2, consTax2
                 else:
                     aggreeingConsTax = consTax1.consensusTaxonomy(consTax2)
-                    tree.root_with_outgroup(tree.get_taxa(queryNodeID))
+                    tree.root_with_outgroup(tree.get_taxa(queryNodeID)) # TODO: is queryNodeID ok here...
                     return outgr1, aggreeingConsTax
 
 
