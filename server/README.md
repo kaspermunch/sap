@@ -107,7 +107,7 @@ Run bash in image interactively:
 
 Run docker image (with Docker):
 
-    docker run --rm -v $PWD:/code/sap kaspermunch/sap:latest [ARGUMENTS]
+    docker run --rm -v "$PWD:/code/sap" kaspermunch/sap:latest [ARGUMENTS]
 
 On a machine without access to Docker, the image can be pulled using Singularity (you only need to do this once):
 
