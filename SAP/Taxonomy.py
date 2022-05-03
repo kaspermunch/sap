@@ -133,6 +133,9 @@ class Taxonomy:
         else:
             raise InputError(index, "Index not valid type")
 
+    def __contains__(self, other):
+        return other in [taxon.name for taxon in self.list]
+
     def __delitem__(self, index):
         del self.list[index]
 
@@ -144,6 +147,20 @@ class Taxonomy:
 
     def __len__(self):
         return len(self.list)
+
+    def remove(self, level):
+        """
+        Removes the taxonomic level and returns it
+        or None if this level is not represented in the taxonomy.
+        """
+        if not levelRanks.has_key(level):
+            return None
+        else:
+            for i, taxLevel in enumerate(self.list):
+                if taxLevel.level == level:
+                    del self.list[i]
+                    return taxLevel
+            return None
 
     def name(self, level):
         """
