@@ -2,6 +2,7 @@ import os
 import pickle
 import re
 import sys, tempfile, httplib
+import time
 
 from Bio import Entrez
 from SAP.Exceptions import AnalysisTerminated
@@ -117,11 +118,20 @@ def retrieve_taxonomies(taxid2gi):
     pg = ProgressBar(maxValue=len(taxid2gi))
     pg(0)
     gi2taxonomy = dict()
-    batch_size = 500
+    batch_size = 100000
     i = 1
     sep_regex = re.compile('[:;,]')
     for taxids in chunks(taxid2gi.keys(), batch_size):
-        fetch_handle = Entrez.efetch(db="taxonomy", id=taxids, rettype="xml", retmax=batch_size)
+
+        for _ in range(10):
+            try:
+                fetch_handle = Entrez.efetch(db="taxonomy", id=taxids, rettype="xml", retmax=batch_size)
+            except EutilsError:
+                "fetch failed"
+                time.sleep(5)
+            else:
+                break
+
         records = Entrez.parse(fetch_handle, validate=False)
 
         for entry, exception in safe_generator(records):

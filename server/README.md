@@ -74,7 +74,8 @@ Run the miniconda docker container and run bash
 
 In the docker container: Create and export a sap environment in the miniconda container
 
-    conda create --name sap -c conda-forge -c bioconda -c biobuilds -c anaconda python=2.7 blast clustalw flask celery redis redis-py gunicorn flask-mail gcc_linux-64 biopython=1.75 vine=1.3
+    # conda create --name sap -c conda-forge -c bioconda -c biobuilds -c anaconda python=2.7 blast clustalw flask celery redis redis-py gunicorn flask-mail gcc_linux-64 biopython=1.75 vine=1.3
+    conda create --name sap -c conda-forge -c bioconda -c biobuilds -c anaconda python=2.7 blast clustalw biopython=1.75
     conda activate sap
     conda env export > environment.yml
 
@@ -86,20 +87,30 @@ Close continuumio/miniconda3 container.
 
 Delete old so files built on OSX (becuase the docker container links to these files and thinks they are up to date.)
 
+    conda activate py27
     python2.7 setup.py clean
-
-Build Docker image (replace VERSION for the version e.g. 1-9-9):
-
-    docker build -t kaspermunch/sap:latest -t kaspermunch/sap:version-VERSION  .
 
 Login to DockerHub:
 
     docker login
 
+## For only current chip:
+
+Build Docker image (replace VERSION for the version e.g. 1-9-9):
+
+    docker build -f Dockerfile -t kaspermunch/sap:latest -t kaspermunch/sap:version-VERSION  .
+
 Push docker image (replace VERSION for the version e.g. 1-9-9):
 
     docker push kaspermunch/sap:version-VERSION
     docker push kaspermunch/sap:latest
+
+## For both chips sets:
+
+    docker buildx create --use
+    docker buildx build  -f Dockerfile --platform linux/amd64,linux/arm64 --push -t kaspermunch/sap:latest -t kaspermunch/sap:version-VERSION  .
+
+# Running it
 
 Run bash in image interactively:
 
