@@ -248,6 +248,10 @@ def compileDatabase(query, email, output_file_name):
         # if answer != 'yes':
             # sys.exit()
 
+        if not count:
+            print >>sys.stderr, "Entrez query did not match any GenBank entries"
+            return
+
         print >>sys.stderr, "Downloading %d entries" % (count)
         temp = tempfile.TemporaryFile(mode='w+t')
         taxid2gi, not_downloaded = retrieve_sequence_records(query_key, webenv, count, temp)

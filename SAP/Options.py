@@ -22,14 +22,14 @@ Example usages:
 Default: Running against Genbank
     sap --project myproject query.fasta
 
-Compiling a local database specified by a query for Genbank nucleotide db:
-    sap --compile '(COI[Gene Name]) AND barcode[Keyword]' --database coi_barcode_db.fasta
+Compiling a local database specified by a query for Genbank nucleotide db (E.g. bird COI with barcode voucher):
+    sap --compile '"COI"[Gene Name] AND "barcode"[Keyword] AND "Aves"[Organism]' --database coi_barcode_db.fasta
 
 Running against a local database:
     sap --project myproject --database coi_barcode_db.fasta query.fasta
 """
 
-        self.parser = OptionParser(usage=usage, version="%prog 1.10.1")
+        self.parser = OptionParser(usage=usage, version="%prog 1.10.2")
 
         # General options:
         self.parser.add_option("--onlinehelp",
