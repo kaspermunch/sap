@@ -1,4 +1,4 @@
-flask==0.10.1
+flask==2.3.2
 celery==3.1.17
 redis==2.10.3
 gunicorn==19.3.0
